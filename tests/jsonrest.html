@@ -8,23 +8,23 @@
 		<style type="text/css">
 			@import "../themes/claro/Calendar.css";
 			@import "calendar.css";
-			@import "../../../dojo/resources/dojo.css";
-			@import "../../../dijit/themes/dijit.css";
-			@import "../../../dijit/themes/claro/claro.css";
+			@import "../../dojo/resources/dojo.css";
+			@import "../../dijit/themes/dijit.css";
+			@import "../../dijit/themes/claro/claro.css";
 		</style>			
 	</head>
 	
 	<body class="claro">
 		<script type="text/javascript" 
 						data-dojo-config="async: true, parseOnLoad: true"
-		 				src="../../../dojo/dojo.js"></script>
+		 				src="../../dojo/dojo.js"></script>
 		
 			<script type="text/javascript">
 
 			require(["dojo/_base/declare", "dojo/ready", "dojo/_base/fx", "dojo/on", "dojo/Deferred", "dojo/when",
 			         "dojo/date/locale", "dojo/parser",	"dojo/store/JsonRest", 
 			         "dojo/store/Memory", "dojo/store/Observable", "dojo/store/Cache", 
-			         "dojox/calendar/Calendar", "dojo/date/stamp",
+			         "dcalendar/Calendar", "dojo/date/stamp",
 			         "dijit/layout/BorderContainer", "dijit/layout/ContentPane" ],
 
 				function(declare, ready, fx, on, Deferred, when, locale, parser, JsonRest, Memory, Observable, Cache, Calendar, stamp){

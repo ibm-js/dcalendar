@@ -7,24 +7,24 @@
 				<title>ColumnView Sample: Tablet</title>
 				<style type="text/css">
 						@import "../themes/iphone/ColumnView.css";
-						@import "../../../dojo/resources/dojo.css";
-						@import "../../../dijit/themes/dijit.css";
-						@import "../../../dijit/themes/claro/claro.css";
+						@import "../../dojo/resources/dojo.css";
+						@import "../../dijit/themes/dijit.css";
+						@import "../../dijit/themes/claro/claro.css";
 						@import "columntablet.css";
 				</style>				
 		</head>
 		<body>
 				<script type="text/javascript" 
 						data-dojo-config="async: true, parseOnLoad: true"
-		 				src="../../../dojo/dojo.js"></script>
+		 				src="../../dojo/dojo.js"></script>
 		 				
 				<script type="text/javascript">
 					
 						require(["dojo/ready", "dojo/_base/declare",
 				"dojo/on", "dojo/date/locale", "dojox/mobile", 
 				"dojo/date", "dojo/dom", "dojo/dom-construct", "dojo/_base/window", 
-				"dojox/mobile/CheckBox", "dojox/calendar/ColumnView", "dojox/calendar/ColumnViewSecondarySheet", "dojox/calendar/Touch", "dojox/calendar/MobileVerticalRenderer",
-				"dojox/calendar/HorizontalRenderer", "dojox/calendar/ExpandRenderer",
+				"dojox/mobile/CheckBox", "dcalendar/ColumnView", "dcalendar/ColumnViewSecondarySheet", "dcalendar/Touch", "dcalendar/MobileVerticalRenderer",
+				"dcalendar/HorizontalRenderer", "dcalendar/ExpandRenderer",
 				"dojo/store/Memory", "dojo/store/Observable", "dojox/gesture/swipe"],
 				 
 				function(ready, declare, on, locale, mobile, date, dom, domConstruct, win,

@@ -9,23 +9,23 @@
 			@import "../themes/nihilo/Calendar.css";
 			@import "../themes/nihilo/Calendar_rtl.css";
 			@import "calendar.css";
-			@import "../../../dojo/resources/dojo.css";
-			@import "../../../dijit/themes/dijit.css";
-			@import "../../../dijit/themes/nihilo/nihilo.css";
+			@import "../../dojo/resources/dojo.css";
+			@import "../../dijit/themes/dijit.css";
+			@import "../../dijit/themes/nihilo/nihilo.css";
 		</style>			
 	</head>
 	
 	<body class="nihilo" dir="rtl">
 		<script type="text/javascript" 
 						data-dojo-config="locale: 'en', async: true, parseOnLoad: true, has: { 'dojo-bidi': true }"
-		 				src="../../../dojo/dojo.js"></script>
+		 				src="../../dojo/dojo.js"></script>
 		
 			<script type="text/javascript">
 
 			require(["dojo/ready", "dojo/_base/declare", "dojo/_base/lang", "dojo/_base/array", "dojo/_base/fx", "dojo/on", "dojo/date/locale", "dojo/parser",
 					"dojo/dom", "dojo/dom-construct", 
 					"dojo/store/Memory", "dojo/store/Observable",					
-					"dojox/calendar/Calendar", "dijit/Calendar",  
+					"dcalendar/Calendar", "dijit/Calendar",
 					"dojox/date/hebrew", "dojox/date/hebrew/Date", "dojox/date/hebrew/locale",
 					"dijit/TitlePane", "dijit/layout/BorderContainer", 
 					"dijit/layout/ContentPane", "dijit/form/CheckBox", "dijit/form/TextBox", "dijit/form/DateTextBox", 

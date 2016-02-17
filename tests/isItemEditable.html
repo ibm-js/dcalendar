@@ -8,9 +8,9 @@
 		<style type="text/css">
 			@import "../themes/claro/Calendar.css";
 			@import "calendar.css";
-			@import "../../../dojo/resources/dojo.css";
-			@import "../../../dijit/themes/dijit.css";
-			@import "../../../dijit/themes/claro/claro.css";
+			@import "../../dojo/resources/dojo.css";
+			@import "../../dijit/themes/dijit.css";
+			@import "../../dijit/themes/claro/claro.css";
 			html{
 				font-family: Lucida grande, Tahoma, Verdana, Arial, Sans-serif;
 			}
@@ -27,13 +27,13 @@
 	<body class="claro">
 		<script type="text/javascript" 
 						data-dojo-config="async: true, parseOnLoad: false"
-		 				src="../../../dojo/dojo.js"></script>
+		 				src="../../dojo/dojo.js"></script>
 		
 			<script type="text/javascript">
 
 			require(["dojo/_base/declare", "dojo/ready", "dojo/_base/lang", "dojo/_base/sniff", "dojo/_base/array", "dojo/_base/fx", "dojo/dom-class", "dojo/on", 
 			         "dojo/date/locale", "dojo/parser",	"dojo/dom", "dojo/dom-construct",	"dojo/store/Memory", 
-			         "dojo/store/Observable",	"dojox/calendar/Calendar", "dijit/Menu", "dijit/CheckedMenuItem"],
+			         "dojo/store/Observable",	"dcalendar/Calendar", "dijit/Menu", "dijit/CheckedMenuItem"],
 
 				function(declare, ready, lang, has, arr, fx, domClass, on, locale, parser, dom, domConstruct,
 					Memory, Observable, Calendar){
