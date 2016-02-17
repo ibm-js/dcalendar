@@ -9,9 +9,9 @@
 			@import "../themes/claro/Calendar.css";
 			@import "calendar.css";
 			@import "asyncStore.css";
-			@import "../../../dojo/resources/dojo.css";
-			@import "../../../dijit/themes/dijit.css";
-			@import "../../../dijit/themes/claro/claro.css";
+			@import "../../dojo/resources/dojo.css";
+			@import "../../dijit/themes/dijit.css";
+			@import "../../dijit/themes/claro/claro.css";
 		</style>	
 				
 	</head>
@@ -19,13 +19,13 @@
 	<body class="claro">
 		<script type="text/javascript" 
 						data-dojo-config="async: true, parseOnLoad: true"
-		 				src="../../../dojo/dojo.js"></script>		 				
+		 				src="../../dojo/dojo.js"></script>
 		
 			<script type="text/javascript">
 
 			require(["dojo/ready", "dojo/_base/declare", "dojo/_base/lang", "dojo/_base/sniff", "dojo/_base/array", "dojo/_base/fx", "dojo/on", 
 			         "dojo/date/locale", "dojo/parser",	"dojo/Deferred", "dojo/dom", "dojo/dom-construct",	"dojo/store/Memory", 
-			         "dojo/store/Observable",	"dojox/calendar/Calendar", "dijit/Calendar", "dijit/Menu", "dijit/MenuItem"	],
+			         "dojo/store/Observable",	"dcalendar/Calendar", "dijit/Calendar", "dijit/Menu", "dijit/MenuItem"	],
 
 				function(ready, declare, lang, has, arr, fx, on, locale, parser, Deferred, dom, domConstruct,
 					Memory, Observable, Calendar){

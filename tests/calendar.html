@@ -8,9 +8,9 @@
 		<style type="text/css">
 			@import "../themes/claro/Calendar.css";
 			@import "calendar.css";
-			@import "../../../dojo/resources/dojo.css";
-			@import "../../../dijit/themes/dijit.css";
-			@import "../../../dijit/themes/claro/claro.css";
+			@import "../../dojo/resources/dojo.css";
+			@import "../../dijit/themes/dijit.css";
+			@import "../../dijit/themes/claro/claro.css";
 			
 			.dijitCalendar .Highlighted {
 				background-color: #fff0b4;
@@ -24,14 +24,14 @@
 	
 	<body class="claro">
 		<script type="text/javascript" 
-				data-dojo-config="async: true, parseOnLoad: true, paths : {'demo' : '../dojox/calendar/tests'}"
- 				src="../../../dojo/dojo.js"></script>
+				data-dojo-config="async: true, parseOnLoad: true, paths : {'demo' : '../dcalendar/tests'}"
+ 				src="../../dojo/dojo.js"></script>
 		
 			<script type="text/javascript">
 
 			require(["dojo/ready", "dojo/_base/lang", "dojo/_base/sniff", "dojo/_base/array", "dojo/_base/fx", "dojo/dom-class", "dojo/on", 
 			         "dojo/date/locale", "dojo/parser",	"dojo/dom", "dojo/dom-construct",	"dojo/store/Memory", 
-			         "dojo/store/Observable",	"dojox/calendar/Calendar", "demo/DatePicker",  "dijit/TitlePane", 
+			         "dojo/store/Observable",	"dcalendar/Calendar", "demo/DatePicker",  "dijit/TitlePane",
 			         "dijit/layout/BorderContainer", "dijit/layout/ContentPane", "dijit/form/CheckBox", 
 			         "dijit/form/TextBox", "dijit/form/DateTextBox", "dijit/form/TimeTextBox", 
 			         "dijit/form/Button", "dijit/form/ComboBox", "dijit/Menu", "dijit/MenuItem"	],

@@ -2,11 +2,11 @@ define([
 	"dojo/_base/declare",
 	"dojo/_base/lang",
 	"dojo/on", 
-	"dojox/calendar/Calendar", 
-	"dojox/calendar/MonthColumnView", 
-	"dojox/calendar/VerticalRenderer", 
-	"dojox/calendar/Mouse",
-	"dojox/calendar/Keyboard",
+	"dcalendar/Calendar",
+	"dcalendar/MonthColumnView",
+	"dcalendar/VerticalRenderer",
+	"dcalendar/Mouse",
+	"dcalendar/Keyboard",
 	"dojo/text!./CalendarMonthColumn.html"],
 
 function(
