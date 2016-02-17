@@ -1,18 +1,43 @@
 -------------------------------------------------------------------------------
-dojox.calendar
+Dcalendar
 -------------------------------------------------------------------------------
-Project state: stable
+Project state: experimental
 -------------------------------------------------------------------------------
 Credits:
 	Damien Garbarino
 	Christophe Jolif
+	Bill Keese
 -------------------------------------------------------------------------------
 Project description:
-Candidate calendar widget for Dojo 1.8+
+Calendar widget for ibm-js framework
+-------------------------------------------------------------------------------
+Porting notes:
+
+This was ported from dojox/calendar aka dcalendar.
+
+Changes include:
+
+* Using delite rather than dijit framework.
+* Tests load via requireJS
+* Removed support for old IE (still supports IE11 and Edge).
+
+Things *not* changed during port:
+
+* Still using dojodoc format rather than JSDoc.
+* Still using DOH for test framework.
+* Still depends on dojo core; doesn't use jQuery.
+* Doesn't full conform to ibm-js JSHint standards.
+* Still uses old class names, ex: dojoxCalendarEvent rather than d-calendar-event.
+* Documentation not updated.
+
 -------------------------------------------------------------------------------
 Dependencies:
-Dojo Core, Dijit, dojox.html, dojox.widget
+Dojo Core, dojox.html, dojox.widget, delite, decor, dcl
 -------------------------------------------------------------------------------
 Documentation:
-    https://dojotoolkit.org/reference-guide/dojox/calendar.html
+
+Old documentation is in https://dojotoolkit.org/reference-guide/dojox/calendar.html
+
+TODO: convert to markdown (https://github.com/kitsonk/rst2mdown)
+and update examples to use custom elements, new CSS class names, etc.
 -------------------------------------------------------------------------------
