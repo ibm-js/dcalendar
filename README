@@ -1,18 +1,47 @@
 -------------------------------------------------------------------------------
-dojox.calendar
+Dcalendar
 -------------------------------------------------------------------------------
-Project state: stable
+Project state: experimental
 -------------------------------------------------------------------------------
 Credits:
 	Damien Garbarino
 	Christophe Jolif
+	Bill Keese
 -------------------------------------------------------------------------------
 Project description:
-Candidate calendar widget for Dojo 1.8+
+Calendar widget for ibm-js framework
+-------------------------------------------------------------------------------
+Porting notes:
+
+This was ported from dojox/calendar aka dcalendar.
+
+Changes include:
+
+* Use delite rather than dijit framework.
+* Load tests via requireJS.
+* Remove support for old IE (still supports IE11 and Edge).
+* Custom elements (<d-calendar> etc.) emit events rather than providing callbacks.
+  A callback like onGridDoubleClick() was converted to an event grid-double-click.
+
+Things *not* changed during port:
+
+* Still uses dojodoc format rather than JSDoc.
+* Still uses DOH for test framework.
+* Still has some dependencies on dojo core; doesn't use jQuery.
+* Doesn't fully conform to ibm-js JSHint standards.
+* Still uses old CSS class names, ex: dojoxCalendarEvent rather than d-calendar-event.
+* Documentation not updated.
+
 -------------------------------------------------------------------------------
 Dependencies:
-Dojo Core, Dijit, dojox.html, dojox.widget
+
+ibm-js dependencies: decor, requirejs-dplugins, delite, deliteful
+other dependencies: Dojo Core, dcl, requirejs-domready
 -------------------------------------------------------------------------------
 Documentation:
-    https://dojotoolkit.org/reference-guide/dojox/calendar.html
+
+Old documentation is in https://dojotoolkit.org/reference-guide/dojox/calendar.html
+
+TODO: convert to markdown (https://github.com/kitsonk/rst2mdown)
+and update examples to use custom elements, new CSS class names, etc.
 -------------------------------------------------------------------------------

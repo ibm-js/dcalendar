@@ -1,0 +1,19 @@
+{
+	"name": "dcalendar",
+	"description": "Calendar application/library built on ibm-js/delite framework.  Ported from dojox/calendar.",
+	"version": "0.8.0",
+	"devDependencies": {
+		"grunt": "~0.4.2",
+		"grunt-contrib-jshint": "~0.6.3",
+		"grunt-contrib-less": "~0.8.3",
+		"grunt-contrib-uglify": "~0.2.2"
+	},
+	"licenses": [
+		{
+			"type": "BSD",
+			"url": "https://github.com/ibm-js/dcalendar/blob/master/LICENSE"
+		}
+	],
+	"bugs": "https://github.com/ibm-js/calendar/issues",
+	"private": true
+}
