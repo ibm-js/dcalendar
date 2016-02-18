@@ -51,7 +51,7 @@
 
 .glass-view(){
 	z-index: 2;
-	background:#00FF00; 
+	background:#00FF00;
 	.opacity(0);
 	.select-none
 }
@@ -66,11 +66,11 @@
   -moz-border-radius: @radius;
 }
 
-.dojoxCalendarMatrixView {	
+.dojoxCalendarMatrixView {
 	cursor: default;
 	.select-none;
 }
-	
+
 .dojoxCalendarMatrixView .dojoxCalendarGrid {
 	position: absolute;
 	left: @row-header-width;
@@ -82,11 +82,11 @@
 .dojoxCalendarMatrixView .dojoxCalendarGridTable {
 	position: relative;
 	width: 100%;
-	height: 100%;	
+	height: 100%;
 	margin: 0;
 	padding: 0;
 	border-collapse: collapse;
-	table-layout: fixed;	
+	table-layout: fixed;
 }
 
 .dojoxCalendarMatrixView .dojoxCalendarGridTable tr{
@@ -95,7 +95,7 @@
 
 .dojoxCalendarMatrixView .dojoxCalendarGridTable td {
 	text-align: right;
-	vertical-align: top;	
+	vertical-align: top;
 	border-bottom: @inner-border;
 	border-right: @inner-border;
 	.border-box;
@@ -103,11 +103,11 @@
 
 .dojoxCalendarMatrixView .dojoxCalendarGridTable td span{
 	padding-right: 2px;
-	padding-top: 2px;		
+	padding-top: 2px;
 	color: @header-label-color;
 }
 
-.dojoxCalendarMatrixView .dojoxCalendarGridTable td span.FirstVisibleDayOfMonth{	
+.dojoxCalendarMatrixView .dojoxCalendarGridTable td span.FirstVisibleDayOfMonth{
 }
 
 .dojoxCalendarMatrixView .dojoxCalendarGridTable tr.last-child td	{
@@ -118,14 +118,14 @@
 	border-right: @outer-border;
 }
 
-/* 
- * The dojoxCalendarColToday & dojoxCalendarColWeekend classes is added by the 
+/*
+ * The dojoxCalendarColToday & dojoxCalendarColWeekend classes is added by the
  * MatrixView.styleGridCell method that can be subclassed to add/remove css classes
  */
-.dojoxCalendarMatrixView .dojoxCalendarGridTable td.dojoxCalendarToday	{		
+.dojoxCalendarMatrixView .dojoxCalendarGridTable td.dojoxCalendarToday	{
 	color: @today-label-color;
 }
-			
+
 
 .dojoxCalendarMatrixView .dojoxCalendarGridTable .dojoxCalendarDayDisabled {
 	background-color: @disabled-day-color;
@@ -137,7 +137,7 @@
 	left: 0px;
 	top: 0px;
 	width: @row-header-width;
-	height: @column-header-height;			
+	height: @column-header-height;
 	text-align: center;
 	vertical-align: middle;
 	border-bottom: @transparent-border;
@@ -145,7 +145,7 @@
 }
 
 .dojoxCalendarMatrixView .dojoxCalendarYearColumnHeader table{
-	position: relative;		
+	position: relative;
 	width:100%;
 	height: 100%;
 	table-layout: fixed;
@@ -154,7 +154,7 @@
 
 .dojoxCalendarMatrixView .dojoxCalendarYearColumnHeader table td{
 	text-align: center;
-	vertical-align: middle;		
+	vertical-align: middle;
 	border-left: @transparent-border;
 	border-top: @transparent-border;
 	border-right: @transparent-border;
@@ -168,15 +168,15 @@
 	top: 0px;
 	height: @column-header-height - 1px;
 	cursor: default;
-	border-bottom: @outer-border;	
+	border-bottom: @outer-border;
 }
 
 .dojoxCalendarMatrixView .dojoxCalendarColumnHeaderTable {
-	position: relative;		
+	position: relative;
 	width:100%;
 	height: 100%;
 	table-layout: fixed;
-	border-collapse: collapse;		
+	border-collapse: collapse;
 }
 
 .dojoxCalendarMatrixView .dojoxCalendarColumnHeaderTable td {
@@ -191,7 +191,7 @@
 
 .dojoxCalendarMatrixView .dojoxCalendarRowHeader {
 	position: absolute;
-	left: 0px;				
+	left: 0px;
 	top: @column-header-height;
 	width: @row-header-width;
 	bottom: 0;
@@ -200,7 +200,7 @@
 }
 
 .dojoxCalendarMatrixView .dojoxCalendarRowHeaderTable {
-	position: relative;			
+	position: relative;
 	width: 100%;
 	height: 100%;
 	border-collapse: collapse;
@@ -213,12 +213,12 @@
 	.border-box;
 }
 
-/* 
+/*
  * The MatrixView.styleRowHeaderCell method that can be subclassed to add/remove css classes per hour.
  */
 .dojoxCalendarMatrixView .dojoxCalendarRowHeaderTable td {
 	text-align: center;
-	vertical-align: middle;	
+	vertical-align: middle;
 	border-left: @transparent-border;
 	border-right: @outer-border;
 	border-bottom: @transparent-border;
@@ -248,11 +248,11 @@
 .dojoxCalendarMatrixView .dojoxCalendarContainerTable {
 	position: relative;
 	width: 100%;
-	height: 100%;	
+	height: 100%;
 	margin: 0;
 	padding: 0;
 	border-collapse: collapse;
-	table-layout: fixed;	
+	table-layout: fixed;
 }
 
 .dojoxCalendarMatrixView .dojoxCalendarContainerTable tr{
@@ -275,10 +275,10 @@
 .dojoxCalendarMatrixView .dojoxCalendarEventContainer {
 	position: absolute;
 	overflow: hidden;
- 	.select-none;
+	.select-none;
 }
 
-.dojoxCalendarMatrixView .dojoxCalendarEvent {	
+.dojoxCalendarMatrixView .dojoxCalendarEvent {
 	position: absolute;
 	text-align: left;
 	color: #000000;
@@ -295,20 +295,20 @@
 }
 
 .dojoxCalendarMatrixView .dojoxCalendarEvent.dojoxCalendarHorizontal .bg {
-	border: @horizontal-border;	
+	border: @horizontal-border;
 	position: absolute;
 	left: 0;
 	right: 0;
 	top: 0;
-	bottom: 0;	
+	bottom: 0;
 	text-align: left;
-	color: #000000;	
+	color: #000000;
 	.rounded-corners(5px);
 	background-color: @horizontal-color;
 }
 
 .dojoxCalendarMatrixView .dojoxCalendarEvent.dojoxCalendarHorizontal.Hovered  .bg {
-	background-color: @horizontal-hover-color;	
+	background-color: @horizontal-hover-color;
 }
 
 .dojoxCalendarMatrixView .dojoxCalendarEvent.dojoxCalendarHorizontal.Selected .bg {
@@ -365,23 +365,23 @@
 	border: dashed 1px #000000;
 }
 
-.dojoxCalendarMatrixView .dojoxCalendarEvent .resizeHandle {	
+.dojoxCalendarMatrixView .dojoxCalendarEvent .resizeHandle {
 	position: absolute;
 	width:30px;
-	height:100%;	
+	height:100%;
 	background-color: #fff;
 	.opacity(0);
-	.rounded-corners(5px);	
+	.rounded-corners(5px);
 	color: #000;
 	text-align: center;
 }
 
-.dojoxCalendarMatrixView .dojoxCalendarEvent .moveHandle {	
+.dojoxCalendarMatrixView .dojoxCalendarEvent .moveHandle {
 	position: absolute;
 	left:0;
 	top:0;
 	bottom:0;
-	right:0;	
+	right:0;
 }
 
 .dojoxCalendarMatrixView .dojoxCalendarEvent .resizeStartHandle {
@@ -393,7 +393,7 @@
 	left:auto;
 }
 
-.dojoxCalendarMatrixView .dojoxCalendarEvent.Edited .resizeHandle {	
+.dojoxCalendarMatrixView .dojoxCalendarEvent.Edited .resizeHandle {
 	.opacity(30);
 }
 
@@ -414,7 +414,7 @@
 	height: 100%;
 	.rounded-corners(5px);
 	.transition-duration(0.2s);
-	.border-box;	
+	.border-box;
 	border: 1px solid transparent;
 }
 

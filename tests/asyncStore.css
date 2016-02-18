@@ -1,16 +1,16 @@
 
 .claro .dojoxCalendarColumnView .dojoxCalendarEvent.Unstored .bg {
   filter: alpha(opacity=70);
-  opacity: 0.4;  
+  opacity: 0.4;
 }
 
-.claro .dojoxCalendarColumnView .dojoxCalendarEvent.Storing .bg {  
+.claro .dojoxCalendarColumnView .dojoxCalendarEvent.Storing .bg {
   filter: alpha(opacity=70);
   opacity: 0.7;
   animation:animKeyframes 1s infinite;
   -moz-animation:animKeyframes 1s infinite; /* Firefox */
-  -webkit-animation:animKeyframes 1s infinite; /* Safari and Chrome */	
-  -o-animation: animKeyframes 1s infinite; /* Opera */	
+  -webkit-animation:animKeyframes 1s infinite; /* Safari and Chrome */
+  -o-animation: animKeyframes 1s infinite; /* Opera */
 }
 
 @keyframes animKeyframes

@@ -1,34 +1,37 @@
-define(["dojo/_base/declare",
-		"dojo/_base/lang",
-		"./CalendarBase",
-		"./ColumnView",
-		"./ColumnViewSecondarySheet",
-		"./VerticalRenderer",
-		"./DecorationRenderer",
-		"./MatrixView",
-		"./HorizontalRenderer",
-		"./LabelRenderer",
-		"./ExpandRenderer",
-		"./Keyboard",
-		"./Mouse",
-		"dojo/text!./templates/Calendar.html",
-		"dijit/form/Button", "dijit/Toolbar", "dijit/ToolbarSeparator"],
-
-	function(
-		declare,
-		lang,
-		CalendarBase,
-		ColumnView,
-		ColumnViewSecondarySheet,
-		VerticalRenderer,
-		DecorationRenderer,
-		MatrixView,
-		HorizontalRenderer,
-		LabelRenderer,
-		ExpandRenderer,
-		Keyboard,
-		Mouse,
-		template){
+define([
+	"dojo/_base/declare",
+	"dojo/_base/lang",
+	"./CalendarBase",
+	"./ColumnView",
+	"./ColumnViewSecondarySheet",
+	"./VerticalRenderer",
+	"./DecorationRenderer",
+	"./MatrixView",
+	"./HorizontalRenderer",
+	"./LabelRenderer",
+	"./ExpandRenderer",
+	"./Keyboard",
+	"./Mouse",
+	"dojo/text!./templates/Calendar.html",
+	"dijit/form/Button",
+	"dijit/Toolbar",
+	"dijit/ToolbarSeparator"
+], function (
+	declare,
+	lang,
+	CalendarBase,
+	ColumnView,
+	ColumnViewSecondarySheet,
+	VerticalRenderer,
+	DecorationRenderer,
+	MatrixView,
+	HorizontalRenderer,
+	LabelRenderer,
+	ExpandRenderer,
+	Keyboard,
+	Mouse,
+	template
+) {
 
 	return declare("dojox.calendar.Calendar", CalendarBase, {
 
@@ -37,7 +40,7 @@ define(["dojo/_base/declare",
 		// summary:
 		//		This class defines a calendar widget that display events in time.
 
-		_createDefaultViews: function(){
+		_createDefaultViews: function () {
 			// summary:
 			//		Creates the default views:
 			//		- A dojox.calendar.ColumnView instance used to display one day to seven days time intervals,
@@ -72,7 +75,7 @@ define(["dojo/_base/declare",
 			return views;
 		},
 
-		installDefaultViewsActions: function(views){
+		installDefaultViewsActions: function (views) {
 			// summary:
 			//		Installs the default actions on newly created default views.
 			//		By default this action is registering:
@@ -81,6 +84,5 @@ define(["dojo/_base/declare",
 			this.matrixView.on("rowHeaderClick", lang.hitch(this, this.matrixViewRowHeaderClick));
 			this.columnView.on("columnHeaderClick", lang.hitch(this, this.columnViewColumnHeaderClick));
 		}
-
 	});
 });

@@ -29,7 +29,7 @@ If your desired contribution is more than a non-trivial fix, you should discuss 
 
 We require all contributions, to be covered under the Dojo Foundation's [Contributor License Agreement][cla].  This can
 be done electronically and essentially ensures that you are making it clear that your contributions are your
-contributions, you have the legal right to contribute and you are transferring the copyright of your works to the Dojo 
+contributions, you have the legal right to contribute and you are transferring the copyright of your works to the Dojo
 Foundation.
 
 If you are an unfamiliar contributor to the committer assessing your pull request, it is best to make it clear how
@@ -41,7 +41,7 @@ that you are listed under your companies authorised contributors).
 
 ## Coding Style and Linting
 
-All pull requests should adhere to the [coding guidelines]. 
+All pull requests should adhere to the [coding guidelines].
 
 ## Inline Documentation
 

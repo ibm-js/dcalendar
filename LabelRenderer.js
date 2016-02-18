@@ -1,7 +1,10 @@
-define(["dojo/_base/declare", "dijit/_WidgetBase", "dijit/_TemplatedMixin",
-	"./_RendererMixin", "dojo/text!./templates/LabelRenderer.html"],
-
-	function(declare, _WidgetBase, _TemplatedMixin, _RendererMixin, template){
+define([
+	"dojo/_base/declare",
+	"dijit/_WidgetBase",
+	"dijit/_TemplatedMixin",
+	"./_RendererMixin",
+	"dojo/text!./templates/LabelRenderer.html"
+], function (declare, _WidgetBase, _TemplatedMixin, _RendererMixin, template) {
 
 	return declare("dojox.calendar.LabelRenderer", [_WidgetBase, _TemplatedMixin, _RendererMixin], {
 
@@ -22,11 +25,11 @@ define(["dojo/_base/declare", "dijit/_WidgetBase", "dijit/_TemplatedMixin",
 			endTimeLabel: 30
 		},
 
-		_isElementVisible: function(elt, startHidden, endHidden, size){
-			switch(elt){
+		_isElementVisible: function (elt, startHidden, endHidden, size) {
+			switch (elt) {
 				case "startTimeLabel":
 					// hide hour part of all day events on subsequent days
-					if(this.item.allDay && this.item.range[0].getTime() !== this.item.startTime.getTime()){
+					if (this.item.allDay && this.item.range[0].getTime() !== this.item.startTime.getTime()) {
 						return false;
 					}
 					break;
@@ -36,7 +39,7 @@ define(["dojo/_base/declare", "dijit/_WidgetBase", "dijit/_TemplatedMixin",
 
 		_displayValue: "inline",
 
-		postCreate: function() {
+		postCreate: function () {
 			this.inherited(arguments);
 			this._applyAttributes();
 		}
