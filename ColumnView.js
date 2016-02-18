@@ -1,24 +1,23 @@
 define([
-"dojo/_base/array",
-"dojo/_base/declare",
-"dojo/_base/event",
-"dojo/_base/lang",
-"dojo/_base/sniff",
-"dojo/_base/fx",
-"dojo/dom",
-"dojo/dom-class",
-"dojo/dom-style",
-"dojo/dom-geometry",
-"dojo/dom-construct",
-"dojo/on",
-"dojo/date",
-"dojo/date/locale",
-"dojo/query",
-"./SimpleColumnView",
-"dojo/text!./templates/ColumnView.html",
-"./ColumnViewSecondarySheet"],
-
-function(
+	"dojo/_base/array",
+	"dojo/_base/declare",
+	"dojo/_base/event",
+	"dojo/_base/lang",
+	"dojo/_base/sniff",
+	"dojo/_base/fx",
+	"dojo/dom",
+	"dojo/dom-class",
+	"dojo/dom-style",
+	"dojo/dom-geometry",
+	"dojo/dom-construct",
+	"dojo/on",
+	"dojo/date",
+	"dojo/date/locale",
+	"dojo/query",
+	"./SimpleColumnView",
+	"dojo/text!./templates/ColumnView.html",
+	"./ColumnViewSecondarySheet"
+], function (
 	arr,
 	declare,
 	event,
@@ -36,7 +35,8 @@ function(
 	query,
 	SimpleColumnView,
 	template,
-	ColumnViewSecondarySheet){
+	ColumnViewSecondarySheet
+) {
 
 	return declare("dojox.calendar.ColumnView", SimpleColumnView, {
 
@@ -66,55 +66,55 @@ function(
 
 		_showSecondarySheet: true,
 
-		buildRendering: function(){
+		buildRendering: function () {
 			this.inherited(arguments);
-			if(this.secondarySheetNode){
+			if (this.secondarySheetNode) {
 				var args = lang.mixin({owner: this}, this.secondarySheetProps);
 				this.secondarySheet = new this.secondarySheetClass(args, this.secondarySheetNode);
 				this.secondarySheetNode = this.secondarySheet.domNode;
 			}
 		},
 
-		destroy: function(preserveDom){
-			if(this.secondarySheet){
+		destroy: function (preserveDom) {
+			if (this.secondarySheet) {
 				this.secondarySheet.destroy(preserveDom);
 			}
 			this.inherited(arguments);
 		},
 
-		_setVisibility: function(value){
+		_setVisibility: function (value) {
 			// tags:
 			//		private
 
 			this.inherited(arguments);
-			if(this.secondarySheet){
+			if (this.secondarySheet) {
 				this.secondarySheet._setVisibility(value);
 			}
 		},
 
 
-		resize: function(changedSize){
+		resize: function (changedSize) {
 			// tags:
 			//		private
 
 			this.inherited(arguments);
-			if(this.secondarySheet){
+			if (this.secondarySheet) {
 				// secondary sheet is sized by CSS
 				this.secondarySheet.resize();
 			}
 		},
 
-		invalidateLayout: function(){
+		invalidateLayout: function () {
 			// tags:
 			//		private
 
 			this._layoutRenderers(this.renderData);
-			if(this.secondarySheet){
+			if (this.secondarySheet) {
 				this.secondarySheet._layoutRenderers(this.secondarySheet.renderData);
 			}
 		},
 
-		onRowHeaderClick: function(e){
+		onRowHeaderClick: function (e) {
 			// summary:
 			//		Event dispatched when the row header cell of the secondary sheet is clicked.
 			// tags:
@@ -122,188 +122,190 @@ function(
 
 		},
 
-		_setSubColumnsAttr: function(value){
+		_setSubColumnsAttr: function (value) {
 			var old = this.get("subColumns");
-			if(old != value){
+			if (old != value) {
 				this._secondaryHeightInvalidated = true;
 			}
 			this._set("subColumns", value);
 		},
 
-		refreshRendering: function(recursive){
+		refreshRendering: function (recursive) {
 			this.inherited(arguments);
-			if(this._secondaryHeightInvalidated){
+			if (this._secondaryHeightInvalidated) {
 				this._secondaryHeightInvalidated = false;
 				var h = domGeometry.getMarginBox(this.secondarySheetNode).h;
 				this.resizeSecondarySheet(h);
 			}
-			if(recursive && this.secondarySheet){
+			if (recursive && this.secondarySheet) {
 				this.secondarySheet.refreshRendering(true);
 			}
 		},
 
-		resizeSecondarySheet: function(height){
+		resizeSecondarySheet: function (height) {
 			// summary:
-			//		Resizes the secondary sheet header and relayout the other sub components according this new height.
+			//		Resizes the secondary sheet header and relayout the other sub components
+			//		according this new height.
 			//		Warning: this method is only available for the default template and default CSS.
 			// height: Integer
 			//		The new height in pixels.
-			if(this.secondarySheetNode){
+			if (this.secondarySheetNode) {
 				var headerH = domGeometry.getMarginBox(this.header).h;
-				domStyle.set(this.secondarySheetNode, "height", height+"px");
+				domStyle.set(this.secondarySheetNode, "height", height + "px");
 				this.secondarySheet._resizeHandler(null, true);
 				var top = (height + headerH + this.headerPadding);
-				if(this.subHeader && this.subColumns){
-					domStyle.set(this.subHeader, "top", top+"px");
+				if (this.subHeader && this.subColumns) {
+					domStyle.set(this.subHeader, "top", top + "px");
 					top += domGeometry.getMarginBox(this.subHeader).h;
 				}
-				domStyle.set(this.scrollContainer, "top", top+"px");
-				if(this.vScrollBar){
-					domStyle.set(this.vScrollBar, "top", top+"px");
+				domStyle.set(this.scrollContainer, "top", top + "px");
+				if (this.vScrollBar) {
+					domStyle.set(this.vScrollBar, "top", top + "px");
 				}
 			}
 		},
 
-		updateRenderers: function(obj, stateOnly){
+		updateRenderers: function (obj, stateOnly) {
 			this.inherited(arguments);
-			if(this.secondarySheet){
+			if (this.secondarySheet) {
 				this.secondarySheet.updateRenderers(obj, stateOnly);
 			}
 		},
 
-		_setItemsAttr: function(value){
+		_setItemsAttr: function (value) {
 			this.inherited(arguments);
-			if(this.secondarySheet){
+			if (this.secondarySheet) {
 				this.secondarySheet.set("items", value);
 			}
 		},
 
-		_setDecorationItemsAttr: function(value){
+		_setDecorationItemsAttr: function (value) {
 			this.inherited(arguments);
-			if(this.secondarySheet){
+			if (this.secondarySheet) {
 				this.secondarySheet.set("decorationItems", value);
 			}
 		},
 
-		_setStartDateAttr: function(value){
+		_setStartDateAttr: function (value) {
 			this.inherited(arguments);
-			if(this.secondarySheet){
+			if (this.secondarySheet) {
 				this.secondarySheet.set("startDate", value);
 			}
 		},
 
-		_setColumnCountAttr: function(value){
+		_setColumnCountAttr: function (value) {
 			this.inherited(arguments);
-			if(this.secondarySheet){
+			if (this.secondarySheet) {
 				this.secondarySheet.set("columnCount", value);
 			}
 		},
 
-		_setHorizontalRendererAttr: function(value){
-			if(this.secondarySheet){
+		_setHorizontalRendererAttr: function (value) {
+			if (this.secondarySheet) {
 				this.secondarySheet.set("horizontalRenderer", value);
 			}
 		},
 
-		_getHorizontalRendererAttr: function(){
-			if(this.secondarySheet){
+		_getHorizontalRendererAttr: function () {
+			if (this.secondarySheet) {
 				return this.secondarySheet.get("horizontalRenderer");
 			}
-            return null;
+			return null;
 		},
 
-		_setHorizontalDecorationRendererAttr: function(value){
+		_setHorizontalDecorationRendererAttr: function (value) {
 			this.inherited(arguments);
-			if(this.secondarySheet){
+			if (this.secondarySheet) {
 				this.secondarySheet.set("horizontalDecorationRenderer", value);
 			}
 		},
 
-		_getHorizontalRendererAttr: function(){
-			if(this.secondarySheet){
+		_getHorizontalRendererAttr: function () {
+			if (this.secondarySheet) {
 				return this.secondarySheet.get("horizontalDecorationRenderer");
 			}
-            return null;
+			return null;
 		},
 
-		_setExpandRendererAttr: function(value){
-			if(this.secondarySheet){
+		_setExpandRendererAttr: function (value) {
+			if (this.secondarySheet) {
 				this.secondarySheet.set("expandRenderer", value);
 			}
 		},
 
-		_getExpandRendererAttr: function(){
-			if(this.secondarySheet){
+		_getExpandRendererAttr: function () {
+			if (this.secondarySheet) {
 				return this.secondarySheet.get("expandRenderer");
 			}
-            return null;
+			return null;
 		},
 
-		_setTextDirAttr: function(value){
+		_setTextDirAttr: function (value) {
 			this.secondarySheet.set("textDir", value);
 			this._set("textDir", value);
 		},
 
-		_defaultItemToRendererKindFunc: function(item){
+		_defaultItemToRendererKindFunc: function (item) {
 			return item.allDay ? null : "vertical"; // String
 		},
 
-		getSecondarySheet: function(){
+		getSecondarySheet: function () {
 			// summary:
 			//		Returns the secondary sheet
 			// returns: dojox/calendar/MatrixView
 			return this.secondarySheet;
 		},
 
-		_onGridTouchStart: function(e){
+		_onGridTouchStart: function (e) {
 			this.inherited(arguments);
 			this._doEndItemEditing(this.secondarySheet, "touch");
 		},
 
-		_onGridMouseDown: function(e){
+		_onGridMouseDown: function (e) {
 			this.inherited(arguments);
 			this._doEndItemEditing(this.secondarySheet, "mouse");
 		},
 
-		_configureScrollBar: function(renderData){
+		_configureScrollBar: function (renderData) {
 
 			this.inherited(arguments);
-			if(this.secondarySheetNode){
+			if (this.secondarySheetNode) {
 				var atRight = this.isLeftToRight() ? true : this.scrollBarRTLPosition == "right";
 				domStyle.set(this.secondarySheetNode, atRight ? "right" : "left", renderData.scrollbarWidth + "px");
 				domStyle.set(this.secondarySheetNode, atRight ? "left" : "right", "0");
 
-				arr.forEach(this.secondarySheet._hScrollNodes, function(elt){
-					domClass[renderData.hScrollBarEnabled ? "add" : "remove"](elt.parentNode, "dojoxCalendarHorizontalScroll");
+				arr.forEach(this.secondarySheet._hScrollNodes, function (elt) {
+					domClass[renderData.hScrollBarEnabled ? "add" : "remove"](elt.parentNode,
+						"dojoxCalendarHorizontalScroll");
 				}, this);
 			}
 		},
 
-		_configureHScrollDomNodes: function(styleWidth){
+		_configureHScrollDomNodes: function (styleWidth) {
 			this.inherited(arguments);
-			if(this.secondarySheet && this.secondarySheet._configureHScrollDomNodes){
+			if (this.secondarySheet && this.secondarySheet._configureHScrollDomNodes) {
 				this.secondarySheet._configureHScrollDomNodes(styleWidth);
 			}
 		},
 
-		_setHScrollPosition: function(pos){
+		_setHScrollPosition: function (pos) {
 			this.inherited(arguments);
-			if(this.secondarySheet){
+			if (this.secondarySheet) {
 				this.secondarySheet._setHScrollPosition(pos);
 			}
 		},
 
-		_refreshItemsRendering: function(){
+		_refreshItemsRendering: function () {
 			this.inherited(arguments);
-			if(this.secondarySheet){
+			if (this.secondarySheet) {
 				var rd = this.secondarySheet.renderData;
 				this.secondarySheet._computeVisibleItems(rd);
 				this.secondarySheet._layoutRenderers(rd);
 			}
 		},
 
-		_layoutRenderers: function(renderData){
-			if(!this.secondarySheet._domReady){
+		_layoutRenderers: function (renderData) {
+			if (!this.secondarySheet._domReady) {
 				this.secondarySheet._domReady = true;
 				this.secondarySheet._layoutRenderers(this.secondarySheet.renderData);
 			}
@@ -311,8 +313,8 @@ function(
 			this.inherited(arguments);
 		},
 
-		_layoutDecorationRenderers: function(renderData){
-			if(!this.secondarySheet._decDomReady){
+		_layoutDecorationRenderers: function (renderData) {
+			if (!this.secondarySheet._decDomReady) {
 				this.secondarySheet._decDomReady = true;
 				this.secondarySheet._layoutDecorationRenderers(this.secondarySheet.renderData);
 			}
@@ -320,12 +322,11 @@ function(
 			this.inherited(arguments);
 		},
 
-		invalidateRendering: function(){
-			if(this.secondarySheet){
+		invalidateRendering: function () {
+			if (this.secondarySheet) {
 				this.secondarySheet.invalidateRendering();
 			}
 			this.inherited(arguments);
 		}
-
 	});
 });

@@ -1,6 +1,12 @@
-define(["dojo/_base/declare", "dojo/_base/array", "dojo/_base/html", "dojo/_base/lang", "dojo/dom-class",
-	"dojo/Stateful", "dojo/when"],
-	function(declare, arr, html, lang, domClass, Stateful, when){
+define([
+	"dojo/_base/declare",
+	"dojo/_base/array",
+	"dojo/_base/html",
+	"dojo/_base/lang",
+	"dojo/dom-class",
+	"dojo/Stateful",
+	"dojo/when"
+], function (declare, arr, html, lang, domClass, Stateful, when) {
 
 	return declare("dojox.calendar.StoreMixin", Stateful, {
 
@@ -45,7 +51,8 @@ define(["dojo/_base/declare", "dojo/_base/array", "dojo/_base/html", "dojo/_base
 		subColumnAttr: "calendar",
 
 		// cssClassFunc: Function
-		//		Optional function that returns a css class name to apply to item renderers that are displaying the specified item in parameter.
+		//		Optional function that returns a css class name to apply to item renderers
+		//		that are displaying the specified item in parameter.
 		cssClassFunc: null,
 
 		// decodeDate: Function?
@@ -63,7 +70,7 @@ define(["dojo/_base/declare", "dojo/_base/array", "dojo/_base/html", "dojo/_base
 		//		protected
 		displayedItemsInvalidated: false,
 
-		itemToRenderItem: function(item, store){
+		itemToRenderItem: function (item, store) {
 			// summary:
 			//		Creates the render item based on the dojo.store item. It must be of the form:
 			//	|	{
@@ -80,21 +87,23 @@ define(["dojo/_base/declare", "dojo/_base/array", "dojo/_base/html", "dojo/_base
 			// store: dojo.store.api.Store
 			//		The store.
 			// returns: Object
-			if(this.owner){
+			if (this.owner) {
 				return this.owner.itemToRenderItem(item, store);
 			}
 			return {
 				id: store.getIdentity(item),
 				summary: item[this.summaryAttr],
-				startTime: (this.decodeDate && this.decodeDate(item[this.startTimeAttr])) || this.newDate(item[this.startTimeAttr], this.dateClassObj),
-				endTime: (this.decodeDate && this.decodeDate(item[this.endTimeAttr])) || this.newDate(item[this.endTimeAttr], this.dateClassObj),
+				startTime: (this.decodeDate && this.decodeDate(item[this.startTimeAttr])) ||
+					this.newDate(item[this.startTimeAttr], this.dateClassObj),
+				endTime: (this.decodeDate && this.decodeDate(item[this.endTimeAttr])) ||
+					this.newDate(item[this.endTimeAttr], this.dateClassObj),
 				allDay: item[this.allDayAttr] != null ? item[this.allDayAttr] : false,
 				subColumn: item[this.subColumnAttr],
 				cssClass: this.cssClassFunc ? this.cssClassFunc(item) : null
 			};
 		},
 
-		renderItemToItem: function(/*Object*/ renderItem, /*dojo.store.api.Store*/ store){
+		renderItemToItem: function (/*Object*/ renderItem, /*dojo.store.api.Store*/ store) {
 			// summary:
 			//		Create a store item based on the render item. It must be of the form:
 			//	|	{
@@ -103,30 +112,35 @@ define(["dojo/_base/declare", "dojo/_base/array", "dojo/_base/html", "dojo/_base
 			//	|		endTime: Date,
 			//	|		summary: String
 			//	|	}
-			//		By default it is building an object using the summaryAttr, startTimeAttr and endTimeAttr properties
-			//		and encodeDate property if not null. If the encodeDate property is null a Date object will be set in the start and end time.
-			//		When using a JsonRest store, for example, it is recommended to transfer dates using the ISO format (see dojo.date.stamp).
-			//		In that case, provide a custom function to the encodeDate property that is using the date ISO encoding provided by Dojo.
+			//		By default it is building an object using the summaryAttr, startTimeAttr and endTimeAttr
+			//		properties and encodeDate property if not null.
+			//		If the encodeDate property is null a Date object will be set in the start and end time.
+			//		When using a JsonRest store, for example, it is recommended to transfer dates using the ISO format
+			//		(see dojo.date.stamp).
+			//		In that case, provide a custom function to the encodeDate property that is using the date ISO
+			//		encoding provided by Dojo.
 			// renderItem: Object
 			//		The render item.
 			// store: dojo.store.api.Store
 			//		The store.
-			// returns:Object
-			if(this.owner){
+			// returns: Object
+			if (this.owner) {
 				return this.owner.renderItemToItem(renderItem, store);
 			}
 			var item = {};
 			item[store.idProperty] = renderItem.id;
 			item[this.summaryAttr] = renderItem.summary;
-			item[this.startTimeAttr] = (this.encodeDate && this.encodeDate(renderItem.startTime)) || renderItem.startTime;
-			item[this.endTimeAttr] = (this.encodeDate && this.encodeDate(renderItem.endTime)) || renderItem.endTime;
-			if(renderItem.subColumn){
+			item[this.startTimeAttr] = (this.encodeDate && this.encodeDate(renderItem.startTime)) ||
+				renderItem.startTime;
+			item[this.endTimeAttr] = (this.encodeDate && this.encodeDate(renderItem.endTime)) ||
+				renderItem.endTime;
+			if (renderItem.subColumn) {
 				item[this.subColumnAttr] = renderItem.subColumn;
 			}
 			return this.getItemStoreState(renderItem) === "unstored" ? item : lang.mixin(renderItem._item, item);
 		},
 
-		_computeVisibleItems: function(renderData){
+		_computeVisibleItems: function (renderData) {
 			// summary:
 			//		Computes the data items that are in the displayed interval.
 			// renderData: Object
@@ -134,34 +148,34 @@ define(["dojo/_base/declare", "dojo/_base/array", "dojo/_base/html", "dojo/_base
 			// tags:
 			//		protected
 
-			if(this.owner){
+			if (this.owner) {
 				return this.owner._computeVisibleItems(renderData);
 			}
 			renderData.items = this.storeManager._computeVisibleItems(renderData);
 		},
 
-		_initItems: function(items){
+		_initItems: function (items) {
 			// tags:
 			//		private
 			this.set("items", items);
 			return items;
 		},
 
-		_refreshItemsRendering: function(renderData){
+		_refreshItemsRendering: function (renderData) {
 		},
 
-		_setStoreAttr: function(value){
+		_setStoreAttr: function (value) {
 			this.store = value;
 			return this.storeManager.set("store", value);
 		},
 
-		_getItemStoreStateObj: function(/*Object*/item){
+		_getItemStoreStateObj: function (/*Object*/item) {
 			// tags
 			//		private
 			return this.storeManager._getItemStoreStateObj(item);
 		},
 
-		getItemStoreState: function(item){
+		getItemStoreState: function (item) {
 			//	summary:
 			//		Returns the creation state of an item.
 			//		This state is changing during the interactive creation of an item.
@@ -177,16 +191,14 @@ define(["dojo/_base/declare", "dojo/_base/array", "dojo/_base/html", "dojo/_base
 			return this.storeManager.getItemStoreState(item);
 		},
 
-		_cleanItemStoreState: function(id){
+		_cleanItemStoreState: function (id) {
 			this.storeManager._cleanItemStoreState(id);
 		},
 
-		_setItemStoreState: function(/*Object*/item, /*String*/state){
+		_setItemStoreState: function (/*Object*/item, /*String*/state) {
 			// tags
 			//		private
 			this.storeManager._setItemStoreState(item, state);
 		}
-
 	});
-
 });

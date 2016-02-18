@@ -1,6 +1,13 @@
-define(["dojo/_base/declare", "dojo/_base/array", "dojo/_base/html", "dojo/_base/lang", "dojo/dom-class",
-	"dojo/Stateful", "dojo/Evented", "dojo/when"],
-	function(declare, arr, html, lang, domClass, Stateful, Evented, when){
+define([
+	"dojo/_base/declare",
+	"dojo/_base/array",
+	"dojo/_base/html",
+	"dojo/_base/lang",
+	"dojo/dom-class",
+	"dojo/Stateful",
+	"dojo/Evented",
+	"dojo/when"
+], function (declare, arr, html, lang, domClass, Stateful, Evented, when) {
 
 	return declare("dojox.calendar.StoreManager", [Stateful, Evented], {
 
@@ -17,26 +24,26 @@ define(["dojo/_base/declare", "dojo/_base/array", "dojo/_base/html", "dojo/_base
 
 		_ownerItemsProperty: null,
 
-		_getParentStoreManager: function(){
-			if(this.owner && this.owner.owner){
+		_getParentStoreManager: function () {
+			if (this.owner && this.owner.owner) {
 				return this.owner.owner.get("storeManager");
 			}
 			return null;
 		},
 
-		_initItems: function(items){
+		_initItems: function (items) {
 			// tags:
 			//		private
 			this.set("items", items);
 			return items;
 		},
 
-		_itemsSetter: function(value){
+		_itemsSetter: function (value) {
 			this.items = value;
 			this.emit("dataLoaded", value);
 		},
 
-		_computeVisibleItems: function(renderData){
+		_computeVisibleItems: function (renderData) {
 			// summary:
 			//		Computes the data items that are in the displayed interval.
 			// renderData: Object
@@ -48,15 +55,15 @@ define(["dojo/_base/declare", "dojo/_base/array", "dojo/_base/html", "dojo/_base
 			var endTime = renderData.endTime;
 			var res = null;
 			var items = this.owner[this._ownerItemsProperty];
-			if(items){
-				res = arr.filter(items, function(item){
+			if (items) {
+				res = arr.filter(items, function (item) {
 					return this.owner.isOverlapping(renderData, item.startTime, item.endTime, startTime, endTime);
 				}, this);
 			}
 			return res;
 		},
 
-		_updateItems: function(object, previousIndex, newIndex){
+		_updateItems: function (object, previousIndex, newIndex) {
 			// as soon as we add a item or remove one layout might change,
 			// let's make that the default
 			// TODO: what about items in non visible area...
@@ -72,15 +79,15 @@ define(["dojo/_base/declare", "dojo/_base/array", "dojo/_base/html", "dojo/_base
 			this.items = this.owner[this._ownerItemsProperty];
 
 			// set the item as in the store
-			if(previousIndex!==-1){
-				if(newIndex!==previousIndex){
+			if (previousIndex !== -1) {
+				if (newIndex !== previousIndex) {
 					// this is a remove or a move
 					this.items.splice(previousIndex, 1);
-					if(this.owner.setItemSelected && this.owner.isItemSelected(newItem)){
+					if (this.owner.setItemSelected && this.owner.isItemSelected(newItem)) {
 						this.owner.setItemSelected(newItem, false);
 						this.owner.dispatchChange(newItem, this.get("selectedItem"), null, null);
 					}
-				}else{
+				} else {
 					// this is a put, previous and new index identical
 					// check what changed
 					oldItem = this.items[previousIndex];
@@ -91,33 +98,33 @@ define(["dojo/_base/declare", "dojo/_base/array", "dojo/_base/html", "dojo/_base
 					// into old object
 					lang.mixin(oldItem, newItem);
 				}
-			}else if(newIndex!==-1){
+			} else if (newIndex !== -1) {
 				// this is a add
 				var l, i;
 				var tempId = object.temporaryId;
-				if(tempId){
+				if (tempId) {
 					// this item had a temporary id that was changed
 					l = this.items ? this.items.length : 0;
-					for(i=l-1; i>=0; i--){
-						if(this.items[i].id === tempId){
+					for (i = l - 1; i >= 0; i--) {
+						if (this.items[i].id === tempId) {
 							this.items[i] = newItem;
 							break;
 						}
 					}
 					// clean to temp id state and reset the item with new id to its current state.
-					var stateObj =  this._getItemStoreStateObj({id: tempId});
+					var stateObj = this._getItemStoreStateObj({id: tempId});
 					this._cleanItemStoreState(tempId);
 					this._setItemStoreState(newItem, stateObj ? stateObj.state : null);
 				}
 
 				var s = this._getItemStoreStateObj(newItem);
-				if(s && s.state === "storing"){
+				if (s && s.state === "storing") {
 					// if the item is at the correct index (creation)
 					// we must fix it. Should not occur but ensure integrity.
-					if(this.items && this.items[newIndex] && this.items[newIndex].id !== newItem.id){
+					if (this.items && this.items[newIndex] && this.items[newIndex].id !== newItem.id) {
 						l = this.items.length;
-						for(i=l-1; i>=0; i--){
-							if(this.items[i].id === newItem.id){
+						for (i = l - 1; i >= 0; i--) {
+							if (this.items[i].id === newItem.id) {
 								this.items.splice(i, 1);
 								break;
 							}
@@ -126,7 +133,7 @@ define(["dojo/_base/declare", "dojo/_base/array", "dojo/_base/html", "dojo/_base
 					}
 					// update with the latest values from the store.
 					lang.mixin(s.renderItem, newItem);
-				}else{
+				} else {
 					this.items.splice(newIndex, 0, newItem);
 				}
 				this.set("items", this.items);
@@ -134,33 +141,33 @@ define(["dojo/_base/declare", "dojo/_base/array", "dojo/_base/html", "dojo/_base
 
 			this._setItemStoreState(newItem, "stored");
 
-			if(!this.owner._isEditing){
-				if(layoutCanChange){
+			if (!this.owner._isEditing) {
+				if (layoutCanChange) {
 					this.emit("layoutInvalidated");
-				}else{
+				} else {
 					// just update the item
 					this.emit("renderersInvalidated", oldItem);
 				}
 			}
 		},
 
-		_storeSetter: function(value){
+		_storeSetter: function (value) {
 			var r;
 			var owner = this.owner;
 
-			if(this._observeHandler){
+			if (this._observeHandler) {
 				this._observeHandler.remove();
 				this._observeHandler = null;
 			}
-			if(value){
+			if (value) {
 				var results = value.query(owner.query, owner.queryOptions);
-				if(results.observe){
+				if (results.observe) {
 					// user asked us to observe the store
 					this._observeHandler = results.observe(lang.hitch(this, this._updateItems), true);
 				}
-				results = results.map(lang.hitch(this, function(item){
+				results = results.map(lang.hitch(this, function (item) {
 					var renderItem = owner.itemToRenderItem(item, value);
-					if(renderItem.id == null){
+					if (renderItem.id == null) {
 						console.err("The data item " + item.summary + " must have an unique identifier from the store.getIdentity(). The calendar will NOT work properly.");
 					}
 					// keep a reference on the store data item.
@@ -168,7 +175,7 @@ define(["dojo/_base/declare", "dojo/_base/array", "dojo/_base/html", "dojo/_base
 					return renderItem;
 				}));
 				r = when(results, lang.hitch(this, this._initItems));
-			}else{
+			} else {
 				// we remove the store
 				r = this._initItems([]);
 			}
@@ -176,24 +183,24 @@ define(["dojo/_base/declare", "dojo/_base/array", "dojo/_base/html", "dojo/_base
 			return r;
 		},
 
-		_getItemStoreStateObj: function(/*Object*/item){
+		_getItemStoreStateObj: function (/*Object*/item) {
 			// tags
 			//		private
 
 			var parentManager = this._getParentStoreManager();
-			if(parentManager){
+			if (parentManager) {
 				return parentManager._getItemStoreStateObj(item);
 			}
 
 			var store = this.get("store");
-			if(store != null && this._itemStoreState != null){
+			if (store != null && this._itemStoreState != null) {
 				var id = item.id === undefined ? store.getIdentity(item) : item.id;
 				return this._itemStoreState[id];
 			}
 			return null;
 		},
 
-		getItemStoreState: function(item){
+		getItemStoreState: function (item) {
 			//	summary:
 			//		Returns the creation state of an item.
 			//		This state is changing during the interactive creation of an item.
@@ -207,11 +214,11 @@ define(["dojo/_base/declare", "dojo/_base/array", "dojo/_base/html", "dojo/_base
 			// returns: String
 
 			var parentManager = this._getParentStoreManager();
-			if(parentManager){
+			if (parentManager) {
 				return parentManager.getItemStoreState(item);
 			}
 
-			if(this._itemStoreState == null){
+			if (this._itemStoreState == null) {
 				return "stored";
 			}
 
@@ -219,42 +226,42 @@ define(["dojo/_base/declare", "dojo/_base/array", "dojo/_base/html", "dojo/_base
 			var id = item.id === undefined ? store.getIdentity(item) : item.id;
 			var s = this._itemStoreState[id];
 
-			if(store != null && s !== undefined){
+			if (store != null && s !== undefined) {
 				return s.state;
 			}
 			return "stored";
 		},
 
-		_cleanItemStoreState: function(id){
+		_cleanItemStoreState: function (id) {
 
 			var parentManager = this._getParentStoreManager();
-			if(parentManager){
+			if (parentManager) {
 				return parentManager._cleanItemStoreState(id);
 			}
 
-			if(!this._itemStoreState){
+			if (!this._itemStoreState) {
 				return;
 			}
 
 			var s = this._itemStoreState[id];
-			if(s){
+			if (s) {
 				delete this._itemStoreState[id];
 				return true;
 			}
 			return false;
 		},
 
-		_setItemStoreState: function(/*Object*/item, /*String*/state){
+		_setItemStoreState: function (/*Object*/item, /*String*/state) {
 			// tags
 			//		private
 
 			var parentManager = this._getParentStoreManager();
-			if(parentManager){
+			if (parentManager) {
 				parentManager._setItemStoreState(item, state);
 				return;
 			}
 
-			if(this._itemStoreState === undefined){
+			if (this._itemStoreState === undefined) {
 				this._itemStoreState = {};
 			}
 
@@ -262,14 +269,14 @@ define(["dojo/_base/declare", "dojo/_base/array", "dojo/_base/html", "dojo/_base
 			var id = item.id === undefined ? store.getIdentity(item) : item.id;
 			var s = this._itemStoreState[id];
 
-			if(state === "stored" || state == null){
-				if(s !== undefined){
+			if (state === "stored" || state == null) {
+				if (s !== undefined) {
 					delete this._itemStoreState[id];
 				}
 				return;
 			}
 
-			if(store){
+			if (store) {
 				this._itemStoreState[id] = {
 					id: id,
 					item: item,
@@ -278,7 +285,5 @@ define(["dojo/_base/declare", "dojo/_base/array", "dojo/_base/html", "dojo/_base
 				};
 			}
 		}
-
 	});
-
 });

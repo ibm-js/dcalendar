@@ -1,9 +1,19 @@
-define(["dojo/_base/declare", "dojo/_base/lang", "./CalendarBase", "./ColumnView", "./ColumnViewSecondarySheet",
-				"./MobileVerticalRenderer", "./MatrixView",	"./MobileHorizontalRenderer", "./LabelRenderer",
-				"./ExpandRenderer", "./Touch", "dojo/text!./templates/MobileCalendar.html", "dojox/mobile/Button"],
-
-	function(declare, lang, CalendarBase, ColumnView, ColumnViewSecondarySheet, VerticalRenderer,
-					 MatrixView, HorizontalRenderer, LabelRenderer, ExpandRenderer, Touch, template){
+define([
+	"dojo/_base/declare",
+	"dojo/_base/lang",
+	"./CalendarBase",
+	"./ColumnView",
+	"./ColumnViewSecondarySheet",
+	"./MobileVerticalRenderer",
+	"./MatrixView",
+	"./MobileHorizontalRenderer",
+	"./LabelRenderer",
+	"./ExpandRenderer",
+	"./Touch",
+	"dojo/text!./templates/MobileCalendar.html",
+	"dojox/mobile/Button"
+], function (declare, lang, CalendarBase, ColumnView, ColumnViewSecondarySheet, VerticalRenderer,
+		  MatrixView, HorizontalRenderer, LabelRenderer, ExpandRenderer, Touch, template) {
 
 	return declare("dojox.calendar.MobileCalendar", CalendarBase, {
 
@@ -12,7 +22,7 @@ define(["dojo/_base/declare", "dojo/_base/lang", "./CalendarBase", "./ColumnView
 
 		templateString: template,
 
-		_createDefaultViews: function(){
+		_createDefaultViews: function () {
 			// summary:
 			//		Creates the default views:
 			//		- A dojox.calendar.ColumnView instance used to display one day to seven days time intervals,
@@ -44,7 +54,7 @@ define(["dojo/_base/declare", "dojo/_base/lang", "./CalendarBase", "./ColumnView
 			return views;
 		},
 
-		installDefaultViewsActions: function(views){
+		installDefaultViewsActions: function (views) {
 			// summary:
 			//		Installs the default actions on newly created default views.
 			//		By default this action is registering:
