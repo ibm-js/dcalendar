@@ -224,7 +224,7 @@ define([
 					return f(d, rd, this.owner, this.item);
 				}
 			}
-			return rd.dateLocaleModule.format(d, {selector: 'time'});
+			return rd.dateLocaleModule.format(d, {selector: "time"});
 		},
 
 		getDisplayValue: function (part) {

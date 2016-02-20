@@ -18,7 +18,7 @@ define([
 	metrics
 ) {
 
-	return declare('dojox.calendar._ScrollBarBase', _WidgetBase, {
+	return declare("dojox.calendar._ScrollBarBase", _WidgetBase, {
 
 		// value: Number
 		//		The value of the scroll bar in pixel offset.

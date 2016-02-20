@@ -505,7 +505,6 @@ define([
 
 					if (this._dateChanged) {
 						this._lastValidDate = this.get("date");
-						;
 						this._dateChanged = false;
 					} else if (this._startDateChanged || this._endDateChanged) {
 						this._lastValidStartDate = this.get("startDate");

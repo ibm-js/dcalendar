@@ -339,7 +339,7 @@ define([
 
 			if (this.rowHeaderDatePattern) {
 				return this.renderData.dateLocaleModule.format(d, {
-					selector: 'date',
+					selector: "date",
 					datePattern: this.rowHeaderDatePattern
 				});
 			} else {
@@ -358,8 +358,8 @@ define([
 			// tags:
 			//		protected
 
-			return this.renderData.dateLocaleModule.getNames('days', this.columnHeaderLabelLength ?
-				this.columnHeaderLabelLength : 'wide', 'standAlone')[d.getDay()];
+			return this.renderData.dateLocaleModule.getNames("days", this.columnHeaderLabelLength ?
+				this.columnHeaderLabelLength : "wide", "standAlone")[d.getDay()];
 		},
 
 		// cellHeaderShortPattern: String
@@ -406,7 +406,7 @@ define([
 				}
 			}
 			return this.renderData.dateLocaleModule.format(d, {
-				selector: 'date',
+				selector: "date",
 				datePattern: format
 			});
 		},
@@ -913,7 +913,7 @@ define([
 
 			var rows = [];
 
-			var count = renderData.rowCount - (oldRenderData ? oldRenderData.rowCount : 0)
+			var count = renderData.rowCount - (oldRenderData ? oldRenderData.rowCount : 0);
 
 			if (has("ie") == 8) {
 				// workaround Internet Explorer 8 bug.
