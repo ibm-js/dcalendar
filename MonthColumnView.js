@@ -352,7 +352,7 @@ define([
 
 			if (this.gridCellPattern) {
 				return this.renderData.dateLocaleModule.format(d, {
-					selector: 'date',
+					selector: "date",
 					datePattern: this.gridCellDatePattern
 				});
 			} else {
@@ -362,7 +362,7 @@ define([
 				var days = this.renderData.dateLocaleModule.getNames("days", "abbr", "standAlone");
 
 				return days[d.getDay()].substring(0, 1) + " " + this.renderData.dateLocaleModule.format(d, {
-						selector: 'date',
+						selector: "date",
 						datePattern: format
 					});
 			}
