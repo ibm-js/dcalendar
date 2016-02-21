@@ -1,7 +1,5 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
-	"http://www.w3.org/TR/html4/strict.dtd">
+<!DOCTYPE html>
 <html>
-
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 		<title>Calendar Sample: Desktop</title>
@@ -22,46 +20,44 @@
 	</head>
 
 	<body class="claro">
-		<script type="text/javascript"
-				data-dojo-config="async: true, parseOnLoad: true, paths : {'demo' : '../dcalendar/tests'}"
-				src="../../dojo/dojo.js"></script>
+		<script type="text/javascript" src="../../requirejs/require.js"></script>
 
-			<script type="text/javascript">
+		<script type="text/javascript">
+			require({
+				baseUrl: "../..",
+				paths: {
+					demo: "dcalendar/tests"
+				}
+			}, [
+				"dojo/_base/lang", "dojo/_base/sniff", "dojo/_base/array", "dojo/_base/fx", "dojo/dom-class", "dojo/on",
+				 "dojo/date/locale", "dojo/parser",	"dojo/dom", "dojo/dom-construct",	"dojo/store/Memory",
+				 "dojo/store/Observable",	"demo/ExtendedCalendar"
+			], function(
+				lang, has, arr, fx, domClass, on, locale, parser, dom, domConstruct,
+				Memory, Observable, Calendar
+			){
+				parser.parse();
 
-			require(["dojo/ready", "dojo/_base/lang", "dojo/_base/sniff", "dojo/_base/array", "dojo/_base/fx", "dojo/dom-class", "dojo/on",
-			         "dojo/date/locale", "dojo/parser",	"dojo/dom", "dojo/dom-construct",	"dojo/store/Memory",
-			         "dojo/store/Observable",	"demo/ExtendedCalendar"],
+				var startOfWeek = calendar.floorToWeek(new calendar.dateClassObj());
 
-				function(ready, lang, has, arr, fx, domClass, on, locale, parser, dom, domConstruct,
-					Memory, Observable, Calendar){
+				calendar.set("date", startOfWeek);
 
-					ready(function(){
-
-						var startOfWeek = calendar.floorToWeek(new calendar.dateClassObj());
-
-						calendar.set("date", startOfWeek);
-
-						// Hide loading panel when application is ready
-						fx.fadeOut({
-							node:"loadingPanel",
-							onEnd: function(node){
-								node.parentNode.removeChild(node)
-							}}).play(500);
-
-
-					});
+				// Hide loading panel when application is ready
+				fx.fadeOut({
+					node:"loadingPanel",
+					onEnd: function(node){
+						node.parentNode.removeChild(node)
+					}
+				}).play(500);
 			});
-			</script>
+		</script>
 
-			<div id="loadingPanel" style="position:absolute;z-index:10;width:100%;height:100%;background:#ffffff">
-				<span style="background: #DBEB8F;padding:2px">Loading...</span>
-			</div>
-
-	        <div data-dojo-id="calendar" data-dojo-type="demo.ExtendedCalendar"
-				style="position:absolute;left:10px;top:10px;bottom:10px;right:10px">
-			</div>
-
+		<div id="loadingPanel" style="position:absolute;z-index:10;width:100%;height:100%;background:#ffffff">
+			<span style="background: #DBEB8F;padding:2px">Loading...</span>
 		</div>
 
+		<div data-dojo-id="calendar" data-dojo-type="demo.ExtendedCalendar"
+			style="position:absolute;left:10px;top:10px;bottom:10px;right:10px">
+		</div>
 	</body>
 </html>

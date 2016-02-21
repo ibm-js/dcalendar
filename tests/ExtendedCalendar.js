@@ -7,9 +7,8 @@ define([
 	"dcalendar/VerticalRenderer",
 	"dcalendar/Mouse",
 	"dcalendar/Keyboard",
-	"dojo/text!./CalendarMonthColumn.html"],
-
-function(
+	"dojo/text!./CalendarMonthColumn.html"
+], function (
 	declare,
 	lang,
 	on,
@@ -18,8 +17,8 @@ function(
 	VerticalRenderer,
 	Mouse,
 	Keyboard,
-	template){
-
+	template
+) {
 	return declare("demo.ExtendedCalendar", Calendar, {
 
 		// summary:
