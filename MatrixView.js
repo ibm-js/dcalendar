@@ -3,7 +3,7 @@ define([
 	"dojo/_base/array",
 	"dojo/_base/event",
 	"dojo/_base/lang",
-	"dojo/_base/sniff",
+	"dojo/has",
 	"dojo/_base/fx",
 	"dojo/_base/html",
 	"dojo/on",
@@ -489,24 +489,6 @@ define([
 
 			var count = renderData.columnCount - (oldRenderData ? oldRenderData.columnCount : 0);
 
-			if (has("ie") == 8) {
-				// workaround Internet Explorer 8 bug.
-				// if on the table, width: 100% and table-layout: fixed are set
-				// and columns are removed, width of remaining columns is not
-				// recomputed: must rebuild all.
-				if (this._colTableSave == null) {
-					this._colTableSave = lang.clone(table);
-				} else if (count < 0) {
-					this.columnHeader.removeChild(table);
-					domConstruct.destroy(table);
-					table = lang.clone(this._colTableSave);
-					this.columnHeaderTable = table;
-					this.columnHeader.appendChild(table);
-					count = renderData.columnCount;
-				}
-
-			} // else incremental dom add/remove for real browsers.
-
 			var tbodies = query("tbody", table);
 			var trs = query("tr", table);
 			var tbody, tr, td;
@@ -739,25 +721,6 @@ define([
 
 			var colDiff = renderData.columnCount - (currentTR ? query("td", currentTR[0]).length : 0);
 
-			if (has("ie") == 8) {
-				// workaround Internet Explorer 8 bug.
-				// if on the table, width: 100% and table-layout: fixed are set
-				// and columns are removed, width of remaining columns is not
-				// recomputed: must rebuild all.
-				if (this._gridTableSave == null) {
-					this._gridTableSave = lang.clone(table);
-				} else if (colDiff < 0) {
-					this.grid.removeChild(table);
-					domConstruct.destroy(table);
-					table = lang.clone(this._gridTableSave);
-					this.gridTable = table;
-					this.grid.appendChild(table);
-					colDiff = renderData.columnCount;
-					rowDiff = renderData.rowCount;
-					addRows = true;
-				}
-			}
-
 			var tbodies = query("tbody", table);
 			var tbody;
 
@@ -914,26 +877,6 @@ define([
 			var rows = [];
 
 			var count = renderData.rowCount - (oldRenderData ? oldRenderData.rowCount : 0);
-
-			if (has("ie") == 8) {
-				// workaround Internet Explorer 8 bug.
-				// if on the table, width: 100% and table-layout: fixed are set
-				// and columns are removed, width of remaining columns is not
-				// recomputed: must rebuild all.
-				if (this._itemTableSave == null) {
-					this._itemTableSave = lang.clone(table);
-				} else if (count < 0) {
-					this.itemContainer.removeChild(table);
-					this._recycleItemRenderers(true);
-					this._recycleExpandRenderers(true);
-					domConstruct.destroy(table);
-					table = lang.clone(this._itemTableSave);
-					this.itemContainerTable = table;
-					this.itemContainer.appendChild(table);
-					count = renderData.columnCount;
-				}
-
-			} // else incremental dom add/remove for real browsers.
 
 			var tbodies = query("tbody", table);
 			var tbody, tr, td, div;
@@ -1249,10 +1192,6 @@ define([
 			max = max || rd.sheetHeight;
 
 			max--;
-
-			if (has("ie") == 7) {
-				max -= rd.rowCount;
-			}
 
 			if (rd.rowCount == 1) {
 				rd.rowHeight = max;
@@ -1877,9 +1816,6 @@ define([
 						var fullHeight = this.isItemBeingEdited(item) && !this.liveLayout && this._isEditing;
 						var h = fullHeight ? cellH - this.cellPaddingTop : irHeight;
 						var w = item.end - item.start;
-						if (has("ie") >= 9 && item.start + w < this.itemContainer.offsetWidth) {
-							w++;
-						}
 
 						domStyle.set(ir.container, {
 							"top": (fullHeight ? this.cellPaddingTop : posY) + "px",
@@ -1907,9 +1843,6 @@ define([
 
 					var h = cellH;
 					var w = item.end - item.start;
-					if (has("ie") >= 9 && item.start + w < this.itemContainer.offsetWidth) {
-						w++;
-					}
 
 					domStyle.set(ir.container, {
 						"top": "0",

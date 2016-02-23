@@ -118,6 +118,11 @@ define([
 	 };
 	 =====*/
 
+	// Specific CSS prefix for non standard CSS properties. Ex: -moz-border-radius.
+	// Used just to set transformY(), transformX().  IE10+ supports non-prefixed versions.
+	var cssPrefix = has("webkit") ? "-webkit-" : has("mozilla") ?  "-moz-" : "";
+
+
 	return declare("dojox.calendar.ViewBase", [_WidgetBase, StoreMixin, _Invalidating, Selection], {
 
 		// summary:
@@ -803,7 +808,7 @@ define([
 				// reset
 				if (this._domScroll !== undefined) {
 					if (this._domScroll) {
-						domStyle.set(this.sheetContainer, this._cssPrefix + "transform", "translateY(0px)");
+						domStyle.set(this.sheetContainer, cssPrefix + "transform", "translateY(0px)");
 					} else {
 						this.scrollContainer.scrollTop = 0;
 					}
@@ -855,25 +860,6 @@ define([
 
 		_scrollPos: 0,
 		_hscrollPos: 0,
-
-		getCSSPrefix: function () {
-			// summary:
-			//		Utility method that return the specific CSS prefix
-			//		for non standard CSS properties. Ex: -moz-border-radius.
-			if (has("ie")) {
-				return "-ms-";
-			}
-			if (has("webkit")) {
-				return "-webkit-";
-			}
-			if (has("mozilla")) {
-				return "-moz-";
-			}
-			if (has("opera")) {
-				return "-o-";
-			}
-			return "";
-		},
 
 		//	_hScrollNodes: DOMNodes[]
 		//		Array of nodes that will be scrolled horizontally.
@@ -938,11 +924,7 @@ define([
 				}
 
 			} else {
-				if (!this._cssPrefix) {
-					this._cssPrefix = this.getCSSPrefix();
-				}
-
-				var cssProp = this._cssPrefix + "transform";
+				var cssProp = cssPrefix + "transform";
 
 				if (vertical) {
 					domStyle.set(this.sheetContainer, cssProp, "translateY(-" + pos + "px)");
@@ -2954,9 +2936,6 @@ define([
 
 			if (!e.isDefaultPrevented()) {
 				if (p.editLayer) {
-					if (has("ie")) {
-						p.editLayer.style.cursor = "default";
-					}
 					setTimeout(lang.hitch(this, function () {
 						if (this.domNode) { // for unit tests
 							this.domNode.focus();
@@ -2964,7 +2943,6 @@ define([
 							p.editLayer = null;
 						}
 					}), 10);
-
 				}
 			}
 		},
