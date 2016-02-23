@@ -7,7 +7,7 @@ define([
 	"dojo/_base/event",
 	"dojo/_base/lang",
 	"dojo/_base/array",
-	"dojo/_base/sniff",
+	"dojo/has",
 	"dojo/_base/fx",
 	"dojo/_base/html",
 	"dojo/on",
@@ -727,10 +727,6 @@ define([
 			// tags:
 			//		protected
 
-			if (has("ie") && this.scrollBar) {
-				domStyle.set(this.vScrollBar, "width", (renderData.scrollbarWidth + 1) + "px");
-			}
-
 			var atRight = this.isLeftToRight() ? true : this.scrollBarRTLPosition == "right";
 			var rPos = atRight ? "right" : "left";
 			var lPos = atRight ? "left" : "right";
@@ -867,25 +863,6 @@ define([
 			}
 
 			var count = renderData.columnCount - (oldRenderData ? oldRenderData.columnCount : 0);
-
-			if (has("ie") == 8) {
-				// workaround Internet Explorer 8 bug.
-				// if on the table, width: 100% and table-layout: fixed are set
-				// and columns are removed, width of remaining columns is not
-				// recomputed: must rebuild all.
-				if (this._colTableSave == null) {
-					this._colTableSave = lang.clone(table);
-				} else if (count < 0) {
-					this._cleanupColumnHeader();
-					this.columnHeader.removeChild(table);
-					domConstruct.destroy(table);
-					table = lang.clone(this._colTableSave);
-					this.columnHeaderTable = table;
-					this.columnHeader.appendChild(table);
-					count = renderData.columnCount;
-				}
-
-			} // else incremental dom add/remove for real browsers.
 
 			var tbodies = query("tbody", table);
 
@@ -1035,24 +1012,6 @@ define([
 			}
 
 			var count = renderData.columnCount - query("td", table).length;
-
-			if (has("ie") == 8) {
-				// workaround Internet Explorer 8 bug.
-				// if on the table, width: 100% and table-layout: fixed are set
-				// and columns are removed, width of remaining columns is not
-				// recomputed: must rebuild all.
-				if (this._colSubTableSave == null) {
-					this._colSubTableSave = lang.clone(table);
-				} else if (count < 0) {
-					this.subColumnHeader.removeChild(table);
-					domConstruct.destroy(table);
-					table = lang.clone(this._colSubTableSave);
-					this.subColumnHeaderTable = table;
-					this.subColumnHeader.appendChild(table);
-					count = renderData.columnCount;
-				}
-
-			} // else incremental dom add/remove for real browsers.
 
 			var tbodies = query(">tbody", table);
 
@@ -1244,8 +1203,7 @@ define([
 				var td = query("td", tr)[0];
 				td.className = "";
 
-				domStyle.set(tr, "height", (has("ie") == 7) ? size - 2 *
-					(60 / renderData.rowHeaderGridSlotDuration) : size + "px");
+				domStyle.set(tr, "height", size + "px");
 
 				var h = renderData.minHours + (i * this.renderData.rowHeaderGridSlotDuration) / 60;
 				var m = (i * this.renderData.rowHeaderGridSlotDuration) % 60;
@@ -1350,25 +1308,6 @@ define([
 			var addRows = rowDiff > 0;
 
 			var colDiff = (renderData.columnCount - (oldRenderData ? oldRenderData.columnCount : 0));
-
-			if (has("ie") == 8) {
-				// workaround Internet Explorer 8 bug.
-				// if on the table, width: 100% and table-layout: fixed are set
-				// and columns are removed, width of remaining columns is not
-				// recomputed: must rebuild all.
-				if (this._gridTableSave == null) {
-					this._gridTableSave = lang.clone(table);
-				} else if (colDiff < 0) {
-					this.grid.removeChild(table);
-					domConstruct.destroy(table);
-					table = lang.clone(this._gridTableSave);
-					this.gridTable = table;
-					this.grid.appendChild(table);
-					colDiff = renderData.columnCount;
-					rowDiff = nbRows;
-					addRows = true;
-				}
-			}
 
 			var tbodies = query("tbody", table);
 			var tbody;
@@ -1523,25 +1462,6 @@ define([
 			domStyle.set(table, "height", renderData.sheetHeight + "px");
 			var oldCount = oldRenderData ? oldRenderData.columnCount : 0;
 			var count = renderData.columnCount - oldCount;
-
-			if (has("ie") == 8) {
-				// workaround Internet Explorer 8 bug.
-				// if on the table, width: 100% and table-layout: fixed are set
-				// and columns are removed, width of remaining columns is not
-				// recomputed: must rebuild all.
-				if (this._itemTableSave == null) {
-					this._itemTableSave = lang.clone(table);
-				} else if (count < 0) {
-					this.itemContainer.removeChild(table);
-					this._recycleItemRenderers(true);
-					domConstruct.destroy(table);
-					table = lang.clone(this._itemTableSave);
-					this.itemContainerTable = table;
-					this.itemContainer.appendChild(table);
-					count = renderData.columnCount;
-				}
-
-			} // else incremental dom add/remove for real browsers.
 
 			var tbodies = query("tbody", table);
 			var trs = query("tr", table);

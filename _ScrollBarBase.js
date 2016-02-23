@@ -58,7 +58,7 @@ define([
 
 			var rtl = !this.isLeftToRight();
 			if (rtl) {
-				if (has("webkit") || has("ie") == 7) {
+				if (has("webkit")) {
 					if (this._scW == undefined) {
 						this._scW = metrics.getScrollbar().w;
 					}

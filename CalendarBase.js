@@ -1,6 +1,5 @@
 define([
 	"dojo/_base/declare",
-	"dojo/_base/sniff",
 	"dojo/_base/event",
 	"dojo/_base/lang",
 	"dojo/_base/array",
@@ -26,7 +25,6 @@ define([
 	"dojo/i18n!./nls/buttons"
 ], function (
 	declare,
-	has,
 	event,
 	lang,
 	arr,
@@ -553,7 +551,7 @@ define([
 		_performViewTransition: function (view, index, timeInterval, duration) {
 			var oldView = this.currentView;
 
-			if (this.animateRange && (!has("ie") || has("ie") > 8)) {
+			if (this.animateRange) {
 				if (oldView) { // there's a view to animate
 					oldView.beforeDeactivate();
 					var ltr = this.isLeftToRight();
@@ -627,7 +625,7 @@ define([
 				} else {
 					if (this.items == null || this.items.length == 0) {
 						this.set("currentView", view);
-						if (this.animateRange && (!has("ie") || has("ie") > 8)) {
+						if (this.animateRange) {
 							domStyle.set(this.currentView.domNode, "opacity", 0);
 						}
 						view.set("items", this.items);
@@ -637,7 +635,7 @@ define([
 						view.set("items", this.items);
 						view.set("decorationItems", this.decorationItems);
 						this.set("currentView", view);
-						if (this.animateRange && (!has("ie") || has("ie") > 8)) {
+						if (this.animateRange) {
 							domStyle.set(this.currentView.domNode, "opacity", 0);
 						}
 					}
@@ -1011,9 +1009,7 @@ define([
 			if (newView != null) {
 				domStyle.set(newView.domNode, "display", "block");
 				newView.resize();
-				if (!has("ie") || has("ie") > 7) {
-					domStyle.set(newView.domNode, "opacity", "1");
-				}
+				domStyle.set(newView.domNode, "opacity", "1");
 			}
 		},
 
