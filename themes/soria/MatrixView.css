@@ -9,21 +9,21 @@
   white-space: nowrap;
   padding: 1px 2px 2px 1px;
 }
-.soria .dojoxCalendarMatrixView {
+.dojoxCalendarMatrixView {
   cursor: default;
   -moz-user-select: none;
   -webkit-user-select: none;
   khtml-user-select: none;
   user-select: none;
 }
-.soria .dojoxCalendarMatrixView .dojoxCalendarGrid {
+.dojoxCalendarMatrixView .dojoxCalendarGrid {
   position: absolute;
   left: 50px;
   right: 0px;
   top: 30px;
   bottom: 0px;
 }
-.soria .dojoxCalendarMatrixView .dojoxCalendarGridTable {
+.dojoxCalendarMatrixView .dojoxCalendarGridTable {
   position: relative;
   width: 100%;
   height: 100%;
@@ -36,12 +36,12 @@
 		 * MatrixView.styleGridCell method that can be subclassed to add/remove css classes
 		 */
 }
-.soria .dojoxCalendarMatrixView .dojoxCalendarGridTable tr {
+.dojoxCalendarMatrixView .dojoxCalendarGridTable tr {
   -webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;
   box-sizing: border-box;
 }
-.soria .dojoxCalendarMatrixView .dojoxCalendarGridTable td {
+.dojoxCalendarMatrixView .dojoxCalendarGridTable td {
   text-align: right;
   vertical-align: top;
   border-bottom: 1px solid #bfbfbf;
@@ -50,30 +50,30 @@
   -moz-box-sizing: border-box;
   box-sizing: border-box;
 }
-.soria .dojoxCalendarMatrixView .dojoxCalendarGridTable td span {
+.dojoxCalendarMatrixView .dojoxCalendarGridTable td span {
   padding-right: 2px;
   padding-top: 2px;
 }
-.soria .dojoxCalendarMatrixView .dojoxCalendarGridTable tr.last-child td {
+.dojoxCalendarMatrixView .dojoxCalendarGridTable tr:last-child td {
   border-bottom: 1px solid #b1badf;
 }
-.soria .dojoxCalendarMatrixView .dojoxCalendarGridTable td.last-child {
+.dojoxCalendarMatrixView .dojoxCalendarGridTable td:last-child {
   border-right: 1px solid #b1badf;
 }
-.soria .dojoxCalendarMatrixView .dojoxCalendarGridTable td.dojoxCalendarToday {
+.dojoxCalendarMatrixView .dojoxCalendarGridTable td.dojoxCalendarToday {
   background-color: #fff2d2;
   font-weight: bold;
   color: #ff2200;
 }
-.soria .dojoxCalendarMatrixView .dojoxCalendarGridTable .dojoxCalendarWeekend {
+.dojoxCalendarMatrixView .dojoxCalendarGridTable .dojoxCalendarWeekend {
   background-color: #fdfdfd;
   color: #999999;
 }
-.soria .dojoxCalendarMatrixView .dojoxCalendarGridTable .dojoxCalendarDayDisabled {
+.dojoxCalendarMatrixView .dojoxCalendarGridTable .dojoxCalendarDayDisabled {
   background-color: #fdfdfd;
   color: #999999;
 }
-.soria .dojoxCalendarMatrixView .dojoxCalendarYearColumnHeader {
+.dojoxCalendarMatrixView .dojoxCalendarYearColumnHeader {
   position: absolute;
   left: 0px;
   top: 0px;
@@ -83,14 +83,14 @@
   vertical-align: middle;
   border-bottom: 1px solid #b1badf;
 }
-.soria .dojoxCalendarMatrixView .dojoxCalendarYearColumnHeader table {
+.dojoxCalendarMatrixView .dojoxCalendarYearColumnHeader table {
   position: relative;
   width: 100%;
   height: 100%;
   table-layout: fixed;
   border-collapse: collapse;
 }
-.soria .dojoxCalendarMatrixView .dojoxCalendarYearColumnHeader table td {
+.dojoxCalendarMatrixView .dojoxCalendarYearColumnHeader table td {
   text-align: center;
   vertical-align: middle;
   border-left: 1px solid #b1badf;
@@ -104,7 +104,7 @@
   color: #6d6d6d;
   color: #293a4b;
 }
-.soria .dojoxCalendarMatrixView .dojoxCalendarColumnHeader {
+.dojoxCalendarMatrixView .dojoxCalendarColumnHeader {
   position: absolute;
   left: 50px;
   right: 0px;
@@ -113,7 +113,7 @@
   cursor: default;
   border-bottom: 1px solid #b1badf;
 }
-.soria .dojoxCalendarMatrixView .dojoxCalendarColumnHeaderTable {
+.dojoxCalendarMatrixView .dojoxCalendarColumnHeaderTable {
   position: relative;
   width: 100%;
   height: 100%;
@@ -124,7 +124,7 @@
 		 * ColumnView.styleColumnHeaderCell method that can be subclassed to add/remove css class.
 		 */
 }
-.soria .dojoxCalendarMatrixView .dojoxCalendarColumnHeaderTable td {
+.dojoxCalendarMatrixView .dojoxCalendarColumnHeaderTable td {
   overflow: hidden;
   vertical-align: middle;
   text-align: center;
@@ -142,13 +142,13 @@
   user-select: none;
   color: #293a4b;
 }
-.soria .dojoxCalendarMatrixView .dojoxCalendarColumnHeaderTable td.last-child {
+.dojoxCalendarMatrixView .dojoxCalendarColumnHeaderTable td:last-child {
   border-right: 1px solid #b1badf;
 }
-.soria .dojoxCalendarMatrixView .dojoxCalendarColumnHeaderTable .dojoxCalendarWeekend {
+.dojoxCalendarMatrixView .dojoxCalendarColumnHeaderTable .dojoxCalendarWeekend {
   color: #999999;
 }
-.soria .dojoxCalendarMatrixView .dojoxCalendarRowHeader {
+.dojoxCalendarMatrixView .dojoxCalendarRowHeader {
   position: absolute;
   left: 0px;
   top: 30px;
@@ -160,7 +160,7 @@
   khtml-user-select: none;
   user-select: none;
 }
-.soria .dojoxCalendarMatrixView .dojoxCalendarRowHeaderTable {
+.dojoxCalendarMatrixView .dojoxCalendarRowHeaderTable {
   position: relative;
   width: 100%;
   height: 100%;
@@ -172,12 +172,12 @@
 		 * The MatrixView.styleRowHeaderCell method that can be subclassed to add/remove css classes per hour.
 		 */
 }
-.soria .dojoxCalendarMatrixView .dojoxCalendarRowHeaderTable tr {
+.dojoxCalendarMatrixView .dojoxCalendarRowHeaderTable tr {
   -webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;
   box-sizing: border-box;
 }
-.soria .dojoxCalendarMatrixView .dojoxCalendarRowHeaderTable td {
+.dojoxCalendarMatrixView .dojoxCalendarRowHeaderTable td {
   text-align: center;
   vertical-align: middle;
   border-left: 1px solid #b1badf;
@@ -193,16 +193,16 @@
   color: #293a4b;
   cursor: pointer;
 }
-.soria .dojoxCalendarMatrixView .dojoxCalendarRowHeaderTable td.last-child {
+.dojoxCalendarMatrixView .dojoxCalendarRowHeaderTable td:last-child {
   border-bottom: 1px solid #b1badf;
 }
-.soria .dojoxCalendarMatrixView .dojoxCalendarRowHeaderTable td.Hover {
+.dojoxCalendarMatrixView .dojoxCalendarRowHeaderTable td.Hover {
   background-color: #b9cbf1;
 }
-.soria .dojoxCalendarMatrixView .dojoxCalendarRowHeaderTable td.Active {
+.dojoxCalendarMatrixView .dojoxCalendarRowHeaderTable td.Active {
   background-color: #60a1ea;
 }
-.soria .dojoxCalendarMatrixView .dojoxCalendarContainer {
+.dojoxCalendarMatrixView .dojoxCalendarContainer {
   position: absolute;
   top: 30px;
   left: 50px;
@@ -210,7 +210,7 @@
   bottom: 0px;
   cursor: default;
 }
-.soria .dojoxCalendarMatrixView .dojoxCalendarContainerTable {
+.dojoxCalendarMatrixView .dojoxCalendarContainerTable {
   position: relative;
   width: 100%;
   height: 100%;
@@ -219,12 +219,12 @@
   border-collapse: collapse;
   table-layout: fixed;
 }
-.soria .dojoxCalendarMatrixView .dojoxCalendarContainerTable tr {
+.dojoxCalendarMatrixView .dojoxCalendarContainerTable tr {
   -webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;
   box-sizing: border-box;
 }
-.soria .dojoxCalendarMatrixView .dojoxCalendarContainerTable td {
+.dojoxCalendarMatrixView .dojoxCalendarContainerTable td {
   vertical-align: top;
   border-bottom: solid 1px transparent;
   border-right: solid 1px transparent;
@@ -232,12 +232,12 @@
   -moz-box-sizing: border-box;
   box-sizing: border-box;
 }
-.soria .dojoxCalendarMatrixView .dojoxCalendarContainerTable td div.dojoxCalendarContainerRow {
+.dojoxCalendarMatrixView .dojoxCalendarContainerTable td div.dojoxCalendarContainerRow {
   position: relative;
   height: 100%;
   width: 100%;
 }
-.soria .dojoxCalendarMatrixView .dojoxCalendarEventContainer {
+.dojoxCalendarMatrixView .dojoxCalendarEventContainer {
   position: absolute;
   overflow: hidden;
   -moz-user-select: none;
@@ -245,24 +245,25 @@
   khtml-user-select: none;
   user-select: none;
 }
-.soria .dojoxCalendarMatrixView .dojoxCalendarDecoration {
+.dojoxCalendarMatrixView .dojoxCalendarDecoration {
+  display: block;
   position: absolute;
   background-color: #a7e944;
-  filter: alpha(opacity=20);
+  filter: alpha(opacity=@ {op});
   opacity: 0.2;
 }
-.soria .dojoxCalendarMatrixView .dojoxCalendarEvent {
+.dojoxCalendarMatrixView .dojoxCalendarEvent {
+  display: block;
   position: absolute;
   text-align: left;
   color: #000;
   cursor: default;
   white-space: nowrap;
 }
-.soria .dojoxCalendarMatrixView .dojoxCalendarEvent.dojoxCalendarHorizontal {
+.dojoxCalendarMatrixView .dojoxCalendarEvent.dojoxCalendarHorizontal {
   color: #FFF;
-  position: absolute;
 }
-.soria .dojoxCalendarMatrixView .dojoxCalendarEvent.dojoxCalendarHorizontal .bg {
+.dojoxCalendarMatrixView .dojoxCalendarEvent.dojoxCalendarHorizontal .bg {
   border: 1px solid #260000;
   position: absolute;
   left: 0;
@@ -275,59 +276,59 @@
   -moz-border-radius: 5px;
   background-color: #9f0000;
 }
-.soria .dojoxCalendarMatrixView .dojoxCalendarEvent.dojoxCalendarHorizontal.Hovered .bg {
+.dojoxCalendarMatrixView .dojoxCalendarEvent.dojoxCalendarHorizontal.Hovered .bg {
   background-color: #cc0000;
 }
-.soria .dojoxCalendarMatrixView .dojoxCalendarEvent.dojoxCalendarHorizontal.Selected .bg {
+.dojoxCalendarMatrixView .dojoxCalendarEvent.dojoxCalendarHorizontal.Selected .bg {
   background-color: #660000;
 }
-.soria .dojoxCalendarMatrixView .dojoxCalendarEvent.Edited {
+.dojoxCalendarMatrixView .dojoxCalendarEvent.Edited {
   color: #FFF;
   font-weight: bold;
   text-decoration: none;
 }
-.soria .dojoxCalendarMatrixView .dojoxCalendarEvent.dojoxCalendarHorizontal.Edited .bg {
+.dojoxCalendarMatrixView .dojoxCalendarEvent.dojoxCalendarHorizontal.Edited .bg {
   border: dashed 1px #FFF;
-  filter: alpha(opacity=30);
+  filter: alpha(opacity=@ {op});
   opacity: 0.3;
 }
-.soria .dojoxCalendarMatrixView .dojoxCalendarEvent.dojoxCalendarHorizontal.Focused .bg {
+.dojoxCalendarMatrixView .dojoxCalendarEvent.dojoxCalendarHorizontal.Focused .bg {
   border: dashed 1px #FFF;
 }
-.soria .dojoxCalendarMatrixView .dojoxCalendarEvent.dojoxCalendarLabel.Hovered {
+.dojoxCalendarMatrixView .dojoxCalendarEvent.dojoxCalendarLabel.Hovered {
   color: #F40;
 }
-.soria .dojoxCalendarMatrixView .dojoxCalendarEvent.dojoxCalendarLabel.Selected {
+.dojoxCalendarMatrixView .dojoxCalendarEvent.dojoxCalendarLabel.Selected {
   color: #F00;
 }
-.soria .dojoxCalendarMatrixView .dojoxCalendarEvent.dojoxCalendarLabel.Edited {
+.dojoxCalendarMatrixView .dojoxCalendarEvent.dojoxCalendarLabel.Edited {
   border: dashed 1px #FFF;
   background: #600;
-  filter: alpha(opacity=30);
+  filter: alpha(opacity=@ {op});
   opacity: 0.3;
   color: #FFF;
 }
-.soria .dojoxCalendarMatrixView .dojoxCalendarEvent.dojoxCalendarLabel.Focused {
+.dojoxCalendarMatrixView .dojoxCalendarEvent.dojoxCalendarLabel.Focused {
   border: dashed 1px #000;
 }
-.soria .dojoxCalendarMatrixView .dojoxCalendarEvent.dojoxCalendarHorizontal .labels {
+.dojoxCalendarMatrixView .dojoxCalendarEvent.dojoxCalendarHorizontal .labels {
   position: absolute;
   left: 3px;
   right: 1px;
   bottom: 2px;
   overflow: hidden;
 }
-.soria .dojoxCalendarMatrixView .dojoxCalendarEvent.dojoxCalendarLabel .labels {
+.dojoxCalendarMatrixView .dojoxCalendarEvent.dojoxCalendarLabel .labels {
   position: absolute;
   left: 2px;
   right: 2px;
   bottom: 0;
   overflow: hidden;
 }
-.soria .dojoxCalendarMatrixView .dojoxCalendarEvent .handle {
+.dojoxCalendarMatrixView .dojoxCalendarEvent .handle {
   z-index: 2;
   background-color: #F00;
-  filter: alpha(opacity=0);
+  filter: alpha(opacity=@ {op});
   opacity: 0;
   -moz-user-select: none;
   -webkit-user-select: none;
@@ -338,24 +339,25 @@
   height: 100%;
   cursor: e-resize;
 }
-.soria .dojoxCalendarMatrixView .dojoxCalendarEvent .moveHandle {
+.dojoxCalendarMatrixView .dojoxCalendarEvent .moveHandle {
   left: 0;
   top: 0;
   width: 100%;
   cursor: move;
 }
-.soria .dojoxCalendarMatrixView .dojoxCalendarEvent .resizeEndHandle {
+.dojoxCalendarMatrixView .dojoxCalendarEvent .resizeEndHandle {
   right: 0px;
 }
-.soria .dojoxCalendarMatrixView .dojoxCalendarExpand {
+.dojoxCalendarMatrixView .dojoxCalendarExpand {
+  display: block;
   position: absolute;
   text-align: center;
 }
-.soria .dojoxCalendarMatrixView .dojoxCalendarExpand span {
+.dojoxCalendarMatrixView .dojoxCalendarExpand span {
   display: inline-block;
   vertical-align: middle;
 }
-.soria .dojoxCalendarMatrixView .dojoxCalendarExpand .bg {
+.dojoxCalendarMatrixView .dojoxCalendarExpand .bg {
   position: relative;
   margin-right: 5px;
   margin-left: 5px;
@@ -371,11 +373,11 @@
   box-sizing: border-box;
   border: 1px solid transparent;
 }
-.soria .dojoxCalendarMatrixView .dojoxCalendarExpand.Up .bg {
+.dojoxCalendarMatrixView .dojoxCalendarExpand.Up .bg {
   background-color: #e5f2fe;
   border: 1px solid #909da9;
 }
-.soria .dojoxCalendarMatrixView .dojoxCalendarExpand.Down .bg {
+.dojoxCalendarMatrixView .dojoxCalendarExpand.Down .bg {
   background-color: #a5d1fb;
   border: 1px solid #507ca6;
 }

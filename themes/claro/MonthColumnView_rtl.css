@@ -9,46 +9,46 @@
   white-space: nowrap;
   padding: 1px 2px 2px 1px;
 }
-.claro .dojoxCalendarMonthColumnViewRtl .dojoxCalendarGridTable td {
+.dojoxCalendarMonthColumnView.d-rtl .dojoxCalendarGridTable td {
   border-right: none;
   border-left: 1px solid #cccccc;
 }
-.claro .dojoxCalendarMonthColumnViewRtl .dojoxCalendarGridTable td span {
+.dojoxCalendarMonthColumnView.d-rtl .dojoxCalendarGridTable td span {
   padding-right: 3px;
-  paddint-left: 0px;
+  padding-left: 0px;
 }
-.claro .dojoxCalendarMonthColumnViewRtl .dojoxCalendarGridTable .dojoxCalendarHiddenEvents {
+.dojoxCalendarMonthColumnView.d-rtl .dojoxCalendarGridTable .dojoxCalendarHiddenEvents {
   background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAIAAAAICAYAAADTLS5CAAAAFElEQVQImWP4z8Dw/1dU1H8GyhgANcclWWHC27gAAAAASUVORK5CYII=) repeat-y right top;
 }
-.claro .dojoxCalendarMonthColumnViewRtl .claro .dojoxCalendarMonthColumnView .dojoxCalendarGridTable .dojoxCalendarToday.dojoxCalendarHiddenEvents {
+.dojoxCalendarMonthColumnView.d-rtl .dojoxCalendarMonthColumnView .dojoxCalendarGridTable .dojoxCalendarToday.dojoxCalendarHiddenEvents {
   background: #fff0b4 url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAIAAAAICAYAAADTLS5CAAAAFElEQVQImWP4z8Dw/1dU1H8GyhgANcclWWHC27gAAAAASUVORK5CYII=) repeat-y right top;
 }
-.claro .dojoxCalendarMonthColumnViewRtl .dojoxCalendarGridTable tr td.last-child {
+.dojoxCalendarMonthColumnView.d-rtl .dojoxCalendarGridTable tr td:last-child {
   border-left: 1px solid #b5bcc7;
 }
-.claro .dojoxCalendarMonthColumnViewRtl .dojoxCalendarGridTable tr td.first-child {
+.dojoxCalendarMonthColumnView.d-rtl .dojoxCalendarGridTable tr td:first-child {
   border-right: 1px solid #b5bcc7;
 }
-.claro .dojoxCalendarMonthColumnViewRtl .dojoxCalendarContainerColumn {
+.dojoxCalendarMonthColumnView.d-rtl .dojoxCalendarContainerColumn {
   margin-left: 5px;
   margin-right: 35px;
 }
-.claro .dojoxCalendarMonthColumnViewRtl .dojoxCalendarColumnHeaderTable td {
+.dojoxCalendarMonthColumnView.d-rtl .dojoxCalendarColumnHeaderTable td {
   border-left: 1px solid #cccccc;
   border-right: none;
 }
-.claro .dojoxCalendarMonthColumnViewRtl .dojoxCalendarColumnHeaderTable td.last-child {
+.dojoxCalendarMonthColumnView.d-rtl .dojoxCalendarColumnHeaderTable td:last-child {
   border-left: 1px solid #b5bcc7;
 }
-.claro .dojoxCalendarMonthColumnViewRtl .dojoxCalendarColumnHeaderTable td.first-child {
+.dojoxCalendarMonthColumnView.d-rtl .dojoxCalendarColumnHeaderTable td:first-child {
   border-right: 1px solid #b5bcc7;
 }
-.claro .dojoxCalendarMonthColumnViewRtl .dojoxCalendarEvent .summary {
+.dojoxCalendarMonthColumnView.d-rtl .dojoxCalendarEvent .summary {
   text-align: right;
 }
-.claro .dojoxCalendarMonthColumnViewRtl .dojoxCalendarEvent .startTime {
+.dojoxCalendarMonthColumnView.d-rtl .dojoxCalendarEvent .startTime {
   text-align: right;
 }
-.claro .dojoxCalendarMonthColumnViewRtl .dojoxCalendarEvent .endTime {
+.dojoxCalendarMonthColumnView.d-rtl .dojoxCalendarEvent .endTime {
   text-align: right;
 }

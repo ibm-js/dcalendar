@@ -27,18 +27,18 @@
 @label-color: #555;
 @secondary-label-color: #888;
 
-.border-box(){
+.border-box() {
 	-webkit-box-sizing: border-box;
 	-moz-box-sizing: border-box;
 	box-sizing: border-box;
 }
 
-.opacity(@op){
-	filter: ~"alpha(opacity=@{op})";
+.opacity(@op) {
+	filter: ~"alpha(opacity=@ {op})";
 	opacity:@op/100;
 }
 
-.transition-duration(@dur: 0s){
+.transition-duration(@dur: 0s) {
 	-webkit-transition-duration: @dur;
 	-moz-transition-duration: @dur;
 	transition-duration: @dur;
@@ -51,22 +51,22 @@
 	user-select: none;
 }
 
-.glass-view(){
+.glass-view() {
 	z-index: 2;
 	background:#00FF00;
 	.opacity(0);
 	.select-none
 }
 
-.header-background(){
+.header-background() {
 	color: @header-label-color;
 }
 
-.header-hover-background(){
+.header-hover-background() {
 
 }
 
-.header-active-background(){
+.header-active-background() {
 
 }
 

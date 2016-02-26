@@ -58,10 +58,10 @@
 .dojoxCalendarMonthColumnView .dojoxCalendarGridTable .dojoxCalendarToday.dojoxCalendarHiddenEvents {
   background: #ffffff url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAAICAYAAADED76LAAAAF0lEQVQYlWP4z8Dw/1dU1H8GXGBkKAAA+IglWfcls2QAAAAASUVORK5CYII=) repeat-y;
 }
-.dojoxCalendarMonthColumnView .dojoxCalendarGridTable tr td.last-child {
+.dojoxCalendarMonthColumnView .dojoxCalendarGridTable tr td:last-child {
   border-right: 1px solid #cccccc;
 }
-.dojoxCalendarMonthColumnView .dojoxCalendarGridTable tr td.first-child {
+.dojoxCalendarMonthColumnView .dojoxCalendarGridTable tr td:first-child {
   border-left: 1px solid #cccccc;
 }
 .dojoxCalendarMonthColumnView .dojoxCalendarGridTable tr:first-child td.dojoxCalendarToday {
@@ -143,6 +143,7 @@
   cursor: pointer;
 }
 .dojoxCalendarMonthColumnView .dojoxCalendarEvent {
+  display: block;
   position: absolute;
   text-align: left;
   color: #FFF;
@@ -161,7 +162,7 @@
   -webkit-border-radius: 5px;
   -moz-border-radius: 5px;
   background-color: #9F0000;
-  filter: alpha(opacity=90);
+  filter: alpha(opacity=@ {op});
   opacity: 0.9;
 }
 .dojoxCalendarMonthColumnView .dojoxCalendarEvent.Hovered .bg {
@@ -172,7 +173,7 @@
 }
 .dojoxCalendarMonthColumnView .dojoxCalendarEvent.Edited .bg {
   border: dashed 1px #FFFFFF;
-  filter: alpha(opacity=70);
+  filter: alpha(opacity=@ {op});
   opacity: 0.7;
 }
 .dojoxCalendarMonthColumnView .dojoxCalendarEvent.Focused .bg {
@@ -199,7 +200,7 @@
 .dojoxCalendarColumnView .dojoxCalendarEvent .handle {
   z-index: 2;
   background: #00FF00;
-  filter: alpha(opacity=0);
+  filter: alpha(opacity=@ {op});
   opacity: 0;
   -moz-user-select: none;
   -webkit-user-select: none;
@@ -213,14 +214,14 @@
   top: 2px;
   height: 24px;
   background-color: #fff;
-  filter: alpha(opacity=30);
+  filter: alpha(opacity=@ {op});
   opacity: 0.3;
   border-radius: 5px;
   -webkit-border-radius: 5px;
   -moz-border-radius: 5px;
 }
 .dojoxCalendarEvent .resizeHandle div:active {
-  filter: alpha(opacity=60);
+  filter: alpha(opacity=@ {op});
   opacity: 0.6;
 }
 .dojoxCalendarColumnView .dojoxCalendarEvent .moveHandle {
@@ -266,6 +267,7 @@
   text-align: left;
 }
 .dojoxCalendarMonthColumnView .dojoxCalendarVScrollBar {
+  display: block;
   position: absolute;
   top: 30px;
   bottom: 0;

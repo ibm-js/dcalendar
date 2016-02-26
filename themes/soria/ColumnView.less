@@ -1,6 +1,7 @@
 @import "ColumnViewCommon.less";
 
-.soria .dojoxCalendarColumnView {
+.dojoxCalendarColumnView {
+	display: block;
 	cursor: default;
 	-webkit-user-select: none;
 
@@ -51,7 +52,7 @@
 			.border-box;
 		}
 
-		tr:first-child td	{
+		tr:first-child td	 {
 			border-top: 1px solid transparent;
 		}
 
@@ -59,11 +60,11 @@
 			background-color: @today-color;
 		}
 
-		tr td.last-child	{
+		tr td:last-child	 {
 			border-right: @outer-border;
 		}
 
-		.tr:first-child td.dojoxCalendarToday	{
+		.tr:first-child td.dojoxCalendarToday	 {
 			border-top: 1px solid @today-color;
 		}
 
@@ -71,7 +72,7 @@
 			background-color: @week-end-color;
 		}
 
-		tr:first-child td.dojoxCalendarWeekend	{
+		tr:first-child td.dojoxCalendarWeekend	 {
 			border-top: 1px solid @week-end-color;
 		}
 	}
@@ -81,11 +82,11 @@
 		border-top: @hour-stroke;
 	}
 
-	td.halfhour{
+	td.halfhour {
 		border-top: @half-hour-stroke;
 	}
 
-	td.quarterhour{
+	td.quarterhour {
 		border-top: @quarter-hour-stroke;
 	}
 
@@ -95,7 +96,7 @@
 	}
 
 	span.halfhour,
-	span.quarterhour{
+	span.quarterhour {
 		color: @secondary-label-color;
 		background-color: @row-color;
 	}
@@ -181,7 +182,7 @@
 		.select-none;
 	}
 
-	.dojoxCalendarYearColumnHeader{
+	.dojoxCalendarYearColumnHeader {
 		position: absolute;
 		height: @column-header-height - 1px;
 		left: 0;
@@ -243,7 +244,7 @@
 			.transition-duration(0.2s);
 		}
 
-		td.last-child {
+		td:last-child {
 			border-right: @outer-border;
 		}
 
@@ -256,12 +257,12 @@
 			color: @week-end-label-color;
 		}
 
-		td.Hover{
+		td.Hover {
 			cursor: pointer;
 			.header-hover-background;
 		}
 
-		td.Active{
+		td.Active {
 			.header-active-background;
 		}
 	}
@@ -314,7 +315,7 @@
 			user-select: none;
 			color: #000000;
 		}
-		td.last-child {
+		td:last-child {
 			border-right: @outer-border;
 		}
 		td.dojoxCalendarToday {
@@ -380,13 +381,13 @@
 		.select-none;
 	}
 
-	.dojoxCalendarRowHeaderLabelContainer{
+	.dojoxCalendarRowHeaderLabelContainer {
 		width: 100%;
 		height: 100%;
 		z-index: 10;
 	}
 
-	.dojoxCalendarRowHeaderLabel{
+	.dojoxCalendarRowHeaderLabel {
 		right: 4px;
 		position: absolute;
 	}
@@ -400,7 +401,7 @@
 		width: 100%;
 		height: 100%;
 
-		td.dummy{
+		td.dummy {
 			border-top: 1px solid @row-color;
 		}
 
@@ -410,18 +411,20 @@
 			.border-box;
 		}
 
-		tr:first-child td	{
+		tr:first-child td	 {
 			border-top: 1px solid @row-color;
 		}
 	}
 
 	.dojoxCalendarDecoration {
-		position:absolute;
+		display: block;
+		position: absolute;
 		background-color: rgb(167, 233, 68);
 		.opacity(20);
 	}
 
 	.dojoxCalendarEvent {
+		display: block;
 		position: absolute;
 		text-align: left;
 		color: #FFF;
@@ -540,6 +543,7 @@
 	}
 
 	.dojoxCalendarVScrollBar {
+		display: block;
 		position: absolute;
 		top: @sheet-top;
 		bottom: 0;
@@ -548,6 +552,7 @@
 	}
 
 	.dojoxCalendarHScrollBar {
+		display: block;
 		position: absolute;
 		bottom: 0;
 		left: @row-header-width;
@@ -592,7 +597,7 @@
 			.border-box;
 		}
 
-		.dojoxCalendarGridTable{
+		.dojoxCalendarGridTable {
 
 			td {
 				text-align: right;
@@ -603,11 +608,11 @@
 				.border-box;
 			}
 
-			tr.last-child td	{
+			tr:last-child td	 {
 				border-bottom: @outer-border;
 			}
 
-			td.last-child	{
+			td:last-child	 {
 				border-right: @outer-border;
 			}
 
@@ -661,6 +666,7 @@
 		}
 
 		.dojoxCalendarExpand {
+			display: block;
 			position: absolute;
 			text-align: center;
 
@@ -703,7 +709,7 @@
 	}
 }
 
-.soria .dojoxCalendarColumnView.subColumns {
+.dojoxCalendarColumnView.subColumns {
 	.dojoxCalendarScrollContainer {
 		top: @sheet-top-subcolumns;
 	}
@@ -717,7 +723,7 @@
 
 }
 
-.soria .dojoxCalendarColumnView.secondarySheet {
+.dojoxCalendarColumnView.secondarySheet {
 	.dojoxCalendarScrollContainer {
 		top: @sheet-top-secondary-sheet;
 	}
@@ -730,7 +736,7 @@
 	}
 }
 
-.soria .dojoxCalendarColumnView.subColumns.secondarySheet {
+.dojoxCalendarColumnView.subColumns.secondarySheet {
 	.dojoxCalendarScrollContainer {
 		top: @sheet-top-subcolumns-secondary-sheet;
 	}
@@ -741,4 +747,8 @@
 	.dojoxCalendarVScrollBar {
 		top: @sheet-top-subcolumns-secondary-sheet;
 	}
+}
+
+.dojoxCalendarColumnViewSecondarySheet {
+	display: block;
 }

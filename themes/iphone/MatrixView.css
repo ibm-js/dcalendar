@@ -40,10 +40,10 @@
   padding-top: 2px;
   color: #cccccc;
 }
-.dojoxCalendarMatrixView .dojoxCalendarGridTable tr.last-child td {
+.dojoxCalendarMatrixView .dojoxCalendarGridTable tr:last-child td {
   border-bottom: 1px solid #cccccc;
 }
-.dojoxCalendarMatrixView .dojoxCalendarGridTable td.last-child {
+.dojoxCalendarMatrixView .dojoxCalendarGridTable td:last-child {
   border-right: 1px solid #cccccc;
 }
 /*
@@ -152,7 +152,7 @@
   -moz-box-sizing: border-box;
   box-sizing: border-box;
 }
-.dojoxCalendarMatrixView .dojoxCalendarRowHeaderTable td.last-child {
+.dojoxCalendarMatrixView .dojoxCalendarRowHeaderTable td:last-child {
   border-bottom: 1px solid #cccccc;
 }
 .dojoxCalendarMatrixView .dojoxCalendarRowHeaderTable td.Hover {
@@ -204,6 +204,7 @@
   user-select: none;
 }
 .dojoxCalendarMatrixView .dojoxCalendarEvent {
+  display: block;
   position: absolute;
   text-align: left;
   color: #000000;
@@ -215,7 +216,6 @@
 }
 .dojoxCalendarMatrixView .dojoxCalendarEvent.dojoxCalendarHorizontal {
   color: #FFF;
-  position: absolute;
 }
 .dojoxCalendarMatrixView .dojoxCalendarEvent.dojoxCalendarHorizontal .bg {
   border: 1px solid #260000;
@@ -243,8 +243,8 @@
 }
 .dojoxCalendarMatrixView .dojoxCalendarEvent.dojoxCalendarHorizontal.Edited .bg {
   border: dashed 1px #FFF;
-  filter: alpha(opacity=50);
-  filter: formatstring("alpha(opacity={0})", 50);
+  filter: alpha(opacity=@ {op});
+  filter: formatstring("alpha(opacity= {0})", 50);
   opacity: 0.5;
 }
 .dojoxCalendarMatrixView .dojoxCalendarEvent.dojoxCalendarHorizontal.Focused .bg {
@@ -275,8 +275,8 @@
   color: #FFF;
   border: dashed 1px #FFF;
   background: #600;
-  filter: alpha(opacity=30);
-  filter: formatstring("alpha(opacity={0})", 30);
+  filter: alpha(opacity=@ {op});
+  filter: formatstring("alpha(opacity= {0})", 30);
   opacity: 0.3;
 }
 .dojoxCalendarMatrixView .dojoxCalendarEvent.dojoxCalendarLabel.Focused {
@@ -287,8 +287,8 @@
   width: 30px;
   height: 100%;
   background-color: #fff;
-  filter: alpha(opacity=0);
-  filter: formatstring("alpha(opacity={0})", 0);
+  filter: alpha(opacity=@ {op});
+  filter: formatstring("alpha(opacity= {0})", 0);
   opacity: 0;
   border-radius: 5px;
   -webkit-border-radius: 5px;
@@ -311,11 +311,12 @@
   left: auto;
 }
 .dojoxCalendarMatrixView .dojoxCalendarEvent.Edited .resizeHandle {
-  filter: alpha(opacity=30);
-  filter: formatstring("alpha(opacity={0})", 30);
+  filter: alpha(opacity=@ {op});
+  filter: formatstring("alpha(opacity= {0})", 30);
   opacity: 0.3;
 }
 .dojoxCalendarMatrixView .dojoxCalendarExpand {
+  display: block;
   position: absolute;
   text-align: center;
 }

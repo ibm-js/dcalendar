@@ -1,7 +1,8 @@
 @import "ColumnViewCommon.less";
 
 .dojoxCalendarColumnView {
-  cursor: default;
+	display: block;
+	cursor: default;
 	-webkit-user-select: none;
 }
 
@@ -52,11 +53,11 @@
 	border-top: @hour-stroke;
 }
 
-.dojoxCalendarColumnView td.halfhour{
+.dojoxCalendarColumnView td.halfhour {
 	border-top: @half-hour-stroke;
 }
 
-.dojoxCalendarColumnView  td.quarterhour{
+.dojoxCalendarColumnView  td.quarterhour {
 	border-top: @quarter-hour-stroke;
 }
 
@@ -65,8 +66,8 @@
 	background-color: @row-color;
 }
 
-.claro .dojoxCalendarColumnView span.halfhour,
-.claro .dojoxCalendarColumnView span.quarterhour{
+.dojoxCalendarColumnView span.halfhour,
+.dojoxCalendarColumnView span.quarterhour {
 	color: @secondary-label-color;
 	background-color: @row-color;
 }
@@ -135,7 +136,7 @@
 	.select-none;
 }
 
-.dojoxCalendarColumnView .dojoxCalendarYearColumnHeader{
+.dojoxCalendarColumnView .dojoxCalendarYearColumnHeader {
 	position: absolute;
 	height: @column-header-height;
 	left: 0;
@@ -209,13 +210,13 @@
 	.border-box;
 }
 
-.dojoxCalendarColumnView .dojoxCalendarRowHeaderLabelContainer{
+.dojoxCalendarColumnView .dojoxCalendarRowHeaderLabelContainer {
 	width: 100%;
 	height: 100%;
 	z-index: 10;
 }
 
-.dojoxCalendarColumnView .dojoxCalendarRowHeaderLabel{
+.dojoxCalendarColumnView .dojoxCalendarRowHeaderLabel {
 	right: 4px;
 	position: absolute;
 }
@@ -240,7 +241,7 @@
 	border-top: 1px solid transparent;
 }
 
-.dojoxCalendarColumnView .dojoxCalendarRowHeaderTable tr:first-child td	{
+.dojoxCalendarColumnView .dojoxCalendarRowHeaderTable tr:first-child td	 {
 	border-top: 1px solid transparent;
 }
 
@@ -250,6 +251,7 @@
 }
 
 .dojoxCalendarColumnView .dojoxCalendarEvent {
+	display: block;
 	position: absolute;
 	text-align: left;
 	color: #FFF;
@@ -371,6 +373,7 @@
 }
 
 .dojoxCalendarColumnView .dojoxCalendarVScrollBar {
+	display: block;
 	position: absolute;
 	top: @sheet-top;
 	bottom: 0;
@@ -425,11 +428,11 @@
 	.border-box;
 }
 
-.dojoxCalendarColumnView .dojoxCalendarMatrixView .dojoxCalendarGridTable tr.last-child td	{
+.dojoxCalendarColumnView .dojoxCalendarMatrixView .dojoxCalendarGridTable tr:last-child td	 {
 	border-bottom: @outer-border;
 }
 
-.dojoxCalendarColumnView .dojoxCalendarMatrixView .dojoxCalendarGridTable td.last-child	{
+.dojoxCalendarColumnView .dojoxCalendarMatrixView .dojoxCalendarGridTable td:last-child	 {
 	border-right: @outer-border;
 }
 
@@ -532,6 +535,7 @@
 }
 
 .dojoxCalendarColumnView .dojoxCalendarMatrixView .dojoxCalendarExpand {
+	display: block;
 	position: absolute;
 	text-align: center;
 }
