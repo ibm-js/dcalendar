@@ -1,11 +1,8 @@
 define([
 	"dcl/dcl",
-	"dojo/_base/array",
-	"dojo/_base/html",
 	"dojo/_base/lang",
-	"dojo/dom-class",
 	"decor/Stateful"
-], function (dcl, arr, html, lang, domClass, Stateful) {
+], function (dcl, lang, Stateful) {
 
 	return dcl(Stateful, {
 		// summary:
@@ -79,9 +76,6 @@ define([
 			//		The store.
 			// returns: Object
 
-			if (this.owner) {
-				return this.owner.itemToRenderItem(item, store);
-			}
 			return {
 				id: store.getIdentity(item),
 				summary: item[this.summaryAttr],
@@ -117,10 +111,6 @@ define([
 			//		The store.
 			// returns: Object
 
-			if (this.owner) {
-				return this.owner.renderItemToItem(renderItem, store);
-			}
-
 			var item = {};
 			item[store.idProperty] = renderItem.id;
 			item[this.summaryAttr] = renderItem.summary;
@@ -135,66 +125,11 @@ define([
 			return this.getItemStoreState(renderItem) === "unstored" ? item : lang.mixin(renderItem._item, item);
 		},
 
-		_computeVisibleItems: function (renderData) {
-			// summary:
-			//		Computes the data items that are in the displayed interval.
-			// renderData: Object
-			//		The renderData that contains the start and end time of the displayed interval.
-			// tags:
-			//		protected
-
-			if (this.owner) {
-				return this.owner._computeVisibleItems(renderData);
-			}
-
-			renderData.items = this.storeManager._computeVisibleItems(renderData);
-		},
-
 		_initItems: function (items) {
 			// tags:
 			//		private
 			this.items = items;
 			return items;
-		},
-
-		_refreshItemsRendering: function (renderData) {
-		},
-
-		_setStoreAttr: function (value) {
-			this._set("store", value);
-			this.storeManager.store = value;
-		},
-
-		_getItemStoreStateObj: function (/*Object*/item) {
-			// tags
-			//		private
-			return this.storeManager._getItemStoreStateObj(item);
-		},
-
-		getItemStoreState: function (item) {
-			//	summary:
-			//		Returns the creation state of an item.
-			//		This state is changing during the interactive creation of an item.
-			//		Valid values are:
-			//		- "unstored": The event is being interactively created. It is not in the store yet.
-			//		- "storing": The creation gesture has ended, the event is being added to the store.
-			//		- "stored": The event is not in the two previous states, and is assumed to be in the store
-			//		(not checking because of performance reasons, use store API for testing existence in store).
-			// item: Object
-			//		The item.
-			// returns: String
-
-			return this.storeManager.getItemStoreState(item);
-		},
-
-		_cleanItemStoreState: function (id) {
-			this.storeManager._cleanItemStoreState(id);
-		},
-
-		_setItemStoreState: function (/*Object*/item, /*String*/state) {
-			// tags
-			//		private
-			this.storeManager._setItemStoreState(item, state);
 		}
 	});
 });

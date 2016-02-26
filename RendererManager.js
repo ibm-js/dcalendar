@@ -9,12 +9,10 @@ define([
 	domStyle,
 	Evented
 ) {
-
-	// TODO: this used to extend Stateful but it doesn't seem necessary?   Confirm.
 	return dcl(Evented, {
 
 		// summary:
-		//		This mixin contains the store management.
+		//		Factory for creating and caching released item renderers (LabelRenderer, VerticalRenderer, etc.)
 
 		// owner: Object
 		//	The owner of the store manager: a view or a calendar widget.
@@ -70,14 +68,15 @@ define([
 
 		getRenderers: function (item) {
 			// summary:
-			//		Returns the renderers that are currently used to displayed the speficied item.
+			//		Returns the renderers that are currently used to display the specified item.
 			//		Returns an array of objects that contains two properties:
 			//		- container: The DOM node that contains the renderer.
-			//		- renderer: The dojox.calendar._RendererMixin instance.
+			//		- renderer: The dcalendar/_RendererMixin instance.
 			//		Do not keep references on the renderers are they are recycled and reused for other items.
 			// item: Object
 			//		The data or render item.
 			// returns: Object[]
+
 			if (item == null || item.id == null) {
 				return null;
 			}
@@ -85,7 +84,7 @@ define([
 			return list == null ? null : list.concat();
 		},
 
-		createRenderer: function (item, kind, rendererClass, cssClass) {
+		createRenderer: function (item, kind, rendererClass) {
 			// summary:
 			//		Creates an item renderer of the specified kind.
 			//		A renderer is an object with the "container" and "instance" properties.
@@ -144,7 +143,7 @@ define([
 		recycleRenderer: function (renderer, remove) {
 			// summary:
 			//		Recycles the item renderer to be reused in the future.
-			// renderer: dojox/calendar/_RendererMixin
+			// renderer: dcalendar/_RendererMixin
 			//		The item renderer to recycle.
 			// tags:
 			//		protected
@@ -172,7 +171,7 @@ define([
 		destroyRenderer: function (renderer) {
 			// summary:
 			//		Destroys the item renderer.
-			// renderer: dojox/calendar/_RendererMixin
+			// renderer: dcalendar/_RendererMixin
 			//		The item renderer to destroy.
 			// tags:
 			//		protected

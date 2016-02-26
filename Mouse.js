@@ -26,7 +26,7 @@ define([
 		 //		The event dispatched when an item is clicked, double-clicked or context-clicked.
 		 // item: Object
 		 //		The item clicked.
-		 // renderer: dojox/calendar/_RendererMixin
+		 // renderer: dcalendar/_RendererMixin
 		 //		The item renderer clicked.
 		 // triggerEvent: Event
 		 //		The event at the origin of this event.

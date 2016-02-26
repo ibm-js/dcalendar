@@ -65,7 +65,7 @@ define([
 		 //		The event dispatched when an item is clicked, double-clicked or context-clicked.
 		 // item: Object
 		 //		The item clicked.
-		 // renderer: dojox/calendar/_RendererMixin
+		 // renderer: dcalendar/_RendererMixin
 		 //		The item renderer clicked.
 		 // triggerEvent: Event
 		 //		The event at the origin of this event.
@@ -77,9 +77,11 @@ define([
 		 // summary:
 		 //		An item editing event.
 		 // item: Object
-		 //		The render item that is being edited. Set/get the startTime and/or endTime properties to customize editing behavior.
+		 //		The render item that is being edited. Set/get the startTime and/or endTime properties
+		 //		to customize editing behavior.
 		 // storeItem: Object
-		 //		The real data from the store. DO NOT change properties, but you may use properties of this item in the editing behavior logic.
+		 //		The real data from the store. DO NOT change properties, but you may use properties of this item
+		 //		in the editing behavior logic.
 		 // editKind: String
 		 //		Kind of edit: "resizeBoth", "resizeStart", "resizeEnd" or "move".
 		 // dates: Date[]
@@ -90,7 +92,7 @@ define([
 		 //		The end time of data item.
 		 // sheet: String
 		 //		For views with several sheets (columns view for example), the sheet when the event occurred.
-		 // source: dojox/calendar/ViewBase
+		 // source: dcalendar/ViewBase
 		 //		The view where the event occurred.
 		 // eventSource: String
 		 //		The device that triggered the event. This property can take the following values:
@@ -109,10 +111,11 @@ define([
 		 //		An renderer lifecycle event.
 		 // renderer: Object
 		 //		The renderer.
-		 // source: dojox/calendar/ViewBase
+		 // source: dcalendar/ViewBase
 		 //		The view where the event occurred.
 		 // item:Object?
-		 //		The item that will be displayed by the renderer for the "rendererCreated" and "rendererReused" events.
+		 //		The item that will be displayed by the renderer for the
+		 //		"rendererCreated" and "rendererReused" events.
 	 };
 	 =====*/
 
@@ -124,7 +127,7 @@ define([
 	return dcl([Widget, StoreMixin, Selection], {
 
 		// summary:
-		//		The dcalendar/ViewBase class is the base of ColumnView, MatrixView, etc.
+		//		Base class of the views (ColumnView, MatrixView, etc.).
 
 		// datePackage: String
 		//		JavaScript namespace to find Calendar routines.
@@ -155,10 +158,6 @@ define([
 
 		_cssDays: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
 
-		_getFormatItemTimeFuncAttr: function () {
-			return this._get("formatItemTimeFunc") || (this.owner && this.owner.formatItemTimeFunc);
-		},
-
 		// The listeners added by the view itself.
 		_viewHandles: null,
 
@@ -166,11 +165,13 @@ define([
 		//		The maximum time amount in milliseconds between to touchstart events that trigger a double-tap event.
 		doubleTapDelay: 300,
 
-		_setDatePackageAttr: function (/*String*/ dp) {
-			this._calendar = dp ? dp.substr(dp.lastIndexOf(".") + 1) : "gregorian";
-			this.dateModule = dp ? lang.getObject(dp, false) : date;
-			this.dateClassObj = this.dateModule.Date || Date;
-			this.dateLocaleModule = dp ? lang.getObject(dp + ".locale", false) : locale;
+		_setDatePackageAttr: function (/*String||Object*/ dp) {
+			if (dp === null || typeof dp === "string") {
+				this._calendar = dp ? dp.substr(dp.lastIndexOf(".") + 1) : "gregorian";
+				this.dateModule = dp ? lang.getObject(dp, false) : date;
+				this.dateClassObj = this.dateModule.Date || Date;
+				this.dateLocaleModule = dp ? lang.getObject(dp + ".locale", false) : locale;
+			}
 			this._set("datePackage", dp);
 		},
 		
@@ -180,30 +181,63 @@ define([
 			// Set default date package for now.  If user specifies date package these setting will be overwritten.
 			this._setDatePackageAttr(null);
 
-			this.storeManager = new StoreManager({owner: this, _ownerItemsProperty: "items"});
-			this.storeManager.on("layoutInvalidated", lang.hitch(this, this._refreshItemsRendering));
-			this.storeManager.on("dataLoaded", lang.hitch(this, function (items) {
+			this.storeManager = new StoreManager({
+				owner: this,
+				_ownerItemsProperty: "items",
+				store: this.store
+			});
+			this.storeManager.on("layoutInvalidated", function () {
+				// Trigger call to refreshRendering(), and full relayout of all the items.
+				this.items = this.storeManager.items;
+			}.bind(this));
+			this.storeManager.on("dataLoaded", function (items) {
+				// Trigger call to refreshRendering(), and full layout of all the items.
 				this.items = items;
-			}));
-			this.storeManager.on("renderersInvalidated", lang.hitch(this, function (item) {
-				this.updateRenderers(item);
-			}));
+			}.bind(this));
+			// For minor changes to a single renderer, just update the renderer w/out calling this.refreshRendering()
+			this.storeManager.on("renderersInvalidated", this.updateRenderers.bind(this));
 
 			this.rendererManager = new RendererManager({owner: this});
-			this.rendererManager.on("rendererCreated", lang.hitch(this, this._onRendererCreated));
-			this.rendererManager.on("rendererReused", lang.hitch(this, this._onRendererReused));
-			this.rendererManager.on("rendererRecycled", lang.hitch(this, this._onRendererRecycled));
-			this.rendererManager.on("rendererDestroyed", lang.hitch(this, this._onRendererDestroyed));
+			this.rendererManager.on("rendererCreated", this.emit.bind(this, "renderer-created"));
+			this.rendererManager.on("rendererReused", this.emit.bind(this, "renderer-reused"));
+			this.rendererManager.on("rendererRecycled", this.emit.bind(this, "renderer-recycled"));
+			this.rendererManager.on("rendererDestroyed", this.emit.bind(this, "renderer-destroyed"));
 
 			this.decorationStoreManager = new StoreManager({owner: this, _ownerItemsProperty: "decorationItems"});
-			this.decorationStoreManager.on("layoutInvalidated",
-				lang.hitch(this, this._refreshDecorationItemsRendering));
-			this.decorationStoreManager.on("dataLoaded", lang.hitch(this, function (items) {
+			this.decorationStoreManager.on("dataLoaded", function (items) {
 				this.decorationItems = items;
-			}));
+			}.bind(this));
+			this.decorationStoreManager.on("layoutInvalidated", function () {
+				this.decorationItems = this.decorationStoreManager.items;
+			}.bind(this));
 			this.decorationRendererManager = new RendererManager({owner: this});
 
 			this._setupDayRefresh();
+		},
+
+		refreshRendering: function (oldVals, firstTime) {
+			var oldRd = this.renderData;
+
+			// Do preparation calculations for rendering widget.  Some of these calculations depend on the template
+			// already having been instantiated.
+			// TODO (long term): Don't lump everything together under this.renderData,
+			// and then be specific about when certain things need to be recomputed.
+			// In particular differentiate between redrawing the grid vs. redrawing the items on the grid.
+			var rd = this.renderData = this._createRenderData();
+
+			// We just set this.renderData, avoid another pass through computeProperties() and refreshRendering().
+			this.discardChanges();
+
+			// Create the grid/boilerplate.  TODO: Only call this when day, numDays, etc. has changed
+			this._createRendering(rd, oldRd);
+
+			if (true || "decorationItems" in oldVals) {
+				this._layoutDecorationRenderers(rd);
+			}
+
+			if (true || "items" in oldVals) {
+				this._layoutRenderers(rd);
+			}
 		},
 
 		destroy: function () {
@@ -228,7 +262,7 @@ define([
 			}
 			setTimeout(lang.hitch(this, function () {
 				if (!this._isEditing) {
-					this.refreshRendering(true); // recursive refresh
+					this.notifyCurrentValue("???");		// TODO: what do I put here to make refreshRendering() rerender?
 				}
 				this._setupDayRefresh();
 			}), d.getTime() - now.getTime() + 5000);
@@ -276,27 +310,9 @@ define([
 			//		protected
 		},
 
-		// TODO: get rid of this?  A view shouldn't have to know its owner.  Do it the opposite way.
-		_getTopOwner: function () {
-			// summary:
-			//		Returns the top owner: the calendar or the parent view.
-			var p = this;
-			while (p.owner != undefined) {
-				p = p.owner;
-			}
-			return p;
-		},
-
 		_createRenderData: function () {
 			// summary:
 			//		Creates the object that contains all the data needed to render this widget.
-			// tags:
-			//		protected
-		},
-
-		_validateProperties: function () {
-			// summary:
-			//		Validates the widget properties before the rendering pass.
 			// tags:
 			//		protected
 		},
@@ -399,6 +415,7 @@ define([
 			// reuse: Boolean
 			//		Whether use the specified instance or create a new one. Default is false.
 			// returns: Date
+
 			return timeUtil.floorToDay(date, reuse, this.dateClassObj);
 		},
 
@@ -410,6 +427,7 @@ define([
 			// reuse: Boolean
 			//		Whether use the specified instance or create a new one. Default is false.
 			// returns: Date
+
 			return timeUtil.floorToMonth(date, reuse, this.dateClassObj);
 		},
 
@@ -426,6 +444,7 @@ define([
 			// reuse: Boolean
 			//		Whether use the specified instance or create a new one. Default is false.
 			// returns: Date
+
 			return timeUtil.floor(date, unit, steps, reuse, this.dateClassObj);
 		},
 
@@ -437,6 +456,7 @@ define([
 			// renderData: Object
 			//		The current renderData
 			// returns: Boolean
+
 			return timeUtil.isToday(date, this.dateClassObj);
 		},
 
@@ -446,6 +466,7 @@ define([
 			// d:Date
 			//		The date to test.
 			// returns: Boolean
+
 			return timeUtil.isStartOfDay(d, this.dateClassObj, this.dateModule);
 		},
 
@@ -466,6 +487,7 @@ define([
 			// includeLimits: Boolean
 			//		Whether include the end time or not.
 			// returns: Boolean
+
 			return timeUtil.isOverlapping(renderData, start1, end1, start2, end2, includeLimits);
 		},
 
@@ -486,6 +508,7 @@ define([
 			// includeLimits: Boolean
 			//		Whether include the end time or not.
 			// returns: Date[]
+
 			var cal = renderData.dateModule;
 
 			if (start1 == null || start2 == null || end1 == null || end2 == null) {
@@ -1020,25 +1043,6 @@ define([
 		//
 		////////////////////////////////////////////////////////
 
-		_getStoreAttr: function () {
-			// TODO: get rid of this; ViewBase shouldn't need to know about having an owner.
-			if (this.owner) {
-				return this.owner.store;
-			}
-			return this._get("store");
-		},
-
-		_setItemsAttr: function (value) {
-			this._set("items", value);
-			this.displayedItemsInvalidated = true;
-		},
-
-		_refreshItemsRendering: function () {
-			var rd = this.renderData;
-			this._computeVisibleItems(rd);
-			this._layoutRenderers(rd);
-		},
-
 		_refreshDecorationItemsRendering: function () {
 			var rd = this.renderData;
 			this._computeVisibleItems(rd);
@@ -1048,25 +1052,14 @@ define([
 		invalidateLayout: function () {
 			// summary:
 			//		Triggers a re-layout of the renderers.
+			//		Generally this shouldn't be used; layout happens automatically on property changes.
 
 			this._layoutRenderers(this.renderData);
 			this._layoutDecorationRenderers(this.renderData);
 		},
 
-		_setDecorationItemsAttr: function (value) {
-			this._set("decorationItems", value);
-			this.displayedDecorationItemsInvalidated = true;
-		},
-
-		_getDecorationStoreAttr: function () {
-			if (this.owner) {
-				return this.owner.decorationStore;
-			}
-			return this._get("decorationStore");
-		},
-
 		_setDecorationStoreAttr: function (value) {
-			this.decorationStore = value;
+			this._set("decorationStore", value);
 			this.decorationStoreManager.store = value;
 		},
 
@@ -1218,7 +1211,7 @@ define([
 
 			var endDate;
 
-			var items = items.concat();
+			items = items.concat();
 
 			var itemsTemp = [], events;
 			var processing = {};
@@ -1276,7 +1269,7 @@ define([
 				index++;
 			}
 
-			this._onRenderersLayoutDone(this);
+			this.emit("renderer-layout-done");
 		},
 
 		/////////////////////////////////////////////////////////////////
@@ -1350,99 +1343,10 @@ define([
 			return this.rendererManager.createRenderer(item, kind, rendererClass, cssClass);
 		},
 
-		_onRendererCreated: function (e) {
-			if (e.source == this) {
-				this.onRendererCreated(e);
-			}
-			if (this.owner != null) {
-				this.owner._onRendererCreated(e);
-			}
-		},
-
-		onRendererCreated: function (e) {
-			// summary:
-			//		Event dispatched when an item renderer has been created.
-			// e: __rendererLifecycleEventArgs
-			//		The renderer lifecycle event.
-			// tags:
-			//		callback
-		},
-
-		_onRendererRecycled: function (e) {
-			if (e.source == this) {
-				this.onRendererRecycled(e);
-			}
-			if (this.owner != null) {
-				this.owner._onRendererRecycled(e);
-			}
-		},
-
-		onRendererRecycled: function (e) {
-			// summary:
-			//		Event dispatched when an item renderer has been recycled.
-			// e: __rendererLifecycleEventArgs
-			//		The renderer lifecycle event.
-			// tags:
-			//		callback
-		},
-
-		_onRendererReused: function (e) {
-			if (e.source == this) {
-				this.onRendererReused(e);
-			}
-			if (this.owner != null) {
-				this.owner._onRendererReused(e);
-			}
-		},
-
-		onRendererReused: function (e) {
-			// summary:
-			//		Event dispatched when an item renderer that was recycled is reused.
-			// e: __rendererLifecycleEventArgs
-			//		The renderer lifecycle event.
-			// tags:
-			//		callback
-		},
-
-		_onRendererDestroyed: function (e) {
-			if (e.source == this) {
-				this.onRendererDestroyed(e);
-			}
-			if (this.owner != null) {
-				this.owner._onRendererDestroyed(e);
-			}
-		},
-
-		onRendererDestroyed: function (e) {
-			// summary:
-			//		Event dispatched when an item renderer is destroyed.
-			// e: __rendererLifecycleEventArgs
-			//		The renderer lifecycle event.
-			// tags:
-			//		callback
-		},
-
-		_onRenderersLayoutDone: function (view) {
-			// tags:
-			//		private
-
-			this.onRenderersLayoutDone(view);
-			if (this.owner != null) {
-				this.owner._onRenderersLayoutDone(view);
-			}
-		},
-
-		onRenderersLayoutDone: function (view) {
-			// summary:
-			//		Event triggered when item renderers layout has been done.
-			// tags:
-			//		callback
-		},
-
 		_recycleRenderer: function (renderer, remove) {
 			// summary:
 			//		Recycles the item renderer to be reused in the future.
-			// renderer: dojox/calendar/_RendererMixin
+			// renderer: dcalendar/_RendererMixin
 			//		The item renderer to recycle.
 			// tags:
 			//		protected
@@ -1453,7 +1357,7 @@ define([
 		_destroyRenderer: function (renderer) {
 			// summary:
 			//		Destroys the item renderer.
-			// renderer: dojox/calendar/_RendererMixin
+			// renderer: dcalendar/_RendererMixin
 			//		The item renderer to destroy.
 			// tags:
 			//		protected
@@ -1480,7 +1384,7 @@ define([
 			//		according to its event current editing state.
 			// item: Object
 			//		The store data item.
-			// renderer: dojox/calendar/_RendererMixin
+			// renderer: dcalendar/_RendererMixin
 			//		The item renderer.
 			// tags:
 			//		protected
@@ -1505,12 +1409,12 @@ define([
 
 		updateRenderers: function (obj, stateOnly) {
 			// summary:
-			//		Updates all the renderers that represents the specified item(s).
+			//		Updates all the renderers that represent the specified item(s).
 			// obj: Object
-			//		A render item or an array of render items.
+			//		An item or an array of items.
 			// stateOnly: Boolean
 			//		Whether only the state of the item has changed (selected, edited, edited, focused)
-			//		or a more global change has occured.
+			//		or a more global change has occurred.
 			// tags:
 			//		protected
 
@@ -1557,7 +1461,6 @@ define([
 						}
 					}
 				}
-
 			}
 		},
 
@@ -1587,7 +1490,7 @@ define([
 		},
 
 		getIdentity: function (item) {
-			return this.owner ? this.owner.getIdentity(item) : item.id;
+			return item.id;
 		},
 
 		/////////////////////////////////////////////////////
@@ -1601,7 +1504,7 @@ define([
 			//		Sets the current hovered item.
 			// item: Object
 			//		The data item.
-			// renderer: dojox/calendar/_RendererMixin
+			// renderer: dcalendar/_RendererMixin
 			//		The item renderer.
 			// tags:
 			//		protected
@@ -1655,98 +1558,6 @@ define([
 
 		////////////////////////////////////////////////////////////////////
 		//
-		// Selection delegation
-		//
-		///////////////////////////////////////////////////////////////////
-
-		_setSelectionModeAttr: dcl.superCall(function (sup) {
-			return function (value) {
-				if (this.owner) {
-					this.owner.selectionMode = value;
-				} else {
-					sup.apply(this, arguments);
-				}
-			};
-		}),
-
-		_getSelectionModeAttr: dcl.superCall(function (sup) {
-			return function () {
-				if (this.owner) {
-					return this.owner.selectionMode;
-				}
-				return sup.apply(this, arguments);
-			};
-		}),
-
-		_setSelectedItemAttr: dcl.superCall(function (sup) {
-			return function (value) {
-				if (this.owner) {
-					this.owner.selectedItem = value;
-				} else {
-					sup.apply(this, arguments);
-				}
-			};
-		}),
-
-		_getSelectedItemAttr: dcl.superCall(function (sup) {
-			return function () {
-				if (this.owner) {
-					return this.owner.selectedItem;
-				}
-				return this._get("selectedItem"); // no getter on super class (delite/Selection)
-			};
-		}),
-
-		_setSelectedItemsAttr: dcl.superCall(function (sup) {
-			return function (value) {
-				if (this.owner) {
-					this.owner.selectedItems = value;
-				} else {
-					sup.apply(this, arguments);
-				}
-			};
-		}),
-
-		_getSelectedItemsAttr: dcl.superCall(function (sup) {
-			return function () {
-				if (this.owner) {
-					return this.owner.selectedItems;
-				}
-				return sup.apply(this, arguments);
-			};
-		}),
-
-		isItemSelected: dcl.superCall(function (sup) {
-			return function (item) {
-				if (this.owner) {
-					return this.owner.isItemSelected(item);
-				}
-				return sup.apply(this, arguments);
-			};
-		}),
-
-		selectFromEvent: dcl.superCall(function (sup) {
-			return function(e, item, renderer, dispatch){
-				if (this.owner) {
-					this.owner.selectFromEvent(e, item, renderer, dispatch);
-				} else {
-					sup.apply(this, arguments);
-				}
-			};
-		}),
-
-		setItemSelected: dcl.superCall(function (sup) {
-			return function (item, value) {
-				if (this.owner) {
-					this.owner.setItemSelected(item, value);
-				} else {
-					sup.apply(this, arguments);
-				}
-			};
-		}),
-
-		////////////////////////////////////////////////////////////////////
-		//
 		// Event creation
 		//
 		///////////////////////////////////////////////////////////////////
@@ -1768,24 +1579,11 @@ define([
 		 =====*/
 
 
-		_getCreateItemFuncAttr: function () {
-			if (this.owner) {
-				return this.owner.createItemFunc;
-			}
-			return this._get("createItemFunc");
-		},
-
 		// createOnGridClick: Boolean
 		//		Indicates whether the user can create new event by clicking and dragging the grid.
 		//		A createItem function must be defined on the view or the calendar object.
 		createOnGridClick: false,
 
-		_getCreateOnGridClickAttr: function () {
-			if (this.owner) {
-				return this.owner.createOnGridClick;
-			}
-			return this._get("createOnGridClick");
-		},
 
 		////////////////////////////////////////////////////////////////////
 		//
@@ -1852,12 +1650,13 @@ define([
 				this._setItemStoreState(newItem, "unstored");
 
 				// add the new temporary item to the displayed list and force view refresh
-				var owner = this._getTopOwner();
-				var items = owner.items;
+				var items = this.items;
 
-				owner.items = (items ? items.concat([newRenderItem]) : [newRenderItem]);
+				this.items = (items ? items.concat([newRenderItem]) : [newRenderItem]);
+				
+				
 
-				this._refreshItemsRendering();
+				this.deliver();	// trigger renderer for new item to be created
 
 				// renderer created in _refreshItemsRenderering()
 				var renderers = this.getRenderers(newItem);
@@ -1911,22 +1710,22 @@ define([
 				}
 			}
 
-			this._doEndItemEditing(this.owner, "touch");
+			this._doEndItemEditing("touch");
 
 			event.stop(e);
 		},
 
-		_doEndItemEditing: function (obj, eventSource) {
+		_doEndItemEditing: function (eventSource) {
 			// tags:
 			//		private
 
-			if (obj && obj._isEditing) {
-				var p = obj._edProps;
+			if (this && this._isEditing) {
+				var p = this._edProps;
 				if (p && p.endEditingTimer) {
 					clearTimeout(p.endEditingTimer);
 					p.endEditingTimer = null;
 				}
-				obj._endItemEditing(eventSource, false);
+				this._endItemEditing(eventSource, false);
 			}
 		},
 
@@ -2398,8 +2197,7 @@ define([
 			}
 			this._cleanItemStoreState(id);
 			if (found) {
-				owner.items = items; //force a complete relayout
-				this.invalidateLayout();
+				owner.items = items; //force a complete relayout (TODO: be more efficient)
 			}
 		},
 

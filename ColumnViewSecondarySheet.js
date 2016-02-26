@@ -139,18 +139,11 @@ define([
 				this.expandRendererHeight + this.verticalGap + this.verticalGap;
 		},
 
-		_layoutRenderers: register.superCall(function (sup) {
-			return function (renderData) {
-				if (!this._domReady) {
-					return;
-				}
-				sup.apply(this, arguments);
-
-				// make sure to show the expand/collapse renderer if no item is displayed but the row was expanded.
-				if (!renderData.items || renderData.items.length === 0) {
-					this._layoutExpandRenderers(0, false, null);
-				}
-			};
-		})
+		refreshRendering: function () {
+			// make sure to show the expand/collapse renderer if no item is displayed but the row was expanded.
+			if (!this.renderData.items || this.renderData.items.length === 0) {
+				this._layoutExpandRenderers(0, false, null);
+			}
+		}
 	});
 });

@@ -1,5 +1,4 @@
 define([
-	"dojo/_base/array",
 	"delite/register",
 	"dojo/_base/event",
 	"dojo/_base/lang",
@@ -18,7 +17,6 @@ define([
 	"delite/handlebars!./templates/ColumnView.html",
 	"./ColumnViewSecondarySheet"
 ], function (
-	arr,
 	register,
 	event,
 	lang,
@@ -69,10 +67,17 @@ define([
 		render: register.superCall(function (sup) {
 			return function () {
 				sup.apply(this, arguments);
-				if (this.secondarySheet) {
+				if (this.secondarySheetPlaceholder) {
 					var args = lang.mixin({owner: this}, this.secondarySheetProps);
 					this.secondarySheet = new this.secondarySheetClass(args);
 					this.secondarySheet.placeAt(this.secondarySheetPlaceholder, "replace");
+
+					// Reflect all my property updates to second sheet
+					this.observe(function (props) {
+						for (var p in props) {
+							this.secondarySheet[p] = this.p;
+						}
+					});
 				}
 			};
 		}),
@@ -102,16 +107,6 @@ define([
 			};
 		}),
 
-		invalidateLayout: function () {
-			// tags:
-			//		private
-
-			this._layoutRenderers(this.renderData);
-			if (this.secondarySheet) {
-				this.secondarySheet._layoutRenderers(this.secondarySheet.renderData);
-			}
-		},
-
 		onRowHeaderClick: function () {
 			// summary:
 			//		Event dispatched when the row header cell of the secondary sheet is clicked.
@@ -119,22 +114,13 @@ define([
 			//		callback
 		},
 
-		_setSubColumnsAttr: function (value) {
-			var old = this.subColumns;
-			if (old != value) {
-				this._secondaryHeightInvalidated = true;
-			}
-			this._set("subColumns", value);
-		},
-
-		refreshRendering: function (recursive) {
-			if (this._secondaryHeightInvalidated) {
-				this._secondaryHeightInvalidated = false;
+		refreshRendering: function (props) {
+			if ("subColumns" in props && this.secondarySheet) {
 				var h = domGeometry.getMarginBox(this.secondarySheet).h;
 				this.resizeSecondarySheet(h);
 			}
-			if (recursive && this.secondarySheet) {
-				this.secondarySheet.refreshRendering(true);
+			if (this.secondarySheet) {
+				this.secondarySheet.deliver();
 			}
 		},
 
@@ -171,98 +157,8 @@ define([
 			};
 		}),
 
-		_setItemsAttr: register.superCall(function (sup) {
-			return function (value) {
-				sup.apply(this, arguments);
-				if (this.secondarySheet) {
-					this.secondarySheet.items = value;
-				}
-			};
-		}),
-
-		_setDecorationItemsAttr: register.superCall(function (sup) {
-			return function (value) {
-				sup.apply(this, arguments);
-				if (this.secondarySheet) {
-					this.secondarySheet.decorationItems = value;
-				}
-			};
-		}),
-
-		_setStartDateAttr: register.superCall(function (sup) {
-			return function (value) {
-				sup.apply(this, arguments);
-				if (this.secondarySheet) {
-					this.secondarySheet.startDate = value;
-				}
-			};
-		}),
-
-		_setColumnCountAttr: register.superCall(function (sup) {
-			return function (value) {
-				sup.apply(this, arguments);
-				if (this.secondarySheet) {
-					this.secondarySheet.columnCount = value;
-				}
-			};
-		}),
-
-		_setHorizontalRendererAttr: function (value) {
-			if (this.secondarySheet) {
-				this.secondarySheet.horizontalRenderer = value;
-			}
-		},
-
-		_getHorizontalRendererAttr: function () {
-			if (this.secondarySheet) {
-				return this.secondarySheet.horizontalRenderer;
-			}
-			return null;
-		},
-
-		_setHorizontalDecorationRendererAttr: register.superCall(function (sup) {
-			return function (value) {
-				sup.apply(this, arguments);
-				if (this.secondarySheet) {
-					this.secondarySheet.horizontalDecorationRenderer = value;
-				}
-			};
-		}),
-
-		_getHorizontalDecorationRendererAttr: function () {
-			if (this.secondarySheet) {
-				return this.secondarySheet.horizontalDecorationRenderer;
-			}
-			return null;
-		},
-
-		_setExpandRendererAttr: function (value) {
-			if (this.secondarySheet) {
-				this.secondarySheet.expandRenderer = value;
-			}
-		},
-
-		_getExpandRendererAttr: function () {
-			if (this.secondarySheet) {
-				return this.secondarySheet.expandRenderer;
-			}
-			return null;
-		},
-
-		_setTextDirAttr: function (value) {
-			this.secondarySheet.textDir = value;
-			this._set("textDir", value);
-		},
-
 		_defaultItemToRendererKindFunc: function (item) {
 			return item.allDay ? null : "vertical"; // String
-		},
-
-		getSecondarySheet: function () {
-			// summary:
-			//		Returns the secondary sheet
-			// returns: dojox/calendar/MatrixView
-			return this.secondarySheet;
 		},
 
 		// TODO: combine to use pointer events?
@@ -282,7 +178,7 @@ define([
 					domStyle.set(this.secondarySheet, atRight ? "right" : "left", renderData.scrollbarWidth + "px");
 					domStyle.set(this.secondarySheet, atRight ? "left" : "right", "0");
 
-					arr.forEach(this.secondarySheet._hScrollNodes, function (elt) {
+					this.secondarySheet._hScrollNodes.forEach( function (elt) {
 						domClass[renderData.hScrollBarEnabled ? "add" : "remove"](elt.parentNode,
 							"dojoxCalendarHorizontalScroll");
 					}, this);
@@ -305,37 +201,6 @@ define([
 				if (this.secondarySheet) {
 					this.secondarySheet._setHScrollPosition(pos);
 				}
-			};
-		}),
-
-		_refreshItemsRendering: register.superCall(function (sup) {
-			return function () {
-				sup.apply(this, arguments);
-				if (this.secondarySheet) {
-					var rd = this.secondarySheet.renderData;
-					this.secondarySheet._computeVisibleItems(rd);
-					this.secondarySheet._layoutRenderers(rd);
-				}
-			};
-		}),
-
-		_layoutRenderers: register.superCall(function (sup) {
-			return function (renderData) {
-				if (!this.secondarySheet._domReady) {
-					this.secondarySheet._domReady = true;
-					this.secondarySheet._layoutRenderers(this.secondarySheet.renderData);
-				}
-				sup.apply(this, arguments);
-			};
-		}),
-
-		_layoutDecorationRenderers: register.superCall(function (sup) {
-			return function (renderData) {
-				if (!this.secondarySheet._decDomReady) {
-					this.secondarySheet._decDomReady = true;
-					this.secondarySheet._layoutDecorationRenderers(this.secondarySheet.renderData);
-				}
-				sup.apply(this, arguments);
 			};
 		})
 	});

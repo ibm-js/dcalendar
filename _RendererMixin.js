@@ -15,7 +15,7 @@ define([
 		//		The layout item displayed by this renderer.
 		item: null,
 
-		// owner: dojox/calendar/_ViewBase
+		// owner: dcalendar/ViewBase
 		//		The view that contains this renderer.
 		//		TODO: get rid of this field?  A renderer shouldn't need to know who owns it.
 		owner: null,

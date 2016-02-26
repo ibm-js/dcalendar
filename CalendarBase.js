@@ -1,43 +1,29 @@
 define([
 	"dcl/dcl",
-	"dojo/_base/event",
 	"dojo/_base/lang",
-	"dojo/_base/array",
 	"dojo/cldr/supplemental",
-	"dojo/dom",
+	"dojo/date",
+	"dojo/date/locale",
 	"dojo/dom-class",
 	"dojo/dom-style",
 	"dojo/dom-construct",
 	"dojo/dom-geometry",
-	"dojo/date",
-	"dojo/date/locale",
-	"dojo/_base/fx",
-	"dojo/fx",
 	"delite/Widget",
-	"delite/Selection",
 	"./StoreMixin",
-	"./StoreManager",
 	"./time",
 	"dojo/i18n!./nls/buttons"
 ], function (
 	dcl,
-	event,
 	lang,
-	arr,
 	cldr,
-	dom,
+	date,
+	locale,
 	domClass,
 	domStyle,
 	domConstruct,
 	domGeometry,
-	date,
-	locale,
-	coreFx,
-	fx,
 	Widget,
-	Selection,
 	StoreMixin,
-	StoreManager,
 	timeUtil,
 	_nls
 ) {
@@ -86,7 +72,7 @@ define([
 		//		The event dispatched when an item is clicked, double-clicked or context-clicked.
 		// item: Object
 		//		The item clicked.
-		// renderer: dojox/calendar/_RendererMixin
+		// renderer: dcalendar/_RendererMixin
 		//		The item renderer clicked.
 		// triggerEvent: Event
 		//		The event at the origin of this event.
@@ -113,7 +99,7 @@ define([
 		//		The end time of data item.
 		// sheet: String
 		//		For views with several sheets (columns view for example), the sheet when the event occurred.
-		// source: dojox/calendar/ViewBase
+		// source: dcalendar/ViewBase
 		//		The view where the event occurred.
 		// eventSource: String
 		//		The device that triggered the event. This property can take the following values:
@@ -132,7 +118,7 @@ define([
 		//		A renderer lifecycle event.
 		// renderer: Object
 		//		The renderer.
-		// source: dojox/calendar/ViewBase
+		// source: dcalendar/ViewBase
 		//		The view where the event occurred.
 		// item:Object?
 		//		The item that will be displayed by the renderer for the "rendererCreated" and "rendererReused" events.
@@ -154,7 +140,7 @@ define([
 	};
 	=====*/
 
-	return dcl([Widget, StoreMixin, Selection], {
+	return dcl([Widget, StoreMixin], {
 
 		// summary:
 		//		This class defines a generic calendar widget that manages several views to display event in time.
@@ -205,7 +191,7 @@ define([
 		//		Default value is 1.
 		dateIntervalSteps: 1,
 
-		// viewContainer: Node
+		// viewContainer: HTMLElement
 		//		The DOM node that will contains the views.
 		viewContainer: null,
 
@@ -239,11 +225,11 @@ define([
 		//		If <code>true</code>, the control supports resizing of items.
 		resizeEnabled: true,
 
-		// columnView: dojox/calendar/ColumnView
+		// columnView: dcalendar/ColumnView
 		//		The column view is displaying one day to seven days time intervals.
 		columnView: null,
 
-		// matrixView: dojox/calendar/MatrixView
+		// matrixView: dcalendar/MatrixView
 		//		The column view is displaying time intervals that lasts more than seven days.
 		matrixView: null,
 
@@ -270,15 +256,29 @@ define([
 		//		- d: the date at the clicked location.
 		createItemFunc: null,
 
+		// List of the properties in the calendar that should be reflected to the views,
+		// not including properties to set time range.  Those are handled in _configureView().
+		forwardProperties: [
+			"store", "query", "queryOptions", "startTimeAttr", "endTimeAttr", "summaryAttr", "allDayAttr",
+			"subColumnAttr", "decodeDate", "encodeDate", "itemToRenderItem", "renderItemToItem",
+			"datePackage",
+			"endDate", "date", "minDate", "maxDate", "dateInterval", "dateIntervalSteps",
+			"firstDayOfWeek",
+			"formatItemTimeFunc",
+			"editable", "moveEnabled", "resizeEnabled",
+			"createOnGridClick", "createItemFunc",
+			"textDir", "decorationStore",
+			"getIdentity"
+		],
+
 		// currentView: dcalendar/ViewBase
 		//		The current view displayed by the Calendar object.
 		//		The currentViewChange event can be used to react on a view change.
 		currentView: null,
 
-		_currentViewIndex: -1,
-
 		_calendar: "gregorian",
 
+		// Make nls strings available to template
 		_nls: _nls,
 
 		createdCallback: function (/*Object*/args) {
@@ -290,107 +290,15 @@ define([
 			this.dateModule = args.datePackage ? lang.getObject(args.datePackage, false) : date;
 			this.dateClassObj = this.dateModule.Date || Date;
 			this.dateLocaleModule = args.datePackage ? lang.getObject(args.datePackage + ".locale", false) : locale;
-
-			this.storeManager = new StoreManager({owner: this, _ownerItemsProperty: "items"});
-			this.storeManager.on("layoutInvalidated", lang.hitch(this, this._refreshItemsRendering));
-			this.storeManager.on("renderersInvalidated", lang.hitch(this, this._updateRenderers));
-			this.storeManager.on("dataLoaded", lang.hitch(this, function (items) {
-				this.items = items;
-			}));
-
-			this.decorationStoreManager = new StoreManager({owner: this, _ownerItemsProperty: "decorationItems"});
-			this.decorationStoreManager.on("layoutInvalidated",
-				lang.hitch(this, this._refreshDecorationItemsRendering));
-			this.decorationStoreManager.on("dataLoaded", lang.hitch(this, function (items) {
-				this.decorationItems = items;
-			}));
 		},
 
 		postRender: function () {
 			if (this.views == null || this.views.length === 0) {
 				this.views = this._createDefaultViews();
 			}
-		},
 
-		////////////////////////////////////////////////////
-		//
-		// Getter / setters
-		//
-		////////////////////////////////////////////////////
-
-		_setStartDateAttr: function (value) {
-			this._set("startDate", value);
-			this._timeRangeInvalidated = true;
-			this._startDateChanged = true;
-		},
-
-		_setEndDateAttr: function (value) {
-			this._set("endDate", value);
-			this._timeRangeInvalidated = true;
-			this._endDateChanged = true;
-		},
-
-		_setDateAttr: function (value) {
-			this._set("date", value);
-			this._timeRangeInvalidated = true;
-			this._dateChanged = true;
-		},
-
-		_setDateIntervalAttr: function (value) {
-			this._set("dateInterval", value);
-			this._timeRangeInvalidated = true;
-		},
-
-		_setDateIntervalStepsAttr: function (value) {
-			this._set("dateIntervalSteps", value);
-			this._timeRangeInvalidated = true;
-		},
-
-		_setFirstDayOfWeekAttr: function (value) {
-			this._set("firstDayOfWeek", value);
-			if (this.date != null && this.dateInterval == "week") {
-				this._timeRangeInvalidated = true;
-			}
-		},
-
-		_setTextDirAttr: function (value) {
-			this.views.forEach(function (view) {
-				view.textDir = value;
-			});
-		},
-
-
-		///////////////////////////////////////////////////
-		//
-		// Validating
-		//
-		///////////////////////////////////////////////////
-
-		refreshRendering: function () {
-			// summary:
-			//		Refreshes all the visual rendering of the calendar.
-			// tags:
-			//		protected
-
-			this._validateProperties();
-		},
-
-		_refreshItemsRendering: function () {
-			if (this.currentView) {
-				this.currentView._refreshItemsRendering();
-			}
-		},
-
-		_updateRenderers: function (item) {
-			if (this.currentView) {
-				this.currentView.updateRenderers(item);
-			}
-		},
-
-		_refreshDecorationItemsRendering: function () {
-			if (this.currentView) {
-				this.currentView._refreshDecorationItemsRendering();
-			}
+			// TODO: two-way selection delegation?  But it's selecting renderers, not items themselves...
+			// TODO: map view.editing upward
 		},
 
 		resize: function (changeSize) {
@@ -403,18 +311,14 @@ define([
 			}
 		},
 
-		// TODO: instead of calling this from refreshRendering(), just rename it to computeProperties().
-		_validateProperties: function () {
-			// tags:
-			//		private
-
+		computeProperties: function (props) {
 			var cal = this.dateModule;
 			var startDate = this.startDate;
 			var endDate = this.endDate;
 			var date = this.date;
 
 			if (this.firstDayOfWeek < -1 || this.firstDayOfWeek > 6) {
-				this._set("firstDayOfWeek", 0);
+				this.firstDayOfWeek = 0;
 			}
 
 			var minDate = this.minDate;
@@ -423,54 +327,44 @@ define([
 			if (minDate && maxDate) {
 				if (cal.compare(minDate, maxDate) > 0) {
 					var t = minDate;
-					this._set("minDate", maxDate);
-					this._set("maxDate", t);
+					this.minDate = maxDate;
+					this.maxDate = t;
 				}
 			}
 
 			if (date == null && (startDate != null || endDate != null)) {
 				if (startDate == null) {
-					startDate = new this.dateClassObj();
-					this._set("startDate", startDate);
-					this._timeRangeInvalidated = true;
+					this.startDate = startDate = new this.dateClassObj();
 				}
 
 				if (endDate == null) {
-					endDate = new this.dateClassObj();
-					this._set("endDate", endDate);
-					this._timeRangeInvalidated = true;
+					this.endDate = endDate = new this.dateClassObj();
 				}
 
 				if (cal.compare(startDate, endDate) > 0) {
-					endDate = cal.add(startDate, "day", 1);
-					this._set("endDate", endDate);
-					this._timeRangeInvalidated = true;
+					this.endDate = endDate = cal.add(startDate, "day", 1);
 				}
 			} else {
 				if (this.date == null) {
-					this._set("date", new this.dateClassObj());
-					this._timeRangeInvalidated = true;
+					this.date = new this.dateClassObj();
 				}
 
 				var dint = this.dateInterval;
 				if (dint != "day" && dint != "week" && dint != "month") {
-					this._set("dateInterval", "day");
-					this._timeRangeInvalidated = true;
+					this.dateInterval = "day";
 				}
 
 				var dis = this.dateIntervalSteps;
 				if (lang.isString(dis)) {
-					dis = parseInt(dis);
-					this._set("dateIntervalSteps", dis);
+					this.dateIntervalSteps = dis = parseInt(dis);
 				}
 				if (dis <= 0) {
 					this.dateIntervalSteps = 1;
-					this._timeRangeInvalidated = true;
 				}
 			}
 
-			if (this._timeRangeInvalidated) {
-				this._timeRangeInvalidated = false;
+			if ("startDate" in props || "endDate" in props || "date" in props ||
+				"dateInterval" in props) {
 
 				var timeInterval = this.computeTimeInterval();
 
@@ -478,14 +372,13 @@ define([
 					cal.compare(this._timeInterval[0], timeInterval[0]) !== 0 ||
 					cal.compare(this._timeInterval[1], timeInterval[1]) !== 0) {
 
-					if (this._dateChanged) {
+					this._timeInterval = timeInterval;
+
+					if ("date" in props) {
 						this._lastValidDate = this.date;
-						this._dateChanged = false;
-					} else if (this._startDateChanged || this._endDateChanged) {
+					} else if ("startDate" in props || "endDate" in props) {
 						this._lastValidStartDate = this.startDate;
 						this._lastValidEndDate = this.endDate;
-						this._startDateChanged = false;
-						this._endDateChanged = false;
 					}
 
 					this.onTimeIntervalChange({
@@ -495,130 +388,59 @@ define([
 						endTime: timeInterval[1]
 					});
 				} else {
-					if (this._dateChanged) {
-						this._dateChanged = false;
+					if ("date" in props) {
 						if (this.lastValidDate != null) {
-							this._set("date", this.lastValidDate);
+							this.date = this.lastValidDate;
 						}
-					} else if (this._startDateChanged || this._endDateChanged) {
-						this._startDateChanged = false;
-						this._endDateChanged = false;
-						this._set("startDate", this._lastValidStartDate);
-						this._set("endDate", this._lastValidEndDate);
+					} else if ("startDate" in props || "endDate" in props) {
+						this.startDate = this._lastValidStartDate;
+						this.endDate = this._lastValidEndDate;
 					}
-					return;
+					return;		// I guess this triggers the method to run again
 				}
 
 				this._timeInterval = timeInterval;
 
-				var duration = this.dateModule.difference(this._timeInterval[0], this._timeInterval[1], "day");
-				var view = this._computeCurrentView(timeInterval[0], timeInterval[1], duration);
+				this._duration =
+					this.dateModule.difference(this._timeInterval[0], this._timeInterval[1], "day");
 
-				var index = arr.indexOf(this.views, view);
-
-				if (view == null || index == -1) {
-					return;
-				}
-
-				this._performViewTransition(view, index, timeInterval, duration);
+				this.currentView = this._computeCurrentView();
 			}
 		},
 
-		// TODO: instead of calling this above, just rename it to refreshRendering().
-		// Better yet, looks like CalendarBase (or its subclass) should extend deliteful/ViewStack, and let
-		// it handle the transitions.
-		_performViewTransition: function (view, index, timeInterval, duration) {
-			var oldView = this.currentView;
+		refreshRendering: function (props) {
+			if (this.currentView) {
+				// Reflect any property changes to the current view.  Or, if we just switched the current view,
+				// then reflect all properties to the new view
+				this.forwardProperties.forEach(function (prop) {
+					if ("currentView" in props || (prop in props && this[prop] !== null && this[prop] !== undefined)) {
+						var value = typeof prop === "function" ? this[prop].bind(this) : this[prop];
+						this.currentView[prop] = value;
+					}
+				}, this);
 
-			if (this.animateRange) {
-				if (oldView) { // there's a view to animate
-					oldView.beforeDeactivate();
-					var ltr = (this.effectiveDir === "ltr");
-					var inLeft = this._animRangeInDir == "left" || this._animRangeInDir == null;
-					var outLeft = this._animRangeOutDir == "left" || this._animRangeOutDir == null;
-					this._animateRange(this.currentView, outLeft && ltr, false, 0, outLeft ? -100 : 100,
-						lang.hitch(this, function () {
-							oldView.afterDeactivate();
-							view.beforeActivate();
-							this.animateRangeTimer = setTimeout(lang.hitch(this, function () {
-								this._applyViewChange(view, index, timeInterval, duration);
-								this._animateRange(this.currentView, inLeft && ltr, true,
-									inLeft ? -100 : 100, 0, function () {
-									view.afterActivate();
-								});
-								this._animRangeInDir = null;
-								this._animRangeOutDir = null;
-							}), 100);	// setTimeout give time for layout of view.
-						}));
-				} else {
-					view.beforeActivate();
-					this._applyViewChange(view, index, timeInterval, duration);
-					view.afterActivate();
-				}
-			} else {
+				// Set time range for current view
+				this._configureView();
+
+				this.emit("view-configuration-change");
+			}
+
+			if ("currentView" in props && props.currentView !== this.currentView) {
+				// View changed...
+				var oldView = props.currentView,
+					newView = this.currentView;
+
 				if (oldView) {
 					oldView.beforeDeactivate();
 				}
-				view.beforeActivate();
-				this._applyViewChange(view, index, timeInterval, duration);
+				newView.beforeActivate();
+
+				this._showView(oldView, newView);
+
 				if (oldView) {
 					oldView.afterDeactivate();
 				}
-				view.afterActivate();
-			}
-		},
-
-		onViewConfigurationChange: function (view) {
-			// summary:
-			//		Event dispatched when the view has been configured after the queried
-			//		time range and before the current view is changed (if needed).
-			//
-			// view: ViewBase
-			//		The view that has been configured.
-			// tags:
-			//		callback
-		},
-
-		_applyViewChange: function (view, index, timeInterval, duration) {
-			// summary:
-			//		Applies the changes of a view time and changes the currently visible view if needed.
-			// view: ViewBase
-			//		The view that is configured and is or will be shown.
-			// index: Integer
-			//		The view index in the internal structure.
-			// timeInterval: Date[]
-			//		The time interval displayed by the calendar.
-			// duration: Integer
-			//		The duration in days of the time interval.
-			// tags:
-			//		protected
-
-			this._configureView(view, index, timeInterval, duration);
-			this.onViewConfigurationChange(view);
-
-			if (index != this._currentViewIndex) {
-				if (this.currentView == null) {
-					view.items = this.items;
-					view.decorationItems = this.decorationItems;
-					this.currentView = view;
-				} else {
-					if (this.items == null || this.items.length == 0) {
-						this.currentView = view;
-						if (this.animateRange) {
-							domStyle.set(this.currentView, "opacity", 0);
-						}
-						view.items = this.items;
-						view.decorationItems = this.decorationItems;
-					} else {
-						this.currentView = view;
-						view.items = this.items;
-						view.decorationItems = this.decorationItems;
-						this.currentView = view;
-						if (this.animateRange) {
-							domStyle.set(this.currentView, "opacity", 0);
-						}
-					}
-				}
+				newView.afterActivate();
 			}
 		},
 
@@ -747,7 +569,7 @@ define([
 		addView: function (view, index) {
 			// summary:
 			//		Add a view to the calendar's view list.
-			// view: dojox/calendar/ViewBase
+			// view: dcalendar/ViewBase
 			//		The view to add to the calendar.
 			// index: Integer
 			//		Optional, the index where to insert the view in current view list.
@@ -764,7 +586,7 @@ define([
 		removeView: function (view, index) {
 			// summary:
 			//		Removes a view from the calendar's view list.
-			// view: dojox/calendar/ViewBase
+			// view: dcalendar/ViewBase
 			//		The view to remove from the calendar.
 			// tags:
 			//		protected
@@ -794,11 +616,10 @@ define([
 		onViewAdded: function (view) {
 			// summary:
 			//		Event dispatched when a view is added from the calendar.
-			// view: dojox/calendar/ViewBase
+			// view: dcalendar/ViewBase
 			//		The view that has been added to the calendar.
 			// tags:
 			//		callback
-
 		},
 
 		_onViewRemoved: function (view) {
@@ -812,31 +633,10 @@ define([
 		onViewRemoved: function (/* view */) {
 			// summary:
 			//		Event dispatched when a view is removed from the calendar.
-			// view: dojox/calendar/ViewBase
+			// view: dcalendar/ViewBase
 			//		The view that has been removed from the calendar.
 			// tags:
 			//		callback
-		},
-
-		_setCurrentViewAttr: function (view) {
-			var index = arr.indexOf(this.views, view);
-			if (index != -1) {
-				var oldView = this.currentView;
-				this._currentViewIndex = index;
-				this._set("currentView", view);
-
-				this._showView(oldView, view);
-				this.onCurrentViewChange({
-					oldView: oldView,
-					newView: view
-				});
-			}
-		},
-
-		_getCurrentViewAttr: function () {
-			// TODO: this method seems unnecessary since _setCurrentViewAttr() sets "currentView"
-			// in addition to _currentViewIndex
-			return this.views[this._currentViewIndex];
 		},
 
 		onCurrentViewChange: function (e) {
@@ -848,25 +648,21 @@ define([
 			//		callback
 		},
 
-		_configureView: function (view, index, timeInterval, duration) {
+		_configureView: function () {
 			// summary:
-			//		Configures the view to show the specified time interval.
+			//		Configures the current view to show the current time interval.
 			//		This method is computing and setting the following properties:
 			//		- "startDate", "columnCount" for a column view,
 			//		- "startDate", "columnCount", "rowCount", "refStartTime" and "refEndTime" for a matrix view.
 			//		This method can be extended to configure other properties like layout properties for example.
-			// view: dojox/calendar/ViewBase
-			//		The view to configure.
-			// index: Integer
-			//		The index of the view in the Calendar view list.
-			// timeInterval: Date[]
-			//		The time interval that will be displayed by the view.
-			// duration: Integer
-			//		The duration, in days, of the displayed time interval.
 			// tags:
 			//		protected
 
-			var cal = this.dateModule;
+			var cal = this.dateModule,
+				view = this.currentView,
+				timeInterval = this._timeInterval,
+				duration = this._duration;
+
 			if (view.viewKind == "columns") {
 				view.startDate = timeInterval[0];
 				view.columnCount = duration;
@@ -874,10 +670,10 @@ define([
 				if (duration > 7) { // show only full weeks.
 					var s = this.floorToWeek(timeInterval[0]);
 					var e = this.floorToWeek(timeInterval[1]);
-					if (cal.compare(e, timeInterval[1]) != 0) {
+					if (cal.compare(e, timeInterval[1]) !== 0) {
 						e = this.dateModule.add(e, "week", 1);
 					}
-					duration = this.dateModule.difference(s, e, "day");
+					duration = this.dateModule.difference(s, e, "day");	// TODO: ???
 					view.startDate = s;
 					view.columnCount = 7;
 					view.rowCount = Math.ceil(duration / 7);
@@ -893,22 +689,14 @@ define([
 			}
 		},
 
-		_computeCurrentView: function (startDate, endDate, duration) {
+		_computeCurrentView: function () {
 			// summary:
 			//		If the time range is lasting less than seven days
 			//		returns the column view or the matrix view otherwise.
-			// startDate: Date
-			//		The start date of the displayed time interval
-			// endDate: Date
-			//		The end date of the displayed time interval
-			// duration: Integer
-			//		Duration of the
-			// returns: dojox/calendar/ViewBase
-			//		The view to display.
 			// tags:
 			//		protected
 
-			return duration <= 7 ? this.columnView : this.matrixView;
+			return this._duration <= 7 ? this.columnView : this.matrixView;
 		},
 
 		matrixViewRowHeaderClick: function (e) {
@@ -964,9 +752,9 @@ define([
 		_showView: function (oldView, newView) {
 			// summary:
 			//		Displays the current view.
-			// oldView: dojox/calendar/ViewBase
+			// oldView: dcalendar/ViewBase
 			//		The previously displayed view or null.
-			// newView: dojox/calendar/ViewBase
+			// newView: dcalendar/ViewBase
 			//		The view to display.
 			// tags:
 			//		protected
@@ -981,30 +769,6 @@ define([
 			}
 		},
 
-		////////////////////////////////////////////////////
-		//
-		// Store & data
-		//
-		////////////////////////////////////////////////////
-
-		_setItemsAttr: function (value) {
-			this._set("items", value);
-			if (this.currentView) {
-				this.currentView.items = value;
-			}
-		},
-
-		_setDecorationItemsAttr: function (value) {
-			this._set("decorationItems", value);
-			if (this.currentView) {
-				this.currentView.decorationItems = value;
-			}
-		},
-
-		_setDecorationStoreAttr: function (value) {
-			this._set("decorationStore", value);
-			this.decorationStoreManager.store = value;
-		},
 
 		/////////////////////////////////////////////////////
 		//
@@ -1047,8 +811,6 @@ define([
 			//		Returns whether the specified date is in the current day.
 			// date: Date
 			//		The date to test.
-			// renderData: Object
-			//		The current renderData
 			// returns: Boolean
 			return timeUtil.isToday(date, this.dateClassObj);
 		},
@@ -1077,102 +839,11 @@ define([
 			return timeUtil.floor(date, unit, steps, reuse, this.classFuncObj);
 		},
 
-		isOverlapping: function (renderData, start1, end1, start2, end2, includeLimits) {
-			// summary:
-			//		Computes if the first time range defined by the start1 and end1 parameters
-			//		is overlapping the second time range defined by the start2 and end2 parameters.
-			// renderData: Object
-			//		The render data.
-			// start1: Date
-			//		The start time of the first time range.
-			// end1: Date
-			//		The end time of the first time range.
-			// start2: Date
-			//		The start time of the second time range.
-			// end2: Date
-			//		The end time of the second time range.
-			// includeLimits: Boolean
-			//		Whether include the end time or not.
-			// returns: Boolean
-			return timeUtil.isOverlapping(renderData, start1, end1, start2, end2, includeLimits);
-		},
-
-		/////////////////////////////////////////////////////
-		//
-		// Time navigation
-		//
-		////////////////////////////////////////////////////
-
-
-		// animateRange: Boolean
-		//		Indicates that the previous/next range method will be animated.
-		animateRange: true,
-
-		// animationRangeDuration: Integer
-		//		The duration of the next/previous range animation.
-		animationRangeDuration: 400,
-
-		_animateRange: function (node, toLeft, fadeIn, xFrom, xTo, onEnd) {
-			// summary:
-			//		Animates the current view using a synchronous fade and horizontal translation.
-			// toLeft: Boolean
-			//		Whether the view is moved to the left or to the right.
-			// fadeIn: Boolean
-			//		Whether the view is faded in or out.
-			// xFrom: Integer
-			//		Position before the animation
-			// xTo: Integer
-			//		Position after the animation
-			// onEnd: Function
-			//		Function called when the animation is finished.
-			// tags:
-			//		protected
-
-
-			if (this.animateRangeTimer) { // cleanup previous call not finished
-				clearTimeout(this.animateRangeTimer);
-				delete this.animateRangeTimer;
-			}
-
-			var fadeFunc = fadeIn ? coreFx.fadeIn : coreFx.fadeOut;
-			domStyle.set(node, {left: xFrom + "px", right: (-xFrom) + "px"});
-
-			fx.combine([
-				coreFx.animateProperty({
-					node: node,
-					properties: {left: xTo, right: -xTo},
-					duration: this.animationRangeDuration / 2,
-					onEnd: onEnd
-				}),
-				fadeFunc({node: node, duration: this.animationRangeDuration / 2})
-			]).play();
-		},
-
-		// _animRangeOutDir: Boolean
-		//		Direction of the range animation when the view 'leaving' the screen.
-		//		Valid values are:
-		//		- null: auto value,
-		//		- "left": hides to left side (right in right to left).
-		//		- "right": hides to right side (left in right to left).
-		_animRangeOutDir: null,
-
-		// _animRangeInDir: Boolean
-		//		Direction of the range animation when the view 'entering' the screen.
-		//		Valid values are:
-		//		- null: auto value,
-		//		- "left": shows from left side (right in right to left).
-		//		- "right": shows from  right side (left in right to left).
-		_animRangeInDir: null,
-
 		nextRange: function () {
-			this._animRangeOutDir = "left";
-			this._animRangeInDir = "right";
 			this._navigate(1);
 		},
 
 		previousRange: function () {
-			this._animRangeOutDir = "right";
-			this._animRangeInDir = "left";
 			this._navigate(-1);
 		},
 
@@ -1226,6 +897,7 @@ define([
 
 			this.goToday();
 		},
+
 		dayButtonClick: function () {
 			// summary:
 			//		The action triggerred when the day button is clicked.
@@ -1248,6 +920,7 @@ define([
 			this.dateInterval = "week";
 			this.dateIntervalSteps = 1;
 		},
+
 		fourDaysButtonClick: function () {
 			// summary:
 			//		The action triggerred when the 4 days button is clicked.
@@ -1257,6 +930,7 @@ define([
 			this.dateInterval = "day";
 			this.dateIntervalSteps = 4;
 		},
+
 		monthButtonClick: function () {
 			// summary:
 			//		The action triggered when the month button is clicked.
@@ -1502,71 +1176,6 @@ define([
 			//		Event dispatched when an expand renderer is clicked.
 			// e: __ExpandRendererClickEventArgs
 			//		Expand renderer click event.
-			// tags:
-			//		callback
-		},
-
-		_onRendererCreated: function (e) {
-			this.onRendererCreated(e);
-		},
-
-		onRendererCreated: function (/*===== e ===== */) {
-			// summary:
-			//		Event dispatched when an item renderer has been created.
-			// e: __rendererLifecycleEventArgs
-			//		The renderer lifecycle event.
-			// tags:
-			//		callback
-		},
-
-		_onRendererRecycled: function (e) {
-			this.onRendererRecycled(e);
-		},
-
-		onRendererRecycled: function (/*===== e ===== */) {
-			// summary:
-			//		Event dispatched when an item renderer has been recycled.
-			// e: __rendererLifecycleEventArgs
-			//		The renderer lifecycle event.
-			// tags:
-			//		callback
-		},
-
-		_onRendererReused: function (e) {
-			this.onRendererReused(e);
-		},
-
-		onRendererReused: function (/*===== e ===== */) {
-			// summary:
-			//		Event dispatched when an item renderer that was recycled is reused.
-			// e: __rendererLifecycleEventArgs
-			//		The renderer lifecycle event.
-			// tags:
-			//		callback
-		},
-
-		_onRendererDestroyed: function (e) {
-			this.onRendererDestroyed(e);
-		},
-
-		onRendererDestroyed: function (/*===== e ===== */) {
-			// summary:
-			//		Event dispatched when an item renderer is destroyed.
-			// e: __rendererLifecycleEventArgs
-			//		The renderer lifecycle event.
-			// tags:
-			//		callback
-		},
-
-		_onRenderersLayoutDone: function (view) {
-			this.onRenderersLayoutDone(view);
-		},
-
-		onRenderersLayoutDone: function (/*===== view ===== */) {
-			// summary:
-			//		Event triggered when item renderers layout has been done.
-			// view: dojox/calendar/ViewBase
-			//		The view that has been laid-out.
 			// tags:
 			//		callback
 		}

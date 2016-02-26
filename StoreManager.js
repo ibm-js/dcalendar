@@ -1,17 +1,21 @@
 define([
 	"dcl/dcl",
-	"dojo/_base/array",
-	"dojo/_base/html",
-	"dojo/_base/lang",
-	"dojo/dom-class",
 	"decor/Stateful",
 	"decor/Evented",
 	"dojo/when"
-], function (dcl, arr, html, lang, domClass, Stateful, Evented, when) {
+], function (dcl, Stateful, Evented, when) {
 
 	return dcl([Stateful, Evented], {
 		// summary:
-		//		This mixin contains the store management.
+		//		This class provides a higher level interface to the dojo/store/Store.
+		//		All access to the Store is done through this class.
+		//		It emits the following events:
+		//
+		//		* dataLoaded - the initial list of items is available
+		//		* "layoutInvalidated" - the calendar needs to destroy and recreate all the renderers
+		//		* renderersInvalidated - the specified item has changed in a minor way; just update the
+		//		  corresponding renderer
+
 
 		// owner: Object
 		//	The owner of the store manager: a view or a calendar widget.
@@ -31,15 +35,8 @@ define([
 		},
 
 		_initItems: function (items) {
-			// tags:
-			//		private
 			this.items = items;
-			return items;
-		},
-
-		_setItemsAttr: function (value) {
-			this.items = value;
-			this.emit("dataLoaded", value);
+			this.emit("dataLoaded", items);
 		},
 
 		_computeVisibleItems: function (renderData) {
@@ -53,9 +50,9 @@ define([
 			var startTime = renderData.startTime;
 			var endTime = renderData.endTime;
 			var res = null;
-			var items = this.owner[this._ownerItemsProperty];
+			var items = this.items;
 			if (items) {
-				res = arr.filter(items, function (item) {
+				res = items.filter(function (item) {
 					return this.owner.isOverlapping(renderData, item.startTime, item.endTime, startTime, endTime);
 				}, this);
 			}
@@ -63,11 +60,12 @@ define([
 		},
 
 		_updateItems: function (object, previousIndex, newIndex) {
-			// as soon as we add a item or remove one layout might change,
+			// as soon as we add an item or remove one layout might change,
 			// let's make that the default
 			// TODO: what about items in non visible area...
 			// tags:
 			//		private
+
 			var layoutCanChange = true;
 			var oldItem = null;
 			var newItem = this.owner.itemToRenderItem(object, this.store);
@@ -95,7 +93,7 @@ define([
 						cal.compare(newItem.endTime, oldItem.endTime) !== 0;
 					// we want to keep the same item object and mixin new values
 					// into old object
-					lang.mixin(oldItem, newItem);
+					dcl.mix(oldItem, newItem);
 				}
 			} else if (newIndex !== -1) {
 				// this is a add
@@ -131,7 +129,7 @@ define([
 						this.items.splice(newIndex, 0, newItem);
 					}
 					// update with the latest values from the store.
-					lang.mixin(s.renderItem, newItem);
+					dcl.mix(s.renderItem, newItem);
 				} else {
 					this.items.splice(newIndex, 0, newItem);
 				}
@@ -150,36 +148,35 @@ define([
 			}
 		},
 
-		_setStoreAttr: function (value) {
-			var r;
+		_setStoreAttr: function (store) {
+			this._set("store", store);
+
 			var owner = this.owner;
 
 			if (this._observeHandler) {
 				this._observeHandler.remove();
 				this._observeHandler = null;
 			}
-			if (value) {
-				var results = value.query(owner.query, owner.queryOptions);
+			if (store) {
+				var results = store.query(owner.query, owner.queryOptions);
 				if (results.observe) {
 					// user asked us to observe the store
-					this._observeHandler = results.observe(lang.hitch(this, this._updateItems), true);
+					this._observeHandler = results.observe(this._updateItems.bind(this), true);
 				}
-				results = results.map(lang.hitch(this, function (item) {
-					var renderItem = owner.itemToRenderItem(item, value);
+				results = results.map(function (item) {
+					var renderItem = owner.itemToRenderItem(item, store);
 					if (renderItem.id == null) {
 						console.err("The data item " + item.summary + " must have an unique identifier from the store.getIdentity(). The calendar will NOT work properly.");
 					}
 					// keep a reference on the store data item.
 					renderItem._item = item;
 					return renderItem;
-				}));
-				r = when(results, lang.hitch(this, this._initItems));
+				}.bind(this));
+				when(results, this._initItems.bind(this));
 			} else {
 				// we remove the store
-				r = this._initItems([]);
+				this._initItems([]);
 			}
-			this.store = value;
-			return r;
 		},
 
 		_getItemStoreStateObj: function (/*Object*/item) {

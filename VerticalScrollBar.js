@@ -114,12 +114,12 @@ define([
 
 		_setMinimumAttr: function (value) {
 			value = Math.min(value, this.maximum);
-			this.minimum = value;
+			this._set("minimum", value);
 		},
 
 		_setMaximumAttr: function (value) {
 			value = Math.max(value, this.minimum);
-			this.maximum = value;
+			this._set("maximum", value);
 			domStyle.set(this.content, this._vertical ? "height" : "width", value + "px");
 		},
 

@@ -70,13 +70,6 @@ define([
 		//		This view kind is "columns".
 		viewKind: "monthColumns",
 
-		// scroll container is the focusable item to enable scrolling using up and down arrows
-		_setTabIndexAttr: "domNode",
-
-		// renderData: Object
-		//		The render data is the object that contains all the properties needed to render the component.
-		renderData: null,
-
 		// startDate: Date
 		//		The start date of the time interval displayed.
 		//		If not set at initialization time, will be set to current day.
@@ -244,28 +237,14 @@ define([
 			return rd;
 		},
 
-		_validateProperties: register.superCall(function (sup) {
-			return function () {
-				sup.apply(this, arguments);
+		computeProperties: function () {
+			if (this.columnCount < 1 || isNaN(this.columnCount)) {
+				this.columnCount = 1;
+			}
 
-				if (this.columnCount < 1 || isNaN(this.columnCount)) {
-					this.columnCount = 1;
-				}
-
-				if (this.daySize < 5 || isNaN(this.daySize)) {
-					this.daySize = 5;
-				}
-			};
-		}),
-
-		_setStartDateAttr: function (value) {
-			this.displayedItemsInvalidated = true;
-			this._set("startDate", value);
-		},
-
-		_setColumnCountAttr: function (value) {
-			this.displayedItemsInvalidated = true;
-			this._set("columnCount", value);
+			if (this.daySize < 5 || isNaN(this.daySize)) {
+				this.daySize = 5;
+			}
 		},
 
 		__fixEvt: function (e) {
@@ -490,21 +469,11 @@ define([
 		//
 		//////////////////////////////////////////
 
-		refreshRendering: function () {
-			this._validateProperties();
-
-			var oldRd = this.renderData;
-			var rd = this.renderData = this._createRenderData();
-
-			this._createRendering(rd, oldRd);
-			this._layoutDecorationRenderers(rd);
-			this._layoutRenderers(rd);
-		},
-
 		_createRendering: function (/*Object*/renderData, /*Object*/oldRenderData) {
 			// tags:
 			//		private
 			domStyle.set(this.sheetContainer, "height", renderData.sheetHeight + "px");
+
 			// padding for the scroll bar.
 			this._configureScrollBar(renderData);
 			this._buildColumnHeader(renderData, oldRenderData);
@@ -1160,14 +1129,11 @@ define([
 			return this.gridTable.childNodes[0].childNodes[rowIndex].childNodes[columnIndex];
 		},
 
-		invalidateLayout: register.superCall(function (sup) {
-			return function () {
-				//make sure to clear hiddens object state
-				query("td", this.gridTable).forEach(function (td) {
-					domClass.remove(td, "dojoxCalendarHiddenEvents");
-				});
-				sup.apply(this, arguments);
-			};
+		refreshRendering: register.before(function () {
+			//make sure to clear hiddens object state
+			query("td", this.gridTable).forEach(function (td) {
+				domClass.remove(td, "dojoxCalendarHiddenEvents");
+			});
 		}),
 
 		_layoutBgItems: function (/*Object*/renderData, /*Integer*/col, /*Date*/startTime, /*Date*/endTime,

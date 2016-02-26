@@ -66,10 +66,6 @@ define([
 		//		This view kind is "columns".
 		viewKind: "columns",
 
-		// renderData: Object
-		//		The render data is the object that contains all the properties needed to render the component.
-		renderData: null,
-
 		// startDate: Date
 		//		The start date of the time interval displayed.
 		//		If not set at initialization time, will be set to current day.
@@ -184,6 +180,10 @@ define([
 		_createRenderData: function () {
 			var rd = {};
 
+			// TODO:
+			// 1. Convert references to this.renderData.minHours or rd.minHours to this.minHours etc.
+			// 2. Move as much of this code as possible into computeProperties().  I.e. everything that doesn't depend
+			// on layout or the template existing.
 			rd.minHours = this.minHours;
 			rd.maxHours = this.maxHours;
 			rd.hourSize = this.hourSize;
@@ -217,16 +217,7 @@ define([
 			rd.minSheetWidth = this.minColumnWidth < 0 ? -1 : this.minColumnWidth * rd.subColumnCount * rd.columnCount;
 			rd.hScrollBarEnabled = this.minColumnWidth > 0 && rd.hScrollPaneWidth < rd.minSheetWidth;
 
-			var d = this.startDate;
-
-			if (d == null) {
-				d = new rd.dateClassObj();
-			}
-
-			d = this.floorToDay(d, false, rd);
-
-			this.startDate = d;
-
+			var d = this.floorToDay(this.startDate);
 			for (var col = 0; col < rd.columnCount; col++) {
 				rd.dates.push(d);
 				d = this.addAndFloor(d, "day", 1);
@@ -237,15 +228,14 @@ define([
 			rd.endTime = new rd.dateClassObj(rd.dates[rd.columnCount - 1]);
 			rd.endTime.setHours(rd.maxHours);
 
-			if (this.displayedItemsInvalidated && !this._isEditing) {
+			if (!this._isEditing) {
 				// while editing in no live layout we must not to recompute items (duplicate renderers)
 				rd.items = this.storeManager._computeVisibleItems(rd);
-
 			} else if (this.renderData) {
 				rd.items = this.renderData.items;
 			}
 
-			if (this.displayedDecorationItemsInvalidated) {
+			if (!this._isEditing) {
 				// while editing in no live layout we must not to recompute items (duplicate renderers)
 				rd.decorationItems = this.decorationStoreManager._computeVisibleItems(rd);
 
@@ -256,54 +246,44 @@ define([
 			return rd;
 		},
 
-		_validateProperties: register.superCall(function (sup) {
-			return function () {
-				sup.apply(this, arguments);
+		computeProperties: function () {
+			if (this.startDate == null) {
+				this.startDate = this.floorToDay(new this.dateClassObj());
+			}
 
-				var v = this.minHours;
-				if (v < 0 || v > 23 || isNaN(v)) {
-					this.minHours = 0;
-				}
-				v = this.maxHours;
-				if (v < 1 || v > 36 || isNaN(v)) {
-					this.minHours = 36;
-				}
+			var v = this.minHours;
+			if (v < 0 || v > 23 || isNaN(v)) {
+				this.minHours = 0;
+			}
+			v = this.maxHours;
+			if (v < 1 || v > 36 || isNaN(v)) {
+				this.minHours = 36;
+			}
 
-				if (this.minHours > this.maxHours) {
-					var t = this.maxHours;
-					this.maxHours = this.minHours;
-					this.minHours = t;
-				}
-				if (this.maxHours - this.minHours < 1) {
-					this.minHours = 0;
-					this.maxHours = 24;
-				}
-				if (this.columnCount < 1 || isNaN(this.columnCount)) {
-					this.columnCount = 1;
-				}
+			if (this.minHours > this.maxHours) {
+				var t = this.maxHours;
+				this.maxHours = this.minHours;
+				this.minHours = t;
+			}
+			if (this.maxHours - this.minHours < 1) {
+				this.minHours = 0;
+				this.maxHours = 24;
+			}
+			if (this.columnCount < 1 || isNaN(this.columnCount)) {
+				this.columnCount = 1;
+			}
 
-				v = this.percentOverlap;
-				if (v < 0 || v > 100 || isNaN(v)) {
-					this.percentOverlap = 70;
-				}
-				if (this.hourSize < 5 || isNaN(this.hourSize)) {
-					this.hourSize = 10;
-				}
-				v = this.timeSlotDuration;
-				if (v < 1 || v > 60 || isNaN(v)) {
-					this.timeSlotDuration = 15;
-				}
-			};
-		}),
-
-		_setStartDateAttr: function (value) {
-			this.displayedItemsInvalidated = true;
-			this._set("startDate", value);
-		},
-
-		_setColumnCountAttr: function (value) {
-			this.displayedItemsInvalidated = true;
-			this._set("columnCount", value);
+			v = this.percentOverlap;
+			if (v < 0 || v > 100 || isNaN(v)) {
+				this.percentOverlap = 70;
+			}
+			if (this.hourSize < 5 || isNaN(this.hourSize)) {
+				this.hourSize = 10;
+			}
+			v = this.timeSlotDuration;
+			if (v < 1 || v > 60 || isNaN(v)) {
+				this.timeSlotDuration = 15;
+			}
 		},
 
 		__fixEvt: function (e) {
@@ -628,17 +608,6 @@ define([
 		// HTML structure management
 		//
 		//////////////////////////////////////////
-
-		refreshRendering: function () {
-			this._validateProperties();
-
-			var oldRd = this.renderData;
-			var rd = this._createRenderData();
-			this.renderData = rd;
-			this._createRendering(rd, oldRd);
-			this._layoutDecorationRenderers(rd);
-			this._layoutRenderers(rd);
-		},
 
 		_createRendering: function (/*Object*/renderData, /*Object*/oldRenderData) {
 			// tags:
