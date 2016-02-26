@@ -29,18 +29,15 @@
 					demo: "dcalendar/tests"
 				}
 			}, [
-				"dojo/_base/lang", "dojo/_base/sniff", "dojo/_base/array", "dojo/_base/fx", "dojo/dom-class", "dojo/on",
-				 "dojo/date/locale", "dojo/parser",	"dojo/dom", "dojo/dom-construct",	"dojo/store/Memory",
-				 "dojo/store/Observable",	"demo/ExtendedCalendar"
+				"dojo/_base/fx",
+				"demo/ExtendedCalendar",
+				"dojo/domReady!"
 			], function(
-				lang, has, arr, fx, domClass, on, locale, parser, dom, domConstruct,
-				Memory, Observable, Calendar
+				fx
 			){
-				parser.parse();
-
 				var startOfWeek = calendar.floorToWeek(new calendar.dateClassObj());
 
-				calendar.set("date", startOfWeek);
+				calendar.date = startOfWeek;
 
 				// Hide loading panel when application is ready
 				fx.fadeOut({
@@ -56,8 +53,8 @@
 			<span style="background: #DBEB8F;padding:2px">Loading...</span>
 		</div>
 
-		<div data-dojo-id="calendar" data-dojo-type="demo.ExtendedCalendar"
+		<my-extended-calendar id="calendar"
 			style="position:absolute;left:10px;top:10px;bottom:10px;right:10px">
-		</div>
+		</my-extended-calendar>
 	</body>
 </html>

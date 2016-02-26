@@ -23,13 +23,14 @@
 				baseUrl: "../.."
 			}, [
 				"dojo/_base/declare", "dojo/_base/lang", "dojo/_base/sniff", "dojo/_base/array", "dojo/_base/fx", "dojo/on",
-				"dojo/date/locale", "dojo/parser",	"dojo/Deferred", "dojo/dom", "dojo/dom-construct",	"dojo/store/Memory",
-				"dojo/store/Observable",	"dcalendar/Calendar", "dijit/Calendar", "dijit/Menu", "dijit/MenuItem",
+				"dojo/date/locale", "dojo/parser", "dojo/Deferred", "dojo/dom", "dojo/dom-construct", "dojo/store/Memory",
+				"dojo/store/Observable", "dcalendar/Calendar", "dijit/Calendar", "dijit/Menu", "dijit/MenuItem",
 				"dojo/domReady!"
 			], function(
 				declare, lang, has, arr, fx, on, locale, parser, Deferred, dom, domConstruct,
-				Memory, Observable, Calendar
+				Memory, Observable
 			){
+				// For dijit/Menu only
 				parser.parse();
 
 				// Display different hint every 10 seconds
@@ -108,8 +109,8 @@
 
 				var store = new Observable(DelayedMemory({data: []}));
 
-				calendar.set("store", store);
-				calendar.set("date", startOfWeek);
+				calendar.store = store;
+				calendar.date = startOfWeek;
 
 				// Enable creation of event interactively by ctrl clicking grid.
 				var createItem = function(view, d, e){
@@ -145,14 +146,14 @@
 					return item;
 				};
 
-				calendar.set("createOnGridClick", true);
-				calendar.set("createItemFunc", createItem);
+				calendar.createOnGridClick = true;
+				calendar.createItemFunc = createItem;
 
 				// show context menu on right clicking an event
 				calendar.on("itemContextMenu", function(e){
 					dojo.stopEvent(e.triggerEvent);
 					calendarContextMenu._openMyself({
-						target: e.renderer.domNode,
+						target: e.renderer,
 						coords: {x: e.triggerEvent.pageX, y: e.triggerEvent.pageY}
 					});
 				});
@@ -177,12 +178,11 @@
 			<span style="background: #DBEB8F;padding:2px">Loading...</span>
 		</div>
 
-		<div data-dojo-id="calendar" data-dojo-type="dojox.calendar.Calendar"
-			style="position:absolute;left:10px;top:10px;bottom:30px;right:10px">
+		<d-calendar id="calendar" style="position:absolute;left:10px;top:10px;bottom:30px;right:10px">
 			<div data-dojo-type="dijit.Menu" data-dojo-id="calendarContextMenu" style="display: none;">
 				<div data-dojo-type="dijit.MenuItem" data-dojo-id="contextMenuDelete" data-dojo-props="iconClass:'dijitIcon dijitIconDelete'">Delete</div>
 			</div>
-		</div>
+		</d-calendar>
 		<div id="hint" style="position:absolute;left:10px;height:15px;bottom:10px;right:10px;color:#999;overflow:auto"></div>
 	</body>
 </html>

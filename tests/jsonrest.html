@@ -18,21 +18,16 @@
 
 		<script type="text/javascript">
 			require({
-				baseUrl: "../..",
-				paths: {
-					demo: "dcalendar/tests"
-				}
+				baseUrl: "../.."
 			}, [
-				"dojo/_base/declare", "dojo/_base/fx", "dojo/on", "dojo/Deferred", "dojo/when",
-				"dojo/date/locale", "dojo/parser",	"dojo/store/JsonRest",
+				"dojo/_base/fx", "dojo/on", "dojo/Deferred", "dojo/when",
+				"dojo/date/locale", "dojo/store/JsonRest",
 				"dojo/store/Memory", "dojo/store/Observable", "dojo/store/Cache",
 				"dcalendar/Calendar", "dojo/date/stamp",
-				"dijit/layout/BorderContainer", "dijit/layout/ContentPane", "dojo/domReady!"
+				"dojo/domReady!"
 			], function(
-				declare, fx, on, Deferred, when, locale, parser, JsonRest, Memory, Observable, Cache, Calendar, stamp
+				fx, on, Deferred, when, locale, JsonRest, Memory, Observable, Cache, Calendar, stamp
 			){
-				parser.parse();
-
 				var startOfWeek = calendar.floorToWeek(new calendar.dateClassObj());
 
 				// Subclass to handle the ID problem
@@ -61,10 +56,10 @@
 						startTime: startTimeStr,
 						endTime:endTimeStr
 					};
-					calendar.set("store", new Observable(new ExtJsonRest({target: "/cal/calendar/"})));
+					calendar.store = new Observable(new ExtJsonRest({target: "/cal/calendar/"}));
 				});
 
-				calendar.set("date", startOfWeek);
+				calendar.date = startOfWeek;
 
 				// Enable creation of event interactively by ctrl clicking grid.
 				var createItem = function(view, d, e){
@@ -100,15 +95,15 @@
 				var interactive = true;
 
 				if(interactive){
-					calendar.set("createOnGridClick", true);
-					calendar.set("createItemFunc", createItem);
+					calendar.createOnGridClick = true;
+					calendar.createItemFunc = createItem;
 				}else{
 					var count = 0;
 					calendar.on("gridDoubleClick", function(e){
 						var item = createItem(calendar.columnView, e.date, e.triggerEvent);
 						if(item){
 							// no id set here and not temporary id in options.
-							calendar.get("store").add(item, {temporaryId:"toto"});
+							calendar.store.add(item, {temporaryId:"toto"});
 						}
 					});
 				}
@@ -127,11 +122,7 @@
 			<span style="background: #DBEB8F;padding:2px">Loading...</span>
 		</div>
 
-		<div data-dojo-type="dijit.layout.BorderContainer" style="width:100%;height:100%" data-dojo-props="design:'sidebar', gutters:true" >
-			<div data-dojo-type="dijit.layout.ContentPane" data-dojo-props="splitter:false, region:'center'">
-			<div data-dojo-id="calendar" data-dojo-type="dojox.calendar.Calendar" style="position:absolute;left:10px;top:10px;bottom:10px;right:10px">
-				</div>
-			</div>
-		</div>
+		<d-calendar id="calendar" style="position:absolute;left:10px;top:10px;bottom:10px;right:10px">
+		</d-calendar>
 	</body>
 </html>

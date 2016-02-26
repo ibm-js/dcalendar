@@ -17,14 +17,11 @@
 
 		<script type="text/javascript">
 			require({
-				baseUrl: "../..",
-				paths: {
-					demo: "dcalendar/tests"
-				}
+				baseUrl: "../.."
 			}, [
 				"dojo/_base/lang", "dojo/_base/array", "dojo/_base/fx", "dojo/on",
-				"dojo/date/locale", "dojo/parser",	"dojo/dom", "dojo/dom-construct",	"dojo/store/Memory",
-				"dojo/store/Observable",	"dcalendar/Calendar", "dijit/Calendar",  "dijit/TitlePane",
+				"dojo/date/locale", "dojo/parser", "dojo/dom", "dojo/dom-construct", "dojo/store/Memory",
+				"dojo/store/Observable", "dcalendar/Calendar", "dijit/Calendar",  "dijit/TitlePane",
 				"dijit/layout/BorderContainer", "dijit/layout/ContentPane", "dijit/form/CheckBox",
 				"dijit/form/TextBox", "dijit/form/DateTextBox", "dijit/form/TimeTextBox",
 				"dijit/form/Button", "dijit/form/ComboBox", "dijit/Menu", "dijit/MenuItem",
@@ -33,12 +30,13 @@
 				lang, arr, fx, on, locale, parser, dom, domConstruct,
 				Memory, Observable, Calendar
 			){
+				// for Menu
 				parser.parse();
 
-				calendar.set("cssClassFunc", function(item){
+				calendarcssClassFunc = function(item){
 					// Use custom css classes on renderers depending of a parameter (calendar).
 					return item.calendar == "cal1" ? "Calendar1" : "Calendar2"
-				});
+				};
 
 				// Calendar model creation
 
@@ -73,11 +71,10 @@
 					someData.push(newObj);
 				}
 
-				calendar.set("store", new Observable(new Memory({data: someData})));
-				calendar.set("date", startOfWeek);
+				calendar.store = new Observable(new Memory({data: someData}));
+				calendar.date = startOfWeek;
 
 				calendar.on("gridDoubleClick", function(e){
-
 					// create a event when double-clicking on grid.
 					var start, end;
 					var colView = calendar.columnView;
@@ -103,8 +100,8 @@
 					id++;
 					calendar.store.add(item);
 
-					calendar.set("selectedItem", item);
-					calendar.get("currentView").set("focusedItem", item);
+					calendar.selectedItem = item;
+					calendar.currentView.focusedItem = item;
 
 					selectionChanged(item);
 				});
@@ -120,9 +117,9 @@
 					return null
 				};
 
-				calendar.columnView.set("itemToRendererKindFunc", itemToRendererKindFunc);
-				calendar.columnView.secondarySheet.set("itemToRendererKindFunc", itemToRendererKindFunc);
-				calendar.matrixView.set("itemToRendererKindFunc", itemToRendererKindFunc);
+				calendar.columnView.itemToRendererKindFunc = itemToRendererKindFunc;
+				calendar.columnView.secondarySheet.itemToRendererKindFunc = itemToRendererKindFunc;
+				calendar.matrixView.itemToRendererKindFunc = itemToRendererKindFunc;
 
 				var editedItem;
 
@@ -133,9 +130,9 @@
 					var widgets = [itemSummaryEditor, itemStartDateEditor, itemStartTimeEditor, itemEndDateEditor,
 						itemEndTimeEditor, calendarEditor, allDayCB, deleteItemButton, updateItemButton];
 
-					arr.forEach(widgets, function(w){
-						w.set("disabled", itemNull);
-						w.set("value", null, false);
+					arr.forEach(widgets, function (w) {
+						w.disabled = itemNull;
+						w.value = null;
 					});
 
 					editedItem = itemNull ? null : lang.mixin({}, item);
@@ -144,16 +141,16 @@
 
 						var allDay = item.allDay === true;
 
-						itemStartTimeEditor.set("disabled", allDay);
-						itemEndTimeEditor.set("disabled", allDay);
+						itemStartTimeEditor.disabled = allDay;
+						itemEndTimeEditor.disabled = allDay;
 
-						itemSummaryEditor.set("value", item.summary);
-						itemStartDateEditor.set("value", item.startTime);
-						itemStartTimeEditor.set("value", item.startTime);
-						itemEndDateEditor.set("value", item.endTime);
-						itemEndTimeEditor.set("value", item.endTime);
-						calendarEditor.set("value", item.calendar == "cal1" ? "Calendar 1" : "Calendar 2");
-						allDayCB.set("checked", allDay, false);
+						itemSummaryEditor.value = item.summary;
+						itemStartDateEditor.value = item.startTime;
+						itemStartTimeEditor.value = item.startTime;
+						itemEndDateEditor.value = item.endTime;
+						itemEndTimeEditor.value = item.endTime;
+						calendarEditor.value = (item.calendar == "cal1" ? "Calendar 1" : "Calendar 2");
+						allDayCB.checked = allDay;
 					}
 				};
 
@@ -166,39 +163,38 @@
 				});
 
 				calendar.on("timeIntervalChange", function(e){
-					dateChooser.set("value", e.startTime, false);
+					dateChooser.value = e.startTime;
 				});
 
 				allDayCB.on("change", function(value){
-
-					itemStartTimeEditor.set("disabled", value);
-					itemEndTimeEditor.set("disabled", value);
+					itemStartTimeEditor.disabled = value;
+					itemEndTimeEditor.disabled = value;
 
 					var d;
 					if(value){
-						d = itemStartTimeEditor.get("value");
+						d = itemStartTimeEditor.value;
 						calendar.floorToDay(d, true);
-						itemStartTimeEditor.set("value", d);
-						d = itemEndTimeEditor.get("value");
+						itemStartTimeEditor.value = d;
+						d = itemEndTimeEditor.value;
 						calendar.floorToDay(d, true);
-						itemEndTimeEditor.set("value", d);
+						itemEndTimeEditor.value = d;
 
 						if(!calendar.isStartOfDay(editedItem.endTime)){
-							d = itemEndDateEditor.get("value");
+							d = itemEndDateEditor.value;
 							calendar.floorToDay(d, true);
 							d = calendar.dateModule.add(d, "day", 1);
-							itemEndDateEditor.set("value", d);
+							itemEndDateEditor.value = d;
 						}
 
 					}else{
 						editedItem.startTime.setHours(8);
 						editedItem.endTime.setHours(9);
-						itemStartTimeEditor.set("value", editedItem.startTime);
-						itemEndTimeEditor.set("value", editedItem.endTime);
-						d = itemEndDateEditor.get("value");
+						itemStartTimeEditor.value = editedItem.startTime;
+						itemEndTimeEditor.value = editedItem.endTime;
+						d = itemEndDateEditor.value;
 						calendar.floorToDay(d, true);
 						d = calendar.dateModule.add(d, "day", -1);
-						itemEndDateEditor.set("value", d);
+						itemEndDateEditor.value = d;
 					}
 
 				});
@@ -206,8 +202,8 @@
 				var mergeDateTime = function(isStart){
 					var dateEditor = isStart ? itemStartDateEditor : itemEndDateEditor;
 					var timeEditor = isStart ? itemStartTimeEditor : itemEndTimeEditor;
-					var date = dateEditor.get("value");
-					var time = timeEditor.get("value");
+					var date = dateEditor.value;
+					var time = timeEditor.value;
 					date.setHours(time.getHours());
 					date.setMinutes(time.getMinutes());
 					return date;
@@ -216,13 +212,13 @@
 				updateItemButton.on("click", function(value){
 
 					if (editedItem != null) {
-						editedItem.summary = itemSummaryEditor.get("value");
-						if(allDayCB.get("value")){
+						editedItem.summary = itemSummaryEditor.value;
+						if(allDayCB.value){
 							if(!calendar.isStartOfDay(editedItem.startTime)){
-								editedItem.startTime = calendar.floorToDay(itemStartDateEditor.get("value"), true);
+								editedItem.startTime = calendar.floorToDay(itemStartDateEditor.value, true);
 							}
 							if(!calendar.isStartOfDay(editedItem.endTime)){
-								editedItem.endTime = calendar.floorToDay(itemEndDateEditor.get("value"), true);
+								editedItem.endTime = calendar.floorToDay(itemEndDateEditor.value, true);
 							}
 							editedItem.allDay = true;
 						}else{
@@ -231,7 +227,7 @@
 							delete editedItem.allDay;
 						}
 
-						var calValue = calendarEditor.get("value");
+						var calValue = calendarEditor.value;
 						editedItem.calendar = calValue == "Calendar 1" ? "cal1" : "cal2";
 						calendar.store.put(editedItem);
 					}
@@ -245,10 +241,10 @@
 				});
 
 
-				dateChooser.set("value", startOfWeek);
+				dateChooser.value = startOfWeek;
 				dateChooser.on("change", function(e){
-					var d = dateChooser.get("value");
-					calendar.set("date", d);
+					var d = dateChooser.value;
+					calendar.date = d;
 				});
 
 				calendar1CB.on("change", function(v){
@@ -280,12 +276,12 @@
 			<div data-dojo-id="dateChooser" data-dojo-type="dijit.Calendar" style="width:100%"></div>
 					<div data-dojo-type="dijit.TitlePane" data-dojo-props="title:'Calendars', style:'margin-top:10px;'" >
 						<div>
-							<input type="checkbox" data-dojo-id="calendar1CB" data-dojo-type="dijit.form.CheckBox" checked="true"/>
+							<input type="checkbox" data-dojo-id="calendar1CB" data-dojo-type="dijit.form.CheckBox" checked="true">
 							<label for="calendar1CB">Calendar 1</label>
 						</div>
 
 						<div style="margin-top:5px">
-							<input type="checkbox" data-dojo-id="calendar2CB" data-dojo-type="dijit.form.CheckBox" checked="true"/>
+							<input type="checkbox" data-dojo-id="calendar2CB" data-dojo-type="dijit.form.CheckBox" checked="true">
 							<label for="calendar2CB">Calendar 2</label>
 						</div>
 					</div>
@@ -308,7 +304,7 @@
 							<option>Calendar 2</option>
 						</select>
 						<div style="margin-top:10px">
-							<input type="checkbox" data-dojo-id="allDayCB" data-dojo-type="dijit.form.CheckBox" checked="false" data-dojo-props="disabled:true" />
+							<input type="checkbox" data-dojo-id="allDayCB" data-dojo-type="dijit.form.CheckBox" checked="false" data-dojo-props="disabled:true">
 							<label for="allDayCB">All day</label>
 						</div>
 						<div style="margin-top:10px">
@@ -322,15 +318,15 @@
 					</div>
 		</div>
 		<div data-dojo-type="dijit.layout.ContentPane" data-dojo-props="splitter:false, region:'center'">
-			<div data-dojo-id="calendar" data-dojo-type="dojox.calendar.Calendar"
-								style="position:absolute;left:10px;top:10px;bottom:10px;right:10px">
-
-				<script type="dojo/connect" data-dojo-event="onItemContextMenu" data-dojo-args="e">
+			<script>
+				function onItemContextMenu(e){
 					dojo.stopEvent(e.triggerEvent);
-					calendarContextMenu._openMyself({ target: e.renderer.domNode, coords: {x: e.triggerEvent.pageX, y: e.triggerEvent.pageY} });
-				</script>
-
-			</div>
+					calendarContextMenu._openMyself({ target: e.renderer, coords: {x: e.triggerEvent.pageX, y: e.triggerEvent.pageY} });
+				}
+			</script>
+			<d-calendar id="calendar" onItemContextMenu="onItemContextMenu(arguments[0]);"
+								style="position:absolute;left:10px;top:10px;bottom:10px;right:10px">
+			</d-calendar>
 
 			<div data-dojo-type="dijit.Menu" data-dojo-id="calendarContextMenu" style="display: none;">
 				<div data-dojo-type="dijit.MenuItem" data-dojo-props="iconClass:'dijitIcon dijitIconDelete',

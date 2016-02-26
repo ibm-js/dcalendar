@@ -18,31 +18,29 @@
 
 		<script type="text/javascript">
 			require({
-				baseUrl: "../..",
-				paths: {
-					demo: "dcalendar/tests"
-				}
+				baseUrl: "../.."
 			}, [
 				"dojo/_base/lang", "dojo/_base/sniff", "dojo/_base/array", "dojo/_base/fx", "dojo/on",
-				"dojo/date/locale", "dojo/parser",	"dojo/dom", "dojo/dom-construct",	"dojo/store/Memory",
-				"dojo/store/Observable",	"dcalendar/Calendar", "dijit/Calendar",  "dijit/TitlePane",
+				"dojo/date/locale", "dojo/parser", "dojo/dom", "dojo/dom-construct",
+				"dojo/store/Memory", "dojo/store/Observable",
+				"dcalendar/Calendar", "dijit/Calendar",  "dijit/TitlePane",
 				"dijit/layout/BorderContainer", "dijit/layout/ContentPane", "dijit/form/CheckBox",
 				"dijit/form/TextBox", "dijit/form/DateTextBox", "dijit/form/TimeTextBox",
 				"dijit/form/Button", "dijit/form/ComboBox", "dijit/Menu", "dijit/MenuItem",
 				"dojo/domReady!"
 			], function(
 				lang, has, arr, fx, on, locale, parser, dom, domConstruct,
-				Memory, Observable, Calendar
+				Memory, Observable
 			){
-
+				// for BorderContainer etc
 				parser.parse();
 
 				// Display different hint every 10 seconds
 
-				calendar.set("cssClassFunc", function(item){
+				calendar.cssClassFunc = function(item){
 					// Use custom css class on renderers depending of a parameter (calendar).
 					return item.calendar == "cal1" ? "Calendar1" : "Calendar2"
-				});
+				};
 
 				// Calendar model creation
 				var modelBase = [
@@ -76,8 +74,8 @@
 					someData.push(newObj);
 				}
 
-				calendar.set("store", new Observable(new Memory({data: someData})));
-				calendar.set("date", startOfWeek);
+				calendar.store = new Observable(new Memory({data: someData}));
+				calendar.date = startOfWeek;
 
 				contextMenuDelete.on("click", function(){
 					arr.forEach(calendar.selectedItems, function(item){
@@ -122,12 +120,12 @@
 
 		<div data-dojo-type="dijit.layout.BorderContainer" style="width:100%;height:100%" data-dojo-props="design:'sidebar', gutters:true" >
 		    <div data-dojo-type="dijit.layout.ContentPane" data-dojo-props="splitter:false, region:'center'">
-		        <div data-dojo-id="calendar" data-dojo-type="dojox.calendar.Calendar"
+		        <d-calendar id="calendar"
 					style="position:absolute;left:10px;top:10px;bottom:30px;right:10px">
 					<div data-dojo-type="dijit.Menu" data-dojo-id="calendarContextMenu" style="display: none;">
 		                <div data-dojo-type="dijit.MenuItem" data-dojo-id="contextMenuDelete" data-dojo-props="iconClass:'dijitIcon dijitIconDelete'">Delete</div>
 		            </div>
-				</div>
+				</d-calendar>
 				<div id="hint" style="position:absolute;left:10px;height:15px;bottom:10px;right:10px;color:#999;overflow:auto">Move a blue event after 1pm, gesture is canceled.</div>
 		    </div>
 		</div>

@@ -1,42 +1,36 @@
 <!DOCTYPE html>
-<html debug="true">
+<html>
 	<head>
-			<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-			<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=no" />
-			<meta name="apple-mobile-web-app-capable" content="yes" />
-			<title>ColumnView Sample: Tablet</title>
-			<style type="text/css">
-					@import "../themes/iphone/ColumnView.css";
-					@import "../../dojo/resources/dojo.css";
-					@import "../../dijit/themes/dijit.css";
-					@import "../../dijit/themes/claro/claro.css";
-					@import "columntablet.css";
-			</style>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=no">
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<title>ColumnView Sample: Tablet</title>
+		<style type="text/css">
+			@import "../themes/iphone/ColumnView.css";
+			@import "../../dojo/resources/dojo.css";
+			@import "../../dijit/themes/dijit.css";
+			@import "../../dijit/themes/claro/claro.css";
+			@import "columntablet.css";
+		</style>
 	</head>
 	<body>
 		<script type="text/javascript" src="../../requirejs/require.js"></script>
 
 		<script type="text/javascript">
 			require({
-				baseUrl: "../..",
-				paths: {
-					demo: "dcalendar/tests"
-				}
+				baseUrl: "../.."
 			}, [
-				"dojo/_base/declare",
 				"dojo/on", "dojo/date/locale",
-				"dojo/date", "dojo/dom", "dojo/dom-construct", "dojo/parser", "dojo/_base/window",
-				"dojox/mobile/CheckBox", "dcalendar/ColumnView", "dcalendar/ColumnViewSecondarySheet",
+				"dojo/date", "dojo/dom", "dojo/dom-construct",
+				"dcalendar/ColumnView", "dcalendar/ColumnViewSecondarySheet",
 				"dcalendar/Touch", "dcalendar/MobileVerticalRenderer",
 				"dcalendar/HorizontalRenderer", "dcalendar/ExpandRenderer",
 				"dojo/store/Memory", "dojo/store/Observable", "dojox/gesture/swipe", "dojo/domReady!"
 			], function(
-				declare, on, locale, date, dom, domConstruct, parser, win,
-				CheckBox, ColumnView, ColumnViewSecondarySheet, CalendarTouch,
+				on, locale, date, dom, domConstruct,
+				ColumnView, ColumnViewSecondarySheet, CalendarTouch,
 				MobileVerticalRenderer, HorizontalRenderer, ExpandRenderer, Memory, Observable, swipe
 			){
-				parser.parse();
-
 				var dateClassObj = Date;
 				var modelBase = [
 					{	day: 1,	start: [0, 0], duration: 1440, allDay: true	},
@@ -67,14 +61,10 @@
 					someData.push(newObj);
 				}
 
-
 				var id = i;
-				var secondarySheetClass = declare([ColumnViewSecondarySheet, CalendarTouch]);
-				colView = declare([ColumnView, CalendarTouch])({
+				var secondarySheetClass = register("my-secondary-sheet", [ColumnViewSecondarySheet, CalendarTouch], {});
+				var MyColumnView = register("my-column-view", [ColumnView, CalendarTouch], {
 					secondarySheetClass: secondarySheetClass,
-					store: new Observable(new Memory({
-								data: someData
-							})),
 					verticalRenderer: MobileVerticalRenderer,
 					horizontalRenderer: HorizontalRenderer,
 					expandRenderer: ExpandRenderer,
@@ -82,13 +72,19 @@
 					hourSize: 75,
 					maxHours: 22,
 					timeSlotDuration: 30
-				}, "calendarNode");
+				});
+				colView = new MyColumnView({
+					store: new Observable(new Memory({
+						data: someData
+					}))
+				});
+				colView.placeAt("calendarNode", "replace");
 
 				var goNextRange = function(direction){
-					var days = (direction == "left" ? 1 : -1) * colView.get("columnCount");
-					var startDate = colView.get("startDate");
+					var days = (direction == "left" ? 1 : -1) * colView.columnCount;
+					var startDate = colView.startDate;
 					var newStartDate = colView.renderData.dateModule.add(startDate, "day", days);
-					colView.set("startDate", newStartDate);
+					colView.startDate = newStartDate;
 
 					//TODO Add animation
 				};
@@ -127,29 +123,27 @@
 					id++;
 					colView.store.add(item);
 
-					colView.set("selectedItem", item);
-					colView.set("focusedItem", item);
-
+					colView.selectedItem = item;
+					colView.focusedItem = item;
 				});
 
 				var startDateSave;
 				var columnCountSave;
 
 				colView.on("columnHeaderClick", function(e){
-					if (colView.get("columnCount") == 1) {
-						colView.set("startDate", startDateSave);
-						colView.set("columnCount", columnCountSave);
+					if (colView.columnCount == 1) {
+						colView.startDate = startDateSave;
+						colView.columnCount = columnCountSave;
 					} else {
-						startDateSave = colView.get("startDate");
-						columnCountSave = colView.get("columnCount");
-						colView.set("startDate", e.date);
-						colView.set("columnCount", 1);
+						startDateSave = colView.startDate;
+						columnCountSave = colView.columnCount;
+						colView.startDate = e.date;
+						colView.columnCount = 1;
 					}
 				});
 			});
 		</script>
 
-		<div id="calendarNode">
-		</div>
+		<div id="calendarNode"></div>
 	</body>
 </html>

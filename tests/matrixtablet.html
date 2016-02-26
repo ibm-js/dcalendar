@@ -2,8 +2,8 @@
 <html>
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-		<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=no" />
-		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=no">
+		<meta name="apple-mobile-web-app-capable" content="yes">
 
 		<title>MatrixView Sample: Tablet</title>
 		<style type="text/css">
@@ -20,18 +20,15 @@
 
 		<script type="text/javascript">
 			require({
-				baseUrl: "../..",
-				paths: {
-					demo: "dcalendar/tests"
-				}
+				baseUrl: "../.."
 			}, [
-				"dojo/_base/declare", "dojo/on", "dojo/date/locale", "dojo/parser", "dojo/date", "dojo/_base/lang",
-				"dojo/dom", "dojo/dom-construct", "dojo/dom-class", "dojo/_base/window",
-				"dijit/registry", "dojo/query", "dcalendar/MatrixView", "dcalendar/Touch",
+				"delite/register", "dojo/on", "dojo/date/locale", "dojo/date", "dojo/_base/lang",
+				"dojo/dom", "dojo/dom-construct", "dojo/dom-class",
+				"dcalendar/MatrixView", "dcalendar/Touch",
 				"dcalendar/MobileHorizontalRenderer", "dcalendar/LabelRenderer", "dcalendar/ExpandRenderer", "dojo/store/Memory", "dojo/store/Observable",
 				 "dojo/_base/fx", "dojo/domReady!"
 			], function(
-				declare, on, locale, parser, date, lang, dom, domConstruct, domClass, win, registry, query,
+				register, on, locale, date, lang, dom, domConstruct, domClass,
 				MatrixView, CalendarTouch, HorizontalRenderer, LabelRenderer, ExpandRenderer, Memory, Observable, fx
 			){
 				// Calendar model creation
@@ -96,7 +93,7 @@
 
 				// Calendar creation & configuration
 
-				matrixView = declare([MatrixView, CalendarTouch])({
+				matrixView = register("my-matrix-view", [MatrixView, CalendarTouch])({
 					startDate: startOfWeek,
 					store: new Observable(new Memory({data: someData})),
 					horizontalRenderer: HorizontalRenderer,
@@ -106,7 +103,8 @@
 					expandRenderer: ExpandRenderer,
 					expandRendererHeight: 20,
 					verticalGap:2
-				}, "calendarNode");
+				});
+				matrixView.placeAt("calendarNode", "replace");
 
 				var setRowWidth = function(value){
 					matrixView.grid.style.left = value + "px";
@@ -118,14 +116,14 @@
 
 				window.onresize = window.onorientationchange = function(e){
 					matrixView.resize();
-					var n = matrixView.domNode;
+					var n = matrixView;
 					if(n.offsetWidth > n.offsetHeight){
 						matrixView.columnHeaderLabelLength = "wide";
-						matrixView.set("rowCount", 2);
+						matrixView.rowCount = 2;
 						setRowWidth(50);
 					}else{
 						matrixView.columnHeaderLabelLength = "abbr";
-						matrixView.set("rowCount", 4);
+						matrixView.rowCount = 4;
 						setRowWidth(20);
 					}
 				};
@@ -147,8 +145,8 @@
 					id++;
 					matrixView.store.add(item);
 
-					matrixView.set("selectedItem", item);
-					matrixView.set("focusedItem", item);
+					matrixView.selectedItem = item;
+					matrixView.focusedItem = item;
 					onMatrixViewChange(item);
 				});
 

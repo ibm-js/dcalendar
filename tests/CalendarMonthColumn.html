@@ -1,17 +1,15 @@
-<div>
-	<div data-dojo-attach-point="buttonContainer" class="buttonContainer">
-		<div data-dojo-attach-point="toolbar" data-dojo-type="dijit.Toolbar" >
-			<button data-dojo-attach-point="previousButton" data-dojo-type="dijit.form.Button" >◄</button>
-			<button data-dojo-attach-point="nextButton" data-dojo-type="dijit.form.Button" >►</button>
-			<span data-dojo-type="dijit.ToolbarSeparator"></span>
-			<button data-dojo-attach-point="todayButton" data-dojo-type="dijit.form.Button" />Today</button>
-			<span data-dojo-type="dijit.ToolbarSeparator"></span>
-			<button data-dojo-attach-point="dayButton" data-dojo-type="dijit.form.Button" >Day</button>
-			<button data-dojo-attach-point="fourDaysButton" data-dojo-type="dijit.form.Button" >4 Days</button>
-			<button data-dojo-attach-point="weekButton" data-dojo-type="dijit.form.Button" >Week</button>
-			<button data-dojo-attach-point="monthButton" data-dojo-type="dijit.form.Button" >Month</button>
-			<button data-dojo-attach-point="sixMonthButton" data-dojo-type="dijit.form.Button" >6 Months</button>
-		</div>
+<template>
+	<div attach-point="buttonContainer" class="buttonContainer">
+		<button on-click="{{previousRange}}">{{this.effectiveDir === "ltr" ? "&#x25C0;" : "&#x25B6;"}}</button>
+		<button on-click="{{nextRange}}">{{this.effectiveDir === "ltr" ? "&#x25B6;" : "&#x25C0;"}}</button>
+		|
+		<button on-click="{{todayButtonClick}}">{{_nls.todayButton}}</button>
+		|
+		<button on-click="{{dayButtonClick}}">{{_nls.dayButton}}</button>
+		<button on-click="{{fourDaysButtonClick}}">{{_nls.fourDaysButton}}</button>
+		<button on-click="{{weekButtonClick}}">{{_nls.weekButton}}</button>
+		<button on-click="{{monthButtonClick}}">{{_nls.monthButton}}</button>
+		<button on-click="{{sixMonthButtonClick}}">6 Months</button>
 	</div>
-	<div data-dojo-attach-point="viewContainer" class="viewContainer"></div>
-</div>
+	<div attach-point="viewContainer" class="viewContainer"></div>
+</template>

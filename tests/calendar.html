@@ -40,6 +40,7 @@
             ], function (lang, has, arr, fx, domClass, on, locale, parser, dom, domConstruct,
                          Memory, Observable, Calendar) {
 
+                // for BorderContainer etc.
                 parser.parse();
 
                 // Display different hint every 10 seconds
@@ -63,10 +64,10 @@
                     }).play(500);
                 }, 10000);
 
-                calendar.set("cssClassFunc", function (item) {
+                calendar.cssClassFunc = function (item) {
                     // Use custom css class on renderers depending of a parameter (calendar).
                     return item.calendar == "cal1" ? "Calendar1" : "Calendar2"
-                });
+                };
 
                 // Calendar model creation
                 var dataItemsTemplate = [
@@ -117,15 +118,15 @@
                 var store = new Observable(new Memory({data: itemsData}));
                 var decorationStore = new Observable(new Memory({data: decorationItemsData}));
 
-                calendar.set("store", store);
-                calendar.set("decorationStore", decorationStore);
-                calendar.set("date", startOfWeek);
+                calendar.store = store;
+                calendar.decorationStore = decorationStore;
+                calendar.date = startOfWeek;
 
                 // Enable creation of event interactively by ctrl clicking grid.
                 var createItem = function (view, d, e) {
 
-                    var cal1 = calendar1CB.get("checked");
-                    var cal2 = calendar2CB.get("checked");
+                    var cal1 = calendar1CB.checked;
+                    var cal2 = calendar2CB.checked;
 
                     // create item by maintaining control key
                     if (!e.ctrlKey || e.shiftKey || e.altKey || (!cal1 && !cal2)) {
@@ -159,8 +160,8 @@
                     return item;
                 };
 
-                calendar.set("createOnGridClick", true);
-                calendar.set("createItemFunc", createItem);
+                calendar.createOnGridClick = true;
+                calendar.createItemFunc = createItem;
 
                 // filter out event according to their calendar
                 var calendarVisibility = [true, true];
@@ -173,15 +174,15 @@
                     return null
                 };
 
-                calendar.columnView.set("itemToRendererKindFunc", itemToRendererKindFunc);
-                calendar.columnView.secondarySheet.set("itemToRendererKindFunc", itemToRendererKindFunc);
-                calendar.matrixView.set("itemToRendererKindFunc", itemToRendererKindFunc);
+                calendar.columnView.itemToRendererKindFunc = itemToRendererKindFunc;
+                calendar.columnView.secondarySheet.itemToRendererKindFunc = itemToRendererKindFunc;
+                calendar.matrixView.itemToRendererKindFunc = itemToRendererKindFunc;
 
                 // show context menu on right clicking an event
                 calendar.on("itemContextMenu", function (e) {
                     dojo.stopEvent(e.triggerEvent);
                     calendarContextMenu._openMyself({
-                        target: e.renderer.domNode,
+                        target: e.renderer,
                         coords: {x: e.triggerEvent.pageX, y: e.triggerEvent.pageY}
                     });
                 });
@@ -202,8 +203,8 @@
                         itemEndTimeEditor, calendarEditor, allDayCB, deleteItemButton, updateItemButton];
 
                     arr.forEach(widgets, function (w) {
-                        w.set("disabled", itemNull);
-                        w.set("value", null, false);
+                        w.disabled = itemNull;
+                        w.value = null;
                     });
 
                     editedItem = itemNull ? null : lang.mixin({}, item);
@@ -212,16 +213,16 @@
 
                         var allDay = item.allDay === true;
 
-                        itemStartTimeEditor.set("disabled", allDay);
-                        itemEndTimeEditor.set("disabled", allDay);
+                        itemStartTimeEditor.disabled = allDay;
+                        itemEndTimeEditor.disabled = allDay;
 
-                        itemSummaryEditor.set("value", item.summary);
-                        itemStartDateEditor.set("value", item.startTime);
-                        itemStartTimeEditor.set("value", item.startTime);
-                        itemEndDateEditor.set("value", item.endTime);
-                        itemEndTimeEditor.set("value", item.endTime);
-                        calendarEditor.set("value", item.calendar == "cal1" ? "Calendar 1" : "Calendar 2");
-                        allDayCB.set("checked", allDay, false);
+                        itemSummaryEditor.value = item.summary;
+                        itemStartDateEditor.value = item.startTime;
+                        itemStartTimeEditor.value = item.startTime;
+                        itemEndDateEditor.value = item.endTime;
+                        itemEndTimeEditor.value = item.endTime;
+                        calendarEditor.value = (item.calendar == "cal1" ? "Calendar 1" : "Calendar 2");
+                        allDayCB.checked = allDay;
                     }
                 };
 
@@ -235,48 +236,48 @@
 
                 // configure item properties panel
                 calendar.on("timeIntervalChange", function (e) {
-                    datePicker.set("currentFocus", e.startTime, false);
-                    datePicker.set("minDate", e.startTime);
-                    datePicker.set("maxDate", e.endTime);
+                    datePicker.currentFocus = e.startTime;
+                    datePicker.minDate = e.startTime;
+                    datePicker.maxDate = e.endTime;
                     datePicker._populateGrid();
                 });
 
                 allDayCB.on("change", function (value) {
-                    itemStartTimeEditor.set("disabled", value);
-                    itemEndTimeEditor.set("disabled", value);
+                    itemStartTimeEditor.disabled = value;
+                    itemEndTimeEditor.disabled = value;
 
                     var d;
                     if (value) {
-                        d = itemStartTimeEditor.get("value");
+                        d = itemStartTimeEditor.value;
                         calendar.floorToDay(d, true);
-                        itemStartTimeEditor.set("value", d);
-                        d = itemEndTimeEditor.get("value");
+                        itemStartTimeEditor.value = d;
+                        d = itemEndTimeEditor.value;
                         calendar.floorToDay(d, true);
-                        itemEndTimeEditor.set("value", d);
+                        itemEndTimeEditor.value = d;
 
                         if (!calendar.isStartOfDay(editedItem.endTime)) {
-                            d = itemEndDateEditor.get("value");
+                            d = itemEndDateEditor.value;
                             calendar.floorToDay(d, true);
                             d = calendar.dateModule.add(d, "day", 1);
-                            itemEndDateEditor.set("value", d);
+                            itemEndDateEditor.value = d;
                         }
                     } else {
                         editedItem.startTime.setHours(8);
                         editedItem.endTime.setHours(9);
-                        itemStartTimeEditor.set("value", editedItem.startTime);
-                        itemEndTimeEditor.set("value", editedItem.endTime);
-                        d = itemEndDateEditor.get("value");
+                        itemStartTimeEditor.value = editedItem.startTime;
+                        itemEndTimeEditor.value = editedItem.endTime;
+                        d = itemEndDateEditor.value;
                         calendar.floorToDay(d, true);
                         d = calendar.dateModule.add(d, "day", -1);
-                        itemEndDateEditor.set("value", d);
+                        itemEndDateEditor.value = d;
                     }
                 });
 
                 var mergeDateTime = function (isStart) {
                     var dateEditor = isStart ? itemStartDateEditor : itemEndDateEditor;
                     var timeEditor = isStart ? itemStartTimeEditor : itemEndTimeEditor;
-                    var date = dateEditor.get("value");
-                    var time = timeEditor.get("value");
+                    var date = dateEditor.value;
+                    var time = timeEditor.value;
                     date.setHours(time.getHours());
                     date.setMinutes(time.getMinutes());
                     return date;
@@ -284,13 +285,13 @@
 
                 updateItemButton.on("click", function (value) {
                     if (editedItem != null) {
-                        editedItem.summary = itemSummaryEditor.get("value");
-                        if (allDayCB.get("value")) {
+                        editedItem.summary = itemSummaryEditor.value;
+                        if (allDayCB.value) {
                             if (!calendar.isStartOfDay(editedItem.startTime)) {
-                                editedItem.startTime = calendar.floorToDay(itemStartDateEditor.get("value"), true);
+                                editedItem.startTime = calendar.floorToDay(itemStartDateEditor.value, true);
                             }
                             if (!calendar.isStartOfDay(editedItem.endTime)) {
-                                editedItem.endTime = calendar.floorToDay(itemEndDateEditor.get("value"), true);
+                                editedItem.endTime = calendar.floorToDay(itemEndDateEditor.value, true);
                             }
                             editedItem.allDay = true;
                         } else {
@@ -299,7 +300,7 @@
                             delete editedItem.allDay;
                         }
 
-                        var calValue = calendarEditor.get("value");
+                        var calValue = calendarEditor.value;
                         editedItem.calendar = calValue == "Calendar 1" ? "cal1" : "cal2";
                         calendar.store.put(editedItem);
                     }
@@ -312,10 +313,10 @@
                 });
 
                 // Synchronize date picker.
-                datePicker.set("value", startOfWeek);
+                datePicker.value = startOfWeek;
                 datePicker.on("change", function (e) {
-                    var d = datePicker.get("value");
-                    calendar.set("date", d);
+                    var d = datePicker.value;
+                    calendar.date = d;
                 });
 
                 calendar1CB.on("change", function (v) {
@@ -349,12 +350,12 @@
                 <div data-dojo-id="datePicker" data-dojo-type="demo.DatePicker" style="width:100%"></div>
                 <div data-dojo-type="dijit.TitlePane" data-dojo-props="title:'Calendars', style:'margin-top:10px;'">
                     <div>
-                        <input type="checkbox" data-dojo-id="calendar1CB" data-dojo-type="dijit.form.CheckBox" checked="true"/>
+                        <input type="checkbox" data-dojo-id="calendar1CB" data-dojo-type="dijit.form.CheckBox" checked="true">
                         <label for="calendar1CB">Calendar 1</label>
                     </div>
 
                     <div style="margin-top:5px">
-                        <input type="checkbox" data-dojo-id="calendar2CB" data-dojo-type="dijit.form.CheckBox" checked="true"/>
+                        <input type="checkbox" data-dojo-id="calendar2CB" data-dojo-type="dijit.form.CheckBox" checked="true">
                         <label for="calendar2CB">Calendar 2</label>
                     </div>
                 </div>
@@ -384,7 +385,7 @@
                     </select>
                     <div style="margin-top:10px">
                         <input type="checkbox" data-dojo-id="allDayCB" data-dojo-type="dijit.form.CheckBox" checked="false"
-                               data-dojo-props="disabled:true"/>
+                               data-dojo-props="disabled:true">
                         <label for="allDayCB">All day</label>
                     </div>
                     <div style="margin-top:10px; text-align:right">
@@ -402,14 +403,14 @@
                 </div>
             </div>
             <div data-dojo-type="dijit.layout.ContentPane" data-dojo-props="splitter:false, region:'center'">
-                <div data-dojo-id="calendar" data-dojo-type="dojox.calendar.Calendar"
+                <d-calendar id="calendar"
                      style="position:absolute;left:10px;top:10px;bottom:30px;right:10px">
                     <div data-dojo-type="dijit.Menu" data-dojo-id="calendarContextMenu" style="display: none;">
                         <div data-dojo-type="dijit.MenuItem" data-dojo-id="contextMenuDelete"
                              data-dojo-props="iconClass:'dijitIcon dijitIconDelete'">Delete
                         </div>
                     </div>
-                </div>
+                </d-calendar>
                 <div id="hint"
                      style="position:absolute;left:10px;height:15px;bottom:10px;right:10px;color:#999;overflow:auto"></div>
             </div>

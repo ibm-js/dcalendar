@@ -24,11 +24,11 @@ define(["doh", "../Calendar"], function (doh, Calendar) {
 			var startDate = new Date(2011, 0, 5);
 			var res;
 
-			o.set("date", startDate);
-			o.set("dateInterval", "day");
-			o.set("dateIntervalSteps", 1);
+			o.date = startDate;
+			o.dateInterval = "day";
+			o.dateIntervalSteps = 1;
 			o.validateRendering();
-			doh.is(cal.compare(o.get("date"), startDate), 0);
+			doh.is(cal.compare(o.date, startDate), 0);
 
 			res = o._timeInterval;
 			doh.is(cal.compare(res[0], new Date(2011, 0, 5)), 0);
@@ -42,11 +42,11 @@ define(["doh", "../Calendar"], function (doh, Calendar) {
 			var startDate = new Date(2011, 0, 5);
 			var res;
 
-			o.set("date", startDate);
-			o.set("dateInterval", "day");
-			o.set("dateIntervalSteps", 3);
+			o.date = startDate;
+			o.dateInterval = "day";
+			o.dateIntervalSteps = 3;
 			o.validateRendering();
-			doh.is(cal.compare(o.get("date"), startDate), 0);
+			doh.is(cal.compare(o.date, startDate), 0);
 
 			res = o._timeInterval;
 			doh.is(cal.compare(res[0], new Date(2011, 0, 5)), 0);
@@ -62,19 +62,19 @@ define(["doh", "../Calendar"], function (doh, Calendar) {
 			var startDate = new Date(2011, 0, 5);
 			var res;
 
-			o.set("date", startDate);
-			o.set("dateInterval", "week");
-			o.set("dateIntervalSteps", 1);
+			o.date = startDate;
+			o.dateInterval = "week";
+			o.dateIntervalSteps = 1;
 			o.validateRendering();
-			doh.is(cal.compare(o.get("date"), startDate), 0);
+			doh.is(cal.compare(o.date, startDate), 0);
 
 			res = o._timeInterval;
 			doh.is(cal.compare(res[0], new Date(2011, 0, 2)), 0);
 			doh.is(cal.compare(res[1], new Date(2011, 0, 9)), 0);
 
-			o.set("firstDayOfWeek", 1);
+			o.firstDayOfWeek = 1;
 			o.validateRendering();
-			doh.is(cal.compare(o.get("date"), startDate), 0);
+			doh.is(cal.compare(o.date, startDate), 0);
 
 			res = o._timeInterval;
 			doh.is(cal.compare(res[0], new Date(2011, 0, 3)), 0);
@@ -90,19 +90,19 @@ define(["doh", "../Calendar"], function (doh, Calendar) {
 			var startDate = new Date(2011, 0, 5);
 			var res;
 
-			o.set("date", startDate);
-			o.set("dateInterval", "week");
-			o.set("dateIntervalSteps", 2);
+			o.date = startDate;
+			o.dateInterval = "week";
+			o.dateIntervalSteps = 2;
 			o.validateRendering();
-			doh.is(cal.compare(o.get("date"), startDate), 0);
+			doh.is(cal.compare(o.date, startDate), 0);
 
 			res = o._timeInterval;
 			doh.is(cal.compare(res[0], new Date(2011, 0, 2)), 0);
 			doh.is(cal.compare(res[1], new Date(2011, 0, 16)), 0);
 
-			o.set("firstDayOfWeek", 1);
+			o.firstDayOfWeek = 1;
 			o.validateRendering();
-			doh.is(cal.compare(o.get("date"), startDate), 0);
+			doh.is(cal.compare(o.date, startDate), 0);
 
 			res = o._timeInterval;
 			doh.is(cal.compare(res[0], new Date(2011, 0, 3)), 0);
@@ -116,11 +116,11 @@ define(["doh", "../Calendar"], function (doh, Calendar) {
 			var startDate = new Date(2011, 0, 5);
 			var res;
 
-			o.set("date", startDate);
-			o.set("dateInterval", "month");
-			o.set("dateIntervalSteps", 1);
+			o.date = startDate;
+			o.dateInterval = "month";
+			o.dateIntervalSteps = 1;
 			o.validateRendering();
-			doh.is(cal.compare(o.get("date"), startDate), 0);
+			doh.is(cal.compare(o.date, startDate), 0);
 
 			res = o._timeInterval;
 			doh.is(cal.compare(res[0], new Date(2011, 0, 1)), 0);
@@ -134,11 +134,11 @@ define(["doh", "../Calendar"], function (doh, Calendar) {
 			var startDate = new Date(2011, 0, 5);
 			var res;
 
-			o.set("date", startDate);
-			o.set("dateInterval", "month");
-			o.set("dateIntervalSteps", 2);
+			o.date = startDate;
+			o.dateInterval = "month";
+			o.dateIntervalSteps = 2;
 			o.validateRendering();
-			doh.is(cal.compare(o.get("date"), startDate), 0);
+			doh.is(cal.compare(o.date, startDate), 0);
 
 			res = o._timeInterval;
 			doh.is(cal.compare(res[0], new Date(2011, 0, 1)), 0);

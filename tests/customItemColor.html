@@ -22,35 +22,34 @@
 					demo: "dcalendar/tests"
 				}
 			}, [
-				"dojo/_base/declare", "dojo/_base/lang", "dojo/_base/sniff", "dojo/_base/array", "dojo/_base/fx", "dojo/dom-style", "dojo/dom-class", "dojo/on",
-				"dojo/date/locale", "dojo/parser",	"dojo/dom", "dojo/dom-construct",	"dojo/store/Memory",
-				"dojo/store/Observable", "dcalendar/Calendar", "dcalendar/VerticalRenderer", "demo/DatePicker",  "dijit/TitlePane",
-				"dijit/layout/BorderContainer", "dijit/layout/ContentPane", "dijit/form/CheckBox",
-				"dijit/form/TextBox", "dijit/form/DateTextBox", "dijit/form/TimeTextBox",
-				"dijit/form/Button", "dijit/form/ComboBox", "dijit/Menu", "dijit/MenuItem",
+				"delite/register", "dojo/_base/lang", "dojo/_base/sniff", "dojo/_base/array", "dojo/_base/fx", "dojo/dom-style", "dojo/dom-class", "dojo/on",
+				"dojo/date/locale", "dojo/parser", "dojo/dom", "dojo/dom-construct", "dojo/store/Memory",
+				"dojo/store/Observable", "dcalendar/Calendar", "dcalendar/VerticalRenderer", "demo/DatePicker",
 				"dojo/domReady!"
 			], function(
-				declare, lang, has, arr, fx, domStyle, domClass, on, locale, parser, dom, domConstruct,
+				register, lang, has, arr, fx, domStyle, domClass, on, locale, parser, dom, domConstruct,
 				Memory, Observable, Calendar, VerticalRenderer
 			){
 				parser.parse();
 
 				// Use color property of the data item as background color
-				var VerticalRendererExt = declare(VerticalRenderer, {
-					_setItemAttr: function(value){
-						this.inherited(arguments);
+				var VerticalRendererExt = register("my-vertical-renderer", VerticalRenderer, {
+					_setItemAttr: register.superCall( function (sup) {
+						return function(value) {
+							sup.apply(this, arguments);
 
-						if(value != null){
-							var color = value.item._item.color;
-							var bgNode = this.domNode.childNodes[1];
-							domStyle.set(bgNode, "background-color", color);
-							domStyle.set(this.startTimeLabel, "background-color", color);
-							domStyle.set(this.endTimeLabel, "background-color", color);
-						}
-					}
+							if (value != null) {
+								var color = value.item._item.color;
+								var bgNode = this.childNodes[1];
+								domStyle.set(bgNode, "background-color", color);
+								domStyle.set(this.startTimeLabel, "background-color", color);
+								domStyle.set(this.endTimeLabel, "background-color", color);
+							}
+						};
+					})
 				});
 
-				calendar.columnView.set("verticalRenderer", VerticalRendererExt);
+				calendar.columnView.verticalRenderer = VerticalRendererExt;
 
 				// Calendar model creation
 				var dataItemsTemplate = [
@@ -98,8 +97,8 @@
 				var id = itemsData.length;
 				var store = new Observable(new Memory({data: itemsData}));
 
-				calendar.set("store", store);
-				calendar.set("date", startOfWeek);
+				calendar.store = store;
+				calendar.date = startOfWeek;
 
 				// Hide loading panel when application is ready
 				fx.fadeOut({
@@ -115,8 +114,8 @@
 			<span style="background: #DBEB8F;padding:2px">Loading...</span>
 		</div>
 
-		<div data-dojo-id="calendar" data-dojo-type="dojox.calendar.Calendar"
+		<d-calendar id="calendar"
 			style="position:absolute;left:10px;top:10px;bottom:10px;right:10px">
-		</div>
+		</d-calendar>
 	</body>
 </html>

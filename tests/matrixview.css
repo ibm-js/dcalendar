@@ -59,7 +59,7 @@ html, body {
 	color: #CCCCCC;
 }
 
-#calendarNode {
+#calendar {
 	position:absolute;
 	left:270px;
 	right:10px;

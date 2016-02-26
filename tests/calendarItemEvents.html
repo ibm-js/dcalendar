@@ -13,7 +13,7 @@
 			html{
 				font-family: Lucida grande, Tahoma, Verdana, Arial, Sans-serif;
 			}
-			#calendarNode {
+			#calendar {
 		      position:absolute;
 		      left: 10px;
 		      right: 10px;
@@ -31,19 +31,20 @@
 			require({
 				baseUrl: "../.."
 			}, [
-				"dojo/_base/declare",
 				"dojo/_base/lang", "dojo/_base/sniff", "dojo/_base/array", "dojo/_base/fx", "dojo/dom-class", "dojo/on",
-				"dojo/date/locale", "dojo/parser",	"dojo/dom", "dojo/dom-construct",	"dojo/store/Memory",
-				"dojo/store/Observable",	"dcalendar/Calendar", "dijit/Menu", "dijit/MenuItem"
-			], function(declare, lang, has, arr, fx, domClass, on, locale, parser, dom, domConstruct,
-					Memory, Observable, Calendar){
+				"dojo/date/locale", "dojo/parser", "dojo/dom", "dojo/dom-construct", "dojo/store/Memory",
+				"dojo/store/Observable", "dcalendar/Calendar", "dijit/Menu", "dijit/MenuItem"
+			], function(lang, has, arr, fx, domClass, on, locale, parser, dom, domConstruct,
+					Memory, Observable
+			){
 
+				// for dijit/Menu
 				parser.parse();
 
-				calendar.set("cssClassFunc", function(item){
+				calendar.cssClassFunc = function(item){
 					// Use custom css class on renderers depending of a parameter (calendar).
 					return item.calendar == "cal1" ? "Calendar1" : "Calendar2"
-				});
+				};
 
 				// Calendar model creation
 				var modelBase = [
@@ -81,8 +82,8 @@
 				}
 
 				var store = new Observable(new Memory({data: someData}));
-				calendar.set("store", store);
-				calendar.set("date", startOfWeek);
+				calendar.store = store;
+				calendar.date = startOfWeek;
 
 				// show context menu on right clicking an event
 				calendar.on("itemContextMenu", function(e){
@@ -170,10 +171,10 @@
 			<span style="background: #DBEB8F;padding:2px">Loading...</span>
 		</div>
 
-		<div id="calendarNode" data-dojo-id="calendar" data-dojo-type="dojox.calendar.Calendar">
+		<d-calendar id="calendar">
 			<div data-dojo-type="dijit.Menu" data-dojo-id="calendarContextMenu" style="display: none;">
 				<div data-dojo-type="dijit.MenuItem" data-dojo-id="contextMenuEditable" >Useless menu item</div>
 			</div>
-		</div>
+		</d-calendar>
 	</body>
 </html>

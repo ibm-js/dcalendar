@@ -10,7 +10,7 @@
 			@import "../../dojo/resources/dojo.css";
 			@import "../../dijit/themes/dijit.css";
 			@import "../../dijit/themes/claro/claro.css";
-			.greyCell{
+			.greyCell {
 				background-color: #F8F8F8 !important;
 			}
 		</style>
@@ -26,25 +26,23 @@
 					demo: "dcalendar/tests"
 				}
 			}, [
-				"dojo/_base/lang", "dojo/_base/sniff", "dojo/_base/array", "dojo/_base/fx", "dojo/dom-class", "dojo/on",
-				 "dojo/date/locale", "dojo/parser",	"dojo/dom", "dojo/dom-construct",	"dojo/store/Memory",
-				 "dojo/store/Observable",	"demo/ExtendedCalendar", "dojo/domReady!"
-			], function (lang, has, arr, fx, domClass, on, locale, parser, dom, domConstruct,
-					Memory, Observable, Calendar
+				"dojo/_base/fx", "dojo/dom-class",
+				"demo/ExtendedCalendar",
+				"dojo/domReady!"
+			], function (
+				fx, domClass
 			){
-				parser.parse();
-
 				var startOfWeek = calendar.floorToWeek(new calendar.dateClassObj());
 
-				calendar.set("date", startOfWeek);
+				calendar.date = startOfWeek;
 
-				calendar.columnView.set("styleGridCellFunc", function(node, date, hours, minutes){
+				calendar.columnView.styleGridCellFunc = function(node, date, hours, minutes){
 					// grey out Wednesday & time range between 12pm and 2pm
 					if(hours >= 12 && hours < 14 || date.getDay() == 3){
 						domClass.add(node, "greyCell");
 					}
 					this.defaultStyleGridCell(node, date, hours, minutes);
-				});
+				};
 
 				var func = function(node, date){
 					// grey out Wednesday
@@ -54,9 +52,9 @@
 					this.defaultStyleGridCell(node, date);
 				};
 
-				calendar.columnView.secondarySheet.set("styleGridCellFunc", func);
-				calendar.matrixView.set("styleGridCellFunc", func);
-				calendar.monthColumnView.set("styleGridCellFunc", func);
+				calendar.columnView.secondarySheet.styleGridCellFunc = func;
+				calendar.matrixView.styleGridCellFunc = func;
+				calendar.monthColumnView.styleGridCellFunc = func;
 
 				// Hide loading panel when application is ready
 				fx.fadeOut({
@@ -72,8 +70,8 @@
 			<span style="background: #DBEB8F;padding:2px">Loading...</span>
 		</div>
 
-		<div data-dojo-id="calendar" data-dojo-type="demo.ExtendedCalendar"
+		<my-extended-calendar id="calendar"
 			style="position:absolute;left:10px;top:10px;bottom:10px;right:10px">
-		</div>
+		</my-extended-calendar>
 	</body>
 </html>
