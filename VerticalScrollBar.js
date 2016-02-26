@@ -1,24 +1,33 @@
 define([
-	"dojo/_base/declare",
+	"delite/register",
 	"dojo/_base/event",
 	"dojo/_base/lang",
 	"dojo/on",
 	"dojo/dom-style",
 	"dojo/sniff",
-	"dijit/_WidgetBase",
-	"dojox/html/metrics"
+	"delite/Widget",
+	"dojox/html/metrics",
+	"delite/handlebars!./templates/Scrollbar.html"
 ], function (
-	declare,
+	register,
 	event,
 	lang,
 	on,
 	domStyle,
 	has,
-	_WidgetBase,
-	metrics
+	Widget,
+	metrics,
+	template
 ) {
 
-	return declare("dojox.calendar._ScrollBarBase", _WidgetBase, {
+	/**
+	 * Vertical scrollbar and also superclass for horizontal scrollbar.
+	 */
+	return register("d-calendar-vertical-scrollbar", [HTMLElement, Widget], {
+
+		baseClass: "dojoxCalendarVScrollBar",
+
+		template: template,
 
 		// value: Number
 		//		The value of the scroll bar in pixel offset.
@@ -42,38 +51,37 @@ define([
 
 		containerSize: 0,
 
-		buildRendering: function () {
-			this.inherited(arguments);
-			this.own(on(this.domNode, "scroll", lang.hitch(this, function (param) {
+		postRender: function () {
+			this.on("scroll", function () {
 				this.value = this._getDomScrollerValue();
 				this.onChange(this.value);
 				this.onScroll(this.value);
-			})));
+			}.bind(this));
 		},
 
 		_getDomScrollerValue: function () {
 			if (this._vertical) {
-				return this.domNode.scrollTop;
+				return this.scrollTop;
 			}
 
-			var rtl = !this.isLeftToRight();
+			var rtl = (this.effectiveDir === "rtl");
 			if (rtl) {
 				if (has("webkit")) {
 					if (this._scW == undefined) {
 						this._scW = metrics.getScrollbar().w;
 					}
-					return this.maximum - this.domNode.scrollLeft - this.containerSize + this._scW;
+					return this.maximum - this.scrollLeft - this.containerSize + this._scW;
 				}
 				if (has("mozilla")) {
-					return -this.domNode.scrollLeft;
+					return -this.scrollLeft;
 				}
 				// ie>7 and others...
 			}
-			return this.domNode.scrollLeft;
+			return this.scrollLeft;
 		},
 
 		_setDomScrollerValue: function (value) {
-			this.domNode[this._vertical ? "scrollTop" : "scrollLeft"] = value;
+			this[this._vertical ? "scrollTop" : "scrollLeft"] = value;
 		},
 
 		_setValueAttr: function (value) {
@@ -116,13 +124,7 @@ define([
 		},
 
 		_setDirectionAttr: function (value) {
-			if (value == "vertical") {
-				value = "vertical";
-				this._vertical = true;
-			} else {
-				value = "horizontal";
-				this._vertical = false;
-			}
+			this._vertical = (value === "vertical");
 			this._set("direction", value);
 		}
 	});

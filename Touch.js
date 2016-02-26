@@ -1,16 +1,16 @@
 define([
 	"dojo/_base/array",
 	"dojo/_base/lang",
-	"dojo/_base/declare",
+	"dcl/dcl",
 	"dojo/dom",
 	"dojo/dom-geometry",
 	"dojo/_base/window",
 	"dojo/on",
 	"dojo/_base/event",
-	"dojo/keys"
-], function (arr, lang, declare, dom, domGeometry, win, on, event, keys) {
+	"./ViewBase"
+], function (arr, lang, dcl, dom, domGeometry, win, on, event, ViewBase) {
 
-	return declare("dojox.calendar.Touch", null, {
+	return dcl(ViewBase, {
 
 		// summary:
 		//		This plugin is managing the touch interactions on item renderers displayed by a calendar view.
@@ -24,16 +24,13 @@ define([
 		//		in touch context.
 		touchEndEditingTimer: 10000,
 
-		postMixInProperties: function () {
-
+		createdCallback: function () {
 			this.on("rendererCreated", lang.hitch(this, function (irEvent) {
-
 				var renderer = irEvent.renderer.renderer;
 
-				this.own(on(renderer.domNode, "touchstart", lang.hitch(this, function (e) {
+				this.own(renderer.on("touchstart", lang.hitch(this, function (e) {
 					this._onRendererTouchStart(e, renderer);
 				})));
-
 			}));
 		},
 
@@ -89,15 +86,12 @@ define([
 			}
 
 			if (this._isEditing) {
-
 				// get info on touches
 				lang.mixin(p, this._getTouchesOnRenderers(e, p.editedItem));
 
 				// start an editing gesture.
 				this._startTouchItemEditingGesture(e);
-
 			} else {
-
 				// initial touch that will trigger or not the editing
 
 				if (e.touches.length > 1) {
@@ -109,7 +103,7 @@ define([
 				// to allow a bit of time to scroll without selecting (graphically at least)
 				this._touchSelectionTimer = setTimeout(lang.hitch(this, function () {
 
-					this._saveSelectedItems = this.get("selectedItems");
+					this._saveSelectedItems = this.selectedItems;
 
 					var changed = this.selectFromEvent(e, theItem._item, renderer, false);
 
@@ -235,7 +229,6 @@ define([
 
 				}
 			} // else scroll, if any, is delegated to sub class
-
 		},
 
 		// autoScrollTouchMargin: Integer
@@ -261,7 +254,6 @@ define([
 				if (this._editingGesture) {
 
 					if (p.touchesLen == 0) {
-
 						// all touches were removed => end of editing gesture
 						this._endItemEditingGesture("touch", e);
 
@@ -342,7 +334,7 @@ define([
 
 					// selection without dipatching was done, but the view scrolled,
 					// so revert last selection
-					this.set("selectedItems", this._saveSelectedItems);
+					this.selectedItems = this._saveSelectedItems;
 					delete this._saveSelectedItems;
 					delete this._pendingSelectedItem;
 				}

@@ -1,17 +1,15 @@
 define([
-	"dojo/_base/declare",
+	"dcl/dcl",
 	"dojo/_base/array",
 	"dojo/_base/html",
 	"dojo/_base/lang",
 	"dojo/dom-class",
-	"dojo/Stateful",
-	"dojo/when"
-], function (declare, arr, html, lang, domClass, Stateful, when) {
+	"decor/Stateful"
+], function (dcl, arr, html, lang, domClass, Stateful) {
 
-	return declare("dojox.calendar.StoreMixin", Stateful, {
-
+	return dcl(Stateful, {
 		// summary:
-		//		This mixin contains the store management.
+		//		This mixin contains the store management, and is mixed into both CalendarBase and ViewBase.
 
 		// store: dojo.store.Store
 		//		The store that contains the events to display.
@@ -63,13 +61,6 @@ define([
 		//		An optional function to transform Date objects into store date.	Default is null.
 		encodeDate: null,
 
-		// displayedItemsInvalidated: Boolean
-		//		Whether the data items displayed must be recomputed, usually after the displayed
-		//		time range has changed.
-		// tags:
-		//		protected
-		displayedItemsInvalidated: false,
-
 		itemToRenderItem: function (item, store) {
 			// summary:
 			//		Creates the render item based on the dojo.store item. It must be of the form:
@@ -87,6 +78,7 @@ define([
 			// store: dojo.store.api.Store
 			//		The store.
 			// returns: Object
+
 			if (this.owner) {
 				return this.owner.itemToRenderItem(item, store);
 			}
@@ -124,9 +116,11 @@ define([
 			// store: dojo.store.api.Store
 			//		The store.
 			// returns: Object
+
 			if (this.owner) {
 				return this.owner.renderItemToItem(renderItem, store);
 			}
+
 			var item = {};
 			item[store.idProperty] = renderItem.id;
 			item[this.summaryAttr] = renderItem.summary;
@@ -137,6 +131,7 @@ define([
 			if (renderItem.subColumn) {
 				item[this.subColumnAttr] = renderItem.subColumn;
 			}
+
 			return this.getItemStoreState(renderItem) === "unstored" ? item : lang.mixin(renderItem._item, item);
 		},
 
@@ -151,13 +146,14 @@ define([
 			if (this.owner) {
 				return this.owner._computeVisibleItems(renderData);
 			}
+
 			renderData.items = this.storeManager._computeVisibleItems(renderData);
 		},
 
 		_initItems: function (items) {
 			// tags:
 			//		private
-			this.set("items", items);
+			this.items = items;
 			return items;
 		},
 
@@ -165,8 +161,8 @@ define([
 		},
 
 		_setStoreAttr: function (value) {
-			this.store = value;
-			return this.storeManager.set("store", value);
+			this._set("store", value);
+			this.storeManager.store = value;
 		},
 
 		_getItemStoreStateObj: function (/*Object*/item) {

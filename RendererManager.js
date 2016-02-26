@@ -1,24 +1,17 @@
 define([
-	"dojo/_base/declare",
-	"dojo/_base/array",
+	"dcl/dcl",
 	"dojo/_base/html",
-	"dojo/_base/lang",
-	"dojo/dom-class",
 	"dojo/dom-style",
-	"dojo/Stateful",
-	"dojo/Evented"
+	"decor/Evented"
 ], function (
-	declare,
-	arr,
+	dcl,
 	html,
-	lang,
-	domClass,
 	domStyle,
-	Stateful,
 	Evented
 ) {
 
-	return declare("dojox.calendar.RendererManager", [Stateful, Evented], {
+	// TODO: this used to extend Stateful but it doesn't seem necessary?   Confirm.
+	return dcl(Evented, {
 
 		// summary:
 		//		This mixin contains the store management.
@@ -117,17 +110,15 @@ define([
 				}
 
 				if (res == null) {
-
 					renderer = new rendererClass;
 
 					res = {
 						renderer: renderer,
-						container: renderer.domNode,
+						container: renderer,
 						kind: kind
 					};
 
 					this.emit("rendererCreated", {renderer: res, source: this.owner, item: item});
-
 				} else {
 					renderer = res.renderer;
 
@@ -135,8 +126,8 @@ define([
 				}
 
 				renderer.owner = this.owner;
-				renderer.set("rendererKind", kind);
-				renderer.set("item", item);
+				renderer.rendererKind = kind;
+				renderer.item = item;
 
 				var list = this.itemToRenderer[item.id];
 				if (list == null) {
@@ -175,7 +166,7 @@ define([
 			domStyle.set(renderer.container, "display", "none");
 
 			renderer.renderer.owner = null;
-			renderer.renderer.set("item", null);
+			renderer.renderer.item = null;
 		},
 
 		destroyRenderer: function (renderer) {
@@ -189,7 +180,7 @@ define([
 
 			var ir = renderer.renderer;
 
-			if (ir["destroy"]) {
+			if (ir.destroy) {
 				ir.destroy();
 			}
 
@@ -218,7 +209,6 @@ define([
 					this.destroyRenderer(pool.pop());
 				}
 			}
-
 		}
 	});
 });

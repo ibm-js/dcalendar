@@ -1,23 +1,23 @@
 define([
 	"dojo/_base/array",
-	"dojo/_base/declare",
+	"dcl/dcl",
 	"dojo/_base/event",
 	"dojo/_base/lang",
 	"dojo/_base/window",
 	"dojo/dom-geometry",
 	"dojo/mouse",
 	"dojo/on",
-	"dojo/keys"
+	"./ViewBase"
 ], function (
 	arr,
-	declare,
+	dcl,
 	event,
 	lang,
 	win,
 	domGeometry,
 	mouse,
 	on,
-	keys
+	ViewBase
 ) {
 
 	/*=====
@@ -33,7 +33,7 @@ define([
 	 };
 	 =====*/
 
-	return declare("dojox.calendar.Mouse", null, {
+	return dcl(ViewBase, {
 
 		// summary:
 		//		This plugin is managing the mouse interactions on item renderers displayed by a calendar view.
@@ -43,14 +43,11 @@ define([
 		//		mouse button down before triggering the editing gesture.
 		triggerExtent: 3,
 
-		postMixInProperties: function () {
-			this.inherited(arguments);
-
+		createdCallback: function () {
 			this.on("rendererCreated", lang.hitch(this, function (irEvent) {
-
 				var renderer = irEvent.renderer.renderer;
 
-				this.own(on(renderer.domNode, "click", lang.hitch(this, function (e) {
+				this.own(renderer.on("click", lang.hitch(this, function (e) {
 					event.stop(e);
 					this._onItemClick({
 						triggerEvent: e,
@@ -59,7 +56,7 @@ define([
 					});
 				})));
 
-				this.own(on(renderer.domNode, "dblclick", lang.hitch(this, function (e) {
+				this.own(renderer.on("dblclick", lang.hitch(this, function (e) {
 					event.stop(e);
 					this._onItemDoubleClick({
 						triggerEvent: e,
@@ -68,7 +65,7 @@ define([
 					});
 				})));
 
-				this.own(on(renderer.domNode, "contextmenu", lang.hitch(this, function (e) {
+				this.own(renderer.on("contextmenu", lang.hitch(this, function (e) {
 					this._onItemContextMenu({
 						triggerEvent: e,
 						renderer: renderer,
@@ -95,13 +92,15 @@ define([
 					})));
 				}
 
-				this.own(on(renderer.domNode, "mousedown", lang.hitch(this, function (e) {
+				this.own(renderer.on("mousedown", lang.hitch(this, function (e) {
 					this._rendererMouseDownHandler(e, renderer);
 				})));
 
 
 				this.own(on(irEvent.renderer.container, mouse.enter, lang.hitch(this, function (e) {
-					if (!renderer.item) return;
+					if (!renderer.item) {
+						return;
+					}
 
 					if (!this._editingGesture) {
 						this._setHoveredItem(renderer.item.item, renderer);
@@ -113,7 +112,7 @@ define([
 					}
 				})));
 
-				this.own(on(renderer.domNode, mouse.leave, lang.hitch(this, function (e) {
+				this.own(on(renderer, mouse.leave, lang.hitch(this, function (e) {
 					if (!renderer.item) return;
 					if (!this._editingGesture) {
 						this._setHoveredItem(null);
@@ -125,7 +124,6 @@ define([
 						}));
 					}
 				})));
-
 			}));
 		},
 
@@ -143,7 +141,6 @@ define([
 			//		The event dispatched when the mouse cursor enters in the item renderer.
 			// tags:
 			//		callback
-
 		},
 
 		_onItemRollOut: function (e) {
@@ -164,7 +161,6 @@ define([
 		},
 
 		_rendererMouseDownHandler: function (e, renderer) {
-
 			// summary:
 			//		Callback if the user clicked on the item renderer but not on a handle.
 			//		Manages item selection.
@@ -190,7 +186,6 @@ define([
 			//		In that case selected is managed by the _rendererMouseDownHandler function.
 			// tags:
 			//		private
-
 
 			event.stop(e);
 
@@ -220,7 +215,7 @@ define([
 					liveLayout: this.liveLayout
 				};
 
-				this.set("focusedItem", this._edProps.editedItem);
+				this.focusedItem = this._edProps.editedItem;
 			}
 
 			var handles = [];

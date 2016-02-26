@@ -1,12 +1,12 @@
 define([
-	"dojo/_base/declare",
+	"dcl/dcl",
 	"dojo/_base/lang",
 	"dojo/dom-style",
 	"dojo/dom-class",
-	"dojo/Stateful"
-], function (declare, lang, domStyle, domClass, Stateful) {
+	"delite/Widget"
+], function (dcl, lang, domStyle, domClass, Widget) {
 
-	return declare("dojox.calendar._RendererMixin", Stateful, {
+	return dcl(Widget, {
 
 		// summary:
 		//		This class is the base class of calendar renderers.
@@ -17,6 +17,7 @@ define([
 
 		// owner: dojox/calendar/_ViewBase
 		//		The view that contains this renderer.
+		//		TODO: get rid of this field?  A renderer shouldn't need to know who owns it.
 		owner: null,
 
 		// edited: Boolean
@@ -89,7 +90,7 @@ define([
 				default:
 					cssClass = null;
 			}
-			var tn = this.stateNode || this.domNode;
+			var tn = this.stateNode || this;
 			domClass.remove(tn, "Storing");
 			domClass.remove(tn, "Unstored");
 
@@ -102,7 +103,7 @@ define([
 
 		_setState: function (prop, value, cssClass) {
 			if (this[prop] != value) {
-				var tn = this.stateNode || this.domNode;
+				var tn = this.stateNode || this;
 				domClass[value ? "add" : "remove"](tn, cssClass);
 				this._set(prop, value);
 			}
@@ -111,24 +112,24 @@ define([
 		_setItemAttr: function (value) {
 			if (value == null) {
 				if (this.item && this.item.cssClass) {
-					domClass.remove(this.domNode, this.item.cssClass);
+					domClass.remove(this, this.item.cssClass);
 				}
 				this.item = null;
 			} else {
 				if (this.item != null) {
 					if (this.item.cssClass != value.cssClass) {
 						if (this.item.cssClass) {
-							domClass.remove(this.domNode, this.item.cssClass);
+							domClass.remove(this, this.item.cssClass);
 						}
 					}
 					this.item = lang.mixin(this.item, value);
 					if (value.cssClass) {
-						domClass.add(this.domNode, value.cssClass);
+						domClass.add(this, value.cssClass);
 					}
 				} else {
 					this.item = value;
 					if (value.cssClass) {
-						domClass.add(this.domNode, value.cssClass);
+						domClass.add(this, value.cssClass);
 					}
 				}
 			}
@@ -219,7 +220,7 @@ define([
 			// tags:
 			//		protected
 			if (this.owner) {
-				var f = this.owner.get("formatItemTimeFunc");
+				var f = this.owner.formatItemTimeFunc;
 				if (f != null && typeof f === "function") {
 					return f(d, rd, this.owner, this.item);
 				}
@@ -260,12 +261,12 @@ define([
 			var visible;
 
 			if (this.beforeIcon != null) {
-				visible = this._orientation != "horizontal" || this.isLeftToRight() ? startHidden : endHidden;
+				visible = this._orientation != "horizontal" || this.effectiveDir === "ltr" ? startHidden : endHidden;
 				domStyle.set(this.beforeIcon, "display", visible ? this.getDisplayValue("beforeIcon") : "none");
 			}
 
 			if (this.afterIcon != null) {
-				visible = this._orientation != "horizontal" || this.isLeftToRight() ? endHidden : startHidden;
+				visible = this._orientation != "horizontal" || this.effectiveDir === "ltr" ? endHidden : startHidden;
 				domStyle.set(this.afterIcon, "display", visible ? this.getDisplayValue("afterIcon") : "none");
 			}
 

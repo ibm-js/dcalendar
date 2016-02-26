@@ -1,9 +1,8 @@
 define([
 	"./ViewBase",
-	"dijit/_TemplatedMixin",
-	"./_ScrollBarBase",
-	"dojo/text!./templates/MonthColumnView.html",
-	"dojo/_base/declare",
+	"./VerticalScrollBar",
+	"delite/handlebars!./templates/MonthColumnView.html",
+	"delite/register",
 	"dojo/_base/event",
 	"dojo/_base/lang",
 	"dojo/_base/array",
@@ -22,10 +21,9 @@ define([
 	"dojox/html/metrics"
 ], function (
 	ViewBase,
-	_TemplatedMixin,
 	_ScrollBarBase,
 	template,
-	declare,
+	register,
 	event,
 	lang,
 	arr,
@@ -57,7 +55,7 @@ define([
 	 };
 	 =====*/
 
-	return declare("dojox.calendar.MonthColumnView", [ViewBase, _TemplatedMixin], {
+	return register("d-calendar-month-column", [HTMLElement, ViewBase], {
 
 		// summary:
 		//		The month column view is a calendar view used to display a month per column
@@ -65,7 +63,7 @@ define([
 
 		baseClass: "dojoxCalendarMonthColumnView",
 
-		templateString: template,
+		template: template,
 
 		// viewKind: String
 		//		Type of the view. Used by the calendar widget to determine how to configure the view.
@@ -137,16 +135,11 @@ define([
 
 		_columnHeaderHandlers: null,
 
-		constructor: function () {
-			this.invalidatingProperties = ["columnCount", "startDate", "daySize", "percentOverlap", "verticalRenderer",
-				"verticalDecorationRenderer",
-				"columnHeaderDatePattern", "horizontalGap", "scrollBarRTLPosition", "itemToRendererKindFunc",
-				"layoutPriorityFunction", "textDir", "items", "showCellLabel", "showHiddenItems"];
+		createdCallback: function () {
 			this._columnHeaderHandlers = [];
-		},
 
-		postCreate: function () {
-			this.inherited(arguments);
+			// Apparently these are in here rather than in the prototype so they
+			// override the values in Keyboard.js regardless of inheritance order.
 			this.keyboardUpDownUnit = "day";
 			this.keyboardUpDownSteps = 1;
 			this.keyboardLeftRightUnit = "month";
@@ -157,12 +150,11 @@ define([
 			this.allDayKeyboardLeftRightSteps = 1;
 		},
 
-		destroy: function (preserveDom) {
+		destroy: function () {
 			this._cleanupColumnHeader();
 			if (this.scrollBar) {
-				this.scrollBar.destroy(preserveDom);
+				this.scrollBar.destroy();
 			}
-			this.inherited(arguments);
 		},
 
 		_scrollBar_onScroll: function (value) {
@@ -171,40 +163,22 @@ define([
 			this.scrollContainer.scrollTop = value;
 		},
 
-		buildRendering: function () {
-			// tags:
-			//		private
-			this.inherited(arguments);
-			if (this.vScrollBar) {
-				this.scrollBar = new _ScrollBarBase(
-					{content: this.vScrollBarContent},
-					this.vScrollBar);
+		postRender: function () {
+			this._viewHandles.push(
+				on(this.scrollContainer, mouse.wheel,
+					lang.hitch(this, this._mouseWheelScrollHander)));
 
-				this.scrollBar.on("scroll", lang.hitch(this, this._scrollBar_onScroll));
-				this._viewHandles.push(
-					on(this.scrollContainer, mouse.wheel,
-						dojo.hitch(this, this._mouseWheelScrollHander)));
-			}
-		},
-
-		postscript: function () {
-			this.inherited(arguments);
-			this._initialized = true;
-			if (!this.invalidRendering) {
-				this.refreshRendering();
-			}
 		},
 
 		_setVerticalRendererAttr: function (value) {
-			this._destroyRenderersByKind("vertical");
+			this._destroyRenderersByKind("vertical");			// clear cache
 			this._set("verticalRenderer", value);
 		},
 
 		_createRenderData: function () {
-
 			var rd = {};
 
-			rd.daySize = this.get("daySize");
+			rd.daySize = this.daySize;
 			rd.scrollbarWidth = metrics.getScrollbar().w + 1;
 
 			rd.dateLocaleModule = this.dateLocaleModule;
@@ -213,9 +187,9 @@ define([
 
 			rd.dates = [];
 
-			rd.columnCount = this.get("columnCount");
+			rd.columnCount = this.columnCount;
 
-			var d = this.get("startDate");
+			var d = this.startDate;
 
 			if (d == null) {
 				d = new rd.dateClassObj();
@@ -270,19 +244,19 @@ define([
 			return rd;
 		},
 
-		_validateProperties: function () {
+		_validateProperties: register.superCall(function (sup) {
+			return function () {
+				sup.apply(this, arguments);
 
-			this.inherited(arguments);
+				if (this.columnCount < 1 || isNaN(this.columnCount)) {
+					this.columnCount = 1;
+				}
 
-			if (this.columnCount < 1 || isNaN(this.columnCount)) {
-				this.columnCount = 1;
-			}
-
-			if (this.daySize < 5 || isNaN(this.daySize)) {
-				this.daySize = 5;
-			}
-
-		},
+				if (this.daySize < 5 || isNaN(this.daySize)) {
+					this.daySize = 5;
+				}
+			};
+		}),
 
 		_setStartDateAttr: function (value) {
 			this.displayedItemsInvalidated = true;
@@ -306,7 +280,7 @@ define([
 		//
 		//////////////////////////////////////////
 
-		_formatColumnHeaderLabel: function (/*Date*/d) {
+		_formatColumnHeaderLabel: function (/*Date*/ d) {
 			// summary:
 			//		Computes the column header label for the specified date.
 			// d: Date
@@ -434,7 +408,7 @@ define([
 
 			this.scrollContainer.scrollTop = v;
 			if (this.scrollBar) {
-				this.scrollBar.set("value", v);
+				this.scrollBar.value = v;
 			}
 		},
 
@@ -464,9 +438,9 @@ define([
 				}
 				var e = end.getDate() + margin;
 
-				var viewStart = this.get("scrollPosition").date;
+				var viewStart = this.scrollPosition.date;
 				var r = domGeometry.getContentBox(this.scrollContainer);
-				var viewEnd = (this.get("scrollPosition").date + (r.h / this.daySize));
+				var viewEnd = (this.scrollPosition.date + (r.h / this.daySize));
 
 				var visible = false;
 				var target = null;
@@ -498,7 +472,7 @@ define([
 			// dir: Integer
 			//		Direction of the scroll. Valid values are -1 and 1.
 			//
-			var pos = this.get("scrollPosition").date + dir;
+			var pos = this.scrollPosition.date + dir;
 			this._setScrollPosition(pos);
 		},
 
@@ -517,10 +491,6 @@ define([
 		//////////////////////////////////////////
 
 		refreshRendering: function () {
-			if (!this._initialized) {
-				return;
-			}
-
 			this._validateProperties();
 
 			var oldRd = this.renderData;
@@ -550,14 +520,14 @@ define([
 			// tags:
 			//		protected
 
-			var atRight = this.isLeftToRight() ? true : this.scrollBarRTLPosition == "right";
+			var atRight = this.effectiveDir === "ltr" || this.scrollBarRTLPosition == "right";
 			var rPos = atRight ? "right" : "left";
 			var lPos = atRight ? "left" : "right";
 
 			if (this.scrollBar) {
-				this.scrollBar.set("maximum", renderData.sheetHeight);
-				domStyle.set(this.scrollBar.domNode, rPos, 0);
-				domStyle.set(this.scrollBar.domNode, lPos, "auto");
+				this.scrollBar.maximum = renderData.sheetHeight;
+				domStyle.set(this.scrollBar, rPos, 0);
+				domStyle.set(this.scrollBar, lPos, "auto");
 			}
 			domStyle.set(this.scrollContainer, rPos, renderData.scrollbarWidth + "px");
 			domStyle.set(this.scrollContainer, lPos, "0");
@@ -593,7 +563,6 @@ define([
 			//		The previously render data displayed, if any.
 			// tags:
 			//		private
-
 
 			var table = this.columnHeaderTable;
 
@@ -690,7 +659,6 @@ define([
 				this._setText(td, this._formatColumnHeaderLabel(d));
 				this.styleColumnHeaderCell(td, d, renderData);
 			}, this);
-
 		},
 
 		_cleanupColumnHeader: function () {
@@ -717,7 +685,6 @@ define([
 			//		The render data.
 			// tags:
 			//		protected
-
 		},
 
 		_buildGrid: function (renderData, oldRenderData) {
@@ -731,7 +698,6 @@ define([
 			//		The previously render data displayed, if any.
 			// tags:
 			//		private
-
 
 			var table = this.gridTable;
 
@@ -824,7 +790,6 @@ define([
 
 				}, this);
 			}, this);
-
 		},
 
 		// styleGridCellFunc: Function
@@ -897,7 +862,6 @@ define([
 			//		The previously render data displayed, if any.
 			// tags:
 			//		private
-
 
 			var table = this.itemContainerTable;
 
@@ -1016,10 +980,12 @@ define([
 			return dur >= 1440 ? "vertical" : null;
 		},
 
-		_layoutRenderers: function (renderData) {
-			this.hiddenEvents = {};
-			this.inherited(arguments);
-		},
+		_layoutRenderers: dcl.superCall(function (sup) {
+			return function (renderData) {
+				this.hiddenEvents = {};
+				sup.apply(this, arguments);
+			};
+		}),
 
 		_layoutInterval: function (/*Object*/renderData, /*Integer*/index, /*Date*/start, /*Date*/end,
 								   /*Object[]*/items, /*String*/itemsType) {
@@ -1151,24 +1117,22 @@ define([
 
 					var renderer = ir.renderer;
 
-					renderer.set("hovered", hovered);
-					renderer.set("selected", selected);
-					renderer.set("edited", edited);
-					renderer.set("focused", this.showFocus ? focused : false);
+					renderer.hovered = hovered;
+					renderer.selected = selected;
+					renderer.edited = edited;
+					renderer.focused = (this.showFocus ? focused : false);
 
-					renderer.set("storeState", this.getItemStoreState(item));
+					renderer.storeState = this.getItemStoreState(item);
 
-					renderer.set("moveEnabled", this.isItemMoveEnabled(item._item, "vertical"));
-					renderer.set("resizeEnabled", this.isItemResizeEnabled(item._item, "vertical"));
+					renderer.moveEnabled = (this.isItemMoveEnabled(item._item, "vertical"));
+					renderer.resizeEnabled = (this.isItemResizeEnabled(item._item, "vertical"));
 
 					this.applyRendererZIndex(item, ir, hovered, selected, edited, focused);
 
 					if (renderer.updateRendering) {
 						renderer.updateRendering(w, item.end - item.start + 1);
 					}
-
 				} else { //itemsType === "decorationItems"
-
 					ir = this.decorationRendererManager.createRenderer(item, "vertical",
 						this.verticalDecorationRenderer, "dojoxCalendarDecoration");
 
@@ -1189,19 +1153,22 @@ define([
 			// tags:
 			//		private
 
-			if ((rtl == undefined || rtl == true) && !this.isLeftToRight()) {
+			// TODO: why is the default value of the rtl flag true?
+			if ((rtl === undefined || rtl == true) && this.effectiveDir === "rtl") {
 				columnIndex = this.renderData.columnCount - 1 - columnIndex;
 			}
 			return this.gridTable.childNodes[0].childNodes[rowIndex].childNodes[columnIndex];
 		},
 
-		invalidateLayout: function () {
-			//make sure to clear hiddens object state
-			query("td", this.gridTable).forEach(function (td) {
-				domClass.remove(td, "dojoxCalendarHiddenEvents");
-			});
-			this.inherited(arguments);
-		},
+		invalidateLayout: register.superCall(function (sup) {
+			return function () {
+				//make sure to clear hiddens object state
+				query("td", this.gridTable).forEach(function (td) {
+					domClass.remove(td, "dojoxCalendarHiddenEvents");
+				});
+				sup.apply(this, arguments);
+			};
+		}),
 
 		_layoutBgItems: function (/*Object*/renderData, /*Integer*/col, /*Date*/startTime, /*Date*/endTime,
 								  /*Object[]*/items) {
@@ -1244,7 +1211,7 @@ define([
 			if (res == 0) {
 				res = -1 * this.dateModule.compare(a.endTime, b.endTime);
 			}
-			return this.isLeftToRight() ? res : -res;
+			return this.effectiveDir === "ltr" ? res : -res;
 		},
 
 		///////////////////////////////////////////////////////////////
@@ -1271,14 +1238,11 @@ define([
 				var refPos = domGeometry.position(this.itemContainer, true);
 
 				if (e.touches) {
-
 					touchIndex = touchIndex == undefined ? 0 : touchIndex;
 
 					x = e.touches[touchIndex].pageX - refPos.x;
 					y = e.touches[touchIndex].pageY - refPos.y;
-
 				} else {
-
 					x = e.pageX - refPos.x;
 					y = e.pageY - refPos.y;
 				}
@@ -1286,7 +1250,7 @@ define([
 
 			var r = domGeometry.getContentBox(this.itemContainer);
 
-			if (!this.isLeftToRight()) {
+			if (this.effectiveDir === "rtl") {
 				x = r.w - x;
 			}
 
@@ -1320,131 +1284,122 @@ define([
 		//
 		///////////////////////////////////////////////////////////////
 
-		_onGridMouseUp: function (e) {
+		_onGridMouseUp: register.superCall(function (sup) {
+			return function (e) {
+				sup.apply(this, arguments);
 
-			// tags:
-			//		private
+				if (this._gridMouseDown) {
+					this._gridMouseDown = false;
 
+					this._onGridClick({
+						date: this.getTime(e),
+						triggerEvent: e
+					});
+				}
+			};
+		}),
 
-			this.inherited(arguments);
+		_onGridTouchStart: register.superCall(function (sup) {
+			return function (e) {
+				sup.apply(this, arguments);
 
-			if (this._gridMouseDown) {
-				this._gridMouseDown = false;
+				var g = this._gridProps;
 
-				this._onGridClick({
-					date: this.getTime(e),
-					triggerEvent: e
-				});
-			}
-		},
+				g.moved = false;
+				g.start = e.touches[0].screenY;
+				g.scrollTop = this.scrollContainer.scrollTop;
+			};
+		}),
 
-		_onGridTouchStart: function (e) {
-			// tags:
-			//		private
+		_onGridTouchMove: register.superCall(function (sup) {
+			return function (e) {
+				sup.apply(this, arguments);
 
+				if (e.touches.length > 1 && !this._isEditing) {
+					event.stop(e);
+					return;
+				}
 
-			this.inherited(arguments);
+				if (this._gridProps && !this._isEditing) {
 
-			var g = this._gridProps;
+					var touch = {x: e.touches[0].screenX, y: e.touches[0].screenY};
 
-			g.moved = false;
-			g.start = e.touches[0].screenY;
-			g.scrollTop = this.scrollContainer.scrollTop;
-		},
+					var p = this._edProps;
 
-		_onGridTouchMove: function (e) {
-			// tags:
-			//		private
+					if (!p || p &&
+						(Math.abs(touch.x - p.start.x) > 25 ||
+						Math.abs(touch.y - p.start.y) > 25)) {
 
-			this.inherited(arguments);
-
-			if (e.touches.length > 1 && !this._isEditing) {
-				event.stop(e);
-				return;
-			}
-
-			if (this._gridProps && !this._isEditing) {
-
-				var touch = {x: e.touches[0].screenX, y: e.touches[0].screenY};
-
-				var p = this._edProps;
-
-				if (!p || p &&
-					(Math.abs(touch.x - p.start.x) > 25 ||
-					Math.abs(touch.y - p.start.y) > 25)) {
-
-					this._gridProps.moved = true;
-					var d = e.touches[0].screenY - this._gridProps.start;
-					var value = this._gridProps.scrollTop - d;
-					var max = this.itemContainer.offsetHeight - this.scrollContainer.offsetHeight;
-					if (value < 0) {
-						this._gridProps.start = e.touches[0].screenY;
-						this._setScrollImpl(0);
-						this._gridProps.scrollTop = 0;
-					} else if (value > max) {
-						this._gridProps.start = e.touches[0].screenY;
-						this._setScrollImpl(max);
-						this._gridProps.scrollTop = max;
-					} else {
-						this._setScrollImpl(value);
+						this._gridProps.moved = true;
+						var d = e.touches[0].screenY - this._gridProps.start;
+						var value = this._gridProps.scrollTop - d;
+						var max = this.itemContainer.offsetHeight - this.scrollContainer.offsetHeight;
+						if (value < 0) {
+							this._gridProps.start = e.touches[0].screenY;
+							this._setScrollImpl(0);
+							this._gridProps.scrollTop = 0;
+						} else if (value > max) {
+							this._gridProps.start = e.touches[0].screenY;
+							this._setScrollImpl(max);
+							this._gridProps.scrollTop = max;
+						} else {
+							this._setScrollImpl(value);
+						}
 					}
 				}
-			}
-		},
+			};
+		}),
 
-		_onGridTouchEnd: function (e) {
-			// tags:
-			//		private
+		_onGridTouchEnd: register.superCall(function (sup) {
+			return function (e) {
+				sup.apply(this, arguments);
 
-			//event.stop(e);
+				var g = this._gridProps;
 
-			this.inherited(arguments);
+				if (g) {
+					if (!this._isEditing) {
+						if (!g.moved) {
 
-			var g = this._gridProps;
+							// touched on grid and on touch start editing was ongoing.
+							if (!g.fromItem && !g.editingOnStart) {
+								this.selectFromEvent(e, null, null, true);
+							}
 
-			if (g) {
-				if (!this._isEditing) {
-					if (!g.moved) {
+							if (!g.fromItem) {
 
-						// touched on grid and on touch start editing was ongoing.
-						if (!g.fromItem && !g.editingOnStart) {
-							this.selectFromEvent(e, null, null, true);
-						}
+								if (this._pendingDoubleTap && this._pendingDoubleTap.grid) {
 
-						if (!g.fromItem) {
+									this._onGridDoubleClick({
+										date: this.getTime(this._gridProps.event),
+										triggerEvent: this._gridProps.event
+									});
 
-							if (this._pendingDoubleTap && this._pendingDoubleTap.grid) {
+									clearTimeout(this._pendingDoubleTap.timer);
 
-								this._onGridDoubleClick({
-									date: this.getTime(this._gridProps.event),
-									triggerEvent: this._gridProps.event
-								});
+									delete this._pendingDoubleTap;
 
-								clearTimeout(this._pendingDoubleTap.timer);
+								} else {
 
-								delete this._pendingDoubleTap;
+									this._onGridClick({
+										date: this.getTime(this._gridProps.event),
+										triggerEvent: this._gridProps.event
+									});
 
-							} else {
-
-								this._onGridClick({
-									date: this.getTime(this._gridProps.event),
-									triggerEvent: this._gridProps.event
-								});
-
-								this._pendingDoubleTap = {
-									grid: true,
-									timer: setTimeout(lang.hitch(this, function () {
-										delete this._pendingDoubleTap;
-									}), this.doubleTapDelay)
-								};
+									this._pendingDoubleTap = {
+										grid: true,
+										timer: setTimeout(lang.hitch(this, function () {
+											delete this._pendingDoubleTap;
+										}), this.doubleTapDelay)
+									};
+								}
 							}
 						}
 					}
-				}
 
-				this._gridProps = null;
-			}
-		},
+					this._gridProps = null;
+				}
+			};
+		}),
 
 		_onColumnHeaderClick: function (e) {
 			// tags:
@@ -1459,7 +1414,6 @@ define([
 			// e: __ColumnClickEventArgs
 			// tags:
 			//		callback
-
 		},
 
 
@@ -1490,6 +1444,5 @@ define([
 		stayInView: true,
 		allowStartEndSwap: true,
 		allowResizeLessThan24H: false
-
 	});
 });

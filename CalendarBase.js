@@ -1,5 +1,5 @@
 define([
-	"dojo/_base/declare",
+	"dcl/dcl",
 	"dojo/_base/event",
 	"dojo/_base/lang",
 	"dojo/_base/array",
@@ -13,18 +13,14 @@ define([
 	"dojo/date/locale",
 	"dojo/_base/fx",
 	"dojo/fx",
-	"dojo/on",
-	"dijit/_WidgetBase",
-	"dijit/_TemplatedMixin",
-	"dijit/_WidgetsInTemplateMixin",
+	"delite/Widget",
+	"delite/Selection",
 	"./StoreMixin",
 	"./StoreManager",
-	"dojox/widget/_Invalidating",
-	"dojox/widget/Selection",
 	"./time",
 	"dojo/i18n!./nls/buttons"
 ], function (
-	declare,
+	dcl,
 	event,
 	lang,
 	arr,
@@ -38,14 +34,10 @@ define([
 	locale,
 	coreFx,
 	fx,
-	on,
-	_WidgetBase,
-	_TemplatedMixin,
-	_WidgetsInTemplateMixin,
+	Widget,
+	Selection,
 	StoreMixin,
 	StoreManager,
-	_Invalidating,
-	Selection,
 	timeUtil,
 	_nls
 ) {
@@ -162,8 +154,7 @@ define([
 	};
 	=====*/
 
-	return declare("dojox.calendar.CalendarBase",
-		[_WidgetBase, _TemplatedMixin, _WidgetsInTemplateMixin, StoreMixin, _Invalidating, Selection], {
+	return dcl([Widget, StoreMixin, Selection], {
 
 		// summary:
 		//		This class defines a generic calendar widget that manages several views to display event in time.
@@ -279,22 +270,19 @@ define([
 		//		- d: the date at the clicked location.
 		createItemFunc: null,
 
-		// currentView: ViewBase
+		// currentView: dcalendar/ViewBase
 		//		The current view displayed by the Calendar object.
 		//		The currentViewChange event can be used to react on a view change.
 		currentView: null,
 
 		_currentViewIndex: -1,
 
-		views: null,
-
 		_calendar: "gregorian",
 
-		constructor: function (/*Object*/args) {
-			this.views = [];
+		_nls: _nls,
 
-			this.invalidatingProperties = ["store", "items", "startDate", "endDate", "views",
-				"date", "minDate", "maxDate", "dateInterval", "dateIntervalSteps", "firstDayOfWeek"];
+		createdCallback: function (/*Object*/args) {
+			this._set("views", []);
 
 			args = args || {};
 			this._calendar = args.datePackage ? args.datePackage.substr(args.datePackage.lastIndexOf(".") + 1) :
@@ -303,34 +291,25 @@ define([
 			this.dateClassObj = this.dateModule.Date || Date;
 			this.dateLocaleModule = args.datePackage ? lang.getObject(args.datePackage + ".locale", false) : locale;
 
-			this.invalidateRendering();
-
 			this.storeManager = new StoreManager({owner: this, _ownerItemsProperty: "items"});
 			this.storeManager.on("layoutInvalidated", lang.hitch(this, this._refreshItemsRendering));
 			this.storeManager.on("renderersInvalidated", lang.hitch(this, this._updateRenderers));
 			this.storeManager.on("dataLoaded", lang.hitch(this, function (items) {
-				this.set("items", items);
+				this.items = items;
 			}));
 
 			this.decorationStoreManager = new StoreManager({owner: this, _ownerItemsProperty: "decorationItems"});
 			this.decorationStoreManager.on("layoutInvalidated",
 				lang.hitch(this, this._refreshDecorationItemsRendering));
 			this.decorationStoreManager.on("dataLoaded", lang.hitch(this, function (items) {
-				this.set("decorationItems", items);
+				this.decorationItems = items;
 			}));
 		},
 
-		buildRendering: function () {
-			this.inherited(arguments);
-			if (this.views == null || this.views.length == 0) {
-				this.set("views", this._createDefaultViews());
+		postRender: function () {
+			if (this.views == null || this.views.length === 0) {
+				this.views = this._createDefaultViews();
 			}
-		},
-
-		_applyAttributes: function () {
-			this._applyAttr = true;
-			this.inherited(arguments);
-			delete this._applyAttr;
 		},
 
 		////////////////////////////////////////////////////
@@ -369,14 +348,14 @@ define([
 
 		_setFirstDayOfWeekAttr: function (value) {
 			this._set("firstDayOfWeek", value);
-			if (this.get("date") != null && this.get("dateInterval") == "week") {
+			if (this.date != null && this.dateInterval == "week") {
 				this._timeRangeInvalidated = true;
 			}
 		},
 
 		_setTextDirAttr: function (value) {
-			arr.forEach(this.views, function (view) {
-				view.set("textDir", value);
+			this.views.forEach(function (view) {
+				view.textDir = value;
 			});
 		},
 
@@ -392,7 +371,7 @@ define([
 			//		Refreshes all the visual rendering of the calendar.
 			// tags:
 			//		protected
-			this.inherited(arguments);
+
 			this._validateProperties();
 		},
 
@@ -416,7 +395,7 @@ define([
 
 		resize: function (changeSize) {
 			if (changeSize) {
-				domGeometry.setMarginBox(this.domNode, changeSize);
+				domGeometry.setMarginBox(this, changeSize);
 			}
 			if (this.currentView) {
 				// must not pass the size, children are sized depending on the parent by CSS.
@@ -424,21 +403,22 @@ define([
 			}
 		},
 
+		// TODO: instead of calling this from refreshRendering(), just rename it to computeProperties().
 		_validateProperties: function () {
 			// tags:
 			//		private
 
 			var cal = this.dateModule;
-			var startDate = this.get("startDate");
-			var endDate = this.get("endDate");
-			var date = this.get("date");
+			var startDate = this.startDate;
+			var endDate = this.endDate;
+			var date = this.date;
 
 			if (this.firstDayOfWeek < -1 || this.firstDayOfWeek > 6) {
 				this._set("firstDayOfWeek", 0);
 			}
 
-			var minDate = this.get("minDate");
-			var maxDate = this.get("maxDate");
+			var minDate = this.minDate;
+			var maxDate = this.maxDate;
 
 			if (minDate && maxDate) {
 				if (cal.compare(minDate, maxDate) > 0) {
@@ -449,7 +429,6 @@ define([
 			}
 
 			if (date == null && (startDate != null || endDate != null)) {
-
 				if (startDate == null) {
 					startDate = new this.dateClassObj();
 					this._set("startDate", startDate);
@@ -467,27 +446,25 @@ define([
 					this._set("endDate", endDate);
 					this._timeRangeInvalidated = true;
 				}
-
 			} else {
-
 				if (this.date == null) {
 					this._set("date", new this.dateClassObj());
 					this._timeRangeInvalidated = true;
 				}
 
-				var dint = this.get("dateInterval");
+				var dint = this.dateInterval;
 				if (dint != "day" && dint != "week" && dint != "month") {
 					this._set("dateInterval", "day");
 					this._timeRangeInvalidated = true;
 				}
 
-				var dis = this.get("dateIntervalSteps");
+				var dis = this.dateIntervalSteps;
 				if (lang.isString(dis)) {
 					dis = parseInt(dis);
 					this._set("dateIntervalSteps", dis);
 				}
 				if (dis <= 0) {
-					this.set("dateIntervalSteps", 1);
+					this.dateIntervalSteps = 1;
 					this._timeRangeInvalidated = true;
 				}
 			}
@@ -498,15 +475,15 @@ define([
 				var timeInterval = this.computeTimeInterval();
 
 				if (this._timeInterval == null ||
-					cal.compare(this._timeInterval[0], timeInterval[0]) != 0 ||
-					cal.compare(this._timeInterval[1], timeInterval[1]) != 0) {
+					cal.compare(this._timeInterval[0], timeInterval[0]) !== 0 ||
+					cal.compare(this._timeInterval[1], timeInterval[1]) !== 0) {
 
 					if (this._dateChanged) {
-						this._lastValidDate = this.get("date");
+						this._lastValidDate = this.date;
 						this._dateChanged = false;
 					} else if (this._startDateChanged || this._endDateChanged) {
-						this._lastValidStartDate = this.get("startDate");
-						this._lastValidEndDate = this.get("endDate");
+						this._lastValidStartDate = this.startDate;
+						this._lastValidEndDate = this.endDate;
 						this._startDateChanged = false;
 						this._endDateChanged = false;
 					}
@@ -518,7 +495,6 @@ define([
 						endTime: timeInterval[1]
 					});
 				} else {
-
 					if (this._dateChanged) {
 						this._dateChanged = false;
 						if (this.lastValidDate != null) {
@@ -548,22 +524,25 @@ define([
 			}
 		},
 
+		// TODO: instead of calling this above, just rename it to refreshRendering().
+		// Better yet, looks like CalendarBase (or its subclass) should extend deliteful/ViewStack, and let
+		// it handle the transitions.
 		_performViewTransition: function (view, index, timeInterval, duration) {
 			var oldView = this.currentView;
 
 			if (this.animateRange) {
 				if (oldView) { // there's a view to animate
 					oldView.beforeDeactivate();
-					var ltr = this.isLeftToRight();
+					var ltr = (this.effectiveDir === "ltr");
 					var inLeft = this._animRangeInDir == "left" || this._animRangeInDir == null;
 					var outLeft = this._animRangeOutDir == "left" || this._animRangeOutDir == null;
-					this._animateRange(this.currentView.domNode, outLeft && ltr, false, 0, outLeft ? -100 : 100,
+					this._animateRange(this.currentView, outLeft && ltr, false, 0, outLeft ? -100 : 100,
 						lang.hitch(this, function () {
 							oldView.afterDeactivate();
 							view.beforeActivate();
 							this.animateRangeTimer = setTimeout(lang.hitch(this, function () {
 								this._applyViewChange(view, index, timeInterval, duration);
-								this._animateRange(this.currentView.domNode, inLeft && ltr, true,
+								this._animateRange(this.currentView, inLeft && ltr, true,
 									inLeft ? -100 : 100, 0, function () {
 									view.afterActivate();
 								});
@@ -619,24 +598,24 @@ define([
 
 			if (index != this._currentViewIndex) {
 				if (this.currentView == null) {
-					view.set("items", this.items);
-					view.set("decorationItems", this.decorationItems);
-					this.set("currentView", view);
+					view.items = this.items;
+					view.decorationItems = this.decorationItems;
+					this.currentView = view;
 				} else {
 					if (this.items == null || this.items.length == 0) {
-						this.set("currentView", view);
+						this.currentView = view;
 						if (this.animateRange) {
-							domStyle.set(this.currentView.domNode, "opacity", 0);
+							domStyle.set(this.currentView, "opacity", 0);
 						}
-						view.set("items", this.items);
-						view.set("decorationItems", this.decorationItems);
+						view.items = this.items;
+						view.decorationItems = this.decorationItems;
 					} else {
 						this.currentView = view;
-						view.set("items", this.items);
-						view.set("decorationItems", this.decorationItems);
-						this.set("currentView", view);
+						view.items = this.items;
+						view.decorationItems = this.decorationItems;
+						this.currentView = view;
 						if (this.animateRange) {
-							domStyle.set(this.currentView.domNode, "opacity", 0);
+							domStyle.set(this.currentView, "opacity", 0);
 						}
 					}
 				}
@@ -646,15 +625,14 @@ define([
 		_timeInterval: null,
 
 		computeTimeInterval: function () {
-
-			var d = this.get("date");
-			var minDate = this.get("minDate");
-			var maxDate = this.get("maxDate");
+			var d = this.date;
+			var minDate = this.minDate;
+			var maxDate = this.maxDate;
 			var cal = this.dateModule;
 
 			if (d == null) {
-				var startDate = this.get("startDate");
-				var endDate = cal.add(this.get("endDate"), "day", 1);
+				var startDate = this.startDate;
+				var endDate = cal.add(this.endDate, "day", 1);
 
 				if (minDate != null || maxDate != null) {
 					var dur = this.dateModule.difference(startDate, endDate, "day");
@@ -672,9 +650,7 @@ define([
 					}
 				}
 				return [this.floorToDay(startDate), this.floorToDay(endDate)];
-
 			} else {
-
 				var interval = this._computeTimeIntervalImpl(d);
 
 				if (minDate != null) {
@@ -705,8 +681,8 @@ define([
 			var cal = this.dateModule;
 
 			var s = this.floorToDay(d);
-			var di = this.get("dateInterval");
-			var dis = this.get("dateIntervalSteps");
+			var di = this.dateInterval;
+			var dis = this.dateIntervalSteps;
 			var e;
 
 			switch (di) {
@@ -739,33 +715,25 @@ define([
 		/////////////////////////////////////////////////////
 		//
 		// View Management
+		// TODO: Replace this all with ViewStack
 		//
 		/////////////////////////////////////////////////////
 
-		// views: dojox.calendar.ViewBase[]
+		// views: dcalendar/ViewBase[]
 		//		The views displayed by the widget.
 		//		To add/remove only one view, prefer, respectively, the addView() or removeView() methods.
 		views: null,
 
 		_setViewsAttr: function (views) {
-			if (!this._applyAttr) {
-				// 1/ in create() the constructor parameters are mixed in the widget
-				// 2/ in _applyAttributes(), every property with a setter is called.
-				// So no need to call on view removed for a non added view....
-				for (var i = 0; i < this.views.length; i++) {
-					this._onViewRemoved(this.views[i]);
-				}
+			this._get("views").forEach(this._onViewRemoved, this);
+			
+			if (!views) {
+				views = [];
 			}
-			if (views != null) {
-				for (var i = 0; i < views.length; i++) {
-					this._onViewAdded(views[i]);
-				}
-			}
-			this._set("views", views == null ? [] : views.concat());
-		},
 
-		_getViewsAttr: function () {
-			return this.views.concat();
+			views.forEach(this._onViewAdded, this);
+			
+			this._set("views", views.concat());
 		},
 
 		_createDefaultViews: function () {
@@ -793,7 +761,7 @@ define([
 			this._onViewAdded(view);
 		},
 
-		removeView: function (view) {
+		removeView: function (view, index) {
 			// summary:
 			//		Removes a view from the calendar's view list.
 			// view: dojox/calendar/ViewBase
@@ -817,9 +785,9 @@ define([
 			view.dateModule = this.dateModule;
 			view.dateClassObj = this.dateClassObj;
 			view.dateLocaleModule = this.dateLocaleModule;
-			domStyle.set(view.domNode, "display", "none");
-			domClass.add(view.domNode, "view");
-			domConstruct.place(view.domNode, this.viewContainer);
+			domStyle.set(view, "display", "none");
+			domClass.add(view, "view");
+			domConstruct.place(view, this.viewContainer);
 			this.onViewAdded(view);
 		},
 
@@ -836,25 +804,24 @@ define([
 		_onViewRemoved: function (view) {
 			view.owner = null;
 			view.buttonContainer = null;
-			domClass.remove(view.domNode, "view");
-			this.viewContainer.removeChild(view.domNode);
+			domClass.remove(view, "view");
+			this.viewContainer.removeChild(view);
 			this.onViewRemoved(view);
 		},
 
-		onViewRemoved: function (view) {
+		onViewRemoved: function (/* view */) {
 			// summary:
 			//		Event dispatched when a view is removed from the calendar.
 			// view: dojox/calendar/ViewBase
 			//		The view that has been removed from the calendar.
 			// tags:
 			//		callback
-
 		},
 
 		_setCurrentViewAttr: function (view) {
 			var index = arr.indexOf(this.views, view);
 			if (index != -1) {
-				var oldView = this.get("currentView");
+				var oldView = this.currentView;
 				this._currentViewIndex = index;
 				this._set("currentView", view);
 
@@ -867,6 +834,8 @@ define([
 		},
 
 		_getCurrentViewAttr: function () {
+			// TODO: this method seems unnecessary since _setCurrentViewAttr() sets "currentView"
+			// in addition to _currentViewIndex
 			return this.views[this._currentViewIndex];
 		},
 
@@ -877,7 +846,6 @@ define([
 			//		Object that contains the oldView and newView properties.
 			// tags:
 			//		callback
-
 		},
 
 		_configureView: function (view, index, timeInterval, duration) {
@@ -900,8 +868,8 @@ define([
 
 			var cal = this.dateModule;
 			if (view.viewKind == "columns") {
-				view.set("startDate", timeInterval[0]);
-				view.set("columnCount", duration);
+				view.startDate = timeInterval[0];
+				view.columnCount = duration;
 			} else if (view.viewKind == "matrix") {
 				if (duration > 7) { // show only full weeks.
 					var s = this.floorToWeek(timeInterval[0]);
@@ -910,17 +878,17 @@ define([
 						e = this.dateModule.add(e, "week", 1);
 					}
 					duration = this.dateModule.difference(s, e, "day");
-					view.set("startDate", s);
-					view.set("columnCount", 7);
-					view.set("rowCount", Math.ceil(duration / 7));
-					view.set("refStartTime", timeInterval[0]);
-					view.set("refEndTime", timeInterval[1]);
+					view.startDate = s;
+					view.columnCount = 7;
+					view.rowCount = Math.ceil(duration / 7);
+					view.refStartTime = timeInterval[0];
+					view.refEndTime = timeInterval[1];
 				} else {
-					view.set("startDate", timeInterval[0]);
-					view.set("columnCount", duration);
-					view.set("rowCount", 1);
-					view.set("refStartTime", null);
-					view.set("refEndTime", null);
+					view.startDate = timeInterval[0];
+					view.columnCount = duration;
+					view.rowCount = 1;
+					view.refStartTime = null;
+					view.refEndTime = null;
 				}
 			}
 		},
@@ -946,7 +914,7 @@ define([
 		matrixViewRowHeaderClick: function (e) {
 			// summary:
 			//		Function called when the cell of a row header of the matrix view is clicked.
-			//		The implementation is doing the foolowing actions:
+			//		The implementation is doing the following actions:
 			//		- If another row is already expanded, collapse it and then expand the clicked row.
 			//		- If the clicked row is already expadned, collapse it.
 			//		- If no row is expanded, expand the click row.
@@ -981,11 +949,11 @@ define([
 			var cal = this.dateModule;
 			if (cal.compare(e.date, this._timeInterval[0]) == 0 && this.dateInterval == "day"
 					&& this.dateIntervalSteps == 1) {
-				this.set("dateInterval", "week");
+				this.dateInterval = "week";
 			} else {
-				this.set("date", e.date);
-				this.set("dateInterval", "day");
-				this.set("dateIntervalSteps", 1);
+				this.date = e.date;
+				this.dateInterval = "day";
+				this.dateIntervalSteps = 1;
 			}
 		},
 
@@ -1004,12 +972,12 @@ define([
 			//		protected
 
 			if (oldView != null) {
-				domStyle.set(oldView.domNode, "display", "none");
+				domStyle.set(oldView, "display", "none");
 			}
 			if (newView != null) {
-				domStyle.set(newView.domNode, "display", "block");
+				domStyle.set(newView, "display", "block");
 				newView.resize();
-				domStyle.set(newView.domNode, "opacity", "1");
+				domStyle.set(newView, "opacity", "1");
 			}
 		},
 
@@ -1022,25 +990,20 @@ define([
 		_setItemsAttr: function (value) {
 			this._set("items", value);
 			if (this.currentView) {
-				this.currentView.set("items", value);
-				if (!this._isEditing) {
-					this.currentView.invalidateRendering();
-				}
+				this.currentView.items = value;
 			}
 		},
 
 		_setDecorationItemsAttr: function (value) {
 			this._set("decorationItems", value);
 			if (this.currentView) {
-				this.currentView.set("decorationItems", value);
-				this.currentView.invalidateRendering();
+				this.currentView.decorationItems = value;
 			}
 		},
 
 		_setDecorationStoreAttr: function (value) {
 			this._set("decorationStore", value);
-			this.decorationStore = value;
-			this.decorationStoreManager.set("store", value);
+			this.decorationStoreManager.store = value;
 		},
 
 		/////////////////////////////////////////////////////
@@ -1199,7 +1162,7 @@ define([
 		//		- null: auto value,
 		//		- "left": shows from left side (right in right to left).
 		//		- "right": shows from  right side (left in right to left).
-		_animRangeOutDir: null,
+		_animRangeInDir: null,
 
 		nextRange: function () {
 			this._animRangeOutDir = "left";
@@ -1217,26 +1180,26 @@ define([
 			// tags:
 			//		private
 
-			var d = this.get("date");
+			var d = this.date;
 			var cal = this.dateModule;
 
 			if (d == null) {
-				var s = this.get("startDate");
-				var e = this.get("endDate");
+				var s = this.startDate;
+				var e = this.endDate;
 				var dur = cal.difference(s, e, "day");
 				if (dir == 1) {
 					e = cal.add(e, "day", 1);
-					this.set("startDate", e);
-					this.set("endDate", cal.add(e, "day", dur));
+					this.startDate = e;
+					this.endDate = cal.add(e, "day", dur);
 				} else {
 					s = cal.add(s, "day", -1);
-					this.set("startDate", cal.add(s, "day", -dur));
-					this.set("endDate", s);
+					this.startDate = cal.add(s, "day", -dur);
+					this.endDate = s;
 				}
 			} else {
-				var di = this.get("dateInterval");
-				var dis = this.get("dateIntervalSteps");
-				this.set("date", cal.add(d, di, dir * dis));
+				var di = this.dateInterval;
+				var dis = this.dateIntervalSteps;
+				this.date = cal.add(d, di, dir * dis);
 			}
 		},
 
@@ -1245,9 +1208,9 @@ define([
 			//		Changes the displayed time interval to show the current day.
 			//		Sets the date property to the current day, the dateInterval property to "day" and
 			//		the "dateIntervalSteps" to 1.
-			this.set("date", this.floorToDay(new this.dateClassObj(), true));
-			this.set("dateInterval", "day");
-			this.set("dateIntervalSteps", 1);
+			this.date = this.floorToDay(new this.dateClassObj(), true);
+			this.dateInterval = "day";
+			this.dateIntervalSteps = 1;
 		},
 
 		////////////////////////////////////////////////////
@@ -1256,118 +1219,52 @@ define([
 		//
 		////////////////////////////////////////////////////
 
-		postCreate: function () {
-			this.inherited(arguments);
-			this.configureButtons();
-		},
-
-		configureButtons: function () {
-			// summary:
-			//		Set the localized labels of the buttons and the event handlers.
-			// tags:
-			//		protected
-
-			var rtl = !this.isLeftToRight();
-
-			if (this.previousButton) {
-				this.previousButton.set("label", _nls[rtl ? "nextButton" : "previousButton"]);
-				this.own(
-					on(this.previousButton, "click", lang.hitch(this, this.previousRange))
-				);
-			}
-
-			if (this.nextButton) {
-				this.nextButton.set("label", _nls[rtl ? "previousButton" : "nextButton"]);
-				this.own(
-					on(this.nextButton, "click", lang.hitch(this, this.nextRange))
-				);
-			}
-
-			if (rtl && this.previousButton && this.nextButton) {
-				var t = this.previousButton;
-				this.previousButton = this.nextButton;
-				this.nextButton = t;
-			}
-
-			if (this.todayButton) {
-				this.todayButton.set("label", _nls.todayButton);
-				this.own(
-					on(this.todayButton, "click", lang.hitch(this, this.todayButtonClick))
-				);
-			}
-
-			if (this.dayButton) {
-				this.dayButton.set("label", _nls.dayButton);
-				this.own(
-					on(this.dayButton, "click", lang.hitch(this, this.dayButtonClick))
-				);
-			}
-
-			if (this.weekButton) {
-				this.weekButton.set("label", _nls.weekButton);
-				this.own(
-					on(this.weekButton, "click", lang.hitch(this, this.weekButtonClick))
-				);
-			}
-
-			if (this.fourDaysButton) {
-				this.fourDaysButton.set("label", _nls.fourDaysButton);
-				this.own(
-					on(this.fourDaysButton, "click", lang.hitch(this, this.fourDaysButtonClick))
-				);
-			}
-
-			if (this.monthButton) {
-				this.monthButton.set("label", _nls.monthButton);
-				this.own(
-					on(this.monthButton, "click", lang.hitch(this, this.monthButtonClick))
-				);
-			}
-		},
-
-		todayButtonClick: function (e) {
+		todayButtonClick: function () {
 			// summary:
 			//		The action triggered when the today button is clicked.
 			//		By default, calls the goToday() method.
 
 			this.goToday();
 		},
-		dayButtonClick: function (e) {
+		dayButtonClick: function () {
 			// summary:
 			//		The action triggerred when the day button is clicked.
 			//		By default, sets the dateInterval property to "day" and
 			//		the "dateIntervalSteps" to 1.
 
-			if (this.get("date") == null) {
-				this.set("date", this.floorToDay(new this.dateClassObj(), true));
+			if (this.date == null) {
+				this.date = this.floorToDay(new this.dateClassObj(), true);
 			}
-			this.set("dateInterval", "day");
-			this.set("dateIntervalSteps", 1);
+			this.dateInterval = "day";
+			this.dateIntervalSteps = 1;
 		},
 
-		weekButtonClick: function (e) {
+		weekButtonClick: function () {
 			// summary:
 			//		The action triggered when the week button is clicked.
 			//		By default, sets the dateInterval property to "week" and
 			//		the "dateIntervalSteps" to 1.
-			this.set("dateInterval", "week");
-			this.set("dateIntervalSteps", 1);
+
+			this.dateInterval = "week";
+			this.dateIntervalSteps = 1;
 		},
-		fourDaysButtonClick: function (e) {
+		fourDaysButtonClick: function () {
 			// summary:
 			//		The action triggerred when the 4 days button is clicked.
 			//		By default, sets the dateInterval property to "day" and
 			//		the "dateIntervalSteps" to 4.
-			this.set("dateInterval", "day");
-			this.set("dateIntervalSteps", 4);
+
+			this.dateInterval = "day";
+			this.dateIntervalSteps = 4;
 		},
-		monthButtonClick: function (e) {
+		monthButtonClick: function () {
 			// summary:
 			//		The action triggered when the month button is clicked.
 			//		By default, sets the dateInterval property to "month" and
 			//		the "dateIntervalSteps" to 1.
-			this.set("dateInterval", "month");
-			this.set("dateIntervalSteps", 1);
+
+			this.dateInterval = "month";
+			this.dateIntervalSteps = 1;
 		},
 
 		/////////////////////////////////////////////////////
@@ -1428,6 +1325,7 @@ define([
 			// rendererKind: String
 			//		The kind of renderer.
 			// returns: Boolean
+
 			return this.editable;
 		},
 
@@ -1440,6 +1338,7 @@ define([
 			// rendererKind: String
 			//		The kind of renderer.
 			// returns: Boolean
+
 			return this.isItemEditable(item, rendererKind) && this.moveEnabled;
 		},
 
@@ -1463,17 +1362,16 @@ define([
 		//
 		////////////////////////////////////////////////////////////////////////
 
-		onGridClick: function (e) {
+		onGridClick: function (/*===== e ===== */) {
 			// summary:
 			//		Event dispatched when the grid has been clicked.
 			// e: __GridClickEventArgs
 			//		The event dispatched when the grid is clicked.
 			// tags:
 			//		callback
-
 		},
 
-		onGridDoubleClick: function (e) {
+		onGridDoubleClick: function (/*===== e ===== */) {
 			// summary:
 			//		Event dispatched when the grid has been double-clicked.
 			// e: __GridClickEventArgs
@@ -1482,7 +1380,7 @@ define([
 			//		callback
 		},
 
-		onItemClick: function (e) {
+		onItemClick: function (/*===== e ===== */) {
 			// summary:
 			//		Event dispatched when an item renderer has been clicked.
 			// e: __ItemMouseEventArgs
@@ -1491,7 +1389,7 @@ define([
 			//		callback
 		},
 
-		onItemDoubleClick: function (e) {
+		onItemDoubleClick: function (/*===== e ===== */) {
 			// summary:
 			//		Event dispatched when an item renderer has been double-clicked.
 			// e: __ItemMouseEventArgs
@@ -1500,7 +1398,7 @@ define([
 			//		callback
 		},
 
-		onItemContextMenu: function (e) {
+		onItemContextMenu: function (/*===== e ===== */) {
 			// summary:
 			//		Event dispatched when an item renderer has been context-clicked.
 			// e: __ItemMouseEventArgs
@@ -1509,7 +1407,7 @@ define([
 			//		callback
 		},
 
-		onItemEditBegin: function (e) {
+		onItemEditBegin: function (/*===== e ===== */) {
 			// summary:
 			//		Event dispatched when the item is entering the editing mode.
 			// e: __itemEditingEventArgs
@@ -1518,7 +1416,7 @@ define([
 			//		callback
 		},
 
-		onItemEditEnd: function (e) {
+		onItemEditEnd: function (/*===== e ===== */) {
 			// summary:
 			//		Event dispatched when the item is leaving the editing mode.
 			// e: __itemEditingEventArgs
@@ -1527,7 +1425,7 @@ define([
 			//		callback
 		},
 
-		onItemEditBeginGesture: function (e) {
+		onItemEditBeginGesture: function (/*===== e ===== */) {
 			// summary:
 			//		Event dispatched when an editing gesture is beginning.
 			// e: __itemEditingEventArgs
@@ -1536,7 +1434,7 @@ define([
 			//		callback
 		},
 
-		onItemEditMoveGesture: function (e) {
+		onItemEditMoveGesture: function (/*===== e ===== */) {
 			// summary:
 			//		Event dispatched during a move editing gesture.
 			// e: __itemEditingEventArgs
@@ -1545,7 +1443,7 @@ define([
 			//		callback
 		},
 
-		onItemEditResizeGesture: function (e) {
+		onItemEditResizeGesture: function (/*===== e ===== */) {
 			// summary:
 			//		Event dispatched during a resize editing gesture.
 			// e: __itemEditingEventArgs
@@ -1554,7 +1452,7 @@ define([
 			//		callback
 		},
 
-		onItemEditEndGesture: function (e) {
+		onItemEditEndGesture: function (/*===== e ===== */) {
 			// summary:
 			//		Event dispatched at the end of an editing gesture.
 			// e: __itemEditingEventArgs
@@ -1563,8 +1461,8 @@ define([
 			//		callback
 		},
 
-		onItemRollOver: function (e) {
-			// Summary:
+		onItemRollOver: function (/*===== e ===== */) {
+			// summary:
 			//		Event dispatched when the mouse cursor in going over an item renderer.
 			// e: __ItemMouseEventArgs
 			//		The event dispatched when the mouse cursor enters in the item renderer.
@@ -1572,8 +1470,8 @@ define([
 			//		callback
 		},
 
-		onItemRollOut: function (e) {
-			// Summary:
+		onItemRollOut: function (/*===== e ===== */) {
+			// summary:
 			//		Event dispatched when the mouse cursor in leaving an item renderer.
 			// e: __ItemMouseEventArgs
 			//		The event dispatched when the mouse cursor enters in the item renderer.
@@ -1581,7 +1479,7 @@ define([
 			//		callback
 		},
 
-		onColumnHeaderClick: function (e) {
+		onColumnHeaderClick: function (/*===== e ===== */) {
 			// summary:
 			//		Event dispatched when a column header cell is dispatched.
 			// e: __HeaderClickEventArgs
@@ -1590,7 +1488,7 @@ define([
 			//		callback
 		},
 
-		onRowHeaderClick: function (e) {
+		onRowHeaderClick: function (/*===== e ===== */) {
 			// summary:
 			//		Event dispatched when a row header cell is clicked.
 			// e: __HeaderClickEventArgs
@@ -1599,7 +1497,7 @@ define([
 			//		callback
 		},
 
-		onExpandRendererClick: function (e) {
+		onExpandRendererClick: function (/*===== e ===== */) {
 			// summary:
 			//		Event dispatched when an expand renderer is clicked.
 			// e: __ExpandRendererClickEventArgs
@@ -1612,7 +1510,7 @@ define([
 			this.onRendererCreated(e);
 		},
 
-		onRendererCreated: function (e) {
+		onRendererCreated: function (/*===== e ===== */) {
 			// summary:
 			//		Event dispatched when an item renderer has been created.
 			// e: __rendererLifecycleEventArgs
@@ -1625,7 +1523,7 @@ define([
 			this.onRendererRecycled(e);
 		},
 
-		onRendererRecycled: function (e) {
+		onRendererRecycled: function (/*===== e ===== */) {
 			// summary:
 			//		Event dispatched when an item renderer has been recycled.
 			// e: __rendererLifecycleEventArgs
@@ -1638,7 +1536,7 @@ define([
 			this.onRendererReused(e);
 		},
 
-		onRendererReused: function (e) {
+		onRendererReused: function (/*===== e ===== */) {
 			// summary:
 			//		Event dispatched when an item renderer that was recycled is reused.
 			// e: __rendererLifecycleEventArgs
@@ -1651,7 +1549,7 @@ define([
 			this.onRendererDestroyed(e);
 		},
 
-		onRendererDestroyed: function (e) {
+		onRendererDestroyed: function (/*===== e ===== */) {
 			// summary:
 			//		Event dispatched when an item renderer is destroyed.
 			// e: __rendererLifecycleEventArgs
@@ -1664,7 +1562,7 @@ define([
 			this.onRenderersLayoutDone(view);
 		},
 
-		onRenderersLayoutDone: function (view) {
+		onRenderersLayoutDone: function (/*===== view ===== */) {
 			// summary:
 			//		Event triggered when item renderers layout has been done.
 			// view: dojox/calendar/ViewBase

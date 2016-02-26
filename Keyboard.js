@@ -1,14 +1,13 @@
 define([
 	"dojo/_base/array",
 	"dojo/_base/lang",
-	"dojo/_base/declare",
-	"dojo/on",
+	"dcl/dcl",
 	"dojo/_base/event",
-	"dojo/keys"
-], function (arr, lang, declare, on, event, keys) {
+	"dojo/keys",	// TODO: stop using dojo/keys, and instead use Event.key() support from delite
+	"./ViewBase"
+], function (arr, lang, dcl, event, keys, ViewBase) {
 
-	return declare("dojox.calendar.Keyboard", null, {
-
+	return dcl(ViewBase, {
 		// summary:
 		//		This mixin is managing the keyboard interactions on a calendar view.
 
@@ -49,9 +48,8 @@ define([
 		//		Valid values are "week", "day", "hours" "minute".
 		allDayKeyboardLeftRightSteps: 1,
 
-		postCreate: function () {
-			this.inherited(arguments);
-			this._viewHandles.push(on(this.domNode, "keydown", lang.hitch(this, this._onKeyDown)));
+		createdCallback: function () {
+			this._viewHandles.push(this.on("keydown", lang.hitch(this, this._onKeyDown)));
 		},
 
 		// resizeModfier: String
@@ -92,11 +90,11 @@ define([
 				});
 			}
 			if (value != null) {
-				if (this.owner != null && this.owner.get("focusedItem") != null) {
-					this.owner.set("focusedItem", null);
+				if (this.owner != null && this.owner.focusedItem != null) {
+					this.owner.focusedItem = null;
 				}
-				if (this._secondarySheet != null && this._secondarySheet.set("focusedItem") != null) {
-					this._secondarySheet.set("focusedItem", null);
+				if (this._secondarySheet != null && this._secondarySheet.focusedItem != null) {
+					this._secondarySheet.focusedItem = null;
 				}
 			}
 		},
@@ -130,7 +128,7 @@ define([
 			var index = -1;
 			var list = this.renderData.items;
 			var max = list.length - 1;
-			var focusedItem = this.get("focusedItem");
+			var focusedItem = this.focusedItem;
 
 			// find current index.
 			if (focusedItem == null) {
@@ -151,7 +149,6 @@ define([
 			var old = -1;
 
 			while (old != index && (!reachedOnce || index != 0)) {
-
 				if (!reachedOnce && index == 0) {
 					reachedOnce = true;
 				}
@@ -160,12 +157,11 @@ define([
 
 				if (this.rendererManager.itemToRenderer[item.id] != null) {
 					// found item
-					this.set("focusedItem", item);
+					this.focusedItem = item;
 					return;
 				}
 				old = index;
 				index = this._focusNextItemImpl(dir, index, max);
-
 			}
 		},
 
@@ -194,16 +190,16 @@ define([
 			// tags:
 			//		private
 
-			if (!this.isLeftToRight()) {
+			if (this.effectiveDir === "rtl") {
 				dir = dir == 1 ? -1 : 1;
 			}
 			this.showFocus = true;
 			this._focusNextItem(dir);
 
-			var focusedItem = this.get("focusedItem");
+			var focusedItem = this.focusedItem;
 
 			if (!e.ctrlKey && focusedItem) {
-				this.set("selectedItem", focusedItem);
+				this.selectedItem = focusedItem;
 			}
 
 			if (focusedItem) {
@@ -213,8 +209,8 @@ define([
 		},
 
 		_checkDir: function (dir, value) {
-			return this.isLeftToRight() && dir == value ||
-				!this.isLeftToRight() && dir == (value == "left" ? "right" : "left");
+			return this.effectiveDir === "ltr" && dir == value ||
+				this.effectiveDir === "rtl" && dir == (value == "left" ? "right" : "left");
 		},
 
 		_keyboardItemEditing: function (e, dir) {
@@ -293,7 +289,7 @@ define([
 			// tags:
 			//		private
 
-			var focusedItem = this.get("focusedItem");
+			var focusedItem = this.focusedItem;
 
 			switch (e.keyCode) {
 
@@ -342,7 +338,7 @@ define([
 									liveLayout: this.liveLayout
 								};
 
-								this.set("selectedItem", focusedItem);
+								this.selectedItem = focusedItem;
 
 								this._startItemEditing(focusedItem, "keyboard");
 							}

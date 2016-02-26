@@ -1,16 +1,15 @@
 define([
-	"dojo/_base/declare",
+	"dcl/dcl",
 	"dojo/_base/array",
 	"dojo/_base/html",
 	"dojo/_base/lang",
 	"dojo/dom-class",
-	"dojo/Stateful",
-	"dojo/Evented",
+	"decor/Stateful",
+	"decor/Evented",
 	"dojo/when"
-], function (declare, arr, html, lang, domClass, Stateful, Evented, when) {
+], function (dcl, arr, html, lang, domClass, Stateful, Evented, when) {
 
-	return declare("dojox.calendar.StoreManager", [Stateful, Evented], {
-
+	return dcl([Stateful, Evented], {
 		// summary:
 		//		This mixin contains the store management.
 
@@ -26,7 +25,7 @@ define([
 
 		_getParentStoreManager: function () {
 			if (this.owner && this.owner.owner) {
-				return this.owner.owner.get("storeManager");
+				return this.owner.owner.storeManager;
 			}
 			return null;
 		},
@@ -34,11 +33,11 @@ define([
 		_initItems: function (items) {
 			// tags:
 			//		private
-			this.set("items", items);
+			this.items = items;
 			return items;
 		},
 
-		_itemsSetter: function (value) {
+		_setItemsAttr: function (value) {
 			this.items = value;
 			this.emit("dataLoaded", value);
 		},
@@ -85,7 +84,7 @@ define([
 					this.items.splice(previousIndex, 1);
 					if (this.owner.setItemSelected && this.owner.isItemSelected(newItem)) {
 						this.owner.setItemSelected(newItem, false);
-						this.owner.dispatchChange(newItem, this.get("selectedItem"), null, null);
+						this.owner.dispatchChange(newItem, this.selectedItem, null, null);
 					}
 				} else {
 					// this is a put, previous and new index identical
@@ -136,7 +135,7 @@ define([
 				} else {
 					this.items.splice(newIndex, 0, newItem);
 				}
-				this.set("items", this.items);
+				this.notifyCurrentValue("items");
 			}
 
 			this._setItemStoreState(newItem, "stored");
@@ -151,7 +150,7 @@ define([
 			}
 		},
 
-		_storeSetter: function (value) {
+		_setStoreAttr: function (value) {
 			var r;
 			var owner = this.owner;
 
@@ -192,7 +191,7 @@ define([
 				return parentManager._getItemStoreStateObj(item);
 			}
 
-			var store = this.get("store");
+			var store = this.store;
 			if (store != null && this._itemStoreState != null) {
 				var id = item.id === undefined ? store.getIdentity(item) : item.id;
 				return this._itemStoreState[id];
@@ -222,7 +221,7 @@ define([
 				return "stored";
 			}
 
-			var store = this.get("store");
+			var store = this.store;
 			var id = item.id === undefined ? store.getIdentity(item) : item.id;
 			var s = this._itemStoreState[id];
 
@@ -265,7 +264,7 @@ define([
 				this._itemStoreState = {};
 			}
 
-			var store = this.get("store");
+			var store = this.store;
 			var id = item.id === undefined ? store.getIdentity(item) : item.id;
 			var s = this._itemStoreState[id];
 
