@@ -1,6 +1,6 @@
 @import "MatrixViewCommon.less";
 
-.soria .dojoxCalendarMatrixViewRtl {
+.dojoxCalendarMatrixView.d-rtl {
 
 	.dojoxCalendarGrid {
 		right: @row-header-width;
@@ -14,11 +14,11 @@
 		border-right: none;
 	}
 
-	.dojoxCalendarGridTable td span{
+	.dojoxCalendarGridTable td span {
 		padding-left: 2px;
 	}
 
-	.dojoxCalendarGridTable td.last-child	{
+	.dojoxCalendarGridTable td:last-child	 {
 		border-left: @outer-border;
 	}
 
@@ -34,7 +34,7 @@
 		vertical-align: top;
 	}
 
-	.dojoxCalendarYearColumnHeader{
+	.dojoxCalendarYearColumnHeader {
 		position: absolute;
 		right: 0;
 		left: auto;
@@ -71,5 +71,4 @@
 		left:0;
 		right:auto;
 	}
-
 }

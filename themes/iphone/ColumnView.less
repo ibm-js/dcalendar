@@ -1,7 +1,8 @@
 @import "ColumnViewCommon.less";
 
 .dojoxCalendarColumnView {
-  cursor: default;
+	display: block;
+	cursor: default;
 	-webkit-user-select: none;
 }
 
@@ -52,11 +53,11 @@
 	border-top: @hour-stroke;
 }
 
-.dojoxCalendarColumnView td.halfhour{
+.dojoxCalendarColumnView td.halfhour {
 	border-top: @half-hour-stroke;
 }
 
-.dojoxCalendarColumnView  td.quarterhour{
+.dojoxCalendarColumnView  td.quarterhour {
 	border-top: @quarter-hour-stroke;
 }
 
@@ -65,8 +66,8 @@
 	background-color: @row-color;
 }
 
-.claro .dojoxCalendarColumnView span.halfhour,
-.claro .dojoxCalendarColumnView span.quarterhour{
+.dojoxCalendarColumnView span.halfhour,
+.dojoxCalendarColumnView span.quarterhour {
 	color: @secondary-label-color;
 	background-color: @row-color;
 }
@@ -135,7 +136,7 @@
 	.select-none;
 }
 
-.dojoxCalendarColumnView .dojoxCalendarYearColumnHeader{
+.dojoxCalendarColumnView .dojoxCalendarYearColumnHeader {
 	position: absolute;
 	height: @column-header-height;
 	left: 0;
@@ -209,13 +210,13 @@
 	.border-box;
 }
 
-.dojoxCalendarColumnView .dojoxCalendarRowHeaderLabelContainer{
+.dojoxCalendarColumnView .dojoxCalendarRowHeaderLabelContainer {
 	width: 100%;
 	height: 100%;
 	z-index: 10;
 }
 
-.dojoxCalendarColumnView .dojoxCalendarRowHeaderLabel{
+.dojoxCalendarColumnView .dojoxCalendarRowHeaderLabel {
 	right: 4px;
 	position: absolute;
 }
@@ -240,7 +241,7 @@
 	border-top: 1px solid transparent;
 }
 
-.dojoxCalendarColumnView .dojoxCalendarRowHeaderTable tr:first-child td	{
+.dojoxCalendarColumnView .dojoxCalendarRowHeaderTable tr:first-child td	 {
 	border-top: 1px solid transparent;
 }
 
@@ -250,6 +251,7 @@
 }
 
 .dojoxCalendarColumnView .dojoxCalendarEvent {
+	display: block;
 	position: absolute;
 	text-align: left;
 	color: #FFF;
@@ -371,6 +373,7 @@
 }
 
 .dojoxCalendarColumnView .dojoxCalendarVScrollBar {
+	display: block;
 	position: absolute;
 	top: @sheet-top;
 	bottom: 0;
@@ -378,7 +381,7 @@
 	overflow-x: hidden;
 }
 
-.dojoxCalendarColumnView .dojoxCalendarMatrixView {
+.dojoxCalendarColumnView .dojoxCalendarColumnViewSecondarySheet {
 	position: absolute;
 	left: 0;
 	right: 0;
@@ -386,7 +389,7 @@
 	height: @secondary-sheet-height;
 }
 
-.dojoxCalendarColumnView .dojoxCalendarMatrixView .dojoxCalendarGrid {
+.dojoxCalendarColumnView .dojoxCalendarColumnViewSecondarySheet .dojoxCalendarGrid {
 	position: absolute;
 	left: @row-header-width;
 	right: 0;
@@ -395,7 +398,7 @@
 	.border-box;
 }
 
-.dojoxCalendarColumnView .dojoxCalendarMatrixView .dojoxCalendarContainer {
+.dojoxCalendarColumnView .dojoxCalendarColumnViewSecondarySheet .dojoxCalendarContainer {
 	position: absolute;
 	top: 0;
 	left: @row-header-width;
@@ -404,7 +407,7 @@
 	cursor: default;
 }
 
-.dojoxCalendarColumnView .dojoxCalendarMatrixView .dojoxCalendarRowHeader {
+.dojoxCalendarColumnView .dojoxCalendarColumnViewSecondarySheet .dojoxCalendarRowHeader {
 	position: absolute;
 	left: 0;
 	top: 0;
@@ -416,7 +419,7 @@
 	.border-box;
 }
 
-.dojoxCalendarColumnView .dojoxCalendarMatrixView .dojoxCalendarGridTable td {
+.dojoxCalendarColumnView .dojoxCalendarColumnViewSecondarySheet .dojoxCalendarGridTable td {
 	text-align: right;
 	vertical-align: top;
 	border-top: @inner-border;
@@ -425,21 +428,21 @@
 	.border-box;
 }
 
-.dojoxCalendarColumnView .dojoxCalendarMatrixView .dojoxCalendarGridTable tr.last-child td	{
+.dojoxCalendarColumnView .dojoxCalendarColumnViewSecondarySheet .dojoxCalendarGridTable tr:last-child td	 {
 	border-bottom: @outer-border;
 }
 
-.dojoxCalendarColumnView .dojoxCalendarMatrixView .dojoxCalendarGridTable td.last-child	{
+.dojoxCalendarColumnView .dojoxCalendarColumnViewSecondarySheet .dojoxCalendarGridTable td:last-child	 {
 	border-right: @outer-border;
 }
 
-.dojoxCalendarColumnView .dojoxCalendarMatrixView .dojoxCalendarRowHeaderTable td {
+.dojoxCalendarColumnView .dojoxCalendarColumnViewSecondarySheet .dojoxCalendarRowHeaderTable td {
 	border-top: @inner-border;
 	border-right: @outer-border;
 	border-bottom: @outer-border;
 }
 
-.dojoxCalendarColumnView .dojoxCalendarMatrixView .dojoxCalendarEvent.dojoxHorizontal .labels {
+.dojoxCalendarColumnView .dojoxCalendarColumnViewSecondarySheet .dojoxCalendarEvent.dojoxHorizontal .labels {
 	position: absolute;
 	left: 3px;
 	right: 1px;
@@ -447,12 +450,12 @@
 	overflow: hidden;
 }
 
-.dojoxCalendarColumnView .dojoxCalendarMatrixView .dojoxCalendarEvent.dojoxHorizontal.Edited .labels {
+.dojoxCalendarColumnView .dojoxCalendarColumnViewSecondarySheet .dojoxCalendarEvent.dojoxHorizontal.Edited .labels {
 	left: 33px;
 	right: 31px;
 }
 
-.dojoxCalendarColumnView .dojoxCalendarMatrixView .dojoxCalendarEvent.dojoxLabel .labels {
+.dojoxCalendarColumnView .dojoxCalendarColumnViewSecondarySheet .dojoxCalendarEvent.dojoxLabel .labels {
 	position: absolute;
 	left: 2px;
 	right: 2px;
@@ -460,7 +463,7 @@
 	overflow: hidden;
 }
 
-.dojoxCalendarColumnView .dojoxCalendarMatrixView .dojoxCalendarEvent .resizeHandle {
+.dojoxCalendarColumnView .dojoxCalendarColumnViewSecondarySheet .dojoxCalendarEvent .resizeHandle {
 	top: auto;
 	text-align: auto;
 	position: absolute;
@@ -473,7 +476,7 @@
 	text-align: center;
 }
 
-.dojoxCalendarColumnView .dojoxCalendarMatrixView .dojoxCalendarEvent .resizeHandle div {
+.dojoxCalendarColumnView .dojoxCalendarColumnViewSecondarySheet .dojoxCalendarEvent .resizeHandle div {
 	position:auto;
 	width: auto;
 	height: auto;
@@ -487,19 +490,19 @@
 }
 
 
-.dojoxCalendarColumnView .dojoxCalendarMatrixView .dojoxCalendarEvent .resizeStartHandle span {
+.dojoxCalendarColumnView .dojoxCalendarColumnViewSecondarySheet .dojoxCalendarEvent .resizeStartHandle span {
 	position: absolute;
 	bottom: 2px;
 	left: 10px;
 }
 
-.dojoxCalendarColumnView .dojoxCalendarMatrixView .dojoxCalendarEvent .resizeEndHandle span {
+.dojoxCalendarColumnView .dojoxCalendarColumnViewSecondarySheet .dojoxCalendarEvent .resizeEndHandle span {
 	position: absolute;
 	bottom: 2px;
 	left: 10px;
 }
 
-.dojoxCalendarColumnView .dojoxCalendarMatrixView .dojoxCalendarEvent .moveHandle {
+.dojoxCalendarColumnView .dojoxCalendarColumnViewSecondarySheet .dojoxCalendarEvent .moveHandle {
 
 	position: absolute;
 	left:0;
@@ -508,35 +511,36 @@
 	right:0;
 }
 
-.dojoxCalendarColumnView .dojoxCalendarMatrixView .dojoxCalendarEvent .resizeStartHandle {
+.dojoxCalendarColumnView .dojoxCalendarColumnViewSecondarySheet .dojoxCalendarEvent .resizeStartHandle {
 	right: auto;
 }
 
-.dojoxCalendarColumnView .dojoxCalendarMatrixView .dojoxCalendarEvent .resizeEndHandle {
+.dojoxCalendarColumnView .dojoxCalendarColumnViewSecondarySheet .dojoxCalendarEvent .resizeEndHandle {
 	right:0px;
 	left:auto;
 }
 
-.dojoxCalendarColumnView .dojoxCalendarMatrixView .dojoxCalendarEvent.Edited .resizeHandle {
+.dojoxCalendarColumnView .dojoxCalendarColumnViewSecondarySheet .dojoxCalendarEvent.Edited .resizeHandle {
 	.opacity(30);
 }
 
-.dojoxCalendarColumnView .dojoxCalendarMatrixView .dojoxCalendarEvent .afterIcon {
+.dojoxCalendarColumnView .dojoxCalendarColumnViewSecondarySheet .dojoxCalendarEvent .afterIcon {
 	width:auto;
 }
 
-.dojoxCalendarColumnView .dojoxCalendarMatrixView .dojoxCalendarEvent .endTime {
+.dojoxCalendarColumnView .dojoxCalendarColumnViewSecondarySheet .dojoxCalendarEvent .endTime {
 	position: relative;
 	bottom:auto;
 	left: auto;
 }
 
-.dojoxCalendarColumnView .dojoxCalendarMatrixView .dojoxCalendarExpand {
+.dojoxCalendarColumnView .dojoxCalendarColumnViewSecondarySheet .dojoxCalendarExpand {
+	display: block;
 	position: absolute;
 	text-align: center;
 }
 
-.dojoxCalendarColumnView .dojoxCalendarMatrixView .dojoxCalendarExpand .bg {
+.dojoxCalendarColumnView .dojoxCalendarColumnViewSecondarySheet .dojoxCalendarExpand .bg {
 	position: relative;
 	margin-right: 10%;
 	margin-left: 10%;
@@ -550,16 +554,16 @@
 	transition-duration: 0.2s;
 }
 
-.dojoxCalendarColumnView .dojoxCalendarMatrixView .dojoxCalendarExpand.Up .bg {
+.dojoxCalendarColumnView .dojoxCalendarColumnViewSecondarySheet .dojoxCalendarExpand.Up .bg {
 	background-color: @expand-up-color;
 	border: @inner-border;
 }
 
-.dojoxCalendarColumnView .dojoxCalendarMatrixView .dojoxCalendarExpand.Down .bg {
+.dojoxCalendarColumnView .dojoxCalendarColumnViewSecondarySheet .dojoxCalendarExpand.Down .bg {
 	background-color: @expand-down-color;
 	border: @inner-border;
 }
 
-.dojoxCalendarColumnView .dojoxCalendarMatrixView .dojoxCalendarEvent div {
+.dojoxCalendarColumnView .dojoxCalendarColumnViewSecondarySheet .dojoxCalendarEvent div {
 	white-space:nowrap;
 }

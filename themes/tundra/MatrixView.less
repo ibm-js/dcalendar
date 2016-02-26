@@ -1,6 +1,6 @@
 @import "MatrixViewCommon.less";
 
-.tundra .dojoxCalendarMatrixView {
+.dojoxCalendarMatrixView {
 	cursor: default;
 	.select-none;
 
@@ -21,7 +21,7 @@
 		border-collapse: collapse;
 		table-layout: fixed;
 
-		tr{
+		tr {
 			.border-box;
 		}
 
@@ -33,19 +33,19 @@
 			.border-box;
 		}
 
-		td span{
+		td span {
 			padding-right: 2px;
 			padding-top: 2px;
 		}
 
-		td span.FirstVisibleDayOfMonth{
+		td span.FirstVisibleDayOfMonth {
 		}
 
-		tr.last-child td	{
+		tr:last-child td	 {
 			border-bottom: @outer-border;
 		}
 
-		td.last-child	{
+		td:last-child	 {
 			border-right: @outer-border;
 		}
 
@@ -53,7 +53,7 @@
 		 * The dojoxCalendarColToday & dojoxCalendarColWeekend classes is added by the
 		 * MatrixView.styleGridCell method that can be subclassed to add/remove css classes
 		 */
-		td.dojoxCalendarToday	{
+		td.dojoxCalendarToday	 {
 			background-color: @today-color;
 			font-weight: bold;
 			color: @today-label-color;
@@ -70,7 +70,7 @@
 		}
 	}
 
-	.dojoxCalendarYearColumnHeader{
+	.dojoxCalendarYearColumnHeader {
 		position: absolute;
 		left: 0px;
 		top: 0px;
@@ -80,14 +80,14 @@
 		vertical-align: middle;
 		border-bottom: @outer-border;
 
-		table{
+		table {
 			position: relative;
 			width:100%;
 			height: 100%;
 			table-layout: fixed;
 			border-collapse: collapse;
 
-			td{
+			td {
 				text-align: center;
 				vertical-align: middle;
 				border-left: @outer-border;
@@ -127,7 +127,7 @@
 			color: @label-color;
 		}
 
-		td.last-child {
+		td:last-child {
 			border-right: @outer-border;
 		}
 
@@ -160,7 +160,7 @@
 		margin: 0;
 		padding: 0;
 
-		tr{
+		tr {
 			.border-box;
 		}
 
@@ -180,7 +180,7 @@
 			cursor: pointer;
 		}
 
-		td.last-child {
+		td:last-child {
 			border-bottom: @outer-border;
 		}
 
@@ -211,18 +211,18 @@
 		border-collapse: collapse;
 		table-layout: fixed;
 
-		tr{
+		tr {
 			.border-box;
 		}
 
-		td{
+		td {
 			vertical-align: top;
 			border-bottom: solid 1px transparent;
 			border-right: solid 1px transparent;
 			.border-box;
 		}
 
-		td div.dojoxCalendarContainerRow{
+		td div.dojoxCalendarContainerRow {
 			position:relative;
 			height:100%;
 			width:100%;
@@ -236,12 +236,14 @@
 	}
 
 	.dojoxCalendarDecoration {
-		position:absolute;
+		display: block;
+		position: absolute;
 		background-color: rgb(167, 233, 68);
 		.opacity(20);
 	}
 
 	.dojoxCalendarEvent {
+		display: block;
 		position: absolute;
 		text-align: left;
 		color: #000;
@@ -251,7 +253,6 @@
 
 	.dojoxCalendarEvent.dojoxCalendarHorizontal {
 		color: #FFF;
-		position: absolute;
 	}
 
 	.dojoxCalendarEvent.dojoxCalendarHorizontal .bg {
@@ -347,6 +348,7 @@
 	}
 
 	.dojoxCalendarExpand {
+		display: block;
 		position: absolute;
 		text-align: center;
 
