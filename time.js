@@ -177,12 +177,12 @@ define([
 			d.getDate() == today.getDate();
 	};
 
-	time.isOverlapping = function (renderData, start1, end1, start2, end2, includeLimits) {
+	time.isOverlapping = function (cal, start1, end1, start2, end2, includeLimits) {
 		// summary:
 		//		Computes if the first time range defined by the start1 and end1 parameters
 		//		is overlapping the second time range defined by the start2 and end2 parameters.
-		// renderData: Object
-		//		The render data.
+		// cal: Object
+		//		The date module.
 		// start1: Date
 		//		The start time of the first time range.
 		// end1: Date
@@ -197,8 +197,6 @@ define([
 		if (start1 == null || start2 == null || end1 == null || end2 == null) {
 			return false;
 		}
-
-		var cal = renderData.dateModule;
 
 		if (includeLimits) {
 			if (cal.compare(start1, end2) == 1 || cal.compare(start2, end1) == 1) {

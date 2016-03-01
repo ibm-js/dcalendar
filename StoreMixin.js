@@ -58,6 +58,18 @@ define([
 		//		An optional function to transform Date objects into store date.	Default is null.
 		encodeDate: null,
 
+		////////////////////////////////////////////////////////
+		//
+		// Computed properties, not to be set directly
+		//
+		////////////////////////////////////////////////////////
+
+		// items: Object[]
+		//		List of events to put on the calendar.  This is set by querying the store, rather
+		//		than by being set directly.   And, it contains "render items", from itemToRenderItem(),
+		//		not the direct items in the store.
+		items: null,
+
 		itemToRenderItem: function (item, store) {
 			// summary:
 			//		Creates the render item based on the dojo.store item. It must be of the form:

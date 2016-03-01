@@ -64,20 +64,34 @@ define([
 
 		_showSecondarySheet: true,
 
+		// List of properties to forward to secondary sheet.
+		forwardProperties: [
+			"store", "query", "queryOptions", "startTimeAttr", "endTimeAttr", "summaryAttr", "allDayAttr",
+			"subColumnAttr", "decodeDate", "encodeDate", "itemToRenderItem", "renderItemToItem",
+			"datePackage",
+			"endDate", "date", "minDate", "maxDate", "dateInterval", "dateIntervalSteps",
+			"firstDayOfWeek",
+			"formatItemTimeFunc",
+			"editable", "moveEnabled", "resizeEnabled",
+			"createOnGridClick", "createItemFunc",
+			"textDir", "decorationStore",
+			"getIdentity"
+		],
+
 		render: register.superCall(function (sup) {
 			return function () {
 				sup.apply(this, arguments);
 				if (this.secondarySheetPlaceholder) {
-					var args = lang.mixin({owner: this}, this.secondarySheetProps);
+					var args = {owner: this};
+					this.forwardProperties.forEach(function (prop) {
+						if (this[prop] !== null && this[prop] !== undefined) {
+							var value = typeof prop === "function" ? this[prop].bind(this) : this[prop];
+							args[prop] = value;
+						}
+					}, this);
+					lang.mixin(args, this.secondarySheetProps);
 					this.secondarySheet = new this.secondarySheetClass(args);
 					this.secondarySheet.placeAt(this.secondarySheetPlaceholder, "replace");
-
-					// Reflect all my property updates to second sheet
-					this.observe(function (props) {
-						for (var p in props) {
-							this.secondarySheet[p] = this.p;
-						}
-					});
 				}
 			};
 		}),
@@ -120,6 +134,13 @@ define([
 				this.resizeSecondarySheet(h);
 			}
 			if (this.secondarySheet) {
+				// Forward property changes to second sheet
+				this.forwardProperties.forEach(function (prop) {
+					if (prop in props && this[prop] !== null && this[prop] !== undefined) {
+						var value = typeof prop === "function" ? this[prop].bind(this) : this[prop];
+						this.secondarySheet[prop] = value;
+					}
+				}, this);
 				this.secondarySheet.deliver();
 			}
 		},
@@ -171,15 +192,15 @@ define([
 		}),
 
 		_configureScrollBar: register.superCall(function (sup) {
-			return function (renderData) {
+			return function () {
 				sup.apply(this, arguments);
 				if (this.secondarySheet) {
 					var atRight = (this.effectiveDir === "ltr" || this.scrollBarRTLPosition == "right");
-					domStyle.set(this.secondarySheet, atRight ? "right" : "left", renderData.scrollbarWidth + "px");
+					domStyle.set(this.secondarySheet, atRight ? "right" : "left", this.scrollbarWidth + "px");
 					domStyle.set(this.secondarySheet, atRight ? "left" : "right", "0");
 
-					this.secondarySheet._hScrollNodes.forEach( function (elt) {
-						domClass[renderData.hScrollBarEnabled ? "add" : "remove"](elt.parentNode,
+					this.secondarySheet._hScrollNodes.forEach(function (elt) {
+						domClass[this.hScrollBarEnabled ? "add" : "remove"](elt.parentNode,
 							"dojoxCalendarHorizontalScroll");
 					}, this);
 				}

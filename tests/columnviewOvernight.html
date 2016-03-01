@@ -101,7 +101,7 @@
 					cssClassFunc: function(item){
 						return item.calendar == "cal1" ? "Calendar1" : "Calendar2"
 					},
-					styleRowHeaderCell: function(node, h, m, rd){
+					styleRowHeaderCell: function(node, h, m){
 						if(h >= 24){
 							domClass.add(node, "overnight");
 						}

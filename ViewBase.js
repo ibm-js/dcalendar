@@ -165,6 +165,31 @@ define([
 		//		The maximum time amount in milliseconds between to touchstart events that trigger a double-tap event.
 		doubleTapDelay: 300,
 
+		////////////////////////////////////////////////////////
+		//
+		// Computed properties, not to be set directly.
+		// Most of these used to be inside renderData.
+		//
+		////////////////////////////////////////////////////////
+
+		// Range of dates currently displayed by the view
+		startTime: null,
+		endTime: null,
+
+		dates: null,
+
+		sheetHeight: -1,
+
+		// visibleItems: Object[]
+		//		List of events that appear on the calendar given the current time constraints
+		//		(determined by startDate, columnCount, rowCount, etc.)
+		visibleItems: null,
+
+		// visibleDecorationItems: Object[]
+		//		List of decorations that appear on the calendar given the current time constraints
+		//		(determined by startDate, columnCount, rowCount, etc.)
+		visibleDecorationItems: null,
+
 		_setDatePackageAttr: function (/*String||Object*/ dp) {
 			if (dp === null || typeof dp === "string") {
 				this._calendar = dp ? dp.substr(dp.lastIndexOf(".") + 1) : "gregorian";
@@ -215,28 +240,36 @@ define([
 			this._setupDayRefresh();
 		},
 
-		refreshRendering: function (oldVals, firstTime) {
-			var oldRd = this.renderData;
+		computeProperties: function (oldVals) {
+			// If the list of items has changed, or the startTime/endTime has changed,
+			// need to recompute which items are visible.
+			// But, while editing in no live layout we must not to recompute items (duplicate renderers),
+			// so in that case defer until editing has finished.
+			// TODO: filtering should actually be done by the store
+			if (!this._isEditing) {
+				if ("items" in oldVals || "_isEditing" in oldVals || "startTime" in oldVals || "endTime" in oldVals) {
+					this.visibleItems = this.storeManager._computeVisibleItems(this.startTime, this.endTime);
+				}
+				if ("decorationItems" in oldVals || "_isEditing" in oldVals ||
+						"startTime" in oldVals || "endTime" in oldVals) {
+					this.visibleDecorationItems = this.decorationStoreManager._computeVisibleItems(this.startTime,
+						this.endTime);
+				}
+			}
+		},
 
-			// Do preparation calculations for rendering widget.  Some of these calculations depend on the template
-			// already having been instantiated.
-			// TODO (long term): Don't lump everything together under this.renderData,
-			// and then be specific about when certain things need to be recomputed.
-			// In particular differentiate between redrawing the grid vs. redrawing the items on the grid.
-			var rd = this.renderData = this._createRenderData();
-
-			// We just set this.renderData, avoid another pass through computeProperties() and refreshRendering().
-			this.discardChanges();
-
-			// Create the grid/boilerplate.  TODO: Only call this when day, numDays, etc. has changed
-			this._createRendering(rd, oldRd);
-
-			if (true || "decorationItems" in oldVals) {
-				this._layoutDecorationRenderers(rd);
+		refreshRendering: function (oldVals) {
+			// Create the grid/boilerplate initially, and update it whenever we move to a new month etc.
+			if ("dates" in oldVals) {
+				this._createRendering();
 			}
 
-			if (true || "items" in oldVals) {
-				this._layoutRenderers(rd);
+			// Add the events.
+			if ("dates" in oldVals || "visibleItmes" in oldVals) {
+				this._layoutRenderers(this);
+			}
+			if ("dates" in oldVals || "visibleDecorationItems" in oldVals) {
+				this._layoutDecorationRenderers(this);
 			}
 		},
 
@@ -306,13 +339,6 @@ define([
 		afterDeactivate: function () {
 			// summary:
 			//		Function invoked just after the view is the view is hidden or removed by the calendar.
-			// tags:
-			//		protected
-		},
-
-		_createRenderData: function () {
-			// summary:
-			//		Creates the object that contains all the data needed to render this widget.
 			// tags:
 			//		protected
 		},
@@ -453,8 +479,6 @@ define([
 			//		Returns whether the specified date is in the current day.
 			// date: Date
 			//		The date to test.
-			// renderData: Object
-			//		The current renderData
 			// returns: Boolean
 
 			return timeUtil.isToday(date, this.dateClassObj);
@@ -470,12 +494,10 @@ define([
 			return timeUtil.isStartOfDay(d, this.dateClassObj, this.dateModule);
 		},
 
-		isOverlapping: function (renderData, start1, end1, start2, end2, includeLimits) {
+		isOverlapping: function (start1, end1, start2, end2, includeLimits) {
 			// summary:
 			//		Computes if the first time range defined by the start1 and end1 parameters
 			//		is overlapping the second time range defined by the start2 and end2 parameters.
-			// renderData: Object
-			//		The render data.
 			// start1: Date
 			//		The start time of the first time range.
 			// end1: Date
@@ -488,15 +510,13 @@ define([
 			//		Whether include the end time or not.
 			// returns: Boolean
 
-			return timeUtil.isOverlapping(renderData, start1, end1, start2, end2, includeLimits);
+			return timeUtil.isOverlapping(this.dateModule, start1, end1, start2, end2, includeLimits);
 		},
 
-		computeRangeOverlap: function (renderData, start1, end1, start2, end2, includeLimits) {
+		computeRangeOverlap: function (start1, end1, start2, end2, includeLimits) {
 			// summary:
 			//		Computes the overlap time range of the time ranges.
 			//		Returns a vector of Date with at index 0 the start time and at index 1 the end time.
-			// renderData: Object.
-			//		The render data.
 			// start1: Date
 			//		The start time of the first time range.
 			// end1: Date
@@ -509,7 +529,7 @@ define([
 			//		Whether include the end time or not.
 			// returns: Date[]
 
-			var cal = renderData.dateModule;
+			var cal = this.dateModule;
 
 			if (start1 == null || start2 == null || end1 == null || end2 == null) {
 				return null;
@@ -527,8 +547,8 @@ define([
 			}
 
 			return [
-				this.newDate(cal.compare(start1, start2) > 0 ? start1 : start2, renderData),
-				this.newDate(cal.compare(end1, end2) > 0 ? end2 : end1, renderData)
+				this.newDate(cal.compare(start1, start2) > 0 ? start1 : start2),
+				this.newDate(cal.compare(end1, end2) > 0 ? end2 : end1)
 			];
 		},
 
@@ -550,11 +570,9 @@ define([
 				date1.getDate() == date2.getDate();
 		},
 
-		computeProjectionOnDate: function (renderData, refDate, date, max) {
+		computeProjectionOnDate: function (refDate, date, max) {
 			// summary:
 			//		Computes the time to pixel projection in a day.
-			// renderData: Object
-			//		The render data.
 			// refDate: Date
 			//		The reference date that defines the destination date.
 			// date: Date
@@ -565,9 +583,9 @@ define([
 			//		protected
 			// returns: Number
 
-			var cal = renderData.dateModule;
-			var minH = renderData.minHours;
-			var maxH = renderData.maxHours;
+			var cal = this.dateModule;
+			var minH = this.minHours;
+			var maxH = this.maxHours;
 
 			if (max <= 0 || cal.compare(date, refDate) == -1) {
 				return 0;
@@ -577,7 +595,7 @@ define([
 				return d.getHours() * 3600 + d.getMinutes() * 60 + d.getSeconds();
 			};
 
-			var referenceDate = this.floorToDay(refDate, false, renderData);
+			var referenceDate = this.floorToDay(refDate, false);
 
 			if (date.getDate() != referenceDate.getDate()) {
 				if (date.getMonth() == referenceDate.getMonth()) {
@@ -656,8 +674,8 @@ define([
 				}
 
 				var d2 = this.floorToDay(date);
-				var dp1 = renderData.dateModule.add(refDate, "day", 1);
-				dp1 = this.floorToDay(dp1, false, renderData);
+				var dp1 = this.dateModule.add(refDate, "day", 1);
+				dp1 = this.floorToDay(dp1, false);
 
 				if (cal.compare(d2, refDate) == 1 && cal.compare(d2, dp1) == 0 || cal.compare(d2, dp1) == 1) {
 					res = max;
@@ -739,14 +757,13 @@ define([
 			//		The item to test
 			// returns: Boolean
 
-			var rd = this.renderData;
-			var cal = rd.dateModule;
+			var cal = this.dateModule;
 
-			if (cal.compare(item.startTime, rd.startTime) == -1) {
+			if (cal.compare(item.startTime, this.startTime) == -1) {
 				return false;
 			}
 
-			return cal.compare(item.endTime, rd.endTime) != 1;
+			return cal.compare(item.endTime, this.endTime) != 1;
 		},
 
 		_ensureItemInView: function (item) {
@@ -759,18 +776,17 @@ define([
 			// tags:
 			//		protected
 
-			var rd = this.renderData;
-			var cal = rd.dateModule;
+			var cal = this.dateModule;
 
 			var duration = Math.abs(cal.difference(item.startTime, item.endTime, "millisecond"));
 			var fixed = false;
 
-			if (cal.compare(item.startTime, rd.startTime) == -1) {
-				item.startTime = rd.startTime;
+			if (cal.compare(item.startTime, this.startTime) == -1) {
+				item.startTime = this.startTime;
 				item.endTime = cal.add(item.startTime, "millisecond", duration);
 				fixed = true;
-			} else if (cal.compare(item.endTime, rd.endTime) == 1) {
-				item.endTime = rd.endTime;
+			} else if (cal.compare(item.endTime, this.endTime) == 1) {
+				item.endTime = this.endTime;
 				item.startTime = cal.add(item.endTime, "millisecond", -duration);
 				fixed = true;
 			}
@@ -1043,10 +1059,56 @@ define([
 		//
 		////////////////////////////////////////////////////////
 
+		// TODO: do the filtering in the store rather than in calendar JS code!
+		_computeVisibleItems: function () {
+			// summary:
+			//		Computes the data items that are in the displayed interval.
+			// tags:
+			//		protected
+
+			return this.storeManager._computeVisibleItems(this.startTime, this.endTime);
+		},
+
+		_setStoreAttr: function (value) {
+			this._set("store", value);
+			this.storeManager.store = value;
+		},
+
+		_getItemStoreStateObj: function (/*Object*/item) {
+			// tags
+			//		private
+			return this.storeManager._getItemStoreStateObj(item);
+		},
+
+		getItemStoreState: function (item) {
+			//	summary:
+			//		Returns the creation state of an item.
+			//		This state is changing during the interactive creation of an item.
+			//		Valid values are:
+			//		- "unstored": The event is being interactively created. It is not in the store yet.
+			//		- "storing": The creation gesture has ended, the event is being added to the store.
+			//		- "stored": The event is not in the two previous states, and is assumed to be in the store
+			//		(not checking because of performance reasons, use store API for testing existence in store).
+			// item: Object
+			//		The item.
+			// returns: String
+
+			return this.storeManager.getItemStoreState(item);
+		},
+
+		_cleanItemStoreState: function (id) {
+			this.storeManager._cleanItemStoreState(id);
+		},
+
+		_setItemStoreState: function (/*Object*/item, /*String*/state) {
+			// tags
+			//		private
+			this.storeManager._setItemStoreState(item, state);
+		},
+
 		_refreshDecorationItemsRendering: function () {
-			var rd = this.renderData;
-			this._computeVisibleItems(rd);
-			this._layoutDecorationRenderers(rd);
+			this._computeVisibleItems();
+			this._layoutDecorationRenderers();
 		},
 
 		invalidateLayout: function () {
@@ -1054,8 +1116,8 @@ define([
 			//		Triggers a re-layout of the renderers.
 			//		Generally this shouldn't be used; layout happens automatically on property changes.
 
-			this._layoutRenderers(this.renderData);
-			this._layoutDecorationRenderers(this.renderData);
+			this._layoutRenderers();
+			this._layoutDecorationRenderers();
 		},
 
 		_setDecorationStoreAttr: function (value) {
@@ -1144,12 +1206,10 @@ define([
 		},
 
 
-		_layoutInterval: function (renderData, index, start, end, items) {
+		_layoutInterval: function (index, start, end, items) {
 			// summary:
 			//		For each item in the items list: retrieve a renderer,
 			//		compute its location and size and add it to the DOM.
-			// renderData: Object
-			//		The render data.
 			// index: Integer
 			//		The index of the interval.
 			// start: Date
@@ -1177,20 +1237,18 @@ define([
 			return res;
 		},
 
-		_layoutRenderers: function (renderData) {
-			this._layoutRenderersImpl(renderData, this.rendererManager, renderData.items, "dataItems");
+		_layoutRenderers: function () {
+			this._layoutRenderersImpl(this.rendererManager, this.visibleItems, "dataItems");
 		},
 
-		_layoutDecorationRenderers: function (renderData) {
-			this._layoutRenderersImpl(renderData, this.decorationRendererManager, renderData.decorationItems,
+		_layoutDecorationRenderers: function () {
+			this._layoutRenderersImpl(this.decorationRendererManager, this.visibleDecorationItems,
 				"decorationItems");
 		},
 
-		_layoutRenderersImpl: function (renderData, rendererManager, items, itemType) {
+		_layoutRenderersImpl: function (rendererManager, items, itemType) {
 			// summary:
 			//		Renders the data items. This method will call the _layoutInterval() method.
-			// renderData: Object
-			//		The render data.
 			// tags:
 			//		protected
 
@@ -1201,10 +1259,10 @@ define([
 			// recycle renderers first
 			rendererManager.recycleItemRenderers();
 
-			var cal = renderData.dateModule;
+			var cal = this.dateModule;
 
 			// Date
-			var startDate = this.newDate(renderData.startTime);
+			var startDate = this.newDate(this.startTime);
 
 			// Date and time
 			var startTime = lang.clone(startDate);
@@ -1218,27 +1276,27 @@ define([
 
 			var index = 0;
 
-			while (cal.compare(startDate, renderData.endTime) == -1 && items.length > 0) {
+			while (cal.compare(startDate, this.endTime) == -1 && items.length > 0) {
 
 				endDate = this.addAndFloor(startDate, this._layoutUnit, this._layoutStep);
 
 				var endTime = lang.clone(endDate);
 
-				if (renderData.minHours) {
-					startTime.setHours(renderData.minHours);
+				if (this.minHours) {
+					startTime.setHours(this.minHours);
 				}
 
-				if (renderData.maxHours != undefined && renderData.maxHours != 24) {
-					if (renderData.maxHours < 24) {
+				if (this.maxHours !== undefined && this.maxHours != 24) {
+					if (this.maxHours < 24) {
 						endTime = cal.add(endDate, "day", -1);
 					} // else > 24
-					endTime = this.floorToDay(endTime, true, renderData);
-					endTime.setHours(renderData.maxHours - (renderData.maxHours < 24 ? 0 : 24));
+					endTime = this.floorToDay(endTime, true);
+					endTime.setHours(this.maxHours - (this.maxHours < 24 ? 0 : 24));
 				}
 
 				// look for events that overlap the current sub interval
 				events = arr.filter(items, function (item) {
-					var r = this.isOverlapping(renderData, item.startTime, item.endTime, startTime, endTime);
+					var r = this.isOverlapping(item.startTime, item.endTime, startTime, endTime);
 					if (r) {
 						processing[item.id] = true;
 						itemsTemp.push(item);
@@ -1260,7 +1318,7 @@ define([
 					// Sort the item according a sorting function, by default start time then end time comparison are used.
 					events.sort(lang.hitch(this, this.layoutPriorityFunction ? this.layoutPriorityFunction :
 						this._sortItemsFunction));
-					this._layoutInterval(renderData, index, startTime, endTime, events, itemType);
+					this._layoutInterval(index, startTime, endTime, events, itemType);
 				}
 
 				startDate = endDate;
@@ -1883,7 +1941,6 @@ define([
 				return [node, node];
 			}
 
-			var rd = this.renderData;
 			var resizeStartFound = false;
 			var resizeEndFound = false;
 
@@ -1894,12 +1951,12 @@ define([
 				var ir = list[i].renderer;
 
 				if (!resizeStartFound) {
-					resizeStartFound = rd.dateModule.compare(ir.item.range[0], ir.item.startTime) == 0;
+					resizeStartFound = this.dateModule.compare(ir.item.range[0], ir.item.startTime) == 0;
 					res[0] = ir;
 				}
 
 				if (!resizeEndFound) {
-					resizeEndFound = rd.dateModule.compare(ir.item.range[1], ir.item.endTime) == 0;
+					resizeEndFound = this.dateModule.compare(ir.item.range[1], ir.item.endTime) == 0;
 					res[1] = ir;
 				}
 
@@ -2006,26 +2063,24 @@ define([
 			//		protected
 
 			this._isEditing = true;
-			this._getTopOwner()._isEditing = true;
 			var p = this._edProps;
 
 			p.editedItem = item;
 			p.storeItem = item._item;
 			p.eventSource = eventSource;
 
-			p.secItem = this._secondarySheet ? this._findRenderItem(item.id, this._secondarySheet.renderData.items) :
+			p.secItem = this._secondarySheet ? this._findRenderItem(item.id, this._secondarySheet.items) :
 				null;
-			p.ownerItem = this.owner ? this._findRenderItem(item.id, this.items) : null;
 
 			if (!p.liveLayout) {
 				p.editSaveStartTime = item.startTime;
 				p.editSaveEndTime = item.endTime;
 
 				p.editItemToRenderer = this.rendererManager.itemToRenderer;
-				p.editItems = this.renderData.items;
+				p.editItems = this.items;
 				p.editRendererList = this.rendererManager.rendererList;
 
-				this.renderData.items = [p.editedItem];
+				this.items = [p.editedItem];
 				var id = p.editedItem.id;
 
 				this.rendererManager.itemToRenderer = {};
@@ -2051,7 +2106,7 @@ define([
 			}
 
 			// graphic feedback refresh
-			this._layoutRenderers(this.renderData);
+			this._layoutRenderers();
 
 			this._onItemEditBegin({
 				item: item,
@@ -2093,7 +2148,6 @@ define([
 			}
 
 			this._isEditing = false;
-			this._getTopOwner()._isEditing = false;
 
 			var p = this._edProps;
 
@@ -2102,7 +2156,7 @@ define([
 			});
 
 			if (!p.liveLayout) {
-				this.renderData.items = p.editItems;
+				this.items = p.editItems;
 				this.rendererManager.rendererList = p.editRendererList.concat(this.rendererManager.rendererList);
 				lang.mixin(this.rendererManager.itemToRenderer, p.editItemToRenderer);
 			}
@@ -2114,7 +2168,7 @@ define([
 				completed: !canceled
 			}));
 
-			this._layoutRenderers(this.renderData);
+			this._layoutRenderers();
 
 			this._edProps = null;
 		},
@@ -2184,21 +2238,16 @@ define([
 		},
 
 		_removeRenderItem: function (id) {
-			var owner = this._getTopOwner();
-			var items = owner.items;
+			var items = this.items;
 			var l = items.length;
-			var found = false;
 			for (var i = l - 1; i >= 0; i--) {
 				if (items[i].id == id) {
 					items.splice(i, 1);
-					found = true;
+					this.notifyCurrentValue("items"); //force a complete relayout
 					break;
 				}
 			}
 			this._cleanItemStoreState(id);
-			if (found) {
-				owner.items = items; //force a complete relayout (TODO: be more efficient)
-			}
 		},
 
 		onItemEditEnd: function (e) {
@@ -2291,7 +2340,7 @@ define([
 				p.editingItemRefTime[1] = this.newDate(item.endTime);
 			}
 
-			var cal = this.renderData.dateModule;
+			var cal = this.dateModule;
 
 			p.inViewOnce = this._isItemInView(item);
 
@@ -2344,11 +2393,11 @@ define([
 			// tags:
 			//		protected
 
-			var cal = this.renderData.dateModule;
+			var cal = this.dateModule;
 			if (this._calendar != "gregorian" && steps < 0) {
 				var gd = d.toGregorian();
 				gd = date.add(gd, unit, steps);
-				return new this.renderData.dateClassObj(gd);
+				return new this.dateClassObj(gd);
 			} else {
 				return cal.add(d, unit, steps);
 			}
@@ -2358,7 +2407,7 @@ define([
 			// tags:
 			//		private
 
-			var cal = this.renderData.dateModule;
+			var cal = this.dateModule;
 			var p = this._edProps;
 			if (editKind == "move") {
 				var diff = cal.difference(p.editingTimeFrom[0], times[0], "millisecond");
@@ -2389,8 +2438,7 @@ define([
 
 			var p = this._edProps;
 			var item = p.editedItem;
-			var rd = this.renderData;
-			var cal = rd.dateModule;
+			var cal = this.dateModule;
 			var editKind = p.editKind;
 
 			var newTimes = [dates[0]];
@@ -2542,16 +2590,12 @@ define([
 				return false;
 			}
 
-			this._layoutRenderers(this.renderData);
+			this._layoutRenderers();
 
 			if (p.liveLayout && p.secItem != null) {
 				p.secItem.startTime = item.startTime;
 				p.secItem.endTime = item.endTime;
-				this._secondarySheet._layoutRenderers(this._secondarySheet.renderData);
-			} else if (p.ownerItem != null && this.owner.liveLayout) {
-				p.ownerItem.startTime = item.startTime;
-				p.ownerItem.endTime = item.endTime;
-				this.owner._layoutRenderers(this.owner.renderData);
+				this._secondarySheet._layoutRenderers();
 			}
 
 			return true;
@@ -2561,7 +2605,7 @@ define([
 			// tags:
 			//		private
 
-			list = list || this.renderData.items;
+			list = list || this.items;
 			for (var i = 0; i < list.length; i++) {
 				if (list[i].id == id) {
 					return list[i];
@@ -2579,18 +2623,15 @@ define([
 			if (!e.isDefaultPrevented()) {
 
 				var p = e.source._edProps;
-				var rd = this.renderData;
-				var cal = rd.dateModule;
+				var cal = this.dateModule;
 				var newStartTime, newEndTime;
 
 				if (p.rendererKind == "label" || (this.roundToDay && !e.item.allDay)) {
-
-					newStartTime = this.floorToDay(e.item.startTime, false, rd);
+					newStartTime = this.floorToDay(e.item.startTime, false);
 					newStartTime.setHours(p._itemEditBeginSave.getHours());
 					newStartTime.setMinutes(p._itemEditBeginSave.getMinutes());
 
 					newEndTime = cal.add(newStartTime, "millisecond", p._initDuration);
-
 				} else if (e.item.allDay) {
 					newStartTime = this.floorToDay(e.item.startTime, true);
 					newEndTime = cal.add(newStartTime, "day", p._initDuration);
@@ -2633,17 +2674,16 @@ define([
 			if (!e.isDefaultPrevented()) {
 
 				var p = e.source._edProps;
-				var rd = this.renderData;
-				var cal = rd.dateModule;
+				var cal = this.dateModule;
 
 				var newStartTime = e.item.startTime;
 				var newEndTime = e.item.endTime;
 
 				if (e.editKind == "resizeStart") {
 					if (e.item.allDay) {
-						newStartTime = this.floorToDay(e.item.startTime, false, this.renderData);
+						newStartTime = this.floorToDay(e.item.startTime, false, this);
 					} else if (this.roundToDay) {
-						newStartTime = this.floorToDay(e.item.startTime, false, rd);
+						newStartTime = this.floorToDay(e.item.startTime, false);
 						newStartTime.setHours(p._itemEditBeginSave.getHours());
 						newStartTime.setMinutes(p._itemEditBeginSave.getMinutes());
 					} else {
@@ -2652,11 +2692,11 @@ define([
 				} else if (e.editKind == "resizeEnd") {
 					if (e.item.allDay) {
 						if (!this.isStartOfDay(e.item.endTime)) {
-							newEndTime = this.floorToDay(e.item.endTime, false, this.renderData);
+							newEndTime = this.floorToDay(e.item.endTime, false, this);
 							newEndTime = cal.add(newEndTime, "day", 1);
 						}
 					} else if (this.roundToDay) {
-						newEndTime = this.floorToDay(e.item.endTime, false, rd);
+						newEndTime = this.floorToDay(e.item.endTime, false);
 						newEndTime.setHours(p._itemEditEndSave.getHours());
 						newEndTime.setMinutes(p._itemEditEndSave.getMinutes());
 					} else {
@@ -2678,7 +2718,7 @@ define([
 				var minimalDay = e.item.allDay ||
 					p._initDuration >= this._DAY_IN_MILLISECONDS && !this.allowResizeLessThan24H;
 
-				this.ensureMinimalDuration(this.renderData, e.item,
+				this.ensureMinimalDuration(this, e.item,
 					minimalDay ? "day" : this.minDurationUnit,
 					minimalDay ? 1 : this.minDurationSteps,
 					e.editKind);
@@ -2763,11 +2803,9 @@ define([
 			//		callback
 		},
 
-		ensureMinimalDuration: function (renderData, item, unit, steps, editKind) {
+		ensureMinimalDuration: function (item, unit, steps, editKind) {
 			// summary:
 			//		During the resize editing gesture, ensures that the item has the specified minimal duration.
-			// renderData: Object
-			//		The render data.
 			// item: Object
 			//		The edited item.
 			// unit: String
@@ -2778,7 +2816,7 @@ define([
 			//		The edit kind: "resizeStart" or "resizeEnd".
 
 			var minTime;
-			var cal = renderData.dateModule;
+			var cal = this.dateModule;
 
 			if (editKind == "resizeStart") {
 				minTime = cal.add(item.endTime, unit, -steps);

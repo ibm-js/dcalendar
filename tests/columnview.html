@@ -317,7 +317,7 @@
 						if(!colView.isStartOfDay(editedItem.endTime)){
 							d = itemEndDateEditor.value;
 							colView.floorToDay(d, true);
-							d = colView.renderData.dateModule.add(d, "day", 1);
+							d = colView.dateModule.add(d, "day", 1);
 							itemEndDateEditor.value = d;
 						}
 
@@ -328,7 +328,7 @@
 						itemEndTimeEditor.value = editedItem.endTime;
 						d = itemEndDateEditor.value;
 						colView.floorToDay(d, true);
-						d = colView.renderData.dateModule.add(d, "day", -1);
+						d = colView.dateModule.add(d, "day", -1);
 						itemEndDateEditor.value = d;
 					}
 
@@ -394,8 +394,8 @@
 
 				var getItemLabel = function(item){
 					return "<b>" + item.summary + "</b><br><table><tr><td style='text-align:right'>" +
-						"Start:</td><td>" + colView.renderData.dateLocaleModule.format(item.startTime, {formatLength: "medium"}) + "</td></tr><tr><td style='text-align:right'>" +
-						"End:</td><td>" + colView.renderData.dateLocaleModule.format(item.endTime, {formatLength: "medium"}) + "</td></tr></table>";
+						"Start:</td><td>" + colView.dateLocaleModule.format(item.startTime, {formatLength: "medium"}) + "</td></tr><tr><td style='text-align:right'>" +
+						"End:</td><td>" + colView.dateLocaleModule.format(item.endTime, {formatLength: "medium"}) + "</td></tr></table>";
 				};
 
 				colView.on("focusChange", function(e){

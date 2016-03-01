@@ -253,10 +253,10 @@ define([
 
 			var size = this._orientation == "vertical" ? h : w;
 
-			var rd = this.owner.renderData;
+			var rd = this.owner;
 
-			var startHidden = rd.dateModule.compare(this.item.range[0], this.item.startTime) != 0;
-			var endHidden = rd.dateModule.compare(this.item.range[1], this.item.endTime) != 0;
+			var startHidden = rd.dateModule.compare(this.item.range[0], this.item.startTime) !== 0;
+			var endHidden = rd.dateModule.compare(this.item.range[1], this.item.endTime) !== 0;
 
 			var visible;
 

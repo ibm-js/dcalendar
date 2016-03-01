@@ -38,12 +38,9 @@ define([
 
 		layoutDuringResize: true,
 
-		render: register.superCall(function (sup) {
-			return function () {
-				sup.apply(this, arguments);
-				this._hScrollNodes = [this.gridTable, this.itemContainerTable];
-			};
-		}),
+		postRender: function () {
+			this._hScrollNodes = [this.gridTable, this.itemContainerTable];
+		},
 
 		_configureHScrollDomNodes: function (styleWidth) {
 			arr.forEach(this._hScrollNodes, function (elt) {
@@ -96,7 +93,7 @@ define([
 				if (this._defaultHeight != h && h >= this._getExpandedHeight() ||
 					this._expandedRowCol !== undefined && this._expandedRowCol !== -1) {
 					var col = this._expandedRowCol;
-					if (col >= this.renderData.columnCount) {
+					if (col >= this.columnCount) {
 						col = 0;
 					}
 					this._layoutExpandRendererImpl(0, col, null, true);
@@ -141,7 +138,7 @@ define([
 
 		refreshRendering: function () {
 			// make sure to show the expand/collapse renderer if no item is displayed but the row was expanded.
-			if (!this.renderData.items || this.renderData.items.length === 0) {
+			if (!this.visibleItems || this.visibleItems.length === 0) {
 				this._layoutExpandRenderers(0, false, null);
 			}
 		}

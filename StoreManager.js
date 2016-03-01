@@ -15,6 +15,8 @@ define([
 		//		* "layoutInvalidated" - the calendar needs to destroy and recreate all the renderers
 		//		* renderersInvalidated - the specified item has changed in a minor way; just update the
 		//		  corresponding renderer
+		//
+		//		TODO: This class is weird because it calls back into the ViewBase for things like itemToRenderItem()
 
 
 		// owner: Object
@@ -39,21 +41,19 @@ define([
 			this.emit("dataLoaded", items);
 		},
 
-		_computeVisibleItems: function (renderData) {
+		_computeVisibleItems: function (startTime, endTime) {
 			// summary:
-			//		Computes the data items that are in the displayed interval.
-			// renderData: Object
-			//		The renderData that contains the start and end time of the displayed interval.
+			//		Computes the data items that are in the specified interval.
 			// tags:
 			//		protected
 
-			var startTime = renderData.startTime;
-			var endTime = renderData.endTime;
+			// TODO: move filtering to the store
+
 			var res = null;
 			var items = this.items;
 			if (items) {
 				res = items.filter(function (item) {
-					return this.owner.isOverlapping(renderData, item.startTime, item.endTime, startTime, endTime);
+					return this.owner.isOverlapping(item.startTime, item.endTime, startTime, endTime);
 				}, this);
 			}
 			return res;

@@ -168,82 +168,49 @@ define([
 			this._set("verticalRenderer", value);
 		},
 
-		_createRenderData: function () {
-			var rd = {};
-
-			rd.daySize = this.daySize;
-			rd.scrollbarWidth = metrics.getScrollbar().w + 1;
-
-			rd.dateLocaleModule = this.dateLocaleModule;
-			rd.dateClassObj = this.dateClassObj;
-			rd.dateModule = this.dateModule; // arithmetics on Dates
-
-			rd.dates = [];
-
-			rd.columnCount = this.columnCount;
-
-			var d = this.startDate;
-
-			if (d == null) {
-				d = new rd.dateClassObj();
-			}
-
-			d = this.floorToMonth(d, false, rd);
-
-			this.startDate = d;
-			var currentMonth = d.getMonth();
-			var maxDayCount = 0;
-
-			for (var col = 0; col < rd.columnCount; col++) {
-
-				var dates = [];
-				rd.dates.push(dates);
-
-				while (d.getMonth() == currentMonth) {
-					dates.push(d);
-					d = this.addAndFloor(d, "day", 1);
-				}
-
-				currentMonth = d.getMonth();
-
-				if (maxDayCount < dates.length) {
-					maxDayCount = dates.length;
-				}
-			}
-
-			rd.startTime = new rd.dateClassObj(rd.dates[0][0]);
-			rd.endTime = new rd.dateClassObj(dates[dates.length - 1]);
-			rd.endTime = rd.dateModule.add(rd.endTime, "day", 1);
-
-			rd.maxDayCount = maxDayCount;
-			rd.sheetHeight = rd.daySize * maxDayCount;
-
-			if (this.displayedItemsInvalidated && !this._isEditing) {
-				this.displayedItemsInvalidated = false;
-				this._computeVisibleItems(rd);
-
-			} else if (this.renderData) {
-				rd.items = this.renderData.items;
-			}
-
-			if (this.displayedDecorationItemsInvalidated) {
-				// while editing in no live layout we must not to recompute items (duplicate renderers)
-				rd.decorationItems = this.decorationStoreManager._computeVisibleItems(rd);
-
-			} else if (this.renderData) {
-				rd.decorationItems = this.renderData.decorationItems;
-			}
-
-			return rd;
-		},
-
-		computeProperties: function () {
+		computeProperties: function (oldVals) {
 			if (this.columnCount < 1 || isNaN(this.columnCount)) {
 				this.columnCount = 1;
 			}
 
 			if (this.daySize < 5 || isNaN(this.daySize)) {
 				this.daySize = 5;
+			}
+
+			if ("startDate" in oldVals || "columnCount" in oldVals) {
+				this.dates = [];
+
+				var d = this.startDate;
+				if (d == null) {
+					d = new this.dateClassObj();
+				}
+
+				d = this.floorToMonth(d, false);
+
+				this.startDate = d;
+				var currentMonth = d.getMonth();
+				var maxDayCount = 0;
+
+				for (var col = 0; col < this.columnCount; col++) {
+					var dates = [];
+					this.dates.push(dates);
+
+					while (d.getMonth() == currentMonth) {
+						dates.push(d);
+						d = this.addAndFloor(d, "day", 1);
+					}
+
+					currentMonth = d.getMonth();
+
+					if (maxDayCount < dates.length) {
+						maxDayCount = dates.length;
+					}
+				}
+
+				this.maxDayCount = maxDayCount;
+				this.startTime = new this.dateClassObj(this.dates[0][0]);
+				this.endTime = new this.dateClassObj(dates[dates.length - 1]);
+				this.endTime = this.dateModule.add(this.endTime, "day", 1);
 			}
 		},
 
@@ -273,7 +240,7 @@ define([
 				len = this.columnHeaderFormatLength;
 			}
 
-			var months = this.renderData.dateLocaleModule.getNames("months", len, "standAlone");
+			var months = this.dateLocaleModule.getNames("months", len, "standAlone");
 
 			return months[d.getMonth()];
 		},
@@ -304,7 +271,7 @@ define([
 			}
 
 			if (this.gridCellPattern) {
-				return this.renderData.dateLocaleModule.format(d, {
+				return this.dateLocaleModule.format(d, {
 					selector: "date",
 					datePattern: this.gridCellDatePattern
 				});
@@ -312,9 +279,9 @@ define([
 				rb = i18n.getLocalization("dojo.cldr", this._calendar);
 				format = rb["dateFormatItem-d"];
 
-				var days = this.renderData.dateLocaleModule.getNames("days", "abbr", "standAlone");
+				var days = this.dateLocaleModule.getNames("days", "abbr", "standAlone");
 
-				return days[d.getDay()].substring(0, 1) + " " + this.renderData.dateLocaleModule.format(d, {
+				return days[d.getDay()].substring(0, 1) + " " + this.dateLocaleModule.format(d, {
 						selector: "date",
 						datePattern: format
 					});
@@ -363,7 +330,7 @@ define([
 				}
 
 				var duration = Math.abs(((position - this.scrollContainer.scrollTop) * maxDuration) /
-					this.renderData.sheetHeight);
+					this.sheetHeight);
 
 				this._scrollAnimation = new fx.Animation({
 					curve: [this.scrollContainer.scrollTop, position],
@@ -469,23 +436,26 @@ define([
 		//
 		//////////////////////////////////////////
 
-		_createRendering: function (/*Object*/renderData, /*Object*/oldRenderData) {
+		_createRendering: function () {
 			// tags:
 			//		private
-			domStyle.set(this.sheetContainer, "height", renderData.sheetHeight + "px");
 
+			this.scrollbarWidth = metrics.getScrollbar().w + 1;
+			this.sheetHeight = this.daySize * this.maxDayCount;
+
+			domStyle.set(this.sheetContainer, "height", this.sheetHeight + "px");
+
+			// TODO: only call these methods when necessary
 			// padding for the scroll bar.
-			this._configureScrollBar(renderData);
-			this._buildColumnHeader(renderData, oldRenderData);
-			this._buildGrid(renderData, oldRenderData);
-			this._buildItemContainer(renderData, oldRenderData);
+			this._configureScrollBar();
+			this._buildColumnHeader();
+			this._buildGrid();
+			this._buildItemContainer();
 		},
 
-		_configureScrollBar: function (renderData) {
+		_configureScrollBar: function () {
 			// summary:
 			//		Sets the scroll bar size and position.
-			// renderData: Object
-			//		The render data.
 			// tags:
 			//		protected
 
@@ -494,16 +464,16 @@ define([
 			var lPos = atRight ? "left" : "right";
 
 			if (this.scrollBar) {
-				this.scrollBar.maximum = renderData.sheetHeight;
+				this.scrollBar.maximum = this.sheetHeight;
 				domStyle.set(this.scrollBar, rPos, 0);
 				domStyle.set(this.scrollBar, lPos, "auto");
 			}
-			domStyle.set(this.scrollContainer, rPos, renderData.scrollbarWidth + "px");
+			domStyle.set(this.scrollContainer, rPos, this.scrollbarWidth + "px");
 			domStyle.set(this.scrollContainer, lPos, "0");
-			domStyle.set(this.columnHeader, rPos, renderData.scrollbarWidth + "px");
+			domStyle.set(this.columnHeader, rPos, this.scrollbarWidth + "px");
 			domStyle.set(this.columnHeader, lPos, "0");
 			if (this.buttonContainer && this.owner != null && this.owner.currentView == this) {
-				domStyle.set(this.buttonContainer, rPos, renderData.scrollbarWidth + "px");
+				domStyle.set(this.buttonContainer, rPos, this.scrollbarWidth + "px");
 				domStyle.set(this.buttonContainer, lPos, "0");
 			}
 		},
@@ -516,117 +486,95 @@ define([
 			var index = query("td", this.columnHeaderTable).indexOf(e.currentTarget);
 			this._onColumnHeaderClick({
 				index: index,
-				date: this.renderData.dates[index][0],
+				date: this.dates[index][0],
 				triggerEvent: e
 			});
 		},
 
-		_buildColumnHeader: function (renderData, oldRenderData) {
+		_buildColumnHeader: function () {
 			// summary:
 			//		Creates incrementally the HTML structure of the column header and configures its content.
-			//
-			// renderData:
-			//		The render data to display.
-			//
-			// oldRenderData:
-			//		The previously render data displayed, if any.
 			// tags:
 			//		private
 
 			var table = this.columnHeaderTable;
-
 			if (!table) {
 				return;
 			}
 
-			var count = renderData.columnCount - (oldRenderData ? oldRenderData.columnCount : 0);
-
-			var tbodies = query("tbody", table);
-
-			var trs = query("tr", table);
-			var tbody, tr, td;
-
-			if (tbodies.length == 1) {
-				tbody = tbodies[0];
-			} else {
+			var tbody = table.firstChild;
+			if (!tbody) {
 				tbody = html.create("tbody", null, table);
 			}
 
-			if (trs.length == 1) {
-				tr = trs[0];
-			} else {
+			var tr = tbody.firstChild;
+			if (!tr) {
 				tr = domConstruct.create("tr", null, tbody);
 			}
 
-			// Build HTML structure (incremental)
-			if (count > 0) { // creation
-				for (var i = 0; i < count; i++) {
+			var i, td;
 
-					td = domConstruct.create("td", null, tr);
+			// Create new cells if necessary
+			// TODO: use event delegation
+			for (i = tr.children.length; i < this.columnCount; i++) {
+				td = domConstruct.create("td", null, tr);
 
-					var h = [];
-					h.push(on(td, "click", lang.hitch(this, this._columnHeaderClick)));
+				var h = [];
+				h.push(on(td, "click", lang.hitch(this, this._columnHeaderClick)));
 
-					if (has("touch-events")) {
-						h.push(on(td, "touchstart", function (e) {
-							event.stop(e);
-							domClass.add(e.currentTarget, "Active");
-						}));
+				if (has("touch-events")) {
+					h.push(on(td, "touchstart", function (e) {
+						event.stop(e);
+						domClass.add(e.currentTarget, "Active");
+					}));
 
-						h.push(on(td, "touchend", function (e) {
-							event.stop(e);
-							domClass.remove(e.currentTarget, "Active");
-						}));
-					} else {
-						h.push(on(td, "mousedown", function (e) {
-							event.stop(e);
-							domClass.add(e.currentTarget, "Active");
-						}));
+					h.push(on(td, "touchend", function (e) {
+						event.stop(e);
+						domClass.remove(e.currentTarget, "Active");
+					}));
+				} else {
+					h.push(on(td, "mousedown", function (e) {
+						event.stop(e);
+						domClass.add(e.currentTarget, "Active");
+					}));
 
-						h.push(on(td, "mouseup", function (e) {
-							event.stop(e);
-							domClass.remove(e.currentTarget, "Active");
-						}));
+					h.push(on(td, "mouseup", function (e) {
+						event.stop(e);
+						domClass.remove(e.currentTarget, "Active");
+					}));
 
-						h.push(on(td, "mouseover", function (e) {
-							event.stop(e);
-							domClass.add(e.currentTarget, "Hover");
-						}));
+					h.push(on(td, "mouseover", function (e) {
+						event.stop(e);
+						domClass.add(e.currentTarget, "Hover");
+					}));
 
-						h.push(on(td, "mouseout", function (e) {
-							event.stop(e);
-							domClass.remove(e.currentTarget, "Hover");
-						}));
+					h.push(on(td, "mouseout", function (e) {
+						event.stop(e);
+						domClass.remove(e.currentTarget, "Hover");
+					}));
 
-					}
-
-					this._columnHeaderHandlers.push(h);
 				}
 
-			} else { // deletion
-				count = -count;
-				for (var i = 0; i < count; i++) {
-					td = tr.lastChild;
-					tr.removeChild(td);
-					domConstruct.destroy(td);
-					var list = this._columnHeaderHandlers.pop();
-					while (list.length > 0) {
-						list.pop().remove();
-					}
+				this._columnHeaderHandlers.push(h);
+			}
+
+			// Remove old cells if we have too many.
+			for (i = tr.children.length; i > this.columnCount; i--) {
+				td = tr.lastChild;
+				tr.removeChild(td);
+				domConstruct.destroy(td);
+				var list = this._columnHeaderHandlers.pop();
+				while (list.length > 0) {
+					list.pop().remove();
 				}
 			}
 
 			// fill & configure
 			query("td", table).forEach(function (td, i) {
 				td.className = "";
-				if (i == 0) {
-					domClass.add(td, "first-child");
-				} else if (i == this.renderData.columnCount - 1) {
-					domClass.add(td, "last-child");
-				}
-				var d = renderData.dates[i][0];
+				var d = this.dates[i][0];
 				this._setText(td, this._formatColumnHeaderLabel(d));
-				this.styleColumnHeaderCell(td, d, renderData);
+				this.styleColumnHeaderCell(td, d);
 			}, this);
 		},
 
@@ -642,7 +590,7 @@ define([
 			}
 		},
 
-		styleColumnHeaderCell: function (node, date, renderData) {
+		styleColumnHeaderCell: function (/*===== node, date =====*/) {
 			// summary:
 			//		Styles the CSS classes to the node that displays a column header cell.
 			//		By default this method is does nothing and is designed to be overridden.
@@ -650,113 +598,64 @@ define([
 			//		The DOM node that displays the column in the grid.
 			// date: Date
 			//		The date displayed by this column
-			// renderData: Object
-			//		The render data.
 			// tags:
 			//		protected
 		},
 
-		_buildGrid: function (renderData, oldRenderData) {
+		_buildGrid: function () {
 			// summary:
 			//		Creates incrementally the HTML structure of the grid and configures its content.
-			//
-			// renderData:
-			//		The render data to display.
-			//
-			// oldRenderData:
-			//		The previously render data displayed, if any.
 			// tags:
 			//		private
 
 			var table = this.gridTable;
-
 			if (!table) {
 				return;
 			}
+			domStyle.set(table, "height", this.sheetHeight + "px");
 
-			domStyle.set(table, "height", renderData.sheetHeight + "px");
-
-			var rowDiff = renderData.maxDayCount - (oldRenderData ? oldRenderData.maxDayCount : 0);
-			var addRows = rowDiff > 0;
-
-			var colDiff = renderData.columnCount - (oldRenderData ? oldRenderData.columnCount : 0);
-
-			var tbodies = query("tbody", table);
-			var tbody;
-
-			if (tbodies.length == 1) {
-				tbody = tbodies[0];
-			} else {
-				tbody = domConstruct.create("tbody", null, table);
+			var tbody = table.firstChild;
+			if (!tbody) {
+				tbody = html.create("tbody", null, table);
 			}
 
-			// Build rows HTML structure (incremental)
-			if (addRows) { // creation
-				for (var i = 0; i < rowDiff; i++) {
-					domConstruct.create("tr", null, tbody);
-				}
-			} else { // deletion
-				rowDiff = -rowDiff;
-				for (var i = 0; i < rowDiff; i++) {
-					tbody.removeChild(tbody.lastChild);
-				}
+			// Create extra rows if needed.
+			var i;
+			for (i = tbody.children.length; i < this.maxDayCount; i++) {
+				domConstruct.create("tr", null, tbody);
 			}
 
-			var rowIndex = renderData.maxDayCount - rowDiff;
-
-			var addCols = addRows || colDiff > 0;
-			colDiff = addCols ? colDiff : -colDiff;
+			// Remove excess rows if necessary
+			for (i = tbody.children.length; i > this.maxDayCount; i--) {
+				tbody.removeChild(tbody.lastChild);
+			}
 
 			query("tr", table).forEach(function (tr, i) {
-
-				if (addCols) { // creation
-					var len = i >= rowIndex ? renderData.columnCount : colDiff;
-					for (var i = 0; i < len; i++) {
-						var td = domConstruct.create("td", null, tr);
-						domConstruct.create("span", null, td);
-					}
-				} else { // deletion
-					for (var i = 0; i < colDiff; i++) {
-						tr.removeChild(tr.lastChild);
-					}
+				for (i = tr.children.length; i < this.columnCount; i++) {
+					var td = domConstruct.create("td", null, tr);
+					domConstruct.create("span", null, td);
+				}
+				for (i = tr.children.length; i > this.columnCount; i--) {
+					tr.removeChild(tr.lastChild);
 				}
 			});
 
 			// Set the CSS classes
-
 			query("tr", table).forEach(function (tr, row) {
-
 				tr.className = "";
-				// compatibility layer for IE7 & 8 that does not support :first-child and :last-child pseudo selectors
-				if (row == 0) {
-					domClass.add(tr, "first-child");
-				}
-				if (row == renderData.maxDayCount - 1) {
-					domClass.add(tr, "last-child");
-				}
 
 				query("td", tr).forEach(function (td, col) {
-
 					td.className = "";
 
-					if (col == 0) {
-						domClass.add(td, "first-child");
-					}
-
-					if (col == renderData.columnCount - 1) {
-						domClass.add(td, "last-child");
-					}
-
 					var d = null;
-					if (row < renderData.dates[col].length) {
-						d = renderData.dates[col][row];
+					if (row < this.dates[col].length) {
+						d = this.dates[col][row];
 					}
 
 					var span = query("span", td)[0];
 					this._setText(span, this.showCellLabel ? this._formatGridCellLabel(d, row, col) : null);
 
-					this.styleGridCell(td, d, col, row, renderData);
-
+					this.styleGridCell(td, d, col, row);
 				}, this);
 			}, this);
 		},
@@ -767,7 +666,7 @@ define([
 		//		By default the defaultStyleGridCell function is used.
 		styleGridCellFunc: null,
 
-		defaultStyleGridCell: function (node, date, col, row, renderData) {
+		defaultStyleGridCell: function (node, date /*===== , col, row =====*/) {
 			// summary:
 			//		Styles the CSS classes to the node that displays a column.
 			//		By default this method is setting the following CSS classes:
@@ -782,8 +681,6 @@ define([
 			//		The column index of this cell.
 			// row: Integer
 			//		The row index of this cell.
-			// renderData: Object
-			//		The render data.
 			// tags:
 			//		protected
 
@@ -798,7 +695,7 @@ define([
 			}
 		},
 
-		styleGridCell: function (node, date, col, row, renderData) {
+		styleGridCell: function (node, date, col, row) {
 			// summary:
 			//		Styles the CSS classes to the node that displays a column.
 			//		Delegates to styleGridCellFunc if defined or defaultStyleGridCell otherwise.
@@ -810,78 +707,60 @@ define([
 			//		The column index of this cell.
 			// row: Integer
 			//		The row index of this cell.
-			// renderData: Object
-			//		The render data.
 			// tags:
 			//		protected
 
 			if (this.styleGridCellFunc) {
-				this.styleGridCellFunc(node, date, col, row, renderData);
+				this.styleGridCellFunc(node, date, col, row);
 			} else {
-				this.defaultStyleGridCell(node, date, col, row, renderData);
+				this.defaultStyleGridCell(node, date, col, row);
 			}
 		},
 
-		_buildItemContainer: function (renderData, oldRenderData) {
+		_buildItemContainer: function () {
 			// summary:
 			//		Creates the HTML structure of the item container and configures its content.
-			// renderData:
-			//		The render data to display.
-			// oldRenderData:
-			//		The previously render data displayed, if any.
 			// tags:
 			//		private
 
 			var table = this.itemContainerTable;
-
 			if (!table) {
 				return;
 			}
 
-			var bgCols = [];
+			domStyle.set(table, "height", this.sheetHeight + "px");
 
-			domStyle.set(table, "height", renderData.sheetHeight + "px");
-
-			var count = renderData.columnCount - (oldRenderData ? oldRenderData.columnCount : 0);
-
-			var tbodies = query("tbody", table);
-			var trs = query("tr", table);
-			var tbody, tr, td;
-
-			if (tbodies.length == 1) {
-				tbody = tbodies[0];
-			} else {
-				tbody = domConstruct.create("tbody", null, table);
+			var tbody = table.firstChild;
+			if (!tbody) {
+				tbody = html.create("tbody", null, table);
 			}
 
-			if (trs.length == 1) {
-				tr = trs[0];
-			} else {
+			var tr = tbody.firstChild;
+			if (!tr) {
 				tr = domConstruct.create("tr", null, tbody);
 			}
 
-			// Build HTML structure (incremental)
-			if (count > 0) { // creation
-				for (var i = 0; i < count; i++) {
-					td = domConstruct.create("td", null, tr);
-					domConstruct.create("div", {"className": "dojoxCalendarContainerColumn"}, td);
-				}
-			} else { // deletion
-				count = -count;
-				for (var i = 0; i < count; i++) {
-					tr.removeChild(tr.lastChild);
-				}
+
+			// Create more cells if needed.
+			var i;
+			for (i = tr.children.length; i < this.columnCount; i++) {
+				var td = domConstruct.create("td", null, tr);
+				domConstruct.create("div", {"className": "dojoxCalendarContainerColumn"}, td);
 			}
 
-			query("td>div", table).forEach(function (div, i) {
+			// Remove excess cells if necessary
+			for (i = tr.children.length; i > this.columnCount; i--) {
+				tr.removeChild(tr.lastChild);
+			}
 
+			var bgCols = [];
+			query("td > div", table).forEach(function (div) {
 				domStyle.set(div, {
-					"height": renderData.sheetHeight + "px"
+					"height": this.sheetHeight + "px"
 				});
 				bgCols.push(div);
 			}, this);
-
-			renderData.cells = bgCols;
+			this.cells = bgCols;
 		},
 
 		///////////////////////////////////////////////////////////////
@@ -908,7 +787,7 @@ define([
 			for (i = 0; i < lanes.length - 1; i++) {
 				lane = lanes[i];
 
-				for (var j = 0; j < lane.length; j++) {
+				for (j = 0; j < lane.length; j++) {
 					layoutItem = lane[j];
 
 					// if item was already overlapping another one there is no extent possible.
@@ -945,25 +824,25 @@ define([
 			if (item.allDay) {
 				return "vertical";
 			}
-			var dur = Math.abs(this.renderData.dateModule.difference(item.startTime, item.endTime, "minute"));
+			var dur = Math.abs(this.dateModule.difference(item.startTime, item.endTime, "minute"));
 			return dur >= 1440 ? "vertical" : null;
 		},
 
-		_layoutRenderers: dcl.superCall(function (sup) {
-			return function (renderData) {
+		_layoutRenderers: register.superCall(function (sup) {
+			return function () {
 				this.hiddenEvents = {};
 				sup.apply(this, arguments);
 			};
 		}),
 
-		_layoutInterval: function (/*Object*/renderData, /*Integer*/index, /*Date*/start, /*Date*/end,
+		_layoutInterval: function (/*Integer*/index, /*Date*/start, /*Date*/end,
 								   /*Object[]*/items, /*String*/itemsType) {
 			// tags:
 			//		private
 
 			var verticalItems = [];
 			var hiddenItems = [];
-			renderData.colW = this.itemContainer.offsetWidth / renderData.columnCount;
+			this.colW = this.itemContainer.offsetWidth / this.columnCount;
 
 			if (itemsType === "dataItems") {
 
@@ -977,33 +856,33 @@ define([
 				}
 
 				if (verticalItems.length > 0) {
-					this._layoutVerticalItems(renderData, index, start, end, verticalItems, itemsType);
+					this._layoutVerticalItems(index, start, end, verticalItems, itemsType);
 				}
 				if (hiddenItems.length > 0) {
-					this._layoutBgItems(renderData, index, start, end, hiddenItems);
+					this._layoutBgItems(index, start, end, hiddenItems);
 				}
 			} else { // itemsType === "decorationItems"
-				this._layoutVerticalItems(renderData, index, start, end, items, itemsType);
+				this._layoutVerticalItems(index, start, end, items, itemsType);
 			}
 		},
 
-		_dateToYCoordinate: function (renderData, d, start) {
+		_dateToYCoordinate: function (d, start) {
 			// tags:
 			//		private
 
 			var pos = 0;
-			if (start || d.getHours() != 0 || d.getMinutes() != 0) {
-				pos = (d.getDate() - 1) * this.renderData.daySize;
+			if (start || d.getHours() !== 0 || d.getMinutes() !== 0) {
+				pos = (d.getDate() - 1) * this.daySize;
 			} else {
 				var d2 = this._waDojoxAddIssue(d, "day", -1);
-				pos = this.renderData.daySize + ((d2.getDate() - 1) * this.renderData.daySize);
+				pos = this.daySize + ((d2.getDate() - 1) * this.daySize);
 			}
-			pos += (d.getHours() * 60 + d.getMinutes()) * this.renderData.daySize / 1440;
+			pos += (d.getHours() * 60 + d.getMinutes()) * this.daySize / 1440;
 
 			return pos;
 		},
 
-		_layoutVerticalItems: function (/*Object*/renderData, /*Integer*/index, /*Date*/startTime, /*Date*/endTime,
+		_layoutVerticalItems: function (/*Integer*/index, /*Date*/startTime, /*Date*/endTime,
 										/*Object[]*/items, /*String*/itemsType) {
 			// tags:
 			//		private
@@ -1012,17 +891,17 @@ define([
 				return;
 			}
 
-			var cell = renderData.cells[index];
+			var cell = this.cells[index];
 			var layoutItems = [];
 
 			// step 1 compute projected position and size
 			for (var i = 0; i < items.length; i++) {
 
 				var item = items[i];
-				var overlap = this.computeRangeOverlap(renderData, item.startTime, item.endTime, startTime, endTime);
+				var overlap = this.computeRangeOverlap(item.startTime, item.endTime, startTime, endTime);
 
-				var top = this._dateToYCoordinate(renderData, overlap[0], true);
-				var bottom = this._dateToYCoordinate(renderData, overlap[1], false);
+				var top = this._dateToYCoordinate(overlap[0], true);
+				var bottom = this._dateToYCoordinate(overlap[1], false);
 
 				if (bottom > top) {
 					var litem = lang.mixin({
@@ -1055,14 +934,14 @@ define([
 					var w;
 					var posX;
 
-					if (hOverlap == 0) {
+					if (hOverlap === 0) {
 						//no overlap and a padding between each event
-						w = numLanes == 1 ? renderData.colW : ((renderData.colW - (numLanes - 1) * this.horizontalGap)
+						w = numLanes == 1 ? this.colW : ((this.colW - (numLanes - 1) * this.horizontalGap)
 							/ numLanes);
 						posX = lane * (w + this.horizontalGap);
 						w = extent == 1 ? w : w * extent + (extent - 1) * this.horizontalGap;
-						w = 100 * w / renderData.colW;
-						posX = 100 * posX / renderData.colW;
+						w = 100 * w / this.colW;
+						posX = 100 * posX / this.colW;
 					} else {
 						// an overlap
 						w = numLanes == 1 ? 100 : (100 / (numLanes - (numLanes - 1) * hOverlap));
@@ -1123,20 +1002,21 @@ define([
 			//		private
 
 			// TODO: why is the default value of the rtl flag true?
-			if ((rtl === undefined || rtl == true) && this.effectiveDir === "rtl") {
-				columnIndex = this.renderData.columnCount - 1 - columnIndex;
+			if ((rtl === undefined || rtl) && this.effectiveDir === "rtl") {
+				columnIndex = this.columnCount - 1 - columnIndex;
 			}
 			return this.gridTable.childNodes[0].childNodes[rowIndex].childNodes[columnIndex];
 		},
 
 		refreshRendering: register.before(function () {
 			//make sure to clear hiddens object state
+			// TODO: query on td.dojoxCalendarHiddenEvents
 			query("td", this.gridTable).forEach(function (td) {
 				domClass.remove(td, "dojoxCalendarHiddenEvents");
 			});
 		}),
 
-		_layoutBgItems: function (/*Object*/renderData, /*Integer*/col, /*Date*/startTime, /*Date*/endTime,
+		_layoutBgItems: function (/*Integer*/col, /*Date*/startTime, /*Date*/endTime,
 								  /*Object[]*/items) {
 			// tags:
 			//		private
@@ -1145,7 +1025,7 @@ define([
 			for (var i = 0; i < items.length; i++) {
 
 				var item = items[i];
-				var overlap = this.computeRangeOverlap(renderData, item.startTime, item.endTime, startTime, endTime);
+				var overlap = this.computeRangeOverlap(item.startTime, item.endTime, startTime, endTime);
 				var start = overlap[0].getDate() - 1;
 				// handle use case where end time is first day of next month.
 				var end;
@@ -1232,13 +1112,13 @@ define([
 				y = r.h - 1;
 			}
 
-			var col = Math.floor(x / (r.w / this.renderData.columnCount));
-			var row = Math.floor(y / (r.h / this.renderData.maxDayCount));
+			var col = Math.floor(x / (r.w / this.columnCount));
+			var row = Math.floor(y / (r.h / this.maxDayCount));
 
 			var date = null;
-			if (col < this.renderData.dates.length &&
-				row < this.renderData.dates[col].length) {
-				date = this.newDate(this.renderData.dates[col][row]);
+			if (col < this.dates.length &&
+				row < this.dates[col].length) {
+				date = this.newDate(this.dates[col][row]);
 			}
 
 			return date;

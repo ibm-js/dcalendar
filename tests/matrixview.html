@@ -333,7 +333,7 @@
 						if(!matrixView.isStartOfDay(editedItem.endTime)){
 							d = itemEndDateEditor.value;
 							matrixView.floorToDay(d, true);
-							d = matrixView.renderData.dateModule.add(d, "day", 1);
+							d = matrixView.dateModule.add(d, "day", 1);
 							itemEndDateEditor.value = d;
 						}
 
@@ -344,7 +344,7 @@
 						itemEndTimeEditor.value = editedItem.endTime;
 						d = itemEndDateEditor.value;
 						matrixView.floorToDay(d, true);
-						d = matrixView.renderData.dateModule.add(d, "day", -1);
+						d = matrixView.dateModule.add(d, "day", -1);
 						itemEndDateEditor.value = d;
 					}
 
@@ -391,8 +391,8 @@
 					matrixView.cellHeaderShortPattern = cellShortFormatEditor.value;
 				});
 
-				var formatItemTimeFunc = function(d, rd){
-					return rd.dateLocaleModule.format(d, {
+				var formatItemTimeFunc = function(d){
+					return this.dateLocaleModule.format(d, {
 						selector: 'time',
 						timePattern: d.getMinutes() == 0 ? "ha":"h:mma"}
 					).toLowerCase();
@@ -421,8 +421,8 @@
 
 				var getDataTipLabel = function(item){
 					return "<b>" + item.summary + "</b><br><table><tr><td style='text-align:right'>" +
-						"Start:</td><td>" + matrixView.renderData.dateLocaleModule.format(item.startTime, {formatLength: "short"}) + "</td></tr><tr><td style='text-align:right'>" +
-						"End:</td><td>" + matrixView.renderData.dateLocaleModule.format(item.endTime, {formatLength: "short"}) + "</td></tr></table>";
+						"Start:</td><td>" + matrixView.dateLocaleModule.format(item.startTime, {formatLength: "short"}) + "</td></tr><tr><td style='text-align:right'>" +
+						"End:</td><td>" + matrixView.dateLocaleModule.format(item.endTime, {formatLength: "short"}) + "</td></tr></table>";
 				};
 
 				matrixView.on("focusChange", function(e){

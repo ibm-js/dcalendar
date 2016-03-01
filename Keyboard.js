@@ -121,12 +121,12 @@ define([
 			//		- 1: Move focus to the next item in the list.
 			//		- -1: Move focus to the previous item in the list.
 
-			if (!this.renderData || !this.renderData.items || this.renderData.items.length == 0) {
+			if (!this.visibleItems || this.visibleItems.length === 0) {
 				return null;
 			}
 
 			var index = -1;
-			var list = this.renderData.items;
+			var list = this.visibleItems;
 			var max = list.length - 1;
 			var focusedItem = this.focusedItem;
 
@@ -263,11 +263,11 @@ define([
 						}
 					}
 					if (updateTime) {
-						newTime = this.renderData.dateModule.add(d, unit, steps);
+						newTime = this.dateModule.add(d, unit, steps);
 					}
 				}
 			} else {
-				newTime = this.renderData.dateModule.add(d, unit, steps);
+				newTime = this.dateModule.add(d, unit, steps);
 			}
 
 			this._startItemEditingGesture([d], editKind, "keyboard", e);
@@ -275,7 +275,7 @@ define([
 			this._endItemEditingGesture(editKind, "keyboard", e, false);
 
 			if (editKind == "move") {
-				if (this.renderData.dateModule.compare(newTime, d) == -1) {
+				if (this.dateModule.compare(newTime, d) == -1) {
 					this.ensureVisibility(p.editedItem.startTime, p.editedItem.endTime, "start");
 				} else {
 					this.ensureVisibility(p.editedItem.startTime, p.editedItem.endTime, "end");

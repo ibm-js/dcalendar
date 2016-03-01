@@ -174,7 +174,7 @@ define([
 			// Setup cache for ExpandRenderers.
 			// TODO: leverage code in RendererManager.js.
 			// Apparently need to cache item renderers separately from expand renderers though,
-			// so that we can release all the item renderers w/out releasing expand renderers (or vice-versa)
+			// so that we can release all the item renderers w/out releasing expand renderers (or vice-versa).
 			this._ddRendererList = [];
 			this._ddRendererPool = [];
 			this._rowHeaderHandles = [];
@@ -184,48 +184,7 @@ define([
 			this._cleanupRowHeader();
 		},
 
-		_createRenderData: function () {
-			var rd = {};
-
-			rd.dateLocaleModule = this.dateLocaleModule;
-			rd.dateClassObj = this.dateClassObj;
-			rd.dateModule = this.dateModule; // arithmetics on Dates
-
-			rd.dates = [];
-
-			rd.columnCount = this.columnCount;
-			rd.rowCount = this.rowCount;
-
-			rd.sheetHeight = this.itemContainer.offsetHeight;
-
-			this._computeRowsHeight(rd);
-
-			var d = this.floorToDay(this.startDate);
-			for (var row = 0; row < rd.rowCount; row++) {
-				rd.dates.push([]);
-				for (var col = 0; col < rd.columnCount; col++) {
-					rd.dates[row].push(d);
-					d = this.addAndFloor(d, "day", 1);
-				}
-			}
-
-			rd.startTime = this.newDate(rd.dates[0][0], rd);
-			rd.endTime = this.newDate(rd.dates[rd.rowCount - 1][rd.columnCount - 1], rd);
-			rd.endTime = rd.dateModule.add(rd.endTime, "day", 1);
-			rd.endTime = this.floorToDay(rd.endTime, true);
-
-			if (this.renderData) {
-				rd.items = this.renderData.items;
-			}
-
-			rd.decorationItems = this.decorationStoreManager._computeVisibleItems(rd);
-
-			rd.rtl = (this.effectiveDir === "rtl");
-
-			return rd;
-		},
-
-		computeProperties: function () {
+		computeProperties: function (oldVals) {
 			if (this.startDate == null) {
 				this.startDate = this.floorToDay(new this.dateClassObj());
 			}
@@ -257,6 +216,23 @@ define([
 			if (isNaN(this.expandRendererHeight) || this.expandRendererHeight < 1) {
 				this.expandRendererHeight = 15;
 			}
+
+			if ("startDate" in oldVals || "columnCount" in oldVals || "rowCount" in oldVals) {
+				this.dates = [];
+				var d = this.floorToDay(this.startDate);
+				for (var row = 0; row < this.rowCount; row++) {
+					this.dates.push([]);
+					for (var col = 0; col < this.columnCount; col++) {
+						this.dates[row].push(d);
+						d = this.addAndFloor(d, "day", 1);
+					}
+				}
+
+				this.startTime = this.newDate(this.dates[0][0], this);
+				this.endTime = this.newDate(this.dates[this.rowCount - 1][this.columnCount - 1], this);
+				this.endTime = this.dateModule.add(this.endTime, "day", 1);
+				this.endTime = this.floorToDay(this.endTime, true);
+			}
 		},
 
 		__fixEvt: function (e) {
@@ -271,7 +247,7 @@ define([
 		//
 		//////////////////////////////////////////
 
-		_formatRowHeaderLabel: function (/*Date*/d) {
+		_formatRowHeaderLabel: function (/*Date*/ d) {
 			// summary:
 			//		Computes the row header label for the specified time of day.
 			//		By default the getWeekNumberLabel() function is called.
@@ -283,7 +259,7 @@ define([
 			//		protected
 
 			if (this.rowHeaderDatePattern) {
-				return this.renderData.dateLocaleModule.format(d, {
+				return this.dateLocaleModule.format(d, {
 					selector: "date",
 					datePattern: this.rowHeaderDatePattern
 				});
@@ -302,7 +278,7 @@ define([
 			// tags:
 			//		protected
 
-			return this.renderData.dateLocaleModule.getNames("days", this.columnHeaderLabelLength ?
+			return this.dateLocaleModule.getNames("days", this.columnHeaderLabelLength ?
 				this.columnHeaderLabelLength : "wide", "standAlone")[d.getDay()];
 		},
 
@@ -349,7 +325,7 @@ define([
 					format = rb["dateFormatItem-d"];
 				}
 			}
-			return this.renderData.dateLocaleModule.format(d, {
+			return this.dateLocaleModule.format(d, {
 				selector: "date",
 				datePattern: format
 			});
@@ -361,110 +337,75 @@ define([
 		//
 		///////////////////////////////////////////
 
-		_createRendering: function (renderData, oldRenderData) {
+		_createRendering: function () {
 			// summary:
-			//		Creates the HTML structure (grid, place holders, headers, etc)
-			// renderData: Object
-			//		The new render data
-			// oldRenderData: Object
-			//		The previous render data
+			//		Create or update the HTML structure (grid, place holders, headers, etc)
 			// tags:
 			//		private
 
-			if (renderData.rowHeight <= 0) {
-				renderData.columnCount = 1;
-				renderData.rowCount = 1;
-				renderData.invalidRowHeight = true;
+			if (this.rowHeight <= 0) {
+				this.columnCount = 1;
+				this.rowCount = 1;
+				this.invalidRowHeight = true;
 				return;
 			}
 
-			if (oldRenderData) {
-				// make sure to have correct rowCount
-				if (this.itemContainerTable) {
-					var rows = query(".dojoxCalendarItemContainerRow", this.itemContainerTable);
-					oldRenderData.rowCount = rows.length;
-				}
-			}
+			this.sheetHeight = this.itemContainer.offsetHeight;
+			this._computeRowsHeight();
 
-			this._buildColumnHeader(renderData, oldRenderData);
-			this._buildRowHeader(renderData, oldRenderData);
-			this._buildGrid(renderData, oldRenderData);
-			this._buildItemContainer(renderData, oldRenderData);
-
-			if (this.buttonContainer && this.owner != null && this.owner.currentView == this) {
-				domStyle.set(this.buttonContainer, {"right": 0, "left": 0});
-			}
+			// TODO: only call these methods when necessary
+			this._buildColumnHeader();
+			this._buildRowHeader();
+			this._buildGrid();
+			this._buildItemContainer();
 		},
 
-		_buildColumnHeader: function (/*Object*/ renderData, /*Object*/oldRenderData) {
+		_buildColumnHeader: function () {
 			// summary:
 			//		Creates incrementally the HTML structure of the column header and configures its content.
-			//
-			// renderData:
-			//		The render data to display.
-			//
-			// oldRenderData:
-			//		The previously render data displayed, if any.
 			// tags:
 			//		private
 
 			var table = this.columnHeaderTable;
-
 			if (!table) {
 				return;
 			}
 
-			var count = renderData.columnCount - (oldRenderData ? oldRenderData.columnCount : 0);
-
-			var tbodies = query("tbody", table);
-			var trs = query("tr", table);
-			var tbody, tr, td;
-
-			if (tbodies.length == 1) {
-				tbody = tbodies[0];
-			} else {
+			var tbody = table.firstChild;
+			if (!tbody) {
 				tbody = html.create("tbody", null, table);
 			}
 
-			if (trs.length == 1) {
-				tr = trs[0];
-			} else {
+			var tr = tbody.firstChild;
+			if (!tr) {
 				tr = domConstruct.create("tr", null, tbody);
 			}
 
 			// Build HTML structure (incremental)
-			if (count > 0) { // creation
-				for (var i = 0; i < count; i++) {
-					td = domConstruct.create("td", null, tr);
-				}
-			} else { // deletion
-				count = -count;
-				for (var i = 0; i < count; i++) {
-					tr.removeChild(tr.lastChild);
-				}
+			var i, actualColumns = tr.children.length;
+			for (i = actualColumns; i < this.columnCount; i++) {
+				domConstruct.create("td", null, tr);	// create additional cells (if needed)
+			}
+			for (i = actualColumns; i > this.columnCount; i--) {
+				tr.removeChild(tr.lastChild);		// remove excess cells (if necessary)
 			}
 
 			// fill & configure
-			query("td", table).forEach(function (td, i) {
+			Array.prototype.forEach.call(tr.children, function (td, i) {
 				td.className = "";
-				var d = renderData.dates[0][i];
+				var d = this.dates[0][i];
 				this._setText(td, this._formatColumnHeaderLabel(d));
-				if (i == 0) {
-					domClass.add(td, "first-child");
-				} else if (i == this.renderData.columnCount - 1) {
-					domClass.add(td, "last-child");
-				}
-				this.styleColumnHeaderCell(td, d, renderData);
+				this.styleColumnHeaderCell(td, d, this);
 			}, this);
 
 			if (this.yearColumnHeaderContent) {
-				var d = renderData.dates[0][0];
-				this._setText(this.yearColumnHeaderContent, renderData.dateLocaleModule.format(d,
+				var d = this.dates[0][0];
+				this._setText(this.yearColumnHeaderContent, this.dateLocaleModule.format(d,
 					{selector: "date", datePattern: "yyyy"}));
 			}
 		},
 
-		styleColumnHeaderCell: function (node, date, renderData) {
+		styleColumnHeaderCell: function (node, date) {
 			// summary:
 			//		Styles the CSS classes to the node that displays a column header cell.
 			//		By default this method is setting the "dojoxCalendarWeekend"
@@ -473,8 +414,6 @@ define([
 			//		The DOM node that displays the column in the grid.
 			// date: Date
 			//		The date displayed by this column
-			// renderData: Object
-			//		The render data.
 			// tags:
 			//		protected
 
@@ -507,105 +446,83 @@ define([
 			var index = query("td", this.rowHeaderTable).indexOf(e.currentTarget);
 			this._onRowHeaderClick({
 				index: index,
-				date: this.renderData.dates[index][0],
+				date: this.dates[index][0],
 				triggerEvent: e
 			});
 		},
 
-		_buildRowHeader: function (renderData, oldRenderData) {
-
+		_buildRowHeader: function () {
 			// summary:
 			//		Creates incrementally the HTML structure of the row header and configures its content.
-			//
-			// renderData:
-			//		The render data to display.
-			//
-			// oldRenderData:
-			//		The previously render data displayed, if any.
 			// tags:
 			//		private
 
 			var rowHeaderTable = this.rowHeaderTable;
-
 			if (!rowHeaderTable) {
 				return;
 			}
 
-			var tbodies = query("tbody", rowHeaderTable);
-			var tbody, tr, td;
-
-			if (tbodies.length == 1) {
-				tbody = tbodies[0];
-			} else {
+			var tbody = rowHeaderTable.firstChild;;
+			if (!tbody) {
 				tbody = domConstruct.create("tbody", null, rowHeaderTable);
 			}
 
-			var count = renderData.rowCount - (oldRenderData ? oldRenderData.rowCount : 0);
-
 			// Build HTML structure
-			if (count > 0) { // creation
-				for (var i = 0; i < count; i++) {
-					tr = domConstruct.create("tr", null, tbody);
-					td = domConstruct.create("td", null, tr);
+			var i;
 
-					var h = [];
+			// create rows rows (if necessary)
+			for (i = tbody.children.length; i < this.rowCount; i++) {
+				var tr = domConstruct.create("tr", null, tbody);
+				var td = domConstruct.create("td", null, tr);
 
-					h.push(on(td, "click", lang.hitch(this, this._rowHeaderClick)));
+				// TODO: use event delegation
+				var h = [];
 
-					if (!has("touch")) {
-						h.push(on(td, "mousedown", function (e) {
-							domClass.add(e.currentTarget, "Active");
-						}));
+				h.push(on(td, "click", lang.hitch(this, this._rowHeaderClick)));
 
-						h.push(on(td, "mouseup", function (e) {
-							domClass.remove(e.currentTarget, "Active");
-						}));
+				if (!has("touch")) {
+					h.push(on(td, "mousedown", function (e) {
+						domClass.add(e.currentTarget, "Active");
+					}));
 
-						h.push(on(td, "mouseover", function (e) {
-							domClass.add(e.currentTarget, "Hover");
-						}));
+					h.push(on(td, "mouseup", function (e) {
+						domClass.remove(e.currentTarget, "Active");
+					}));
 
-						h.push(on(td, "mouseout", function (e) {
-							domClass.remove(e.currentTarget, "Hover");
-						}));
-					}
-					this._rowHeaderHandles.push(h);
+					h.push(on(td, "mouseover", function (e) {
+						domClass.add(e.currentTarget, "Hover");
+					}));
+
+					h.push(on(td, "mouseout", function (e) {
+						domClass.remove(e.currentTarget, "Hover");
+					}));
 				}
-			} else {
-				count = -count;
-				// deletion of existing nodes
-				for (var i = 0; i < count; i++) {
-					tbody.removeChild(tbody.lastChild);
-					var list = this._rowHeaderHandles.pop();
-					while (list.length > 0) {
-						list.pop().remove();
-					}
+				this._rowHeaderHandles.push(h);
+			}
+
+			// delete unwanted rows
+			for (i = tbody.children.length; i > this.rowCount; i--) {
+				tbody.removeChild(tbody.lastChild);
+				var list = this._rowHeaderHandles.pop();
+				while (list.length > 0) {
+					list.pop().remove();
 				}
 			}
 
 			// fill labels
-
-			query("tr", rowHeaderTable).forEach(function (tr, i) {
+			Array.prototype.forEach.call(tbody.children, function (tr, i) {
 				domStyle.set(tr, "height", this._getRowHeight(i) + "px");
 
-				var d = renderData.dates[i][0];
-
-				var td = query("td", tr)[0];
+				var td = tr.firstChild;
 				td.className = "";
-				if (i == 0) {
-					domClass.add(td, "first-child");
-				}
-				if (i == this.renderData.rowCount - 1) {
-					domClass.add(td, "last-child");
-				}
 
-				this.styleRowHeaderCell(td, d, renderData);
-
+				var d = this.dates[i][0];
+				this.styleRowHeaderCell(td, d);
 				this._setText(td, this._formatRowHeaderLabel(d));
 			}, this);
 		},
 
-		styleRowHeaderCell: function (node, date, renderData) {
+		styleRowHeaderCell: function (/*===== node, date =====*/) {
 			// summary:
 			//		Styles the CSS classes to the node that displays a row header cell.
 			//		By default this method is doing nothing.
@@ -613,110 +530,64 @@ define([
 			//		The DOM node that displays the column in the grid.
 			// date: Date
 			//		The date in the week.
-			// renderData: Object
-			//		The render data.
 			// tags:
 			//		protected
 		},
 
-		_buildGrid: function (renderData /*===== , oldRenderData =====*/ ) {
+		_buildGrid: function () {
 			// summary:
 			//		Creates incrementally the HTML structure of the grid and configures its content.
-			//
-			// renderData:
-			//		The render data to display.
-			//
-			// oldRenderData:
-			//		The previously render data displayed, if any.
 			// tags:
 			//		private
 
 			var table = this.gridTable;
-
 			if (!table) {
 				return;
 			}
 
-			var currentTR = query("tr", table);
-
-			var rowDiff = renderData.rowCount - currentTR.length;
-			var addRows = rowDiff > 0;
-
-			var colDiff = renderData.columnCount - (currentTR ? query("td", currentTR[0]).length : 0);
-
-			var tbodies = query("tbody", table);
-			var tbody;
-			var i;
-
-			if (tbodies.length == 1) {
-				tbody = tbodies[0];
-			} else {
+			var tbody = table.firstChild;
+			if (!tbody) {
 				tbody = domConstruct.create("tbody", null, table);
 			}
 
-			// Build rows HTML structure (incremental)
-			if (addRows) { // creation
-				for (i = 0; i < rowDiff; i++) {
-					domConstruct.create("tr", null, tbody);
-				}
-			} else { // deletion
-				rowDiff = -rowDiff;
-				for (i = 0; i < rowDiff; i++) {
-					tbody.removeChild(tbody.lastChild);
-				}
+			// add more rows (if necessary)
+			var i;
+			for (i = tbody.children.length; i < this.rowCount; i++) {
+				domConstruct.create("tr", null, tbody);
 			}
 
-			var rowIndex = renderData.rowCount - rowDiff;
+			// delete excess rows (if necessary)
+			for (i = tbody.children.length; i > this.rowCount; i--) {
+				tbody.removeChild(tbody.lastChild);
+			}
 
-			var addCols = addRows || colDiff > 0;
-			colDiff = addCols ? colDiff : -colDiff;
-
-			query("tr", table).forEach(function (tr, i) {
-				if (addCols) { // creation
-					var len = i >= rowIndex ? renderData.columnCount : colDiff;
-					for (i = 0; i < len; i++) {
-						var td = domConstruct.create("td", null, tr);
-						domConstruct.create("span", null, td);
-					}
-				} else { // deletion
-					for (i = 0; i < colDiff; i++) {
-						tr.removeChild(tr.lastChild);
-					}
+			Array.prototype.forEach.call(tbody.children, function (tr, i) {
+				// add extra cells (if necessary)
+				for (i = tr.children.length; i < this.columnCount; i++) {
+					var td = domConstruct.create("td", null, tr);
+					domConstruct.create("span", null, td);
 				}
-			});
+
+				// delete excess cells (if necessary)
+				for (i = tr.children.length; i > this.columnCount; i--) {
+					tr.removeChild(tr.lastChild);
+				}
+			}, this);
 
 			// Set the CSS classes
-
-			query("tr", table).forEach(function (tr, row) {
+			Array.prototype.forEach.call(tbody.children, function (tr, row) {
 				domStyle.set(tr, "height", this._getRowHeight(row) + "px");
 
 				tr.className = "";
-				// compatibility layer for IE7 & 8 that does not support :first-child and :last-child pseudo selectors
-				if (row === 0) {
-					domClass.add(tr, "first-child");
-				}
-				if (row == renderData.rowCount - 1) {
-					domClass.add(tr, "last-child");
-				}
 
-				query("td", tr).forEach(function (td, col) {
-
+				Array.prototype.forEach.call(tr.children, function (td, col) {
 					td.className = "";
 
-					if (col === 0) {
-						domClass.add(td, "first-child");
-					}
-
-					if (col == renderData.columnCount - 1) {
-						domClass.add(td, "last-child");
-					}
-
-					var d = renderData.dates[row][col];
-
-					var span = query("span", td)[0];
+					var d = this.dates[row][col];
+					var span = td.firstChild;
 					this._setText(span, this.showCellLabel ? this._formatGridCellLabel(d, row, col) : null);
 
-					this.styleGridCell(td, d, renderData);
+					this.styleGridCell(td, d);
 				}, this);
 			}, this);
 		},
@@ -727,7 +598,7 @@ define([
 		//		By default the defaultStyleGridCell function is used.
 		styleGridCellFunc: null,
 
-		defaultStyleGridCell: function (node, date, renderData) {
+		defaultStyleGridCell: function (node, date) {
 			// summary:
 			//		Styles the CSS classes to the node that displays a cell.
 			//		By default this method is setting the following CSS classes:
@@ -739,8 +610,6 @@ define([
 			//		The DOM node that displays the cell in the grid.
 			// date: Date
 			//		The date displayed by this cell.
-			// renderData: Object
-			//		The render data.
 			// tags:
 			//		protected
 
@@ -758,7 +627,7 @@ define([
 			}
 		},
 
-		styleGridCell: function (node, date, renderData) {
+		styleGridCell: function (node, date) {
 			// summary:
 			//		Styles the CSS classes to the node that displays a cell.
 			//		Delegates to styleGridCellFunc if defined or defaultStyleGridCell otherwise.
@@ -766,71 +635,53 @@ define([
 			//		The DOM node that displays the cell in the grid.
 			// date: Date
 			//		The date displayed by this cell.
-			// renderData: Object
-			//		The render data.
 			// tags:
 			//		protected
 			if (this.styleGridCellFunc) {
-				this.styleGridCellFunc(node, date, renderData);
+				this.styleGridCellFunc(node, date);
 			} else {
-				this.defaultStyleGridCell(node, date, renderData);
+				this.defaultStyleGridCell(node, date);
 			}
 		},
 
-		_buildItemContainer: function (renderData, oldRenderData) {
+		_buildItemContainer: function () {
 			// summary:
 			//		Creates the HTML structure of the item container and configures its content.
-			//
-			// renderData:
-			//		The render data to display.
-			//
-			// oldRenderData:
-			//		The previously render data displayed, if any.
 			// tags:
 			//		private
 
 			var table = this.itemContainerTable;
-
 			if (!table) {
 				return;
 			}
 
-			var rows = [];
-
-			var count = renderData.rowCount - (oldRenderData ? oldRenderData.rowCount : 0);
-
-			var tbodies = query("tbody", table);
-			var tbody, tr, td, div;
-			var i;
-
-			if (tbodies.length == 1) {
-				tbody = tbodies[0];
-			} else {
+			var tbody= table.firstChild;;
+			if (!tbody) {
 				tbody = domConstruct.create("tbody", null, table);
 			}
 
-			// Build HTML structure (incremental)
-			if (count > 0) { // creation
-				for (i = 0; i < count; i++) {
-					tr = domConstruct.create("tr", null, tbody);
-					domClass.add(tr, "dojoxCalendarItemContainerRow");
-					td = domConstruct.create("td", null, tr);
-					div = domConstruct.create("div", null, td);
-					domClass.add(div, "dojoxCalendarContainerRow");
-				}
-			} else { // deletion
-				count = -count;
-				for (i = 0; i < count; i++) {
-					tbody.removeChild(tbody.lastChild);
-				}
+			// Add more rows (if necessary)
+			var i;
+			for (i = tbody.children.length; i < this.rowCount; i++) {
+				var tr = domConstruct.create("tr", null, tbody);
+				tr.className = "dojoxCalendarItemContainerRow";
+				var td = domConstruct.create("td", null, tr);
+				var div = domConstruct.create("div", null, td);
+				div.className = "dojoxCalendarContainerRow";
 			}
 
-			query(".dojoxCalendarItemContainerRow", table).forEach(function (tr, i) {
+			// Delete extra rows
+			for (i = tbody.children.length; i > this.rowCount; i--) {
+				tbody.removeChild(tbody.lastChild);
+			}
+
+			var rows = [];
+			Array.prototype.forEach.call(tbody.children, function (tr, i) {
 				domStyle.set(tr, "height", this._getRowHeight(i) + "px");
 				rows.push(tr.childNodes[0].childNodes[0]);
 			}, this);
 
-			renderData.cells = rows;
+			this.cells = rows;
 		},
 
 		resize: register.superCall(function (sup) {
@@ -850,31 +701,23 @@ define([
 			// tags:
 			//		private
 
-			var rd = this.renderData;
-
-			if (rd.sheetHeight != this.itemContainer.offsetHeight) {
+			if (this.sheetHeight != this.itemContainer.offsetHeight) {
 				// refresh values
-				rd.sheetHeight = this.itemContainer.offsetHeight;
+				this.sheetHeight = this.itemContainer.offsetHeight;
 				var expRow = this.getExpandedRowIndex();
 				if (expRow == -1) {
 					this._computeRowsHeight();
 					this._resizeRows();
 				} else {
-					this.expandRow(rd.expandedRow, rd.expandedRowCol, 0, null, true);
-				}
-				if (rd.invalidRowHeight) {
-					// complete recompute
-					delete rd.invalidRowHeight;
-					this.renderData = null;
-					return;
+					this.expandRow(this.expandedRow, this.expandedRowCol, 0, null, true);
 				}
 			}
 
 			if (this.layoutDuringResize || apply) {
 				// Use a time for FF (at least). In FF the cell size and position info are not ready yet.
 				setTimeout(lang.hitch(this, function () {
-					this._layoutRenderers(this.renderData);
-					this._layoutDecorationRenderers(this.renderData);
+					this._layoutRenderers();
+					this._layoutDecorationRenderers();
 				}), 20);
 			} else {
 				domStyle.set(this.itemContainer, "opacity", 0);
@@ -886,8 +729,8 @@ define([
 				this._resizeTimer = setTimeout(lang.hitch(this, function () {
 					delete this._resizeTimer;
 					this._resizeRowsImpl(this.itemContainer, "tr");
-					this._layoutRenderers(this.renderData);
-					this._layoutDecorationRenderers(this.renderData);
+					this._layoutRenderers();
+					this._layoutDecorationRenderers();
 					if (this.resizeAnimationDuration == 0) {
 						domStyle.set(this.itemContainer, "opacity", 1);
 					} else {
@@ -910,7 +753,7 @@ define([
 		getExpandedRowIndex: function () {
 			// summary:
 			//		Returns the index of the expanded row or -1 if there's no row expanded.
-			return this.renderData.expandedRow == null ? -1 : this.renderData.expandedRow;
+			return this.expandedRow == null ? -1 : this.expandedRow;
 		},
 
 		collapseRow: function (duration, easing, apply) {
@@ -921,23 +764,21 @@ define([
 			// easing: Function
 			//		Easing function of the optional animation.
 
-			var rd = this.renderData;
-
-			if (apply == undefined) {
+			if (apply === undefined) {
 				apply = true;
 			}
-			if (duration == undefined) {
+			if (duration === undefined) {
 				duration = this.expandDuration;
 			}
 
-			if (rd && rd.expandedRow != null && rd.expandedRow != -1) {
+			if (this.expandedRow != null && this.expandedRow != -1) {
 				if (apply && duration) {
-					var index = rd.expandedRow;
-					var oldSize = rd.expandedRowHeight;
-					delete rd.expandedRow;
-					this._computeRowsHeight(rd);
+					var index = this.expandedRow;
+					var oldSize = this.expandedRowHeight;
+					delete this.expandedRow;
+					this._computeRowsHeight();
 					var size = this._getRowHeight(index);
-					rd.expandedRow = index;
+					this.expandedRow = index;
 
 					this._recycleExpandRenderers();
 					this._recycleItemRenderers();
@@ -956,7 +797,7 @@ define([
 							this._resizeRows();
 							domStyle.set(this.itemContainer, "display", "block");
 							setTimeout(lang.hitch(this, function () {
-								this._layoutRenderers(rd);
+								this._layoutRenderers();
 							}), 100);
 							this.onExpandAnimationEnd(false);
 						})
@@ -972,14 +813,13 @@ define([
 		_collapseRowImpl: function (apply) {
 			// tags:
 			//		private
-
-			var rd = this.renderData;
-			delete rd.expandedRow;
-			delete rd.expandedRowHeight;
-			this._computeRowsHeight(rd);
-			if (apply == undefined || apply) {
+			
+			delete this.expandedRow;
+			delete this.expandedRowHeight;
+			this._computeRowsHeight();
+			if (apply === undefined || apply) {
 				this._resizeRows();
-				this._layoutRenderers(rd);
+				this._layoutRenderers();
 			}
 		},
 
@@ -995,29 +835,28 @@ define([
 			// easing: Function?
 			//		Easing function of the optional animation.
 
-			var rd = this.renderData;
-			if (!rd || rowIndex < 0 || rowIndex >= rd.rowCount) {
+			if (rowIndex < 0 || rowIndex >= this.rowCount) {
 				return -1;
 			}
-			if (colIndex == undefined || colIndex < 0 || colIndex >= rd.columnCount) {
+			if (colIndex === undefined || colIndex < 0 || colIndex >= this.columnCount) {
 				colIndex = -1; // ignore invalid values
 			}
-			if (apply == undefined) {
+			if (apply === undefined) {
 				apply = true;
 			}
-			if (duration == undefined) {
+			if (duration === undefined) {
 				duration = this.expandDuration;
 			}
-			if (easing == undefined) {
+			if (easing === undefined) {
 				easing = this.expandEasing;
 			}
 
 			var oldSize = this._getRowHeight(rowIndex);
-			var size = rd.sheetHeight - Math.ceil(this.cellPaddingTop * (rd.rowCount - 1));
+			var size = this.sheetHeight - Math.ceil(this.cellPaddingTop * (this.rowCount - 1));
 
-			rd.expandedRow = rowIndex;
-			rd.expandedRowCol = colIndex;
-			rd.expandedRowHeight = size;
+			this.expandedRow = rowIndex;
+			this.expandedRowCol = colIndex;
+			this.expandedRowHeight = size;
 
 			if (apply) {
 				if (duration) {
@@ -1054,12 +893,11 @@ define([
 			// tags:
 			//		private
 
-			var rd = this.renderData;
-			rd.expandedRowHeight = size;
-			this._computeRowsHeight(rd, rd.sheetHeight - size);
+			this.expandedRowHeight = size;
+			this._computeRowsHeight(this.sheetHeight - size);
 			this._resizeRows();
 			if (layout) {
-				this._layoutRenderers(rd);
+				this._layoutRenderers();
 			}
 		},
 
@@ -1093,7 +931,7 @@ define([
 			}
 		},
 
-		_computeRowsHeight: function (renderData, max) {
+		_computeRowsHeight: function (max) {
 			// summary:
 			//		1. Determine if it's better to add or remove pixels
 			//		2. distribute added/removed pixels on first and last rows.
@@ -1101,20 +939,18 @@ define([
 			// tags:
 			//		private
 
-			var rd = renderData == null ? this.renderData : renderData;
-
-			max = max || rd.sheetHeight;
+			max = max || this.sheetHeight;
 
 			max--;
 
-			if (rd.rowCount == 1) {
-				rd.rowHeight = max;
-				rd.rowHeightFirst = max;
-				rd.rowHeightLast = max;
+			if (this.rowCount == 1) {
+				this.rowHeight = max;
+				this.rowHeightFirst = max;
+				this.rowHeightLast = max;
 				return;
 			}
 
-			var count = rd.expandedRow == null ? rd.rowCount : rd.rowCount - 1;
+			var count = this.expandedRow == null ? this.rowCount : this.rowCount - 1;
 			var rhx = max / count;
 			var rhf, rhl, rh;
 
@@ -1134,26 +970,25 @@ define([
 			rhf = rh + sign * Math.floor(diff / 2);
 			rhl = rhf + sign * (diff % 2);
 
-			rd.rowHeight = rh;
-			rd.rowHeightFirst = rhf;
-			rd.rowHeightLast = rhl;
+			this.rowHeight = rh;
+			this.rowHeightFirst = rhf;
+			this.rowHeightLast = rhl;
 		},
 
 		_getRowHeight: function (index) {
 			// tags:
 			//		private
 
-			var rd = this.renderData;
-			if (index == rd.expandedRow) {
-				return rd.expandedRowHeight;
-			} else if (rd.expandedRow == 0 && index == 1 || index == 0) {
-				return rd.rowHeightFirst;
-			} else if (rd.expandedRow == this.renderData.rowCount - 1 &&
-				index == this.renderData.rowCount - 2 ||
-				index == this.renderData.rowCount - 1) {
-				return rd.rowHeightLast;
+			if (index == this.expandedRow) {
+				return this.expandedRowHeight;
+			} else if (this.expandedRow === 0 && index === 1 || index === 0) {
+				return this.rowHeightFirst;
+			} else if (this.expandedRow == this.rowCount - 1 &&
+				index === this.rowCount - 2 ||
+				index === this.rowCount - 1) {
+				return this.rowHeightLast;
 			} else {
-				return rd.rowHeight;
+				return this.rowHeight;
 			}
 		},
 
@@ -1259,7 +1094,7 @@ define([
 		_defaultItemToRendererKindFunc: function (item) {
 			// tags:
 			//		private
-			var dur = Math.abs(this.renderData.dateModule.difference(item.startTime, item.endTime, "minute"));
+			var dur = Math.abs(this.dateModule.difference(item.startTime, item.endTime, "minute"));
 			return dur >= 1440 ? "horizontal" : "label";
 		},
 
@@ -1281,10 +1116,10 @@ define([
 			var s = item.startTime, e = item.endTime;
 
 			if (!this.isStartOfDay(s)) {
-				s = this.floorToDay(s, false, this.renderData);
+				s = this.floorToDay(s, false, this);
 			}
 			if (!this.isStartOfDay(e)) {
-				e = this.renderData.dateModule.add(e, "day", 1);
+				e = this.dateModule.add(e, "day", 1);
 				e = this.floorToDay(e, true);
 			}
 			return {startTime: s, endTime: e};
@@ -1299,7 +1134,7 @@ define([
 				b = this._roundItemToDay(b);
 			}
 			var res = this.dateModule.compare(a.startTime, b.startTime);
-			if (res == 0) {
+			if (res === 0) {
 				res = -1 * this.dateModule.compare(a.endTime, b.endTime);
 			}
 			return res;
@@ -1318,7 +1153,7 @@ define([
 
 			var refPos = domGeometry.position(this.gridTable).x;
 
-			for (var col = 0; col < this.renderData.columnCount; col++) {
+			for (var col = 0; col < this.columnCount; col++) {
 
 				var stop = false;
 				var colPos = domGeometry.position(this._getCellAt(0, col));
@@ -1370,10 +1205,10 @@ define([
 		},
 
 		_layoutDecorationRenderers: register.superCall(function (sup) {
-			return function (renderData) {
+			return function () {
 				// tags:
 				//		private
-				if (renderData == null || renderData.decorationItems == null || renderData.rowHeight <= 0) {
+				if (this.visibleDecorationItems == null || this.rowHeight <= 0) {
 					return;
 				}
 
@@ -1383,18 +1218,18 @@ define([
 					return;
 				}
 
-				this._layoutStep = renderData.columnCount;
-				this.renderData.gridTablePosX = domGeometry.position(this.gridTable).x;
+				this._layoutStep = this.columnCount;
+				this.gridTablePosX = domGeometry.position(this.gridTable).x;
 
 				sup.apply(this, arguments);
 			};
 		}),
 
 		_layoutRenderers: register.superCall(function (sup) {
-			return function (renderData) {
+			return function () {
 				// tags:
 				//		private
-				if (renderData == null || renderData.items == null || renderData.rowHeight <= 0) {
+				if (this.visibleItems == null || this.rowHeight <= 0) {
 					return;
 				}
 	
@@ -1404,8 +1239,8 @@ define([
 					return;
 				}
 	
-				this.renderData.gridTablePosX = domGeometry.position(this.gridTable).x;
-				this._layoutStep = renderData.columnCount;
+				this.gridTablePosX = domGeometry.position(this.gridTable).x;
+				this._layoutStep = this.columnCount;
 				this._recycleExpandRenderers();
 				this._hiddenItems = [];
 				this._offsets = [];
@@ -1417,12 +1252,12 @@ define([
 
 		_offsets: null,
 
-		_layoutInterval: function (/*Object*/renderData, /*Integer*/index, /*Date*/start, /*Date*/end,
+		_layoutInterval: function (/*Integer*/index, /*Date*/start, /*Date*/end,
 								   /*Object[]*/items, /*String*/itemsType) {
 			// tags:
 			//		private
 
-			if (this.renderData.cells == null) {
+			if (this.cells == null) {
 				return;
 			}
 
@@ -1493,48 +1328,47 @@ define([
 			// tags:
 			//		private
 
-			var rd = this.renderData;
-			var cal = rd.dateModule;
-			var sign = rd.rtl ? -1 : 1;
+			var cal = this.dateModule;
+			var sign = this.effectiveDir === "rtl" ? -1 : 1;
 			var layoutItems = [];
 			var isDecoration = itemsType === "decorationItems";
 
 			// step 1: compute projected position and size
 			for (var i = 0; i < items.length; i++) {
 				var item = items[i];
-				var overlap = this.computeRangeOverlap(rd, item.startTime, item.endTime, startTime, endTime);
+				var overlap = this.computeRangeOverlap(item.startTime, item.endTime, startTime, endTime);
 
-				var startOffset = cal.difference(startTime, this.floorToDay(overlap[0], false, rd), "day");
-				var dayStart = rd.dates[index][startOffset];
+				var startOffset = cal.difference(startTime, this.floorToDay(overlap[0], false, this), "day");
+				var dayStart = this.dates[index][startOffset];
 
 				var celPos = domGeometry.position(this._getCellAt(index, startOffset, false));
-				var start = celPos.x - rd.gridTablePosX;
-				if (rd.rtl) {
+				var start = celPos.x - this.gridTablePosX;
+				if (this.effectiveDir === "rtl") {
 					start += celPos.w;
 				}
 
 				if (isDecoration && !item.isAllDay || !isDecoration && !this.roundToDay && !item.allDay) {
-					start += sign * this.computeProjectionOnDate(rd, dayStart, overlap[0], celPos.w);
+					start += sign * this.computeProjectionOnDate(dayStart, overlap[0], celPos.w);
 				}
 
 				start = Math.ceil(start);
 
-				var endOffset = cal.difference(startTime, this.floorToDay(overlap[1], false, rd), "day");
+				var endOffset = cal.difference(startTime, this.floorToDay(overlap[1], false, this), "day");
 
 				var end;
-				if (endOffset > rd.columnCount - 1) {
-					celPos = domGeometry.position(this._getCellAt(index, rd.columnCount - 1, false));
-					if (rd.rtl) {
-						end = celPos.x - rd.gridTablePosX;
+				if (endOffset > this.columnCount - 1) {
+					celPos = domGeometry.position(this._getCellAt(index, this.columnCount - 1, false));
+					if (this.effectiveDir === "rtl") {
+						end = celPos.x - this.gridTablePosX;
 					} else {
-						end = celPos.x - rd.gridTablePosX + celPos.w;
+						end = celPos.x - this.gridTablePosX + celPos.w;
 					}
 				} else {
-					dayStart = rd.dates[index][endOffset];
+					dayStart = this.dates[index][endOffset];
 					celPos = domGeometry.position(this._getCellAt(index, endOffset, false));
-					end = celPos.x - rd.gridTablePosX;
+					end = celPos.x - this.gridTablePosX;
 
-					if (rd.rtl) {
+					if (this.effectiveDir === "rtl") {
 						end += celPos.w;
 					}
 
@@ -1543,13 +1377,13 @@ define([
 							end += sign * celPos.w;
 						}
 					} else {
-						end += sign * this.computeProjectionOnDate(rd, dayStart, overlap[1], celPos.w);
+						end += sign * this.computeProjectionOnDate(dayStart, overlap[1], celPos.w);
 					}
 				}
 
 				end = Math.floor(end);
 
-				if (rd.rtl) {
+				if (this.effectiveDir === "rtl") {
 					var t = end;
 					end = start;
 					start = t;
@@ -1575,15 +1409,14 @@ define([
 			// tags:
 			//		private
 
-			var rd = this.renderData;
 			var irHeight = this.horizontalRendererHeight;
 			var overlapLayoutRes = this.computeOverlapping(layoutItems, this._overlapLayoutPass3);
 			var vOverlap = this.percentOverlap / 100;
 
-			for (var i = 0; i < rd.columnCount; i++) {
+			for (var i = 0; i < this.columnCount; i++) {
 				var numLanes = overlapLayoutRes.addedPassRes[i];
-				var index = rd.rtl ? rd.columnCount - i - 1 : i;
-				if (vOverlap == 0) {
+				var index = this.effectiveDir === "rtl" ? this.columnCount - i - 1 : i;
+				if (vOverlap === 0) {
 					offsets[index] = numLanes == 0 ? 0 : numLanes == 1 ? irHeight : irHeight + (numLanes - 1) *
 						(irHeight + this.verticalGap);
 				} else {
@@ -1605,27 +1438,26 @@ define([
 			}
 
 			var d;
-			var rd = this.renderData;
-			var cal = rd.dateModule;
+			var cal = this.dateModule;
 
 			var layoutItems = [];
 
 			for (var i = 0; i < items.length; i++) {
 				var item = items[i];
 
-				d = this.floorToDay(item.startTime, false, rd);
+				d = this.floorToDay(item.startTime, false);
 
 				var comp = this.dateModule.compare;
 
 				// iterate on columns overlapped by this item to create one item per column
-				//while(d < item.endTime && d < rd.endTime){
+				//while(d < item.endTime && d < this.endTime){
 				while (comp(d, item.endTime) == -1 && comp(d, endTime) == -1) {
 
 					var dayEnd = cal.add(d, "day", 1);
 					dayEnd = this.floorToDay(dayEnd, true);
 
-					var overlap = this.computeRangeOverlap(rd, item.startTime, item.endTime, d, dayEnd);
-					var startOffset = cal.difference(startTime, this.floorToDay(overlap[0], false, rd), "day");
+					var overlap = this.computeRangeOverlap(item.startTime, item.endTime, d, dayEnd);
+					var startOffset = cal.difference(startTime, this.floorToDay(overlap[0], false, this), "day");
 
 					if (startOffset >= this.columnCount) {
 						// If the offset is greater than the column count
@@ -1660,7 +1492,7 @@ define([
 			// tags:
 			//		private
 
-			for (var i = 0; i < this.renderData.columnCount; i++) {
+			for (var i = 0; i < this.columnCount; i++) {
 				offsets[i] = layoutItems[i] == null ? 0 : layoutItems[i].length *
 					(this.labelRendererHeight + this.verticalGap);
 			}
@@ -1674,7 +1506,7 @@ define([
 			var cellH = this._getRowHeight(index);
 			var h;
 			var maxH = 0;
-			for (var i = 0; i < this.renderData.columnCount; i++) {
+			for (var i = 0; i < this.columnCount; i++) {
 				h = hOffsets == null || hOffsets[i] == null ? this.cellPaddingTop : hOffsets[i];
 				h += lOffsets == null || lOffsets[i] == null ? 0 : lOffsets[i];
 				if (h > maxH) {
@@ -1693,8 +1525,7 @@ define([
 			// tags:
 			//		private
 
-			var rd = this.renderData;
-			var cell = rd.cells[index];
+			var cell = this.cells[index];
 			var cellH = this._getRowHeight(index);
 			var irHeight = this.horizontalRendererHeight;
 			var vOverlap = this.percentOverlap / 100;
@@ -1708,7 +1539,7 @@ define([
 
 					var posY = this.cellPaddingTop;
 
-					if (vOverlap == 0) {
+					if (vOverlap === 0) {
 						//no overlap and a padding between each event
 						posY += lane * (irHeight + this.verticalGap);
 					} else {
@@ -1780,8 +1611,7 @@ define([
 			// tags:
 			//		private
 			var list, posY;
-			var rd = this.renderData;
-			var cell = rd.cells[index];
+			var cell = this.cells[index];
 			var cellH = this._getRowHeight(index);
 			var irHeight = this.labelRendererHeight;
 			var maxW = domGeometry.getMarginBox(this.itemContainer).w;
@@ -1800,7 +1630,7 @@ define([
 					posY = hOffsets == null || hOffsets[i] == null ? this.cellPaddingTop : hOffsets[i] +
 						this.verticalGap;
 					var celPos = domGeometry.position(this._getCellAt(index, i));
-					var left = celPos.x - rd.gridTablePosX;
+					var left = celPos.x - this.gridTablePosX;
 
 					for (var j = 0; j < list.length; j++) {
 
@@ -1817,7 +1647,7 @@ define([
 							var fullHeight = this.isItemBeingEdited(item) && !this.liveLayout && this._isEditing;
 							var h = fullHeight ? this._getRowHeight(index) - this.cellPaddingTop : irHeight;
 
-							if (rd.rtl) {
+							if (this.effectiveDir === "rtl") {
 								item.start = maxW - item.end;
 								item.end = item.start + celPos.w;
 							}
@@ -1883,8 +1713,8 @@ define([
 			// tags:
 			//		private
 
-			if ((rtl == undefined || rtl == true) && this.effectiveDir === "rtl") {
-				columnIndex = this.renderData.columnCount - 1 - columnIndex;
+			if ((rtl === undefined || rtl) && this.effectiveDir === "rtl") {
+				columnIndex = this.columnCount - 1 - columnIndex;
 			}
 			return this.gridTable.childNodes[0].childNodes[rowIndex].childNodes[columnIndex];
 		},
@@ -1896,16 +1726,15 @@ define([
 			if (!this.expandRenderer) {
 				return;
 			}
-			var rd = this.renderData;
-			if (rd.expandedRow == index) {
-				if (rd.expandedRowCol != null && rd.expandedRowCol != -1) {
-					this._layoutExpandRendererImpl(rd.expandedRow, rd.expandedRowCol, null, true);
+			if (this.expandedRow == index) {
+				if (this.expandedRowCol != null && this.expandedRowCol != -1) {
+					this._layoutExpandRendererImpl(this.expandedRow, this.expandedRowCol, null, true);
 				}
 			} else {
-				if (rd.expandedRow == null) {
-					for (var i = 0; i < rd.columnCount; i++) {
+				if (this.expandedRow == null) {
+					for (var i = 0; i < this.columnCount; i++) {
 						if (hasHiddenItems[i]) {
-							this._layoutExpandRendererImpl(index, rd.rtl ? rd.columnCount - 1 - i : i, hiddenItems[i],
+							this._layoutExpandRendererImpl(index, this.effectiveDir === "rtl" ? this.columnCount - 1 - i : i, hiddenItems[i],
 								false);
 						}
 					}
@@ -1917,15 +1746,14 @@ define([
 			// tags:
 			//		private
 
-			var rd = this.renderData;
-			var d = lang.clone(rd.dates[rowIndex][colIndex]);
+			var d = lang.clone(this.dates[rowIndex][colIndex]);
 			var ir = null;
-			var cell = rd.cells[rowIndex];
+			var cell = this.cells[rowIndex];
 
 			ir = this._getExpandRenderer(d, items, rowIndex, colIndex, expanded);
 
 			var dim = domGeometry.position(this._getCellAt(rowIndex, colIndex));
-			dim.x -= rd.gridTablePosX;
+			dim.x -= this.gridTablePosX;
 			this.layoutExpandRenderer(ir, d, items, dim, this.expandRendererHeight);
 			domConstruct.place(ir, cell);
 			domStyle.set(ir, "display", "block");
@@ -1976,9 +1804,9 @@ define([
 				if (p.rendererKind == "label") {
 					// noop
 				} else if (e.editKind == "move" && (item.allDay || this.roundToDay)) {
-					var cal = this.renderData.dateModule;
+					var cal = this.dateModule;
 					p.dayOffset = cal.difference(
-						this.floorToDay(dates[0], false, this.renderData),
+						this.floorToDay(dates[0], false, this),
 						refTime, "day");
 				} // else managed in super
 
@@ -1988,7 +1816,7 @@ define([
 
 		_computeItemEditingTimes: register.superCall(function (sup) {
 			return function (item, editKind, rendererKind, times) {
-				var cal = this.renderData.dateModule;
+				var cal = this.dateModule;
 				var p = this._edProps;
 
 				if (rendererKind == "label") { // noop
@@ -2046,8 +1874,6 @@ define([
 			//		If parameter 'e' is not null and a touch event, the index of the touch to use.
 			// returns: Date
 
-			var rd = this.renderData;
-
 			if (e != null) {
 				var refPos = domGeometry.position(this.itemContainer, true);
 
@@ -2080,18 +1906,18 @@ define([
 			// to prevent DST hour offset.
 
 			var w = domGeometry.getMarginBox(this.itemContainer).w;
-			var colW = w / rd.columnCount;
+			var colW = w / this.columnCount;
 
 			var row;
-			if (rd.expandedRow == null) {
-				row = Math.floor(y / (domGeometry.getMarginBox(this.itemContainer).h / rd.rowCount));
+			if (this.expandedRow == null) {
+				row = Math.floor(y / (domGeometry.getMarginBox(this.itemContainer).h / this.rowCount));
 			} else {
-				row = rd.expandedRow; //other rows are not usable
+				row = this.expandedRow; //other rows are not usable
 			}
 
 			var r = domGeometry.getContentBox(this.itemContainer);
 
-			if (rd.rtl) {
+			if (this.effectiveDir === "rtl") {
 				x = r.w - x;
 			}
 
@@ -2100,9 +1926,9 @@ define([
 			var tm = Math.floor((x - (col * colW)) * 1440 / colW);
 
 			var date = null;
-			if (row < rd.dates.length && col < this.renderData.dates[row].length) {
-				date = this.newDate(this.renderData.dates[row][col]);
-				date = this.renderData.dateModule.add(date, "minute", tm);
+			if (row < this.dates.length && col < this.dates[row].length) {
+				date = this.newDate(this.dates[row][col]);
+				date = this.dateModule.add(date, "minute", tm);
 			}
 
 			return date;
@@ -2219,7 +2045,7 @@ define([
 				columnIndex: ci,
 				renderer: renderer,
 				triggerEvent: e,
-				date: this.renderData.dates[ri][ci]
+				date: this.dates[ri][ci]
 			}));
 		},
 

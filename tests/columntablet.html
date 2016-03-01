@@ -83,7 +83,7 @@
 				var goNextRange = function(direction){
 					var days = (direction == "left" ? 1 : -1) * colView.columnCount;
 					var startDate = colView.startDate;
-					var newStartDate = colView.renderData.dateModule.add(startDate, "day", days);
+					var newStartDate = colView.dateModule.add(startDate, "day", days);
 					colView.startDate = newStartDate;
 
 					//TODO Add animation
@@ -108,7 +108,7 @@
 						start = colView.floorDate(e.date, "minute", colView.timeSlotDuration);
 						end = date.add(start, "hour", 1);
 					}else{
-						start = colView.floorToDay(e.date, false, colView.renderData);
+						start = colView.floorToDay(e.date, false);
 						end = date.add(start, "day", 1);
 					}
 
