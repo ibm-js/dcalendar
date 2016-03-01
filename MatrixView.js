@@ -731,7 +731,7 @@ define([
 					this._resizeRowsImpl(this.itemContainer, "tr");
 					this._layoutRenderers();
 					this._layoutDecorationRenderers();
-					if (this.resizeAnimationDuration == 0) {
+					if (this.resizeAnimationDuration === 0) {
 						domStyle.set(this.itemContainer, "opacity", 1);
 					} else {
 						fx.fadeIn({node: this.itemContainer, curve: [0, 1]}).play(this.resizeAnimationDuration);
@@ -1027,8 +1027,6 @@ define([
 			if (renderer.destroy) {
 				renderer.destroy();
 			}
-
-			html.destroy(renderer.domNode);
 		},
 
 		_setExpandRendererAttr: function (value) {
@@ -1065,12 +1063,13 @@ define([
 
 			this._ddRendererList.push(ir);
 
-			ir.set("owner", this);
-			ir.set("date", date);
-			ir.set("items", items);
-			ir.set("rowIndex", rowIndex);
-			ir.set("columnIndex", colIndex);
-			ir.set("expanded", expanded);
+			ir.owner = this;
+			ir.date = date;
+			ir.items = items;
+			ir.rowIndex = rowIndex;
+			ir.colIndex = colIndex;
+			ir.expanded = expanded;
+
 			return ir;
 		},
 
@@ -1080,12 +1079,12 @@ define([
 
 			for (var i = 0; i < this._ddRendererList.length; i++) {
 				var ir = this._ddRendererList[i];
-				ir.set("Up", false);
-				ir.set("Down", false);
+				ir.up = false;
+				ir.down = false;
 				if (remove) {
-					ir.domNode.parentNode.removeChild(ir.domNode);
+					ir.parentNode.removeChild(ir);
 				}
-				domStyle.set(ir.domNode, "display", "none");
+				domStyle.set(ir, "display", "none");
 			}
 			this._ddRendererPool = this._ddRendererPool.concat(this._ddRendererList);
 			this._ddRendererList = [];
@@ -1682,7 +1681,7 @@ define([
 			//		private
 
 			var edited = this.isItemBeingEdited(item);
-			var selected = this.isItemSelected(item);
+			var selected = this.isSelected(item);
 			var hovered = this.isItemHovered(item);
 			var focused = this.isItemFocused(item);
 

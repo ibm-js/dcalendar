@@ -260,7 +260,7 @@ define([
 		// not including properties to set time range.  Those are handled in _configureView().
 		forwardProperties: [
 			"store", "query", "queryOptions", "startTimeAttr", "endTimeAttr", "summaryAttr", "allDayAttr",
-			"subColumnAttr", "decodeDate", "encodeDate", "itemToRenderItem", "renderItemToItem",
+			"subColumnAttr", "decodeDate", "encodeDate", "itemToRenderItem", "renderItemToItem", "cssClassFunc",
 			"datePackage",
 			"endDate", "date", "minDate", "maxDate", "dateInterval", "dateIntervalSteps",
 			"firstDayOfWeek",

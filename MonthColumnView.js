@@ -959,7 +959,7 @@ define([
 					});
 
 					var edited = this.isItemBeingEdited(item);
-					var selected = this.isItemSelected(item);
+					var selected = this.isSelected(item);
 					var hovered = this.isItemHovered(item);
 					var focused = this.isItemFocused(item);
 

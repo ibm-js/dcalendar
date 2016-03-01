@@ -109,30 +109,29 @@ define([
 			}
 		},
 
-		_setItemAttr: function (value) {
-			if (value == null) {
+		_setItemAttr: function (item) {
+			if (item == null) {
 				if (this.item && this.item.cssClass) {
 					domClass.remove(this, this.item.cssClass);
 				}
-				this.item = null;
 			} else {
 				if (this.item != null) {
-					if (this.item.cssClass != value.cssClass) {
+					if (this.item.cssClass != item.cssClass) {
 						if (this.item.cssClass) {
 							domClass.remove(this, this.item.cssClass);
 						}
 					}
-					this.item = lang.mixin(this.item, value);
-					if (value.cssClass) {
-						domClass.add(this, value.cssClass);
+					this.item = lang.mixin(this.item, item);
+					if (item.cssClass) {
+						domClass.add(this, item.cssClass);
 					}
 				} else {
-					this.item = value;
-					if (value.cssClass) {
-						domClass.add(this, value.cssClass);
+					if (item.cssClass) {
+						domClass.add(this, item.cssClass);
 					}
 				}
 			}
+			this._set("item", item);
 		},
 
 		_setText: function (node, text, allowHTML) {
@@ -232,6 +231,7 @@ define([
 			return this._displayValue;
 		},
 
+		// TODO: rename to refreshRendering(), and roll _setItemAttr() code (for CSS class) into this method
 		updateRendering: function (w, h) {
 			// summary:
 			//		Updates the visual appearance of the renderer according the new values of the properties

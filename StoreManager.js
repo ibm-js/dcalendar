@@ -80,8 +80,8 @@ define([
 				if (newIndex !== previousIndex) {
 					// this is a remove or a move
 					this.items.splice(previousIndex, 1);
-					if (this.owner.setItemSelected && this.owner.isItemSelected(newItem)) {
-						this.owner.setItemSelected(newItem, false);
+					if (this.owner.setSelected && this.owner.isSelected(newItem)) {
+						this.owner.setSelected(newItem, false);
 						this.owner.dispatchChange(newItem, this.selectedItem, null, null);
 					}
 				} else {
@@ -148,6 +148,8 @@ define([
 			}
 		},
 
+		// TODO: weird that you call storeManager.store = ..., but then StoreManager goes back to owner to
+		// get query and queryOptions.
 		_setStoreAttr: function (store) {
 			this._set("store", store);
 

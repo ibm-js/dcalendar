@@ -31,11 +31,13 @@ define([
 		itemToRenderer: null,
 
 		constructor: function (/*Object*/ args) {
-			args = args || {};
-
 			this.rendererPool = [];
 			this.rendererList = [];
 			this.itemToRenderer = {};
+
+			if (args) {
+				dcl.mix(this, args);
+			}
 		},
 
 		destroy: function () {

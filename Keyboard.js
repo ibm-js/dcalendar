@@ -312,7 +312,7 @@ define([
 					event.stop(e); // prevent browser shortcut
 
 					if (focusedItem != null) {
-						this.setItemSelected(focusedItem, e.ctrlKey ? !this.isItemSelected(focusedItem) : true);
+						this.setSelected(focusedItem, e.ctrlKey ? !this.isSelected(focusedItem) : true);
 					}
 					break;
 

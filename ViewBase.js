@@ -241,6 +241,12 @@ define([
 		},
 
 		computeProperties: function (oldVals) {
+			if ("store" in oldVals) {
+				// Start the new query and then computeProperties() will be invoked again when we get the query results.
+				this.storeManager.store = this.store;
+				return;
+			}
+
 			// If the list of items has changed, or the startTime/endTime has changed,
 			// need to recompute which items are visible.
 			// But, while editing in no live layout we must not to recompute items (duplicate renderers),
@@ -266,10 +272,10 @@ define([
 
 			// Add the events.
 			if ("dates" in oldVals || "visibleItmes" in oldVals) {
-				this._layoutRenderers(this);
+				this._layoutRenderers();
 			}
 			if ("dates" in oldVals || "visibleDecorationItems" in oldVals) {
-				this._layoutDecorationRenderers(this);
+				this._layoutDecorationRenderers();
 			}
 		},
 
@@ -1069,11 +1075,6 @@ define([
 			return this.storeManager._computeVisibleItems(this.startTime, this.endTime);
 		},
 
-		_setStoreAttr: function (value) {
-			this._set("store", value);
-			this.storeManager.store = value;
-		},
-
 		_getItemStoreStateObj: function (/*Object*/item) {
 			// tags
 			//		private
@@ -1496,7 +1497,7 @@ define([
 					continue;
 				}
 
-				var selected = this.isItemSelected(item);
+				var selected = this.isSelected(item);
 				var hovered = this.isItemHovered(item);
 				var edited = this.isItemBeingEdited(item);
 				var focused = this.showFocus ? this.isItemFocused(item) : false;
