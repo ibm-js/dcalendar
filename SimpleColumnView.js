@@ -601,13 +601,10 @@ define([
 		},
 
 		_commitProperties: function () {
-			if (this._startTimeOfDayInvalidated) {
-				this._startTimeOfDayInvalidated = false;
-				var v = this.startTimeOfDay;
-				if (v != null) {
-					// initial position, no animation
-					this._setStartTimeOfDay(v.hours, v.minutes == undefined ? 0 : v.minutes);
-				}
+			var v = this.startTimeOfDay;
+			if (v !== null) {
+				// initial position, no animation
+				this._setStartTimeOfDay(v.hours, v.minutes === undefined ? 0 : v.minutes);
 			}
 		},
 

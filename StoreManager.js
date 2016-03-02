@@ -12,7 +12,7 @@ define([
 		//		It emits the following events:
 		//
 		//		* dataLoaded - the initial list of items is available
-		//		* "layoutInvalidated" - the calendar needs to destroy and recreate all the renderers
+		//		* layoutInvalidated - the calendar needs to destroy and recreate all the renderers
 		//		* renderersInvalidated - the specified item has changed in a minor way; just update the
 		//		  corresponding renderer
 		//
