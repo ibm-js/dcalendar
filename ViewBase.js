@@ -240,7 +240,11 @@ define([
 			this._setupDayRefresh();
 		},
 
-		computeProperties: function (oldVals) {
+		// Use dcl.after() so that subclass can set this.startTime and this.endTime before we fire off the query
+		// and do the filtering of results.
+		computeProperties: dcl.after(function (args, ret) {
+			var oldVals = args[0];
+
 			if ("store" in oldVals) {
 				// Start the new query and then computeProperties() will be invoked again when we get the query results.
 				this.storeManager.store = this.store;
@@ -262,7 +266,7 @@ define([
 						this.endTime);
 				}
 			}
-		},
+		}),
 
 		refreshRendering: function (oldVals) {
 			// Create the grid/boilerplate initially, and update it whenever we move to a new month etc.
