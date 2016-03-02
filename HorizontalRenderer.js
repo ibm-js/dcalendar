@@ -1,7 +1,7 @@
 define([
 	"delite/register",
 	"dojo/dom-style",
-	"./_RendererMixin",
+	"./RenderBase",
 	"delite/handlebars!./templates/HorizontalRenderer.html"
 ], function (
 	register,

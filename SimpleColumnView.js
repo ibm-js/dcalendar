@@ -1557,9 +1557,10 @@ define([
 					"height": (item.end - item.start + 1) + "px"
 				});
 
-				if (renderer.updateRendering) {
-					renderer.updateRendering(w, item.end - item.start + 1);
-				}
+				renderer.w = w;
+				renderer.h = item.end - item.start + 1;
+
+				renderer.deliver();
 
 				domConstruct.place(ir.container, cell);
 				domStyle.set(ir.container, "display", "block");

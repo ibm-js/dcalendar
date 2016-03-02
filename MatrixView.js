@@ -1699,9 +1699,10 @@ define([
 
 			this.applyRendererZIndex(item, ir, hovered, selected, edited, focused);
 
-			if (renderer.updateRendering) {
-				renderer.updateRendering(w, h);
-			}
+			renderer.w = w;
+			renderer.h = h;
+
+			renderer.deliver();
 
 			domConstruct.place(ir.container, cell);
 			domStyle.set(ir.container, "display", "block");

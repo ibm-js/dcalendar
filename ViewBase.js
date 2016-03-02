@@ -1452,22 +1452,9 @@ define([
 			// tags:
 			//		protected
 
-			var moveEnabled = this.isItemMoveEnabled(item, renderer.rendererKind);
-			var resizeEnabled = this.isItemResizeEnabled(item, renderer.rendererKind);
-			var changed = false;
-
-			if (moveEnabled != renderer.moveEnabled) {
-				renderer.moveEnabled = moveEnabled;
-				changed = true;
-			}
-			if (resizeEnabled != renderer.resizeEnabled) {
-				renderer.resizeEnabled = resizeEnabled;
-				changed = true;
-			}
-
-			if (changed) {
-				renderer.updateRendering();
-			}
+			renderer.moveEnabled = this.isItemMoveEnabled(item, renderer.rendererKind);;
+			renderer.resizeEnabled = this.isItemResizeEnabled(item, renderer.rendererKind);;
+			renderer.deliver();
 		},
 
 		updateRenderers: function (obj, stateOnly) {
@@ -1519,9 +1506,7 @@ define([
 
 					if (!stateOnly) {
 						renderer.item = item; // force content refresh
-						if (renderer.updateRendering) {
-							renderer.updateRendering(); // reuse previously set dimensions
-						}
+						renderer.deliver();
 					}
 				}
 			}

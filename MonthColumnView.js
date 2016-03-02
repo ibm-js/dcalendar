@@ -977,9 +977,10 @@ define([
 
 					this.applyRendererZIndex(item, ir, hovered, selected, edited, focused);
 
-					if (renderer.updateRendering) {
-						renderer.updateRendering(w, item.end - item.start + 1);
-					}
+					renderer.w = w;
+					renderer.h = item.end - item.start + 1;
+
+					renderer.deliver();
 				} else { //itemsType === "decorationItems"
 					ir = this.decorationRendererManager.createRenderer(item, "vertical",
 						this.verticalDecorationRenderer, "dojoxCalendarDecoration");
