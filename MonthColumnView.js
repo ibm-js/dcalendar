@@ -116,7 +116,8 @@ define([
 		columnHeaderFormatLength: null,
 
 		// gridCellDatePattern: String
-		//		The date pattern of the cell labels. By default a custom function is used to compute the label.
+		//		Custom date/time pattern for cell labels to override default one coming from the CLDR.
+		//		See dojo/date/locale documentation for format string.
 		gridCellDatePattern: null,
 
 		// roundToDay: [private] Boolean
@@ -160,7 +161,6 @@ define([
 			this._viewHandles.push(
 				on(this.scrollContainer, mouse.wheel,
 					lang.hitch(this, this._mouseWheelScrollHander)));
-
 		},
 
 		_setVerticalRendererAttr: function (value) {
@@ -169,6 +169,8 @@ define([
 		},
 
 		computeProperties: function (oldVals) {
+			var d;
+
 			if (this.columnCount < 1 || isNaN(this.columnCount)) {
 				this.columnCount = 1;
 			}
@@ -177,17 +179,17 @@ define([
 				this.daySize = 5;
 			}
 
+			if (!this.startDate || "startDate" in oldVals) {
+				d = this.floorToMonth(this.startDate || new this.dateClassObj(), false);
+				if (!this.startDate || d.getTime() !== this.startDate.getTime()) {
+					this.startDate = d;
+				}
+			}
+
 			if ("startDate" in oldVals || "columnCount" in oldVals) {
 				this.dates = [];
 
-				var d = this.startDate;
-				if (d == null) {
-					d = new this.dateClassObj();
-				}
-
-				d = this.floorToMonth(d, false);
-
-				this.startDate = d;
+				d = this.startDate;
 				var currentMonth = d.getMonth();
 				var maxDayCount = 0;
 
@@ -245,11 +247,6 @@ define([
 			return months[d.getMonth()];
 		},
 
-		// gridCellDatePattern: String
-		//		Custom date/time pattern for cell labels to override default one coming from the CLDR.
-		//		See dojo/date/locale documentation for format string.
-		gridCellDatePattern: null,
-
 		_formatGridCellLabel: function (d, row, col) {
 			// summary:
 			//		Computes the column header label for the specified date.
@@ -282,9 +279,9 @@ define([
 				var days = this.dateLocaleModule.getNames("days", "abbr", "standAlone");
 
 				return days[d.getDay()].substring(0, 1) + " " + this.dateLocaleModule.format(d, {
-						selector: "date",
-						datePattern: format
-					});
+					selector: "date",
+					datePattern: format
+				});
 			}
 		},
 
@@ -324,7 +321,6 @@ define([
 			var position = (date - 1) * this.daySize;
 
 			if (maxDuration) {
-
 				if (this._scrollAnimation) {
 					this._scrollAnimation.stop();
 				}
@@ -342,7 +338,6 @@ define([
 				});
 
 				this._scrollAnimation.play();
-
 			} else {
 				this._setScrollImpl(position);
 			}
@@ -359,7 +354,6 @@ define([
 		},
 
 		ensureVisibility: function (start, end, visibilityTarget, margin, duration) {
-
 			// summary:
 			//		Scrolls the view if the [start, end] time range is not visible or only partially visible.
 			// start: Date
@@ -374,10 +368,9 @@ define([
 			// duration: Number
 			//		Optional, the maximum duration of the scroll animation.
 
-			margin = margin == undefined ? 1 : margin;
+			margin = margin === undefined ? 1 : margin;
 
 			if (this.scrollable && this.autoScroll) {
-
 				var s = start.getDate() - margin; // -1 because day of months starts at 1 and not 0
 				if (this.isStartOfDay(end)) {
 					end = this._waDojoxAddIssue(end, "day", -1);
@@ -630,21 +623,22 @@ define([
 				tbody.removeChild(tbody.lastChild);
 			}
 
-			query("tr", table).forEach(function (tr, i) {
+			// Set the CSS classes
+			Array.prototype.forEach.call(tbody.children, function (tr, row) {
+				tr.className = "";
+
+				// Add <td> nodes if necessary.
 				for (i = tr.children.length; i < this.columnCount; i++) {
 					var td = domConstruct.create("td", null, tr);
 					domConstruct.create("span", null, td);
 				}
+
+				// Remove excess <td> nodes if necessary.
 				for (i = tr.children.length; i > this.columnCount; i--) {
 					tr.removeChild(tr.lastChild);
 				}
-			});
 
-			// Set the CSS classes
-			query("tr", table).forEach(function (tr, row) {
-				tr.className = "";
-
-				query("td", tr).forEach(function (td, col) {
+				Array.prototype.forEach.call(tr.children, function (td, col) {
 					td.className = "";
 
 					var d = null;
@@ -740,7 +734,6 @@ define([
 				tr = domConstruct.create("tr", null, tbody);
 			}
 
-
 			// Create more cells if needed.
 			var i;
 			for (i = tr.children.length; i < this.columnCount; i++) {
@@ -776,7 +769,9 @@ define([
 			//		The array of lanes.
 			// tags:
 			//		private
+
 			var i, j, lane, layoutItem;
+
 			// last lane, no extent possible
 			lane = lanes[lanes.length - 1];
 
@@ -845,7 +840,6 @@ define([
 			this.colW = this.itemContainer.offsetWidth / this.columnCount;
 
 			if (itemsType === "dataItems") {
-
 				for (var i = 0; i < items.length; i++) {
 					var item = items[i];
 					if (this._itemToRendererKind(item) == "vertical") {
