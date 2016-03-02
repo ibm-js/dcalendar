@@ -5,7 +5,7 @@ define([
 	"dojo/_base/window",
 	"dojo/_base/event",
 	"dojo/_base/html",
-	"dojo/sniff",
+	"decor/sniff",
 	"dojo/query",
 	"dojo/dom",
 	"dojo/dom-style",
@@ -370,7 +370,7 @@ define([
 					}
 
 					var tNode = win.doc.createElement("span");
-					if (has("dojo-bidi")) {
+					if (has("bidi")) {
 						this.applyTextDir(tNode, text);
 					}
 

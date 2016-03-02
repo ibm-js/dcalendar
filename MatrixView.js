@@ -3,7 +3,7 @@ define([
 	"dojo/_base/array",
 	"dojo/_base/event",
 	"dojo/_base/lang",
-	"dojo/has",
+	"requirejs-dplugins/has",
 	"dojo/_base/fx",
 	"dojo/_base/html",
 	"dojo/on",

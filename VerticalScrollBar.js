@@ -4,7 +4,7 @@ define([
 	"dojo/_base/lang",
 	"dojo/on",
 	"dojo/dom-style",
-	"dojo/sniff",
+	"decor/sniff",
 	"delite/Widget",
 	"dojox/html/metrics",
 	"delite/handlebars!./templates/Scrollbar.html"

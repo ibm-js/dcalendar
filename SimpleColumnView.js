@@ -6,7 +6,7 @@ define([
 	"dojo/_base/event",
 	"dojo/_base/lang",
 	"dojo/_base/array",
-	"dojo/has",
+	"requirejs-dplugins/has",
 	"dojo/_base/fx",
 	"dojo/_base/html",
 	"dojo/on",
