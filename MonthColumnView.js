@@ -151,7 +151,7 @@ define([
 			}
 		},
 
-		_scrollBar_onScroll: function (value) {
+		_scrollBarOnScroll: function (value) {
 			// tags:
 			//		private
 			this.scrollContainer.scrollTop = value;
@@ -247,7 +247,7 @@ define([
 			return months[d.getMonth()];
 		},
 
-		_formatGridCellLabel: function (d, row, col) {
+		_formatGridCellLabel: function (d /*=====, row, col =====*/) {
 			// summary:
 			//		Computes the column header label for the specified date.
 			//		By default a formatter is used, optionally the <code>gridCellDatePattern</code>
@@ -1076,7 +1076,7 @@ define([
 				var refPos = domGeometry.position(this.itemContainer, true);
 
 				if (e.touches) {
-					touchIndex = touchIndex == undefined ? 0 : touchIndex;
+					touchIndex = touchIndex === undefined ? 0 : touchIndex;
 
 					x = e.touches[touchIndex].pageX - refPos.x;
 					y = e.touches[touchIndex].pageY - refPos.y;
@@ -1241,7 +1241,7 @@ define([
 		//
 		///////////////////////////////////////////////////////////////
 
-		_onScrollTimer_tick: function () {
+		_onScrollTimerTick: function () {
 			// tags:
 			//		private
 

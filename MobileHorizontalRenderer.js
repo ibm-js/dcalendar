@@ -10,7 +10,6 @@ define([
 	template
 ) {
 	return register("d-calendar-mobile-horizontal", [HTMLElement, _RendererMixin], {
-
 		// summary:
 		//		The mobile specific item horizontal renderer.
 
@@ -31,11 +30,12 @@ define([
 		_displayValue: "inline",
 
 		// arrowPadding: Integer
-		//		The padding size in pixels to apply to the label container on left and/or right side, to show the arrows correctly.
+		//		The padding size in pixels to apply to the label container on left and/or right side,
+		//		to show the arrows correctly.
 		arrowPadding: 12,
 
 		_isElementVisible: register.superCall(function (sup) {
-			return function (elt, startHidden, endHidden, size) {
+			return function (elt, startHidden, endHidden) {
 				var d;
 				var ltr = (this.effectiveDir === "ltr");
 

@@ -23,7 +23,7 @@ define([
 		},
 
 		_isElementVisible: register.superCall(function (sup) {
-			return function (elt, startHidden, endHidden, size) {
+			return function (elt) {
 				switch (elt) {
 					case "startTimeLabel":
 						// hide hour part of all day events on subsequent days

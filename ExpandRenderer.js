@@ -20,8 +20,7 @@ define([
 	template
 ) {
 
-	return register("d-calendar-expand", [HTMLElement, Widget], {
-
+	return register("d-calendar-expander", [HTMLElement, Widget], {
 		// summary:
 		//		The default renderer display in MatrixView cells where some item renderers
 		//		cannot be displayed because of size constraints.
@@ -86,7 +85,9 @@ define([
 			}
 		},
 
+		// TODO: use event delegation; setup listeners on MatrixView
 		_onClick: function (e) {
+			// TODO: we should just emit an event; shouldn't need to know about our owner
 			if (this.owner && this.owner.expandRendererClickHandler) {
 				this.owner.expandRendererClickHandler(e, this);
 			}
@@ -100,7 +101,7 @@ define([
 			this.down = true;
 		},
 
-		_onMouseUp: function (e) {
+		_onMouseUp: function () {
 			// tags:
 			//		private
 

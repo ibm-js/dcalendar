@@ -159,7 +159,7 @@ define([
 			}
 		},
 
-		_scrollBar_onScroll: function (value) {
+		_scrollBarOnScroll: function (value) {
 			this._setScrollPosition(value);
 		},
 
@@ -450,7 +450,6 @@ define([
 		},
 
 		ensureVisibility: function (start, end, visibilityTarget, margin, duration) {
-
 			// summary:
 			//		Scrolls the view if the [start, end] time range is not visible or only partially visible.
 			// start: Date
@@ -526,19 +525,6 @@ define([
 		},
 
 		_hScrollNodes: null,
-
-		_setHScrollPositionImpl: function (pos, useDom, cssProp) {
-			var elts = [this.columnHeaderTable, this.subColumnHeaderTable, this.gridTable, this.itemContainerTable];
-			var css = useDom ? null : "translateX(-" + pos + "px)";
-			arr.forEach(elts, function (elt) {
-				if (useDom) {
-					elt.scrollLeft = pos;
-					domStyle.set(elt, "left", (-pos) + "px");
-				} else {
-					domStyle.set(elt, cssProp, css);
-				}
-			}, this);
-		},
 
 		_mouseWheelScrollHander: function (e) {
 			// summary:
@@ -1903,7 +1889,7 @@ define([
 			};
 		}),
 
-		_onScrollTimer_tick: function () {
+		_onScrollTimerTick: function () {
 			// tags:
 			//		private
 

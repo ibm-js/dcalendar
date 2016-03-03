@@ -249,6 +249,14 @@ define([
 		},
 
 		_autoScroll: function (globalX, globalY, isVertical) {
+			// summary:
+			//		Starts or stops the auto scroll according to the mouse cursor position during an item editing.
+			// gx: Integer
+			//		The position of the mouse cursor along the x-axis.
+			// gy: Integer
+			//		The position of the mouse cursor along the y-axis.
+			// tags:
+			//		extension
 
 			if (!this.scrollable || !this.autoScroll) {
 				return false;

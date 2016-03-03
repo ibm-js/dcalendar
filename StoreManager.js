@@ -168,7 +168,8 @@ define([
 				results = results.map(function (item) {
 					var renderItem = owner.itemToRenderItem(item, store);
 					if (renderItem.id == null) {
-						console.err("The data item " + item.summary + " must have an unique identifier from the store.getIdentity(). The calendar will NOT work properly.");
+						console.err("The data item " + item.summary + " must have an unique identifier from the " +
+							"store.getIdentity(). The calendar will NOT work properly.");
 					}
 					// keep a reference on the store data item.
 					renderItem._item = item;

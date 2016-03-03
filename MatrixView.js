@@ -308,7 +308,7 @@ define([
 			// tags:
 			//		protected
 
-			var isFirstDayOfMonth = row == 0 && col == 0 || d.getDate() == 1;
+			var isFirstDayOfMonth = row === 0 && col === 0 || d.getDate() === 1;
 			var format, rb;
 			if (isFirstDayOfMonth) {
 				if (this.cellHeaderLongPattern) {
@@ -681,7 +681,7 @@ define([
 		},
 
 		resize: register.superCall(function (sup) {
-			return function (changeSize) {
+			return function () {
 				sup.apply(this, arguments);
 				this._resizeHandler(null, false);
 			};
@@ -787,7 +787,7 @@ define([
 						onAnimate: lang.hitch(this, function (size) {
 							this._expandRowImpl(Math.floor(size));
 						}),
-						onEnd: lang.hitch(this, function (size) {
+						onEnd: lang.hitch(this, function () {
 							this._expandAnimation = null;
 							this._collapseRowImpl(false);
 							this._resizeRows();
@@ -897,7 +897,7 @@ define([
 			}
 		},
 
-		onExpandAnimationEnd: function (expand) {
+		onExpandAnimationEnd: function (/*===== expand =====*/) {
 			// summary:
 			//		Event dispatched at the end of an expand or collapse animation.
 			// expand: Boolean
@@ -1174,7 +1174,7 @@ define([
 			return res;
 		},
 
-		applyRendererZIndex: function (item, renderer, hovered, selected, edited, focused) {
+		applyRendererZIndex: function (item, renderer, hovered, selected, edited /*=====, focused =====*/) {
 			// summary:
 			//		Applies the z-index to the renderer based on the state of the item.
 			//		This methods is setting a z-index of 20 is the item is selected or edited
@@ -1275,8 +1275,6 @@ define([
 				if (expIndex != -1 && expIndex != index) {
 					return; // when row is expanded, layout only expanded row
 				}
-
-				var offsets;
 
 				var hiddenItems = [];
 
@@ -1412,10 +1410,10 @@ define([
 				var numLanes = overlapLayoutRes.addedPassRes[i];
 				var index = this.effectiveDir === "rtl" ? this.columnCount - i - 1 : i;
 				if (vOverlap === 0) {
-					offsets[index] = numLanes == 0 ? 0 : numLanes == 1 ? irHeight : irHeight + (numLanes - 1) *
+					offsets[index] = numLanes === 0 ? 0 : numLanes == 1 ? irHeight : irHeight + (numLanes - 1) *
 						(irHeight + this.verticalGap);
 				} else {
-					offsets[index] = numLanes == 0 ? 0 : numLanes * irHeight - (numLanes - 1) * (vOverlap * irHeight) +
+					offsets[index] = numLanes === 0 ? 0 : numLanes * irHeight - (numLanes - 1) * (vOverlap * irHeight) +
 						this.verticalGap;
 				}
 				offsets[index] += this.cellPaddingTop;
@@ -1730,8 +1728,8 @@ define([
 				if (this.expandedRow == null) {
 					for (var i = 0; i < this.columnCount; i++) {
 						if (hasHiddenItems[i]) {
-							this._layoutExpandRendererImpl(index, this.effectiveDir === "rtl" ? this.columnCount - 1 - i : i, hiddenItems[i],
-								false);
+							this._layoutExpandRendererImpl(index, this.effectiveDir === "rtl" ?
+								this.columnCount - 1 - i : i, hiddenItems[i], false);
 						}
 					}
 				}
@@ -1821,8 +1819,9 @@ define([
 					switch (editKind) {
 						case "resizeEnd":
 							if (!isStartOfDay && item.allDay) {
-								times[0] = cal.add(times[0], "day", 1); // no break;
+								times[0] = cal.add(times[0], "day", 1);
 							}
+							/* falls through */
 						case "resizeStart":
 							if (!isStartOfDay) {
 								times[0] = this.floorToDay(times[0], true);
@@ -1874,7 +1873,7 @@ define([
 				var refPos = domGeometry.position(this.itemContainer, true);
 
 				if (e.touches) {
-					touchIndex = touchIndex == undefined ? 0 : touchIndex;
+					touchIndex = touchIndex === undefined ? 0 : touchIndex;
 
 					x = e.touches[touchIndex].pageX - refPos.x;
 					y = e.touches[touchIndex].pageY - refPos.y;
@@ -1910,8 +1909,6 @@ define([
 			} else {
 				row = this.expandedRow; //other rows are not usable
 			}
-
-			var r = domGeometry.getContentBox(this.itemContainer);
 
 			if (this.effectiveDir === "rtl") {
 				x = r.w - x;

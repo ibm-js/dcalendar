@@ -242,7 +242,7 @@ define([
 
 		// Use dcl.after() so that subclass can set this.startTime and this.endTime before we fire off the query
 		// and do the filtering of results.
-		computeProperties: dcl.after(function (args, ret) {
+		computeProperties: dcl.after(function (args) {
 			var oldVals = args[0];
 
 			if ("store" in oldVals) {
@@ -294,8 +294,8 @@ define([
 
 		_setupDayRefresh: function () {
 			// Refresh the view when the current day changes.
-			var now = new Date();
-			var d = timeUtil.floor(now, "day", 1);
+			var now = this.newDate(new Date());
+			var d = timeUtil.floorToDay(now, true, this.dateClassObj);
 			d = this.dateModule.add(d, "day", 1);
 			// manages DST at 24h
 			if (d.getHours() == 23) {
@@ -305,7 +305,7 @@ define([
 			}
 			setTimeout(lang.hitch(this, function () {
 				if (!this._isEditing) {
-					this.notifyCurrentValue("???");		// TODO: what do I put here to make refreshRendering() rerender?
+					this.notifyCurrentValue("dates");// TODO: what do I put here to make refreshRendering() rerender?
 				}
 				this._setupDayRefresh();
 			}), d.getTime() - now.getTime() + 5000);
@@ -549,10 +549,10 @@ define([
 			var comp2 = cal.compare(start2, end1);
 
 			if (includeLimits) {
-				if (comp1 == 0 || comp1 == 1 || comp2 == 0 || comp2 == 1) {
+				if (comp1 === 0 || comp1 === 1 || comp2 === 0 || comp2 === 1) {
 					return null;
 				}
-			} else if (comp1 == 1 || comp2 == 1) {
+			} else if (comp1 === 1 || comp2 === 1) {
 				return null;
 			}
 
@@ -635,11 +635,10 @@ define([
 			var ONE_DAY = 86400; // 24h x 60m x 60s
 
 			if (this.isSameDay(refDate, date) || maxH > 24) {
-
 				var d = lang.clone(refDate);
 				var minTime = 0;
 
-				if (minH != null && minH != 0) {
+				if (minH !== null && minH !== 0) {
 					d.setHours(minH);
 					minTime = gt(d);
 				}
@@ -648,7 +647,7 @@ define([
 				d.setHours(maxH);
 
 				var maxTime;
-				if (maxH == null || maxH == 24) {
+				if (maxH === null || maxH === 24) {
 					maxTime = ONE_DAY;
 				} else if (maxH > 24) {
 					maxTime = ONE_DAY + gt(d);
@@ -687,7 +686,7 @@ define([
 				var dp1 = this.dateModule.add(refDate, "day", 1);
 				dp1 = this.floorToDay(dp1, false);
 
-				if (cal.compare(d2, refDate) == 1 && cal.compare(d2, dp1) == 0 || cal.compare(d2, dp1) == 1) {
+				if (cal.compare(d2, refDate) === 1 && cal.compare(d2, dp1) === 0 || cal.compare(d2, dp1) === 1) {
 					res = max;
 				} else {
 					res = 0;
@@ -697,7 +696,7 @@ define([
 			return res;
 		},
 
-		getTime: function (e, x, y, touchIndex) {
+		getTime: function (/*===== e, x, y, touchIndex =====*/) {
 			// summary:
 			//		Returns the time displayed at the specified point by this component.
 			// e: Event
@@ -714,7 +713,7 @@ define([
 			return null;
 		},
 
-		getSubColumn: function (e, x, y, touchIndex) {
+		getSubColumn: function (/*===== e, x, y, touchIndex =====*/) {
 			// summary:
 			//		Returns the sub column at the specified point by this component.
 			// e: Event
@@ -795,7 +794,7 @@ define([
 				item.startTime = this.startTime;
 				item.endTime = cal.add(item.startTime, "millisecond", duration);
 				fixed = true;
-			} else if (cal.compare(item.endTime, this.endTime) == 1) {
+			} else if (cal.compare(item.endTime, this.endTime) === 1) {
 				item.endTime = this.endTime;
 				item.startTime = cal.add(item.endTime, "millisecond", -duration);
 				fixed = true;
@@ -819,19 +818,6 @@ define([
 		//		Auto scrolling is used when moving focus to a non visible renderer using keyboard
 		//		and while editing an item.
 		autoScroll: true,
-
-		_autoScroll: function (gx, gy, orientation) {
-			// summary:
-			//		Starts or stops the auto scroll according to the mouse cursor position during an item editing.
-			// gx: Integer
-			//		The position of the mouse cursor along the x-axis.
-			// gy: Integer
-			//		The position of the mouse cursor along the y-axis.
-			// tags:
-			//		extension
-
-			return false;
-		},
 
 		// scrollMethod: String
 		//		Method used to scroll the view, for example the scroll of column view.
@@ -878,7 +864,7 @@ define([
 
 			if (!sp.isScrolling) {
 				sp.isScrolling = true;
-				sp.scrollTimer = setInterval(lang.hitch(this, this._onScrollTimer_tick), 10);
+				sp.scrollTimer = setInterval(lang.hitch(this, this._onScrollTimerTick), 10);
 			}
 		},
 
@@ -897,7 +883,7 @@ define([
 			this._scrollProps = null;
 		},
 
-		_onScrollTimer_tick: function (pos) {
+		_onScrollTimerTick: function (/*===== pos =====*/) {
 		},
 
 		_scrollPos: 0,
@@ -1003,27 +989,7 @@ define([
 
 			this._setScrollPositionBase(pos, false);
 		},
-
-		_setHScrollPositionImpl: function (pos, useDom, cssProperty) {
-			// summary:
-			//		Sets the horizontal scroll position on sub elements (if the view is scrollable),
-			//		using the scroll method defined.
-			//		Important: must be implemented by sub classes and not called directly.
-			//		Use _setHScrollPosition() method instead.
-			// tags:
-			//		private
-
-			var css = useDom ? null : "translateX(-" + pos + "px)";
-			arr.forEach(this._hScrollNodes, function (elt) {
-				if (useDom) {
-					elt.scrollLeft = pos;
-					domStyle.set(elt, "left", (-pos) + "px");
-				} else {
-					domStyle.set(elt, cssProp, css);
-				}
-			}, this);
-		},
-
+		
 		_hScrollPos: 0,
 
 		_getHScrollPosition: function () {
@@ -1036,7 +1002,7 @@ define([
 			return this._hScrollPos;
 		},
 
-		scrollView: function (dir) {
+		scrollView: function (/*===== dir =====*/) {
 			// summary:
 			//		If the view is scrollable, scrolls it vertically to the specified direction.
 			// dir: Integer
@@ -1045,7 +1011,8 @@ define([
 			//		extension
 		},
 
-		ensureVisibility: function (start, end, margin, visibilityTarget, duration) {
+		
+		ensureVisibility: function (/*===== start, end, margin, visibilityTarget, duration =====*/) {
 			// summary:
 			//		Scrolls the view if the [start, end] time range is not visible or only partially visible.
 			// start: Date
@@ -1148,7 +1115,7 @@ define([
 			// tags:
 			//		protected
 
-			if (layoutItems.length == 0) {
+			if (layoutItems.length === 0) {
 				return {
 					numLanes: 0,
 					addedPassRes: [1]
@@ -1211,7 +1178,7 @@ define([
 		},
 
 
-		_layoutInterval: function (index, start, end, items) {
+		_layoutInterval: function (/*===== index, start, end, items =====*/) {
 			// summary:
 			//		For each item in the items list: retrieve a renderer,
 			//		compute its location and size and add it to the DOM.
@@ -1236,7 +1203,7 @@ define([
 
 		_sortItemsFunction: function (a, b) {
 			var res = this.dateModule.compare(a.startTime, b.startTime);
-			if (res == 0) {
+			if (res === 0) {
 				res = -1 * this.dateModule.compare(a.endTime, b.endTime);
 			}
 			return res;
@@ -1320,7 +1287,8 @@ define([
 
 				// if event are in the current sub interval, layout them
 				if (events.length > 0) {
-					// Sort the item according a sorting function, by default start time then end time comparison are used.
+					// Sort the item according a sorting function,
+					// by default start time then end time comparison are used.
 					events.sort(lang.hitch(this, this.layoutPriorityFunction ? this.layoutPriorityFunction :
 						this._sortItemsFunction));
 					this._layoutInterval(index, startTime, endTime, events, itemType);
@@ -1382,9 +1350,9 @@ define([
 			return this._defaultItemToRendererKindFunc(item); // String
 		},
 
-		_defaultItemToRendererKindFunc: function (item) {
+		_defaultItemToRendererKindFunc: function (/*===== item =====*/) {
 			// tags:
-			//		private
+			//		extension
 
 			return null;
 		},
@@ -1452,8 +1420,8 @@ define([
 			// tags:
 			//		protected
 
-			renderer.moveEnabled = this.isItemMoveEnabled(item, renderer.rendererKind);;
-			renderer.resizeEnabled = this.isItemResizeEnabled(item, renderer.rendererKind);;
+			renderer.moveEnabled = this.isItemMoveEnabled(item, renderer.rendererKind);
+			renderer.resizeEnabled = this.isItemResizeEnabled(item, renderer.rendererKind);
 			renderer.deliver();
 		},
 
@@ -1512,7 +1480,7 @@ define([
 			}
 		},
 
-		applyRendererZIndex: function (item, renderer, hovered, selected, edited, focused) {
+		applyRendererZIndex: function (item, renderer, hovered, selected, edited /*=====, focused =====*/) {
 			// summary:
 			//		Applies the z-index to the renderer based on the state of the item.
 			//		This methods is setting a z-index of 20 is the item is selected or edited
@@ -1534,7 +1502,7 @@ define([
 			//		protected
 
 			domStyle.set(renderer.container,
-				{"zIndex": edited || selected ? 20 : item.lane == undefined ? 0 : item.lane});
+				{"zIndex": edited || selected ? 20 : item.lane === undefined ? 0 : item.lane});
 		},
 
 		getIdentity: function (item) {
@@ -1684,7 +1652,7 @@ define([
 				}
 
 				// calendar needs an ID to work with
-				if (store.getIdentity(newItem) == undefined) {
+				if (store.getIdentity(newItem) === undefined) {
 					var id = "_tempId_" + (this._tempIdCount++);
 					newItem[store.idProperty] = id;
 					if (this._tempItemsMap == null) {
@@ -1719,14 +1687,9 @@ define([
 			}
 		},
 
-		_onGridMouseMove: function (e) {
+		_onGridMouseUp: function (/*===== e =====*/) {
 			// tags:
-			//		private
-		},
-
-		_onGridMouseUp: function (e) {
-			// tags:
-			//		private
+			//		extension
 		},
 
 		_onGridTouchStart: function (e) {
@@ -1748,7 +1711,7 @@ define([
 
 				lang.mixin(p, this._getTouchesOnRenderers(e, p.editedItem));
 
-				if (p.touchesLen == 0) {
+				if (p.touchesLen === 0) {
 
 					if (p && p.endEditingTimer) {
 						clearTimeout(p.endEditingTimer);
@@ -1777,14 +1740,14 @@ define([
 			}
 		},
 
-		_onGridTouchEnd: function (e) {
+		_onGridTouchEnd: function (/*===== e =====*/) {
 			// tags:
-			//		private
+			//		extension
 		},
 
-		_onGridTouchMove: function (e) {
+		_onGridTouchMove: function (/*===== e =====*/) {
 			// tags:
-			//		private
+			//		extension
 		},
 
 		__fixEvt: function (e) {
@@ -1836,12 +1799,12 @@ define([
 
 			var list = this.rendererManager.itemToRenderer[item.id];
 
-			if (list == null) {
+			if (!list) {
 				return null;
 			}
 
 			// trivial and most common use case.
-			if (list.length == 1) {
+			if (list.length === 1) {
 				var node = list[0].renderer;
 				return [node, node];
 			}
@@ -1852,16 +1815,15 @@ define([
 			var res = [];
 
 			for (var i = 0; i < list.length; i++) {
-
 				var ir = list[i].renderer;
 
 				if (!resizeStartFound) {
-					resizeStartFound = this.dateModule.compare(ir.item.range[0], ir.item.startTime) == 0;
+					resizeStartFound = this.dateModule.compare(ir.item.range[0], ir.item.startTime) === 0;
 					res[0] = ir;
 				}
 
 				if (!resizeEndFound) {
-					resizeEndFound = this.dateModule.compare(ir.item.range[1], ir.item.endTime) == 0;
+					resizeEndFound = this.dateModule.compare(ir.item.range[1], ir.item.endTime) === 0;
 					res[1] = ir;
 				}
 
@@ -1877,7 +1839,8 @@ define([
 		//		A flag that indicates whether or not the user can edit
 		//		items in the data provider.
 		//		If <code>true</code>, the item renderers in the control are editable.
-		//		The user can click on an item renderer, or use the keyboard or touch devices, to move or resize the associated event.
+		//		The user can click on an item renderer, or use the keyboard or touch devices,
+		//		to move or resize the associated event.
 		editable: true,
 
 		// moveEnabled: Boolean
@@ -1994,14 +1957,14 @@ define([
 
 				p.editRendererIndices = [];
 
-				arr.forEach(list, lang.hitch(this, function (ir, i) {
+				list.forEach(function (ir) {
 					if (this.rendererManager.itemToRenderer[id] == null) {
 						this.rendererManager.itemToRenderer[id] = [ir];
 					} else {
 						this.rendererManager.itemToRenderer[id].push(ir);
 					}
 					this.rendererManager.rendererList.push(ir);
-				}));
+				}, this);
 
 				// remove in old map & list the occurrence used by the edited item
 				p.editRendererList = arr.filter(p.editRendererList, function (ir) {
@@ -2188,7 +2151,6 @@ define([
 			p.itemBeginDispatched = true;
 		},
 
-
 		_onItemEditBeginGesture: function (e) {
 			// tags:
 			//		private
@@ -2226,11 +2188,12 @@ define([
 				if (e.eventSource == "mouse") {
 					var cursor = e.editKind == "move" ? "move" : this.resizeCursor;
 					p.editLayer = domConstruct.create("div", {
-						style: "position: absolute; left:0; right:0; bottom:0; top:0; z-index:30; tabIndex:-1; background-image:url('" + this._blankGif + "'); cursor: " + cursor,
-						onresizestart: function (e) {
+						style: "position: absolute; left:0; right:0; bottom:0; top:0; z-index:30; tabIndex:-1; " +
+							"background-image:url('" + this._blankGif + "'); cursor: " + cursor,
+						onresizestart: function () {
 							return false;
 						},
-						onselectstart: function (e) {
+						onselectstart: function () {
 							return false;
 						}
 					}, this);
@@ -2262,9 +2225,9 @@ define([
 			}
 		},
 
-		_computeItemEditingTimes: function (item, editKind, rendererKind, times, eventSource) {
+		_computeItemEditingTimes: function (item, editKind, rendererKind, times /*=====, eventSource =====*/) {
 			// tags:
-			//		private
+			//		extension
 
 			var cal = this.dateModule;
 			var p = this._edProps;
@@ -2330,16 +2293,15 @@ define([
 					lang.mixin(item, this.itemToRenderItem(storeItem, store));
 					moveOrResizeDone = true;
 				}
-				if (cal.compare(item.startTime, newTime) != 0) {
+				if (cal.compare(item.startTime, newTime) !== 0) {
 					var duration = cal.difference(item.startTime, item.endTime, "millisecond");
 					item.startTime = this.newDate(newTime);
 					item.endTime = cal.add(item.startTime, "millisecond", duration);
 					moveOrResizeDone = true;
 				}
 			} else if (editKind == "resizeStart") {
-
-				if (cal.compare(item.startTime, newTime) != 0) {
-					if (cal.compare(item.endTime, newTime) != -1) {
+				if (cal.compare(item.startTime, newTime) !== 0) {
+					if (cal.compare(item.endTime, newTime) !== -1) {
 						item.startTime = this.newDate(newTime);
 					} else { // swap detected
 						if (allowSwap) {
@@ -2362,8 +2324,8 @@ define([
 
 			} else if (editKind == "resizeEnd") {
 
-				if (cal.compare(item.endTime, newTime) != 0) {
-					if (cal.compare(item.startTime, newTime) != 1) {
+				if (cal.compare(item.endTime, newTime) !== 0) {
+					if (cal.compare(item.startTime, newTime) !== 1) {
 						item.endTime = this.newDate(newTime);
 					} else { // swap detected
 
@@ -2434,7 +2396,7 @@ define([
 			}
 
 			// prevent invalid range
-			if (cal.compare(item.startTime, item.endTime) == 1) {
+			if (cal.compare(item.startTime, item.endTime) === 1) {
 				var tmp = item.startTime;
 				item.startTime = item.endTime;
 				item.endTime = tmp;
@@ -2442,8 +2404,8 @@ define([
 
 			moveOrResizeDone =
 				oldSubColumn != item.subColumn ||
-				cal.compare(oldStart, item.startTime) != 0 ||
-				cal.compare(oldEnd, item.endTime) != 0;
+				cal.compare(oldStart, item.startTime) !== 0 ||
+				cal.compare(oldEnd, item.endTime) !== 0;
 
 			if (!moveOrResizeDone) {
 				return false;
@@ -2650,7 +2612,7 @@ define([
 
 			if (editKind == "resizeStart") {
 				minTime = cal.add(item.endTime, unit, -steps);
-				if (cal.compare(item.startTime, minTime) == 1) {
+				if (cal.compare(item.startTime, minTime) === 1) {
 					item.startTime = minTime;
 				}
 			} else {
@@ -2680,24 +2642,30 @@ define([
 		minDurationSteps: 1,
 
 		// liveLayout: Boolean
-		//		If true, all the events are laid out during the editing gesture. If false, only the edited event is laid out.
+		//		If true, all the events are laid out during the editing gesture.
+		//		If false, only the edited event is laid out.
 		liveLayout: false,
 
 		// stayInView: Boolean
-		//		Specifies during editing, if the item is already in view, if the item must stay in the time range defined by the view or not.
+		//		Specifies during editing, if the item is already in view,
+		//		if the item must stay in the time range defined by the view or not.
 		stayInView: true,
 
 		// allowStartEndSwap: Boolean
-		//		Specifies if the start and end time of an item can be swapped during an editing gesture. Note that using the keyboard this property is ignored.
+		//		Specifies if the start and end time of an item can be swapped during an editing gesture.
+		//		Note that using the keyboard this property is ignored.
 		allowStartEndSwap: true,
 
 		// allowResizeLessThan24H: Boolean
-		//		If an event has a duration greater than 24 hours, indicates if using a resize gesture, it can be resized to last less than 24 hours.
-		//		This flag is usually used when two different kind of renderers are used (MatrixView) to prevent changing the kind of renderer during an editing gesture.
+		//		If an event has a duration greater than 24 hours, indicates if using a resize gesture,
+		//		it can be resized to last less than 24 hours.
+		//		This flag is usually used when two different kind of renderers are used (MatrixView)
+		//		to prevent changing the kind of renderer during an editing gesture.
 		allowResizeLessThan24H: false,
 
 		// allowSubColumnMove: Boolean
-		//		If several sub columns are displayed, indicated if the data item can be reassigned to another sub column by an editing gesture.
+		//		If several sub columns are displayed, indicated if the data item can be reassigned
+		//		to another sub column by an editing gesture.
 		allowSubColumnMove: true
 	});
 });

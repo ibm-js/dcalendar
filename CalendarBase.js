@@ -704,7 +704,7 @@ define([
 			//		protected
 
 			var cal = this.dateModule;
-			if (cal.compare(e.date, this._timeInterval[0]) == 0 && this.dateInterval == "day"
+			if (cal.compare(e.date, this._timeInterval[0]) === 0 && this.dateInterval === "day"
 					&& this.dateIntervalSteps == 1) {
 				this.dateInterval = "week";
 			} else {
@@ -753,6 +753,7 @@ define([
 			// reuse: Boolean
 			//		Whether use the specified instance or create a new one. Default is false.
 			// returns: Date
+
 			return timeUtil.floorToDay(date, reuse, this.dateClassObj);
 		},
 
@@ -761,6 +762,7 @@ define([
 			//		Floors the specified date to the beginning of week.
 			// date: Date
 			//		Date to floor.
+
 			return timeUtil.floorToWeek(d, this.dateClassObj, this.dateModule, this.firstDayOfWeek, this.locale);
 		},
 
@@ -772,6 +774,7 @@ define([
 			//		- the time in milliseconds since gregorian epoch.
 			//		- a Date instance
 			// returns: Date
+
 			return timeUtil.newDate(obj, this.dateClassObj);
 		},
 
@@ -781,6 +784,7 @@ define([
 			// date: Date
 			//		The date to test.
 			// returns: Boolean
+
 			return timeUtil.isToday(date, this.dateClassObj);
 		},
 
@@ -790,6 +794,7 @@ define([
 			// d:Date
 			//		The date to test.
 			// returns: Boolean
+
 			return timeUtil.isStartOfDay(d, this.dateClassObj, this.dateModule);
 		},
 
@@ -805,6 +810,7 @@ define([
 			// reuse: Boolean
 			//		Whether use the specified instance or create a new one. Default is false.
 			// returns: Date
+
 			return timeUtil.floor(date, unit, steps, reuse, this.classFuncObj);
 		},
 
@@ -959,7 +965,7 @@ define([
 		//
 		////////////////////////////////////////////////////////////////////////
 
-		isItemEditable: function (item, rendererKind) {
+		isItemEditable: function (/*===== item, rendererKind =====*/) {
 			// summary:
 			//		Computes whether particular item renderer can be edited.
 			//		By default it is using the editable property value.

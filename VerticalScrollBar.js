@@ -67,7 +67,7 @@ define([
 			var rtl = (this.effectiveDir === "rtl");
 			if (rtl) {
 				if (has("webkit")) {
-					if (this._scW == undefined) {
+					if (this._scW === undefined) {
 						this._scW = metrics.getScrollbar().w;
 					}
 					return this.maximum - this.scrollLeft - this.containerSize + this._scW;

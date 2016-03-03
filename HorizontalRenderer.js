@@ -40,7 +40,7 @@ define([
 		arrowPadding: 12,
 
 		_isElementVisible: register.superCall(function (sup) {
-			return function (elt, startHidden, endHidden, size) {
+			return function (elt, startHidden, endHidden) {
 				var d;
 				var ltr = (this.effectiveDir === "ltr");
 

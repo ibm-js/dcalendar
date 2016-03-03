@@ -55,7 +55,7 @@ define([
 			return views;
 		},
 
-		installDefaultViewsActions: function (views) {
+		installDefaultViewsActions: function () {
 			// summary:
 			//		Installs the default actions on newly created default views.
 			//		By default this action is registering:

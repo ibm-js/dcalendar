@@ -6,7 +6,6 @@ define([
 ], function (register, lang, domClass, Widget) {
 
 	return register("d-calendar-decoration", [HTMLElement, Widget], {
-
 		// summary:
 		//		The default item vertical renderer.
 

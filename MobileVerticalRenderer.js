@@ -20,7 +20,7 @@ define([
 		},
 
 		_isElementVisible: register.superCall(function (sup) {
-			return function (elt, startHidden, endHidden, size) {
+			return function (elt) {
 				var d;
 
 				switch (elt) {

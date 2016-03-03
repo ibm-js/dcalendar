@@ -140,8 +140,8 @@ define([
 			var reachedOnce = false;
 			var old = -1;
 
-			while (old != index && (!reachedOnce || index != 0)) {
-				if (!reachedOnce && index == 0) {
+			while (old != index && (!reachedOnce || index !== 0)) {
+				if (!reachedOnce && index === 0) {
 					reachedOnce = true;
 				}
 
@@ -161,10 +161,10 @@ define([
 			// tags:
 			//		private
 
-			if (index == -1) { // not found should not occur
+			if (index === -1) { // not found should not occur
 				index = dir > 0 ? 0 : max;
 			} else {
-				if (index == 0 && dir == -1 || index == max && dir == 1) {
+				if (index === 0 && dir == -1 || index === max && dir === 1) {
 					return index;
 				}
 				index = dir > 0 ? ++index : --index;
@@ -240,7 +240,7 @@ define([
 				var updateTime = true;
 				if (idx != -1) {
 					if (this._checkDir(dir, "left")) {
-						if (idx == 0) {
+						if (idx === 0) {
 							subColumn = this.subColumns[this.subColumns.length - 1];
 						} else {
 							updateTime = false;

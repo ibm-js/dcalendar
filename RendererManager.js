@@ -10,7 +10,6 @@ define([
 	Evented
 ) {
 	return dcl(Evented, {
-
 		// summary:
 		//		Factory for creating and caching released item renderers (LabelRenderer, VerticalRenderer, etc.)
 
@@ -177,6 +176,7 @@ define([
 			//		The item renderer to destroy.
 			// tags:
 			//		protected
+
 			this.emit("rendererDestroyed", {renderer: renderer, source: this.owner});
 
 			var ir = renderer.renderer;

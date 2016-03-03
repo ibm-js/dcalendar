@@ -253,7 +253,7 @@ define([
 
 				if (this._editingGesture) {
 
-					if (p.touchesLen == 0) {
+					if (p.touchesLen === 0) {
 						// all touches were removed => end of editing gesture
 						this._endItemEditingGesture("touch", e);
 
@@ -291,7 +291,7 @@ define([
 					this.selectFromEvent(e, p.item._item, p.renderer, true);
 				} else if (this._pendingSelectedItem) {
 					// selection timer was reached, dispatch change event
-					this.dispatchChange(this._saveSelectedItems.length == 0 ? null : this._saveSelectedItems[0],
+					this.dispatchChange(this._saveSelectedItems.length === 0 ? null : this._saveSelectedItems[0],
 						this._pendingSelectedItem, null, e); // todo renderer ?
 					delete this._saveSelectedItems;
 					delete this._pendingSelectedItem;

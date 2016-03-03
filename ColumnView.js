@@ -112,7 +112,7 @@ define([
 		}),
 
 		resize: register.superCall(function (sup) {
-			return function (changedSize) {
+			return function () {
 				sup.apply(this, arguments);
 				if (this.secondarySheet) {
 					// secondary sheet is sized by CSS
@@ -176,11 +176,11 @@ define([
 		},
 
 		// TODO: combine to use pointer events?
-		_onGridTouchStart: register.after(function (e) {
+		_onGridTouchStart: register.after(function () {
 			this._doEndItemEditing(this.secondarySheet, "touch");
 		}),
 
-		_onGridMouseDown: register.after(function (e) {
+		_onGridMouseDown: register.after(function () {
 			this._doEndItemEditing(this.secondarySheet, "mouse");
 		}),
 
