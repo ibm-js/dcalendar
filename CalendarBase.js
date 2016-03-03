@@ -381,7 +381,7 @@ define([
 						this._lastValidEndDate = this.endDate;
 					}
 
-					this.onTimeIntervalChange({
+					this.emit("time-interval-change", {
 						oldStartTime: this._timeInterval == null ? null : this._timeInterval[0],
 						oldEndTime: this._timeInterval == null ? null : this._timeInterval[1],
 						startTime: timeInterval[0],
@@ -441,6 +441,11 @@ define([
 					oldView.afterDeactivate();
 				}
 				newView.afterActivate();
+
+				this.emit("current-view-change", {
+					oldView: oldView,
+					newView: newView
+				});
 			}
 		},
 
@@ -525,15 +530,6 @@ define([
 			return [s, e];
 		},
 
-		onTimeIntervalChange: function (e) {
-			// summary:
-			//		Event dispatched when the displayed time interval has changed.
-			// e: __TimeIntervalChangeArgs
-			//		The time interval change event.
-			// tags:
-			//		callback
-		},
-
 		/////////////////////////////////////////////////////
 		//
 		// View Management
@@ -610,16 +606,7 @@ define([
 			domStyle.set(view, "display", "none");
 			domClass.add(view, "view");
 			domConstruct.place(view, this.viewContainer);
-			this.onViewAdded(view);
-		},
-
-		onViewAdded: function (view) {
-			// summary:
-			//		Event dispatched when a view is added from the calendar.
-			// view: dcalendar/ViewBase
-			//		The view that has been added to the calendar.
-			// tags:
-			//		callback
+			this.emit("view-added", {view: view});
 		},
 
 		_onViewRemoved: function (view) {
@@ -627,25 +614,7 @@ define([
 			view.buttonContainer = null;
 			domClass.remove(view, "view");
 			this.viewContainer.removeChild(view);
-			this.onViewRemoved(view);
-		},
-
-		onViewRemoved: function (/* view */) {
-			// summary:
-			//		Event dispatched when a view is removed from the calendar.
-			// view: dcalendar/ViewBase
-			//		The view that has been removed from the calendar.
-			// tags:
-			//		callback
-		},
-
-		onCurrentViewChange: function (e) {
-			// summary:
-			//		Event dispatched when the current view has changed.
-			// e: Event
-			//		Object that contains the oldView and newView properties.
-			// tags:
-			//		callback
+			this.emit("view-removed", {view: view});
 		},
 
 		_configureView: function () {
@@ -1027,157 +996,6 @@ define([
 			// returns: Boolean
 
 			return this.isItemEditable(item, rendererKind) && this.resizeEnabled;
-		},
-
-
-		////////////////////////////////////////////////////////////////////////
-		//
-		// Widget events
-		//
-		////////////////////////////////////////////////////////////////////////
-
-		onGridClick: function (/*===== e ===== */) {
-			// summary:
-			//		Event dispatched when the grid has been clicked.
-			// e: __GridClickEventArgs
-			//		The event dispatched when the grid is clicked.
-			// tags:
-			//		callback
-		},
-
-		onGridDoubleClick: function (/*===== e ===== */) {
-			// summary:
-			//		Event dispatched when the grid has been double-clicked.
-			// e: __GridClickEventArgs
-			//		The event dispatched when the grid is double-clicked.
-			// tags:
-			//		callback
-		},
-
-		onItemClick: function (/*===== e ===== */) {
-			// summary:
-			//		Event dispatched when an item renderer has been clicked.
-			// e: __ItemMouseEventArgs
-			//		The event dispatched when an item is clicked.
-			// tags:
-			//		callback
-		},
-
-		onItemDoubleClick: function (/*===== e ===== */) {
-			// summary:
-			//		Event dispatched when an item renderer has been double-clicked.
-			// e: __ItemMouseEventArgs
-			//		The event dispatched when an item is double-clicked.
-			// tags:
-			//		callback
-		},
-
-		onItemContextMenu: function (/*===== e ===== */) {
-			// summary:
-			//		Event dispatched when an item renderer has been context-clicked.
-			// e: __ItemMouseEventArgs
-			//		The event dispatched when an item is context-clicked.
-			// tags:
-			//		callback
-		},
-
-		onItemEditBegin: function (/*===== e ===== */) {
-			// summary:
-			//		Event dispatched when the item is entering the editing mode.
-			// e: __itemEditingEventArgs
-			//		The editing event.
-			// tags:
-			//		callback
-		},
-
-		onItemEditEnd: function (/*===== e ===== */) {
-			// summary:
-			//		Event dispatched when the item is leaving the editing mode.
-			// e: __itemEditingEventArgs
-			//		The editing event.
-			// tags:
-			//		callback
-		},
-
-		onItemEditBeginGesture: function (/*===== e ===== */) {
-			// summary:
-			//		Event dispatched when an editing gesture is beginning.
-			// e: __itemEditingEventArgs
-			//		The editing event.
-			// tags:
-			//		callback
-		},
-
-		onItemEditMoveGesture: function (/*===== e ===== */) {
-			// summary:
-			//		Event dispatched during a move editing gesture.
-			// e: __itemEditingEventArgs
-			//		The editing event.
-			// tags:
-			//		callback
-		},
-
-		onItemEditResizeGesture: function (/*===== e ===== */) {
-			// summary:
-			//		Event dispatched during a resize editing gesture.
-			// e: __itemEditingEventArgs
-			//		The editing event.
-			// tags:
-			//		callback
-		},
-
-		onItemEditEndGesture: function (/*===== e ===== */) {
-			// summary:
-			//		Event dispatched at the end of an editing gesture.
-			// e: __itemEditingEventArgs
-			//		The editing event.
-			// tags:
-			//		callback
-		},
-
-		onItemRollOver: function (/*===== e ===== */) {
-			// summary:
-			//		Event dispatched when the mouse cursor in going over an item renderer.
-			// e: __ItemMouseEventArgs
-			//		The event dispatched when the mouse cursor enters in the item renderer.
-			// tags:
-			//		callback
-		},
-
-		onItemRollOut: function (/*===== e ===== */) {
-			// summary:
-			//		Event dispatched when the mouse cursor in leaving an item renderer.
-			// e: __ItemMouseEventArgs
-			//		The event dispatched when the mouse cursor enters in the item renderer.
-			// tags:
-			//		callback
-		},
-
-		onColumnHeaderClick: function (/*===== e ===== */) {
-			// summary:
-			//		Event dispatched when a column header cell is dispatched.
-			// e: __HeaderClickEventArgs
-			//		Header click event.
-			// tags:
-			//		callback
-		},
-
-		onRowHeaderClick: function (/*===== e ===== */) {
-			// summary:
-			//		Event dispatched when a row header cell is clicked.
-			// e: __HeaderClickEventArgs
-			//		Header click event.
-			// tags:
-			//		callback
-		},
-
-		onExpandRendererClick: function (/*===== e ===== */) {
-			// summary:
-			//		Event dispatched when an expand renderer is clicked.
-			// e: __ExpandRendererClickEventArgs
-			//		Expand renderer click event.
-			// tags:
-			//		callback
 		}
 	});
 });

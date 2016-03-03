@@ -1795,112 +1795,27 @@ define([
 			return e;
 		},
 
-		_dispatchCalendarEvt: function (e, name) {
-			// summary:
-			//		Adds view properties to event and enable bubbling at owner level.
-			// e: Event
-			//		The dispatched event.
-			// name: String
-			//		The event name.
-			// tags:
-			//		protected
+		// Override delite/CustomElement#emit() to mix in properties from __fixEvt()
+		emit: dcl.superCall(function (sup) {
+			return function (name, eventObj) {
+				eventObj = this.__fixEvt(eventObj || {});
+				return sup.call(this, name, eventObj);
+			};
+		}),
 
-			e = this.__fixEvt(e);
-			this[name](e);
-			if (this.owner) {
-				this.owner[name](e);
-			}
-			return e;
-		},
 
 		_onGridClick: function (e) {
-			// tags:
-			//		private
-			if (!e.triggerEvent) {
-				e = {
-					date: this.getTime(e),
-					triggerEvent: e
-				};
-			}
-
-			this._dispatchCalendarEvt(e, "onGridClick");
-		},
-
-		onGridClick: function (e) {
-			// summary:
-			//		Event dispatched when the grid has been clicked.
-			// e: __GridClickEventArgs
-			//		The event dispatched when the grid is clicked.
-			// tags:
-			//		callback
+			this.emit("grid-click", {
+				date: this.getTime(e),
+				triggerEvent: e
+			});
 		},
 
 		_onGridDoubleClick: function (e) {
-			// tags:
-			//		private
-
-			if (!e.triggerEvent) {
-				e = {
-					date: this.getTime(e),
-					triggerEvent: e
-				};
-			}
-
-			this._dispatchCalendarEvt(e, "onGridDoubleClick");
-		},
-
-		onGridDoubleClick: function (e) {
-			// summary:
-			//		Event dispatched when the grid has been double-clicked.
-			// e: __GridClickEventArgs
-			//		The event dispatched when the grid is double-clicked.
-			// tags:
-			//		protected
-		},
-
-		_onItemClick: function (e) {
-			// tags:
-			//		private
-
-			this._dispatchCalendarEvt(e, "onItemClick");
-		},
-
-		onItemClick: function (e) {
-			// summary:
-			//		Event dispatched when an item renderer has been clicked.
-			// e: __ItemMouseEventArgs
-			//		The event dispatched when an item is clicked.
-			// tags:
-			//		callback
-		},
-
-		_onItemDoubleClick: function (e) {
-			// tags:
-			//		private
-
-			this._dispatchCalendarEvt(e, "onItemDoubleClick");
-		},
-
-		onItemDoubleClick: function (e) {
-			// summary:
-			//		Event dispatched when an item renderer has been double-clicked.
-			// e: __ItemMouseEventArgs
-			//		The event dispatched when an item is double-clicked.
-			// tags:
-			//		callback
-		},
-
-		_onItemContextMenu: function (e) {
-			this._dispatchCalendarEvt(e, "onItemContextMenu");
-		},
-
-		onItemContextMenu: function (e) {
-			// summary:
-			//		Event dispatched when an item renderer has been context-clicked.
-			// e: __ItemMouseEventArgs
-			//		The event dispatched when an item is context-clicked.
-			// tags:
-			//		callback
+			this.emit("grid-double-click", {
+				date: this.getTime(e),
+				triggerEvent: e
+			});
 		},
 
 		//////////////////////////////////////////////////////////
@@ -2112,14 +2027,7 @@ define([
 			this._editStartTimeSave = this.newDate(e.item.startTime);
 			this._editEndTimeSave = this.newDate(e.item.endTime);
 
-			this._dispatchCalendarEvt(e, "onItemEditBegin");
-		},
-
-		onItemEditBegin: function (e) {
-			// summary:
-			//		Event dispatched when the item is entering the editing mode.
-			// tags:
-			//		callback
+			this.emit("item-edit-begin", {triggerEvent: e});
 		},
 
 		_endItemEditing: function (/*String*/eventSource, /*Boolean*/canceled) {
@@ -2167,10 +2075,9 @@ define([
 			// tags:
 			//		private
 
-			this._dispatchCalendarEvt(e, "onItemEditEnd");
+			var synthEvent = this.emit("item-edit-end", {triggerEvent: e});
 
-			if (!e.isDefaultPrevented()) {
-
+			if (!synthEvent.defaultPrevented) {
 				var store = this.store;
 
 				// updated store item
@@ -2238,34 +2145,6 @@ define([
 				}
 			}
 			this._cleanItemStoreState(id);
-		},
-
-		onItemEditEnd: function (e) {
-			// summary:
-			//		Event dispatched when the item is leaving the editing mode.
-			// tags:
-			//		protected
-		},
-
-		_createItemEditEvent: function () {
-			// tags:
-			//		private
-
-			var e = {
-				cancelable: true,
-				bubbles: false,
-				__defaultPrevent: false
-			};
-
-			e.preventDefault = function () {
-				this.__defaultPrevented = true;
-			};
-
-			e.isDefaultPrevented = function () {
-				return this.__defaultPrevented;
-			};
-
-			return e;
 		},
 
 		_startItemEditingGesture: function (dates, editKind, eventSource, e) {
@@ -2341,10 +2220,9 @@ define([
 
 			p._initDuration = cal.difference(item.startTime, item.endTime, item.allDay ? "day" : "millisecond");
 
-			this._dispatchCalendarEvt(e, "onItemEditBeginGesture");
+			var synthEvent = this.emit("item-edit-begin-gesture", {triggerEvent: e});
 
-			if (!e.isDefaultPrevented()) {
-
+			if (!synthEvent.defaultPrevented) {
 				if (e.eventSource == "mouse") {
 					var cursor = e.editKind == "move" ? "move" : this.resizeCursor;
 					p.editLayer = domConstruct.create("div", {
@@ -2359,15 +2237,6 @@ define([
 					p.editLayer.focus();
 				}
 			}
-		},
-
-		onItemEditBeginGesture: function (e) {
-			// summary:
-			//		Event dispatched when an editing gesture is beginning.
-			// e: __itemEditingEventArgs
-			//		The editing event.
-			// tags:
-			//		callback
 		},
 
 		_waDojoxAddIssue: function (d, unit, steps) {
@@ -2608,10 +2477,9 @@ define([
 			// tags:
 			//		private
 
-			this._dispatchCalendarEvt(e, "onItemEditMoveGesture");
+			var synthEvent = this.emit("item-edit-move-gesture", {triggerEvent: e});
 
-			if (!e.isDefaultPrevented()) {
-
+			if (!synthEvent.defaultPrevented) {
 				var p = e.source._edProps;
 				var cal = this.dateModule;
 				var newStartTime, newEndTime;
@@ -2646,23 +2514,13 @@ define([
 
 		_DAY_IN_MILLISECONDS: 24 * 60 * 60 * 1000,
 
-		onItemEditMoveGesture: function (e) {
-			// summary:
-			//		Event dispatched during a move editing gesture.
-			// e: __itemEditingEventArgs
-			//		The editing event.
-			// tags:
-			//		callback
-		},
-
 		_onItemEditResizeGesture: function (e) {
 			// tags:
 			//		private
 
-			this._dispatchCalendarEvt(e, "onItemEditResizeGesture");
+			var synthEvent = this.emit("item-edit-resize-gesture", {triggerEvent: e});
 
-			if (!e.isDefaultPrevented()) {
-
+			if (!synthEvent.defaultPrevented) {
 				var p = e.source._edProps;
 				var cal = this.dateModule;
 
@@ -2724,15 +2582,6 @@ define([
 			}
 		},
 
-		onItemEditResizeGesture: function (e) {
-			// summary:
-			//		Event dispatched during a resize editing gesture.
-			// e: __itemEditingEventArgs
-			//		The editing event.
-			// tags:
-			//		callback
-		},
-
 		_endItemEditingGesture: function (/*String*/eventSource, /*Event*/e) {
 			// tags:
 			//		protected
@@ -2769,9 +2618,9 @@ define([
 			delete p._itemEditBeginSave;
 			delete p._itemEditEndSave;
 
-			this._dispatchCalendarEvt(e, "onItemEditEndGesture");
+			var synthEvent = this.emit("item-edit-end-gesture", {triggerEvent: e});
 
-			if (!e.isDefaultPrevented()) {
+			if (!synthEvent.defaultPrevented) {
 				if (p.editLayer) {
 					setTimeout(lang.hitch(this, function () {
 						if (this) { // for unit tests
@@ -2782,15 +2631,6 @@ define([
 					}), 10);
 				}
 			}
-		},
-
-		onItemEditEndGesture: function (e) {
-			// summary:
-			//		Event dispatched at the end of an editing gesture.
-			// e: __itemEditingEventArgs
-			//		The editing event.
-			// tags:
-			//		callback
 		},
 
 		ensureMinimalDuration: function (item, unit, steps, editKind) {

@@ -19,7 +19,6 @@ define([
 ) {
 
 	return register("d-calendar-column-view-secondary-sheet", [MatrixView], {
-
 		// summary:
 		//		This class defines a matrix view designed to be embedded in a column view,
 		//		usually to display long or all day events on one row.
@@ -69,15 +68,6 @@ define([
 			e.source = this;
 			return e;
 		},
-
-		_dispatchCalendarEvt: register.superCall(function (sup) {
-			return function (e, name) {
-				e = sup.apply(this, arguments);
-				if (this.owner.owner) { // the calendar
-					this.owner.owner[name](e);
-				}
-			};
-		}),
 
 		_layoutExpandRenderers: register.superCall(function (sup) {
 			return function () {

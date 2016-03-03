@@ -49,7 +49,7 @@ define([
 
 				this.own(renderer.on("click", lang.hitch(this, function (e) {
 					event.stop(e);
-					this._onItemClick({
+					this.emit("item-click", {
 						triggerEvent: e,
 						renderer: renderer,
 						item: renderer.item._item
@@ -58,7 +58,7 @@ define([
 
 				this.own(renderer.on("dblclick", lang.hitch(this, function (e) {
 					event.stop(e);
-					this._onItemDoubleClick({
+					this.emit("item-double-click", {
 						triggerEvent: e,
 						renderer: renderer,
 						item: renderer.item._item
@@ -66,7 +66,7 @@ define([
 				})));
 
 				this.own(renderer.on("contextmenu", lang.hitch(this, function (e) {
-					this._onItemContextMenu({
+					this.emit("item-context-menu", {
 						triggerEvent: e,
 						renderer: renderer,
 						item: renderer.item._item
@@ -104,60 +104,30 @@ define([
 
 					if (!this._editingGesture) {
 						this._setHoveredItem(renderer.item.item, renderer);
-						this._onItemRollOver(this.__fixEvt({
+						this.emit("item-roll-over", {
 							item: renderer.item._item,
 							renderer: renderer,
 							triggerEvent: e
-						}));
+						});
+
 					}
 				})));
 
 				this.own(on(renderer, mouse.leave, lang.hitch(this, function (e) {
-					if (!renderer.item) return;
+					if (!renderer.item) {
+						return;
+					}
 					if (!this._editingGesture) {
 						this._setHoveredItem(null);
 
-						this._onItemRollOut(this.__fixEvt({
+						this.emit("item-roll-out", {
 							item: renderer.item._item,
 							renderer: renderer,
 							triggerEvent: e
-						}));
+						});
 					}
 				})));
 			}));
-		},
-
-		_onItemRollOver: function (e) {
-			// tags:
-			//		private
-
-			this._dispatchCalendarEvt(e, "onItemRollOver");
-		},
-
-		onItemRollOver: function (e) {
-			// summary:
-			//		Event dispatched when the mouse cursor in going over an item renderer.
-			// e: __ItemMouseEventArgs
-			//		The event dispatched when the mouse cursor enters in the item renderer.
-			// tags:
-			//		callback
-		},
-
-		_onItemRollOut: function (e) {
-			// tags:
-			//		private
-
-			this._dispatchCalendarEvt(e, "onItemRollOut");
-		},
-
-		onItemRollOut: function (e) {
-			// summary:
-			//		Event dispatched when the mouse cursor in leaving an item renderer.
-			// e: __ItemMouseEventArgs
-			//		The event dispatched when the mouse cursor enters in the item renderer.
-			// tags:
-			//		protected
-
 		},
 
 		_rendererMouseDownHandler: function (e, renderer) {

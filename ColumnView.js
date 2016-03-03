@@ -121,13 +121,6 @@ define([
 			};
 		}),
 
-		onRowHeaderClick: function () {
-			// summary:
-			//		Event dispatched when the row header cell of the secondary sheet is clicked.
-			// tags:
-			//		callback
-		},
-
 		refreshRendering: function (props) {
 			if ("subColumns" in props && this.secondarySheet) {
 				var h = domGeometry.getMarginBox(this.secondarySheet).h;

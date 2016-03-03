@@ -84,7 +84,7 @@ define([
 				var old = this.focusedItem;
 				this._set("focusedItem", value);
 				this.updateRenderers([old, this.focusedItem], true);
-				this.onFocusChange({
+				this.emit("focus-change", {
 					oldValue: old,
 					newValue: value
 				});
@@ -97,14 +97,6 @@ define([
 					this._secondarySheet.focusedItem = null;
 				}
 			}
-		},
-
-		onFocusChange: function (e) {
-			// summary:
-			//		Event dispatched when the focus has changed.
-			// tags:
-			//		callback
-
 		},
 
 		// showFocus: Boolean

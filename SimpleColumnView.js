@@ -707,12 +707,9 @@ define([
 		},
 
 		_columnHeaderClick: function (e) {
-			// tags:
-			//		private
-
-			event.stop(e);
+			e.stopPropagation();
 			var index = query("td", this.columnHeaderTable).indexOf(e.currentTarget);
-			this._onColumnHeaderClick({
+			this.emit("column-header-click", {
 				index: index,
 				date: this.dates[index],
 				triggerEvent: e
@@ -746,7 +743,7 @@ define([
 				var td = domConstruct.create("td", null, tr);
 
 				var h = [];
-				h.push(on(td, "click", lang.hitch(this, this._columnHeaderClick)));
+				h.push(on(td, "click", this._columnHeaderClick.bind(this)));
 
 				if (has("touch-events")) {
 					h.push(on(td, "touchstart", function (e) {
@@ -1687,7 +1684,7 @@ define([
 				if (this._gridMouseDown) {
 					this._gridMouseDown = false;
 
-					this._onGridClick({
+					this.emit("grid-click", {
 						date: this.getTime(e),
 						triggerEvent: e
 					});
@@ -1698,7 +1695,6 @@ define([
 		_onGridTouchStart: register.superCall(function (sup) {
 			return function (e) {
 				sup.apply(this, arguments);
-
 
 				var g = this._gridProps;
 
@@ -1763,10 +1759,9 @@ define([
 							}
 
 							if (!g.fromItem) {
-
 								if (this._pendingDoubleTap && this._pendingDoubleTap.grid) {
 
-									this._onGridDoubleClick({
+									this.emit("grid-double-click", {
 										date: this.getTime(this._gridProps.event),
 										triggerEvent: this._gridProps.event
 									});
@@ -1774,10 +1769,8 @@ define([
 									clearTimeout(this._pendingDoubleTap.timer);
 
 									delete this._pendingDoubleTap;
-
 								} else {
-
-									this._onGridClick({
+									this.emit("grid-click", {
 										date: this.getTime(this._gridProps.event),
 										triggerEvent: this._gridProps.event
 									});
@@ -1797,24 +1790,6 @@ define([
 				}
 			};
 		}),
-
-		_onColumnHeaderClick: function (e) {
-			// tags:
-			//		private
-
-			this._dispatchCalendarEvt(e, "onColumnHeaderClick");
-		},
-
-
-		onColumnHeaderClick: function (e) {
-			// summary:
-			//		Event dispatched when a column header cell is dispatched.
-			// e: __ColumnClickEventArgs
-			//		The event has the following properties
-			// tags:
-			//		callback
-		},
-
 
 		getTimeOfDay: function (pos) {
 			// summary:

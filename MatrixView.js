@@ -439,11 +439,8 @@ define([
 
 
 		_rowHeaderClick: function (e) {
-			// tags:
-			//		private
-
 			var index = query("td", this.rowHeaderTable).indexOf(e.currentTarget);
-			this._onRowHeaderClick({
+			this.emit("row-header-click", {
 				index: index,
 				date: this.dates[index][0],
 				triggerEvent: e
@@ -461,7 +458,7 @@ define([
 				return;
 			}
 
-			var tbody = rowHeaderTable.firstChild;;
+			var tbody = rowHeaderTable.firstChild;
 			if (!tbody) {
 				tbody = domConstruct.create("tbody", null, rowHeaderTable);
 			}
@@ -477,7 +474,7 @@ define([
 				// TODO: use event delegation
 				var h = [];
 
-				h.push(on(td, "click", lang.hitch(this, this._rowHeaderClick)));
+				h.push(on(td, "click", this._rowHeaderClick.bind(this)));
 
 				if (!has("touch")) {
 					h.push(on(td, "mousedown", function (e) {
@@ -654,7 +651,7 @@ define([
 				return;
 			}
 
-			var tbody= table.firstChild;;
+			var tbody = table.firstChild;
 			if (!tbody) {
 				tbody = domConstruct.create("tbody", null, table);
 			}
@@ -1946,7 +1943,7 @@ define([
 				if (this._gridMouseDown) {
 					this._gridMouseDown = false;
 
-					this._onGridClick({
+					this.emit("grid-click", {
 						date: this.getTime(e),
 						triggerEvent: e
 					});
@@ -1961,19 +1958,15 @@ define([
 				var g = this._gridProps;
 
 				if (g) {
-
 					if (!this._isEditing) {
-
 						// touched on grid and on touch start editing was ongoing.
 						if (!g.fromItem && !g.editingOnStart) {
 							this.selectFromEvent(e, null, null, true);
 						}
 
 						if (!g.fromItem) {
-
 							if (this._pendingDoubleTap && this._pendingDoubleTap.grid) {
-
-								this._onGridDoubleClick({
+								this.emit("grid-double-click", {
 									date: this.getTime(this._gridProps.event),
 									triggerEvent: this._gridProps.event
 								});
@@ -1981,10 +1974,8 @@ define([
 								clearTimeout(this._pendingDoubleTap.timer);
 
 								delete this._pendingDoubleTap;
-
 							} else {
-
-								this._onGridClick({
+								this.emit("grid-click", {
 									date: this.getTime(this._gridProps.event),
 									triggerEvent: this._gridProps.event
 								});
@@ -2011,61 +2002,28 @@ define([
 		//
 		//////////////////////////////////////////////
 
-		_onRowHeaderClick: function (e) {
-			this._dispatchCalendarEvt(e, "onRowHeaderClick");
-		},
-
-		onRowHeaderClick: function (/*===== e =====*/) {
-			// summary:
-			//		Event dispatched when a row header cell is clicked.
-			// e: __HeaderClickEventArgs
-			//		Header click event.
-			// tags:
-			//		callback
-		},
-
-		expandRendererClickHandler: function (e, renderer) {
+		expandRendererClickHandler: function (clickEvent, renderer) {
 			// summary:
 			//		Default action when an expand renderer is clicked.
-			// e: Event
-			//		The mouse event.
+			// clickEvent: Event
+			//		The native mouse event.
 			// renderer: Object
 			//		The expand renderer.
 			// tags:
 			//		protected
 
-			event.stop(e);
+			clickEvent.stopPropagation();
 
-			var ri = renderer.rowIndex;
-			var ci = renderer.columnIndex;
+			var synthEvent = this.emit("expand-renderer-click", {
+				render: renderer,
+				triggerEvent: clickEvent
+			});
 
-			this._onExpandRendererClick(lang.mixin(this._createItemEditEvent(), {
-				rowIndex: ri,
-				columnIndex: ci,
-				renderer: renderer,
-				triggerEvent: e,
-				date: this.dates[ri][ci]
-			}));
-		},
-
-		onExpandRendererClick: function (e) {
-			// summary:
-			//		Event dispatched when an expand renderer is clicked.
-			// e: __ExpandRendererClickEventArgs
-			//		Expand renderer click event.
-			// tags:
-			//		callback
-		},
-
-		_onExpandRendererClick: function (e) {
-			this._dispatchCalendarEvt(e, "onExpandRendererClick");
-
-			if (!e.isDefaultPrevented()) {
-
+			if (!synthEvent.defaultPrevented) {
 				if (this.getExpandedRowIndex() != -1) {
 					this.collapseRow();
 				} else {
-					this.expandRow(e.rowIndex, e.columnIndex);
+					this.expandRow(clickEvent.rowIndex, clickEvent.columnIndex);
 				}
 			}
 		},

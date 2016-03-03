@@ -289,7 +289,6 @@ define([
 					// selection timer was not reached to a proper selection.
 					clearTimeout(this._touchSelectionTimer);
 					this.selectFromEvent(e, p.item._item, p.renderer, true);
-
 				} else if (this._pendingSelectedItem) {
 					// selection timer was reached, dispatch change event
 					this.dispatchChange(this._saveSelectedItems.length == 0 ? null : this._saveSelectedItems[0],
@@ -299,7 +298,7 @@ define([
 				}
 
 				if (this._pendingDoubleTap && this._pendingDoubleTap.item == p.item) {
-					this._onItemDoubleClick({
+					this.emit("item-double-click", {
 						triggerEvent: e,
 						renderer: p.renderer,
 						item: p.item._item
@@ -308,9 +307,7 @@ define([
 					clearTimeout(this._pendingDoubleTap.timer);
 
 					delete this._pendingDoubleTap;
-
 				} else {
-
 					this._pendingDoubleTap = {
 						item: p.item,
 						timer: setTimeout(lang.hitch(this, function () {
@@ -318,7 +315,7 @@ define([
 						}), this.doubleTapDelay)
 					};
 
-					this._onItemClick({
+					this.emit("item-click", {
 						triggerEvent: e,
 						renderer: p.renderer,
 						item: p.item._item
