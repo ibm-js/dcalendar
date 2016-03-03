@@ -25,7 +25,7 @@ define([
 		touchEndEditingTimer: 10000,
 
 		createdCallback: function () {
-			this.on("rendererCreated", lang.hitch(this, function (irEvent) {
+			this.on("renderer-created", lang.hitch(this, function (irEvent) {
 				var renderer = irEvent.renderer.renderer;
 
 				this.own(renderer.on("touchstart", lang.hitch(this, function (e) {

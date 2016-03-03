@@ -151,10 +151,10 @@ define([
 			}
 		},
 
-		_scrollBarOnScroll: function (value) {
+		_vScrollBarOnScroll: function (e) {
 			// tags:
 			//		private
-			this.scrollContainer.scrollTop = value;
+			this.scrollContainer.scrollTop = e.target.value;
 		},
 
 		postRender: function () {

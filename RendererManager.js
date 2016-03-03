@@ -118,11 +118,11 @@ define([
 						kind: kind
 					};
 
-					this.emit("rendererCreated", {renderer: res, source: this.owner, item: item});
+					this.emit("renderer-created", {renderer: res, source: this.owner, item: item});
 				} else {
 					renderer = res.renderer;
 
-					this.emit("rendererReused", {renderer: renderer, source: this.owner, item: item});
+					this.emit("renderer-reused", {renderer: renderer, source: this.owner, item: item});
 				}
 
 				renderer.owner = this.owner;
@@ -149,7 +149,7 @@ define([
 			// tags:
 			//		protected
 
-			this.emit("rendererRecycled", {renderer: renderer, source: this.owner});
+			this.emit("renderer-recycled", {renderer: renderer, source: this.owner});
 
 			var pool = this.rendererPool[renderer.kind];
 
@@ -177,7 +177,7 @@ define([
 			// tags:
 			//		protected
 
-			this.emit("rendererDestroyed", {renderer: renderer, source: this.owner});
+			this.emit("renderer-destroyed", {renderer: renderer, source: this.owner});
 
 			var ir = renderer.renderer;
 

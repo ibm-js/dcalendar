@@ -1,6 +1,5 @@
 define([
 	"delite/register",
-	"dojo/_base/lang",
 	"./CalendarBase",
 	"./ColumnView",
 	"./ColumnViewSecondarySheet",
@@ -15,7 +14,6 @@ define([
 	"delite/handlebars!./templates/Calendar.html"
 ], function (
 	register,
-	lang,
 	CalendarBase,
 	ColumnView,
 	ColumnViewSecondarySheet,
@@ -77,10 +75,10 @@ define([
 			// summary:
 			//		Installs the default actions on newly created default views.
 			//		By default this action is registering:
-			//		- the matrixViewRowHeaderClick method on the rowHeaderClick event of the matrix view.
-			//		- the columnViewColumnHeaderClick method on the columnHeaderClick event of the column view.
-			this.matrixView.on("rowHeaderClick", lang.hitch(this, this.matrixViewRowHeaderClick));
-			this.columnView.on("columnHeaderClick", lang.hitch(this, this.columnViewColumnHeaderClick));
+			//		- the matrixViewRowHeaderClick method on the row-header-click event of the matrix view.
+			//		- the columnViewColumnHeaderClick method on the column-header-click event of the column view.
+			this.matrixView.on("row-header-click", this.matrixViewRowHeaderClick.bind(this));
+			this.columnView.on("column-header-click", this.columnViewColumnHeaderClick.bind(this));
 		}
 	});
 });

@@ -795,7 +795,7 @@ define([
 							setTimeout(lang.hitch(this, function () {
 								this._layoutRenderers();
 							}), 100);
-							this.onExpandAnimationEnd(false);
+							this.emit("expand-animation-end");
 						})
 					});
 
@@ -895,15 +895,6 @@ define([
 			if (layout) {
 				this._layoutRenderers();
 			}
-		},
-
-		onExpandAnimationEnd: function (/*===== expand =====*/) {
-			// summary:
-			//		Event dispatched at the end of an expand or collapse animation.
-			// expand: Boolean
-			//		Whether the finished animation was an expand or a collapse animation.
-			// tags:
-			//		callback
 		},
 
 		_resizeRows: function () {

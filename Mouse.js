@@ -44,7 +44,7 @@ define([
 		triggerExtent: 3,
 
 		createdCallback: function () {
-			this.on("rendererCreated", lang.hitch(this, function (irEvent) {
+			this.on("renderer-created", lang.hitch(this, function (irEvent) {
 				var renderer = irEvent.renderer.renderer;
 
 				this.own(renderer.on("click", lang.hitch(this, function (e) {

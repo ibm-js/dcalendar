@@ -159,12 +159,12 @@ define([
 			}
 		},
 
-		_scrollBarOnScroll: function (value) {
-			this._setScrollPosition(value);
+		_vScrollBarOnScroll: function (e) {
+			this._setScrollPosition(e.target.value);
 		},
 
-		_hscrollBar_onScroll: function (value) {
-			this._setHScrollPosition(value);
+		_hScrollBarOnScroll: function (e) {
+			this._setHScrollPosition(e.target.value);
 		},
 
 		postRender: function () {

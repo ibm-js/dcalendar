@@ -121,7 +121,7 @@ define([
 		// source: dcalendar/ViewBase
 		//		The view where the event occurred.
 		// item:Object?
-		//		The item that will be displayed by the renderer for the "rendererCreated" and "rendererReused" events.
+		//		The item that will be displayed by the renderer for the "renderer-created" and "renderer-reused" events.
 	};
 	=====*/
 
@@ -686,10 +686,10 @@ define([
 			} else if (expIndex == -1) {
 				this.matrixView.expandRow(e.index);
 			} else {
-				var h = this.matrixView.on("expandAnimationEnd", lang.hitch(this, function () {
+				var h = this.matrixView.on("expand-animation-end", function () {
 					h.remove();
 					this.matrixView.expandRow(e.index);
-				}));
+				}.bind(this));
 				this.matrixView.collapseRow();
 			}
 		},

@@ -38,7 +38,7 @@ define([
 
 		_initItems: function (items) {
 			this.items = items;
-			this.emit("dataLoaded", items);
+			this.emit("data-loaded", items);
 		},
 
 		_computeVisibleItems: function (startTime, endTime) {
@@ -140,10 +140,10 @@ define([
 
 			if (!this.owner._isEditing) {
 				if (layoutCanChange) {
-					this.emit("layoutInvalidated");
+					this.emit("layout-invalidated");
 				} else {
 					// just update the item
-					this.emit("renderersInvalidated", oldItem);
+					this.emit("renderers-invalidated", oldItem);
 				}
 			}
 		},

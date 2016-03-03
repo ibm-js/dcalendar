@@ -115,7 +115,7 @@ define([
 		 //		The view where the event occurred.
 		 // item:Object?
 		 //		The item that will be displayed by the renderer for the
-		 //		"rendererCreated" and "rendererReused" events.
+		 //		"renderer-created" and "renderer-reused" events.
 	 };
 	 =====*/
 
@@ -211,28 +211,28 @@ define([
 				_ownerItemsProperty: "items",
 				store: this.store
 			});
-			this.storeManager.on("layoutInvalidated", function () {
+			this.storeManager.on("layout-invalidated", function () {
 				// Trigger call to refreshRendering(), and full relayout of all the items.
 				this.items = this.storeManager.items;
 			}.bind(this));
-			this.storeManager.on("dataLoaded", function (items) {
+			this.storeManager.on("data-loaded", function (items) {
 				// Trigger call to refreshRendering(), and full layout of all the items.
 				this.items = items;
 			}.bind(this));
 			// For minor changes to a single renderer, just update the renderer w/out calling this.refreshRendering()
-			this.storeManager.on("renderersInvalidated", this.updateRenderers.bind(this));
+			this.storeManager.on("renderers-invalidated", this.updateRenderers.bind(this));
 
 			this.rendererManager = new RendererManager({owner: this});
-			this.rendererManager.on("rendererCreated", this.emit.bind(this, "renderer-created"));
-			this.rendererManager.on("rendererReused", this.emit.bind(this, "renderer-reused"));
-			this.rendererManager.on("rendererRecycled", this.emit.bind(this, "renderer-recycled"));
-			this.rendererManager.on("rendererDestroyed", this.emit.bind(this, "renderer-destroyed"));
+			this.rendererManager.on("renderer-created", this.emit.bind(this, "renderer-created"));
+			this.rendererManager.on("renderer-reused", this.emit.bind(this, "renderer-reused"));
+			this.rendererManager.on("renderer-recycled", this.emit.bind(this, "renderer-recycled"));
+			this.rendererManager.on("renderer-destroyed", this.emit.bind(this, "renderer-destroyed"));
 
 			this.decorationStoreManager = new StoreManager({owner: this, _ownerItemsProperty: "decorationItems"});
-			this.decorationStoreManager.on("dataLoaded", function (items) {
+			this.decorationStoreManager.on("data-loaded", function (items) {
 				this.decorationItems = items;
 			}.bind(this));
-			this.decorationStoreManager.on("layoutInvalidated", function () {
+			this.decorationStoreManager.on("layout-invalidated", function () {
 				this.decorationItems = this.decorationStoreManager.items;
 			}.bind(this));
 			this.decorationRendererManager = new RendererManager({owner: this});
@@ -1300,7 +1300,7 @@ define([
 				index++;
 			}
 
-			this.emit("renderer-layout-done");
+			this.emit("renderers-layout-done");
 		},
 
 		/////////////////////////////////////////////////////////////////
@@ -1443,7 +1443,6 @@ define([
 			var items = lang.isArray(obj) ? obj : [obj];
 
 			for (var i = 0; i < items.length; i++) {
-
 				var item = items[i];
 
 				if (item == null || item.id == null) {
@@ -1473,7 +1472,7 @@ define([
 					this.applyRendererZIndex(item, list[j], hovered, selected, edited, focused);
 
 					if (!stateOnly) {
-						renderer.item = item; // force content refresh
+						renderer.notifyCurrentValue("item"); // force content refresh
 						renderer.deliver();
 					}
 				}
@@ -1990,7 +1989,7 @@ define([
 			this._editStartTimeSave = this.newDate(e.item.startTime);
 			this._editEndTimeSave = this.newDate(e.item.endTime);
 
-			this.emit("item-edit-begin", {triggerEvent: e});
+			this.emit("item-edit-begin", e);
 		},
 
 		_endItemEditing: function (/*String*/eventSource, /*Boolean*/canceled) {
@@ -2022,12 +2021,12 @@ define([
 				lang.mixin(this.rendererManager.itemToRenderer, p.editItemToRenderer);
 			}
 
-			this._onItemEditEnd(lang.mixin(this._createItemEditEvent(), {
+			this._onItemEditEnd({
 				item: p.editedItem,
 				storeItem: p.storeItem,
 				eventSource: eventSource,
 				completed: !canceled
-			}));
+			});
 
 			this._layoutRenderers();
 
@@ -2038,7 +2037,7 @@ define([
 			// tags:
 			//		private
 
-			var synthEvent = this.emit("item-edit-end", {triggerEvent: e});
+			var synthEvent = this.emit("item-edit-end", e);
 
 			if (!synthEvent.defaultPrevented) {
 				var store = this.store;
@@ -2136,7 +2135,7 @@ define([
 
 			p.editKind = editKind;
 
-			this._onItemEditBeginGesture(this.__fixEvt(lang.mixin(this._createItemEditEvent(), {
+			this._onItemEditBeginGesture({
 				item: item,
 				storeItem: p.storeItem,
 				startTime: item.startTime,
@@ -2146,7 +2145,7 @@ define([
 				triggerEvent: e,
 				dates: dates,
 				eventSource: eventSource
-			})));
+			});
 
 			p.itemBeginDispatched = true;
 		},
@@ -2182,7 +2181,7 @@ define([
 
 			p._initDuration = cal.difference(item.startTime, item.endTime, item.allDay ? "day" : "millisecond");
 
-			var synthEvent = this.emit("item-edit-begin-gesture", {triggerEvent: e});
+			var synthEvent = this.emit("item-edit-begin-gesture", e);
 
 			if (!synthEvent.defaultPrevented) {
 				if (e.eventSource == "mouse") {
@@ -2377,7 +2376,7 @@ define([
 				return false;
 			}
 
-			var evt = lang.mixin(this._createItemEditEvent(), {
+			var evt = {
 				item: item,
 				storeItem: p.storeItem,
 				startTime: item.startTime,
@@ -2386,7 +2385,7 @@ define([
 				rendererKind: p.rendererKind,
 				triggerEvent: e,
 				eventSource: eventSource
-			});
+			};
 
 			// trigger snapping, rounding, minimal duration, boundaries checks etc.
 			if (editKind == "move") {
@@ -2439,7 +2438,7 @@ define([
 			// tags:
 			//		private
 
-			var synthEvent = this.emit("item-edit-move-gesture", {triggerEvent: e});
+			var synthEvent = this.emit("item-edit-move-gesture", e);
 
 			if (!synthEvent.defaultPrevented) {
 				var p = e.source._edProps;
@@ -2480,7 +2479,7 @@ define([
 			// tags:
 			//		private
 
-			var synthEvent = this.emit("item-edit-resize-gesture", {triggerEvent: e});
+			var synthEvent = this.emit("item-edit-resize-gesture", e);
 
 			if (!synthEvent.defaultPrevented) {
 				var p = e.source._edProps;
@@ -2528,7 +2527,7 @@ define([
 				var minimalDay = e.item.allDay ||
 					p._initDuration >= this._DAY_IN_MILLISECONDS && !this.allowResizeLessThan24H;
 
-				this.ensureMinimalDuration(this, e.item,
+				this.ensureMinimalDuration(e.item,
 					minimalDay ? "day" : this.minDurationUnit,
 					minimalDay ? 1 : this.minDurationSteps,
 					e.editKind);
@@ -2559,7 +2558,7 @@ define([
 
 			p.itemBeginDispatched = false;
 
-			this._onItemEditEndGesture(lang.mixin(this._createItemEditEvent(), {
+			this._onItemEditEndGesture({
 				item: item,
 				storeItem: p.storeItem,
 				startTime: item.startTime,
@@ -2568,7 +2567,7 @@ define([
 				rendererKind: p.rendererKind,
 				triggerEvent: e,
 				eventSource: eventSource
-			}));
+			});
 		},
 
 		_onItemEditEndGesture: function (e) {
@@ -2580,7 +2579,7 @@ define([
 			delete p._itemEditBeginSave;
 			delete p._itemEditEndSave;
 
-			var synthEvent = this.emit("item-edit-end-gesture", {triggerEvent: e});
+			var synthEvent = this.emit("item-edit-end-gesture", e);
 
 			if (!synthEvent.defaultPrevented) {
 				if (p.editLayer) {

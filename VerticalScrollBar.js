@@ -51,21 +51,12 @@ define([
 
 		containerSize: 0,
 
-		postRender: function () {
-			this.on("scroll", function () {
-				this.value = this._getDomScrollerValue();
-				this.onChange(this.value);
-				this.onScroll(this.value);
-			}.bind(this));
-		},
-
-		_getDomScrollerValue: function () {
+		_getValueAttr: function () {
 			if (this._vertical) {
 				return this.scrollTop;
 			}
 
-			var rtl = (this.effectiveDir === "rtl");
-			if (rtl) {
+			if (this.effectiveDir === "rtl") {
 				if (has("webkit")) {
 					if (this._scW === undefined) {
 						this._scW = metrics.getScrollbar().w;
@@ -80,36 +71,14 @@ define([
 			return this.scrollLeft;
 		},
 
-		_setDomScrollerValue: function (value) {
-			this[this._vertical ? "scrollTop" : "scrollLeft"] = value;
-		},
-
 		_setValueAttr: function (value) {
+			// TODO: move to computeProperties()
 			value = Math.min(this.maximum, value);
 			value = Math.max(this.minimum, value);
 			if (this.value != value) {
 				this.value = value;
-				this.onChange(value);
-				this._setDomScrollerValue(value);
+				this[this._vertical ? "scrollTop" : "scrollLeft"] = value;
 			}
-		},
-
-		onChange: function (value) {
-			// summary:
-			//		 An extension point invoked when the value has changed.
-			// value: Integer
-			//		The position of the scroll bar in pixels.
-			// tags:
-			//		callback
-		},
-
-		onScroll: function (value) {
-			// summary:
-			//		 An extension point invoked when the user scrolls with the mouse.
-			// value: Integer
-			//		The position of the scroll bar in pixels.
-			// tags:
-			//		callback
 		},
 
 		_setMinimumAttr: function (value) {
