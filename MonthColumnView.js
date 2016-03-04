@@ -18,7 +18,7 @@ define([
 	"dojo/mouse",
 	"dojo/query",
 	"dojo/i18n",
-	"dojox/html/metrics"
+	"./metrics"
 ], function (
 	ViewBase,
 	_ScrollBarBase,

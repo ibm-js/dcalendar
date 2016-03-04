@@ -6,7 +6,7 @@ define([
 	"dojo/dom-style",
 	"decor/sniff",
 	"delite/Widget",
-	"dojox/html/metrics",
+	"./metrics",
 	"delite/handlebars!./templates/Scrollbar.html"
 ], function (
 	register,
