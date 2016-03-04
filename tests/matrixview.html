@@ -195,7 +195,7 @@
 
 				// Events management
 
-				matrixView.on("gridDoubleClick", function(e){
+				matrixView.on("grid-double-click", function(e){
 
 					// create a event when double-clicking on grid.
 					var d = matrixView.floorToDay(e.date, true);
@@ -215,14 +215,14 @@
 					onMatrixViewChange(item);
 				});
 
-				matrixView.on("rowHeaderClick", function(e){
+				matrixView.on("row-header-click", function(e){
 					var expIndex = matrixView.getExpandedRowIndex();
 					if(expIndex == e.index){
 						matrixView.collapseRow();
 					}else if(expIndex == -1){
 						matrixView.expandRow(e.index);
 					}else{
-						var h = matrixView.on("expandAnimationEnd", function(){
+						var h = matrixView.on("expand-animation-end", function(){
 							h.remove();
 							matrixView.expandRow(e.index);
 						});
@@ -313,7 +313,7 @@
 							}
 						}
 					}
-					addLogEntry("onChange", res);
+					addLogEntry("change", res);
 				};
 
 
@@ -402,21 +402,21 @@
 					matrixView.formatItemTimeFunc = (value ? formatItemTimeFunc : null);
 				});
 
-				matrixView.on("itemClick", function(e){
-					addLogEntry("onItemClick", e.item.summary);
+				matrixView.on("item-click", function(e){
+					addLogEntry("item-click", e.item.summary);
 				});
-				matrixView.on("itemDoubleClick", function(e){
-					addLogEntry("onItemDoubleClick", e.item.summary);
+				matrixView.on("item-double-click", function(e){
+					addLogEntry("item-double-click", e.item.summary);
 				});
-				matrixView.on("gridClick", function(e){
-					addLogEntry("onGridClick", locale.format(e.date, {datePattern:"yyyy/MM/dd", timePattern:"h:mm"}));
+				matrixView.on("grid-click", function(e){
+					addLogEntry("grid-click", locale.format(e.date, {datePattern:"yyyy/MM/dd", timePattern:"h:mm"}));
 				});
-				matrixView.on("gridDoubleClick", function(e){
-					addLogEntry("onGridDoubleClick", locale.format(e.date, {datePattern:"yyyy/MM/dd", timePattern:"h:mm"}));
+				matrixView.on("grid-double-click", function(e){
+					addLogEntry("grid-double-click", locale.format(e.date, {datePattern:"yyyy/MM/dd", timePattern:"h:mm"}));
 				});
 
-				matrixView.on("itemRollOut", function(e){
-					addLogEntry("onItemRollOut", e.item.summary);
+				matrixView.on("item-roll-out", function(e){
+					addLogEntry("item-roll-out", e.item.summary);
 				});
 
 				var getDataTipLabel = function(item){
@@ -425,36 +425,36 @@
 						"End:</td><td>" + matrixView.dateLocaleModule.format(item.endTime, {formatLength: "short"}) + "</td></tr></table>";
 				};
 
-				matrixView.on("focusChange", function(e){
-					addLogEntry("focusChange", e.newValue ? e.newValue.summary: "null");
+				matrixView.on("focus-change", function(e){
+					addLogEntry("focus-change", e.newValue ? e.newValue.summary: "null");
 				});
 
-				matrixView.on("itemRollOver", function(e){
-					addLogEntry("onItemRollOver", e.item.summary);
+				matrixView.on("item-roll-over", function(e){
+					addLogEntry("item-roll-over", e.item.summary);
 				});
 
-				matrixView.on("itemEditBegin", function(e){
-					addLogEntry("onItemEditBegin", e.item.summary);
+				matrixView.on("item-edit-begin", function(e){
+					addLogEntry("item-edit-begin", e.item.summary);
 				});
 
-				matrixView.on("itemEditBeginGesture", function(e){
-					addLogEntry("onItemEditBeginGesture", e.editKind + ", " + e.item.summary);
+				matrixView.on("item-edit-begin-gesture", function(e){
+					addLogEntry("item-edit-begin-gesture", e.editKind + ", " + e.item.summary);
 				});
 
 				var showDataTipAfterLayout = false;
-				matrixView.on("itemEditMoveGesture", function(e){
+				matrixView.on("item-edit-move-gesture", function(e){
 					showDataTipAfterLayout = true;
 				});
 
-				matrixView.on("itemEditEndGesture", function(e){
-					addLogEntry("onItemEditEndGesture", e.editKind + ", " + e.item.summary);
+				matrixView.on("item-edit-end-gesture", function(e){
+					addLogEntry("item-edit-end-gesture", e.editKind + ", " + e.item.summary);
 
 					onMatrixViewChange(e.item);
 
 				});
 
-				matrixView.on("itemEditEnd", function(e){
-					addLogEntry("onItemEditEnd", e.item.summary + ", completed:" + e.completed);
+				matrixView.on("item-edit-end", function(e){
+					addLogEntry("item-edit-end", e.item.summary + ", completed:" + e.completed);
 				});
 
 				editableCB.on("change", function(value){

@@ -74,7 +74,7 @@
 				calendar.store = new Observable(new Memory({data: someData}));
 				calendar.date = startOfWeek;
 
-				calendar.on("gridDoubleClick", function(e){
+				calendar.on("grid-double-click", function(e){
 					// create a event when double-clicking on grid.
 					var start, end;
 					var colView = calendar.columnView;
@@ -158,11 +158,11 @@
 					selectionChanged(e.newValue);
 				});
 
-				calendar.on("itemEditEnd", function(e){
+				calendar.on("item-edit-end", function(e){
 					selectionChanged(e.item);
 				});
 
-				calendar.on("timeIntervalChange", function(e){
+				calendar.on("time-interval-change", function(e){
 					dateChooser.value = e.startTime;
 				});
 
@@ -324,7 +324,7 @@
 					calendarContextMenu._openMyself({ target: e.renderer, coords: {x: e.triggerEvent.pageX, y: e.triggerEvent.pageY} });
 				}
 			</script>
-			<d-calendar id="calendar" onItemContextMenu="onItemContextMenu(arguments[0]);"
+			<d-calendar id="calendar" on-item-context-menu="onItemContextMenu(arguments[0]);"
 								style="position:absolute;left:10px;top:10px;bottom:10px;right:10px">
 			</d-calendar>
 

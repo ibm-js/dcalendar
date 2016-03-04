@@ -125,7 +125,7 @@
 			calendar.store = new Observable(new Memory({data: someData}));
 			calendar.date = startOfWeek;
 
-			calendar.on("gridDoubleClick", function(e){
+			calendar.on("grid-double-click", function(e){
 				if(e.triggerEvent.ctrlKey && e.triggerEvent.shiftKey){
 					// drill down
 					calendar.date = e.date;
@@ -220,7 +220,7 @@
 			calendar.monthColumnView.itemToRendererKindFunc = itemToRendererKindFunc;
 
 			// show context menu on right clicking an event
-			calendar.on("itemContextMenu", function(e){
+			calendar.on("item-context-menu", function(e){
 				dojo.stopEvent(e.triggerEvent);
 				calendarContextMenu._openMyself({
 					target: e.renderer,
@@ -272,12 +272,12 @@
 				selectionChanged(e.newValue);
 			});
 
-			calendar.on("itemEditEnd", function(e){
+			calendar.on("item-edit-end", function(e){
 				selectionChanged(e.item);
 			});
 
 			// configure item properties panel
-			calendar.on("timeIntervalChange", function(e){
+			calendar.on("time-interval-change", function(e){
 				dateChooser.value = e.startTime;
 			});
 

@@ -36,7 +36,7 @@ define([
 					verticalRenderer: VerticalRenderer
 				});
 
-				this.monthColumnView.on("columnHeaderClick", lang.hitch(this, function (e) {
+				this.monthColumnView.on("column-header-click", lang.hitch(this, function (e) {
 					this.dateInterval = "month";
 					this.dateIntervalSteps = 1;
 					this.date = e.date;

@@ -61,7 +61,6 @@
 					someData.push(newObj);
 				}
 
-				var id = i;
 				var secondarySheetClass = register("my-secondary-sheet", [ColumnViewSecondarySheet, CalendarTouch], {});
 				var MyColumnView = register("my-column-view", [ColumnView, CalendarTouch], {
 					secondarySheetClass: secondarySheetClass,
@@ -99,9 +98,8 @@
 				colView.snapSteps = 15;
 				colView.liveLayout = false;
 
-				var id=4;
-				colView.on("gridDoubleClick", function(e){
-
+				var id = 4;
+				colView.on("grid-double-click", function(e){
 					// create a event when double-clicking on grid.
 					var start, end;
 					if(e.sheet == "primary"){
@@ -130,7 +128,7 @@
 				var startDateSave;
 				var columnCountSave;
 
-				colView.on("columnHeaderClick", function(e){
+				colView.on("column-header-click", function(e){
 					if (colView.columnCount == 1) {
 						colView.startDate = startDateSave;
 						colView.columnCount = columnCountSave;

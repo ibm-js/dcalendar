@@ -101,7 +101,7 @@
 				calendar.date = startOfWeek;
 
 				// show context menu on right clicking an event
-				calendar.on("itemContextMenu", function(e){
+				calendar.on("item-context-menu", function(e){
 					dojo.stopEvent(e.triggerEvent);
 					calendarContextMenu._openMyself({
 						target: e.renderer,

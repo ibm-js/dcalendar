@@ -49,7 +49,7 @@
 				// This sample needs a service that hosts REST service that can answer to the Jsonrest store !!
 				// WARNING
 
-				calendar.on("timeIntervalChange", function(e){
+				calendar.on("time-interval-change", function(e){
 					var startTimeStr = stamp.toISOString(e.startTime, {zulu: true, milliseconds: true});
 					var endTimeStr = stamp.toISOString(e.endTime, {zulu: true, milliseconds: true});
 					calendar.query = {
@@ -99,7 +99,7 @@
 					calendar.createItemFunc = createItem;
 				}else{
 					var count = 0;
-					calendar.on("gridDoubleClick", function(e){
+					calendar.on("grid-double-click", function(e){
 						var item = createItem(calendar.columnView, e.date, e.triggerEvent);
 						if(item){
 							// no id set here and not temporary id in options.

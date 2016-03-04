@@ -132,7 +132,7 @@
 
 				// Events management
 
-				matrixView.on("gridDoubleClick", function(e){
+				matrixView.on("grid-double-click", function(e){
 					// create a event when double-clicking on grid.
 					var d = matrixView.floorToDay(e.date, true);
 
@@ -150,14 +150,14 @@
 					onMatrixViewChange(item);
 				});
 
-				matrixView.on("rowHeaderClick", function(e){
+				matrixView.on("row-header-click", function(e){
 					var expIndex = matrixView.getExpandedRowIndex();
 					if(expIndex == e.index){
 						matrixView.collapseRow();
 					}else if(expIndex == -1){
 						matrixView.expandRow(e.index);
 					}else{
-						var h = matrixView.on("expandAnimationEnd", function(){
+						var h = matrixView.on("expand-animation-end", function(){
 							h.remove();
 							matrixView.expandRow(e.index);
 						});

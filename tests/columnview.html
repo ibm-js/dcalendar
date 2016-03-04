@@ -204,7 +204,7 @@
 				var startDateSave;
 				var columnCountSave;
 
-				colView.on("columnHeaderClick", function(e){
+				colView.on("column-header-click", function(e){
 					if (colView.columnCount == 1) {
 						colView.startDate = startDateSave;
 						colView.columnCount = columnCountSave;
@@ -298,7 +298,7 @@
 							}
 						}
 					}
-					addLogEntry("onChange", res);
+					addLogEntry("change", res);
 				};
 
 				allDayCB.on("change", function(value){
@@ -374,22 +374,22 @@
 					colView.columnHeaderDatePattern = columnHeaderFormatEditor.value;
 				});
 
-				colView.on("itemClick", function(e){
-					addLogEntry("onItemClick", e.item.summary);
+				colView.on("item-click", function(e){
+					addLogEntry("item-click", e.item.summary);
 				});
-				colView.on("itemDoubleClick", function(e){
-					addLogEntry("onItemDoubleClick", e.item.summary);
+				colView.on("item-double-click", function(e){
+					addLogEntry("item-double-click", e.item.summary);
 				});
-				colView.on("gridClick", function(e){
-					addLogEntry("onGridClick", locale.format(e.date, {datePattern:"yyyy/MM/dd", timePattern:"h:mm"}));
+				colView.on("grid-click", function(e){
+					addLogEntry("grid-click", locale.format(e.date, {datePattern:"yyyy/MM/dd", timePattern:"h:mm"}));
 				});
-				colView.on("gridDoubleClick", function(e){
-					addLogEntry("onGridDoubleClick", locale.format(e.date, {datePattern:"yyyy/MM/dd", timePattern:"h:mm"}));
+				colView.on("grid-double-click", function(e){
+					addLogEntry("grid-double-click", locale.format(e.date, {datePattern:"yyyy/MM/dd", timePattern:"h:mm"}));
 				});
 
 
-				colView.on("itemRollOut", function(e){
-					addLogEntry("onItemRollOut", e.item.summary);
+				colView.on("item-roll-out", function(e){
+					addLogEntry("item-roll-out", e.item.summary);
 				});
 
 				var getItemLabel = function(item){
@@ -398,30 +398,30 @@
 						"End:</td><td>" + colView.dateLocaleModule.format(item.endTime, {formatLength: "medium"}) + "</td></tr></table>";
 				};
 
-				colView.on("focusChange", function(e){
-					addLogEntry("focusChange", e.item ? e.item.summary: "null");
+				colView.on("focus-change", function(e){
+					addLogEntry("focus-change", e.item ? e.item.summary: "null");
 				});
 
-				colView.on("itemRollOver", function(e){
-					addLogEntry("onItemRollOver", e.item.summary);
+				colView.on("item-roll-over", function(e){
+					addLogEntry("item-roll-over", e.item.summary);
 				});
 
-				colView.on("itemEditBegin", function(e){
-					addLogEntry("onItemEditBegin", e.item.summary);
+				colView.on("item-edit-begin", function(e){
+					addLogEntry("item-edit-begin", e.item.summary);
 				});
 
-				colView.on("itemEditBeginGesture", function(e){
-					addLogEntry("onItemEditBeginGesture", e.editKind + ", " + e.item.summary);
+				colView.on("item-edit-begin-gesture", function(e){
+					addLogEntry("item-edit-begin-gesture", e.editKind + ", " + e.item.summary);
 				});
 
-				colView.on("itemEditEndGesture", function(e){
-					addLogEntry("onItemEditEndGesture", e.editKind + ", " + e.item.summary);
+				colView.on("item-edit-end-gesture", function(e){
+					addLogEntry("item-edit-end-gesture", e.editKind + ", " + e.item.summary);
 					onColViewChange(e.item);
 				});
 
 
-				colView.on("itemEditEnd", function(e){
-					addLogEntry("onItemEditEnd", e.item.summary + ", completed:" + e.completed);
+				colView.on("item-edit-end", function(e){
+					addLogEntry("item-edit-end", e.item.summary + ", completed:" + e.completed);
 				});
 
 				editableCB.on("change", function(value){
