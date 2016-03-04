@@ -604,8 +604,8 @@ define([
 			var rPos = atRight ? "right" : "left";
 			var lPos = atRight ? "left" : "right";
 
-			if (this.scrollBar) {
-				this.scrollBar.maximum = this.sheetHeight;
+			if (this.vScrollBar) {
+				this.vScrollBar.maximum = this.sheetHeight;
 				domStyle.set(this.vScrollBar, rPos, 0);
 				domStyle.set(this.vScrollBar, atRight ? "left" : "right", "auto");
 				domStyle.set(this.vScrollBar, "bottom", this.hScrollBarEnabled ?
@@ -623,7 +623,7 @@ define([
 			}
 
 			if (this.hScrollBar) {
-				arr.forEach(this._hScrollNodes, function (elt) {
+				this._hScrollNodes.forEach(function (elt) {
 					domClass[this.hScrollBarEnabled ? "add" : "remove"](elt.parentNode,
 						"dojoxCalendarHorizontalScroll");
 				}, this);
