@@ -1,17 +1,14 @@
 define([
-	"dojo/_base/declare",
-	"dijit/_WidgetBase",
-	"dijit/_TemplatedMixin",
-	"./_RendererMixin",
-	"dojo/text!./templates/MobileVerticalRenderer.html"
-], function (declare, _WidgetBase, _TemplatedMixin, _RendererMixin, template) {
+	"delite/register",
+	"./RenderBase",
+	"delite/handlebars!./templates/MobileVerticalRenderer.html"
+], function (register, _RendererMixin, template) {
 
-	return declare("dojox.calendar.MobileVerticalRenderer", [_WidgetBase, _TemplatedMixin, _RendererMixin], {
-
+	return register("d-calendar-mobile-vertical", [HTMLElement, _RendererMixin], {
 		// summary:
 		//		The mobile specific item vertical renderer.
 
-		templateString: template,
+		template: template,
 		mobile: true,
 
 		visibilityLimits: {
@@ -22,29 +19,26 @@ define([
 			endTimeLabel: 20
 		},
 
-		postCreate: function () {
-			this.inherited(arguments);
-			this._applyAttributes();
-		},
+		_isElementVisible: register.superCall(function (sup) {
+			return function (elt) {
+				var d;
 
-		_isElementVisible: function (elt, startHidden, endHidden, size) {
-			var d;
-
-			switch (elt) {
-				case "startTimeLabel":
-					d = this.item.startTime;
-					if (this.item.allDay || this.owner.isStartOfDay(d)) {
-						return false;
-					}
-					break;
-				case "endTimeLabel":
-					d = this.item.endTime;
-					if (this.item.allDay || this.owner.isStartOfDay(d)) {
-						return false;
-					}
-					break;
-			}
-			return this.inherited(arguments);
-		}
+				switch (elt) {
+					case "startTimeLabel":
+						d = this.item.startTime;
+						if (this.item.allDay || this.owner.isStartOfDay(d)) {
+							return false;
+						}
+						break;
+					case "endTimeLabel":
+						d = this.item.endTime;
+						if (this.item.allDay || this.owner.isStartOfDay(d)) {
+							return false;
+						}
+						break;
+				}
+				return sup.apply(this, arguments);
+			};
+		})
 	});
 });

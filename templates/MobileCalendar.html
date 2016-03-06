@@ -1,11 +1,11 @@
-<div>
-	<div data-dojo-attach-point="viewContainer" class="viewContainer"></div>
-	<div data-dojo-attach-point="buttonContainer" class="buttonContainer">
-			<button data-dojo-attach-point="previousButton" data-dojo-type="dojox.mobile.Button" >◄</button>
-			<button data-dojo-attach-point="todayButton" data-dojo-type="dojox.mobile.Button" >Today</button>
-			<button data-dojo-attach-point="dayButton" data-dojo-type="dojox.mobile.Button" >Day</button>
-			<button data-dojo-attach-point="weekButton" data-dojo-type="dojox.mobile.Button" >Week</button>
-			<button data-dojo-attach-point="monthButton" data-dojo-type="dojox.mobile.Button" >Month</button>
-		<button data-dojo-attach-point="nextButton" data-dojo-type="dojox.mobile.Button" >►</button>
+<template>
+	<div attach-point="viewContainer" class="viewContainer"></div>
+	<div attach-point="buttonContainer" class="buttonContainer">
+		<button on-click="{{previousRange}}">{{this.effectiveDir === "ltr" ? "◄" : "►"}}</button>
+		<button on-click="{{todayButtonClick}}">{{_nls.todayButton}}</button>
+		<button on-click="{{dayButtonClick}}">{{_nls.dayButton}}</button>
+		<button on-click="{{weekButtonClick}}">{{_nls.weekButton}}</button>
+		<button on-click="{{monthButtonClick}}">{{_nls.monthButton}}</button>
+		<button on-click="{{nextRange}}">{{this.effectiveDir === "ltr" ? "►" : "◄"}}</button>
 	</div>
-</div>
+</template>

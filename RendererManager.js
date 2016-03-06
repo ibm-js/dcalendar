@@ -1,27 +1,17 @@
 define([
-	"dojo/_base/declare",
-	"dojo/_base/array",
+	"dcl/dcl",
 	"dojo/_base/html",
-	"dojo/_base/lang",
-	"dojo/dom-class",
 	"dojo/dom-style",
-	"dojo/Stateful",
-	"dojo/Evented"
+	"decor/Evented"
 ], function (
-	declare,
-	arr,
+	dcl,
 	html,
-	lang,
-	domClass,
 	domStyle,
-	Stateful,
 	Evented
 ) {
-
-	return declare("dojox.calendar.RendererManager", [Stateful, Evented], {
-
+	return dcl(Evented, {
 		// summary:
-		//		This mixin contains the store management.
+		//		Factory for creating and caching released item renderers (LabelRenderer, VerticalRenderer, etc.)
 
 		// owner: Object
 		//	The owner of the store manager: a view or a calendar widget.
@@ -40,11 +30,13 @@ define([
 		itemToRenderer: null,
 
 		constructor: function (/*Object*/ args) {
-			args = args || {};
-
 			this.rendererPool = [];
 			this.rendererList = [];
 			this.itemToRenderer = {};
+
+			if (args) {
+				dcl.mix(this, args);
+			}
 		},
 
 		destroy: function () {
@@ -77,14 +69,15 @@ define([
 
 		getRenderers: function (item) {
 			// summary:
-			//		Returns the renderers that are currently used to displayed the speficied item.
+			//		Returns the renderers that are currently used to display the specified item.
 			//		Returns an array of objects that contains two properties:
 			//		- container: The DOM node that contains the renderer.
-			//		- renderer: The dojox.calendar._RendererMixin instance.
+			//		- renderer: The dcalendar/_RendererMixin instance.
 			//		Do not keep references on the renderers are they are recycled and reused for other items.
 			// item: Object
 			//		The data or render item.
 			// returns: Object[]
+
 			if (item == null || item.id == null) {
 				return null;
 			}
@@ -92,7 +85,7 @@ define([
 			return list == null ? null : list.concat();
 		},
 
-		createRenderer: function (item, kind, rendererClass, cssClass) {
+		createRenderer: function (item, kind, rendererClass) {
 			// summary:
 			//		Creates an item renderer of the specified kind.
 			//		A renderer is an object with the "container" and "instance" properties.
@@ -117,26 +110,24 @@ define([
 				}
 
 				if (res == null) {
-
 					renderer = new rendererClass;
 
 					res = {
 						renderer: renderer,
-						container: renderer.domNode,
+						container: renderer,
 						kind: kind
 					};
 
-					this.emit("rendererCreated", {renderer: res, source: this.owner, item: item});
-
+					this.emit("renderer-created", {renderer: res, source: this.owner, item: item});
 				} else {
 					renderer = res.renderer;
 
-					this.emit("rendererReused", {renderer: renderer, source: this.owner, item: item});
+					this.emit("renderer-reused", {renderer: renderer, source: this.owner, item: item});
 				}
 
 				renderer.owner = this.owner;
-				renderer.set("rendererKind", kind);
-				renderer.set("item", item);
+				renderer.rendererKind = kind;
+				renderer.item = item;
 
 				var list = this.itemToRenderer[item.id];
 				if (list == null) {
@@ -153,12 +144,12 @@ define([
 		recycleRenderer: function (renderer, remove) {
 			// summary:
 			//		Recycles the item renderer to be reused in the future.
-			// renderer: dojox/calendar/_RendererMixin
+			// renderer: dcalendar/_RendererMixin
 			//		The item renderer to recycle.
 			// tags:
 			//		protected
 
-			this.emit("rendererRecycled", {renderer: renderer, source: this.owner});
+			this.emit("renderer-recycled", {renderer: renderer, source: this.owner});
 
 			var pool = this.rendererPool[renderer.kind];
 
@@ -175,21 +166,22 @@ define([
 			domStyle.set(renderer.container, "display", "none");
 
 			renderer.renderer.owner = null;
-			renderer.renderer.set("item", null);
+			renderer.renderer.item = null;
 		},
 
 		destroyRenderer: function (renderer) {
 			// summary:
 			//		Destroys the item renderer.
-			// renderer: dojox/calendar/_RendererMixin
+			// renderer: dcalendar/_RendererMixin
 			//		The item renderer to destroy.
 			// tags:
 			//		protected
-			this.emit("rendererDestroyed", {renderer: renderer, source: this.owner});
+
+			this.emit("renderer-destroyed", {renderer: renderer, source: this.owner});
 
 			var ir = renderer.renderer;
 
-			if (ir["destroy"]) {
+			if (ir.destroy) {
 				ir.destroy();
 			}
 
@@ -218,7 +210,6 @@ define([
 					this.destroyRenderer(pool.pop());
 				}
 			}
-
 		}
 	});
 });

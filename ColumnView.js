@@ -1,44 +1,24 @@
 define([
-	"dojo/_base/array",
-	"dojo/_base/declare",
-	"dojo/_base/event",
-	"dojo/_base/lang",
-	"dojo/_base/sniff",
-	"dojo/_base/fx",
-	"dojo/dom",
+	"dcl/dcl",
+	"delite/register",
 	"dojo/dom-class",
-	"dojo/dom-style",
 	"dojo/dom-geometry",
-	"dojo/dom-construct",
-	"dojo/on",
-	"dojo/date",
-	"dojo/date/locale",
-	"dojo/query",
+	"dojo/dom-style",
 	"./SimpleColumnView",
-	"dojo/text!./templates/ColumnView.html",
+	"delite/handlebars!./templates/ColumnView.html",
 	"./ColumnViewSecondarySheet"
 ], function (
-	arr,
-	declare,
-	event,
-	lang,
-	has,
-	fx,
-	dom,
+	dcl,
+	register,
 	domClass,
-	domStyle,
 	domGeometry,
-	domConstruct,
-	on,
-	date,
-	locale,
-	query,
+	domStyle,
 	SimpleColumnView,
 	template,
 	ColumnViewSecondarySheet
 ) {
 
-	return declare("dojox.calendar.ColumnView", SimpleColumnView, {
+	return register("d-calendar-column-view", [SimpleColumnView], {
 
 		// summary:
 		//		This class defines a simple column view that also uses a secondary
@@ -47,7 +27,7 @@ define([
 		//		Set the secondarySheetClass property to define the class to instantiate,
 		//		for example to mix the default class with Mouse, Keyboard or Touch plugins.
 
-		templateString: template,
+		template: template,
 
 		baseClass: "dojoxCalendarColumnView",
 
@@ -66,79 +46,77 @@ define([
 
 		_showSecondarySheet: true,
 
-		buildRendering: function () {
-			this.inherited(arguments);
-			if (this.secondarySheetNode) {
-				var args = lang.mixin({owner: this}, this.secondarySheetProps);
-				this.secondarySheet = new this.secondarySheetClass(args, this.secondarySheetNode);
-				this.secondarySheetNode = this.secondarySheet.domNode;
-			}
-		},
+		// List of properties to forward to secondary sheet.
+		forwardProperties: [
+			"store", "query", "queryOptions", "startTimeAttr", "endTimeAttr", "summaryAttr", "allDayAttr",
+			"subColumnAttr", "decodeDate", "encodeDate", "itemToRenderItem", "renderItemToItem",
+			"datePackage",
+			"endDate", "date", "minDate", "maxDate", "dateInterval", "dateIntervalSteps",
+			"firstDayOfWeek",
+			"formatItemTimeFunc",
+			"editable", "moveEnabled", "resizeEnabled",
+			"createOnGridClick", "createItemFunc",
+			"textDir", "decorationStore",
+			"getIdentity"
+		],
 
-		destroy: function (preserveDom) {
+		render: register.superCall(function (sup) {
+			return function () {
+				sup.apply(this, arguments);
+				if (this.secondarySheetPlaceholder) {
+					var args = {owner: this};
+					this.forwardProperties.forEach(function (prop) {
+						if (this[prop] !== null && this[prop] !== undefined) {
+							var value = typeof prop === "function" ? this[prop].bind(this) : this[prop];
+							args[prop] = value;
+						}
+					}, this);
+					dcl.mix(args, this.secondarySheetProps);
+					this.secondarySheet = new this.secondarySheetClass(args);
+					this.secondarySheet.placeAt(this.secondarySheetPlaceholder, "replace");
+				}
+			};
+		}),
+
+		destroy: function () {
 			if (this.secondarySheet) {
-				this.secondarySheet.destroy(preserveDom);
-			}
-			this.inherited(arguments);
-		},
-
-		_setVisibility: function (value) {
-			// tags:
-			//		private
-
-			this.inherited(arguments);
-			if (this.secondarySheet) {
-				this.secondarySheet._setVisibility(value);
+				this.secondarySheet.destroy();
 			}
 		},
 
+		_setVisibility: register.superCall(function (sup) {
+			return function (value) {
+				sup.apply(this, arguments);
+				if (this.secondarySheet) {
+					this.secondarySheet._setVisibility(value);
+				}
+			};
+		}),
 
-		resize: function (changedSize) {
-			// tags:
-			//		private
+		resize: register.superCall(function (sup) {
+			return function () {
+				sup.apply(this, arguments);
+				if (this.secondarySheet) {
+					// secondary sheet is sized by CSS
+					this.secondarySheet.resize();
+				}
+			};
+		}),
 
-			this.inherited(arguments);
-			if (this.secondarySheet) {
-				// secondary sheet is sized by CSS
-				this.secondarySheet.resize();
-			}
-		},
-
-		invalidateLayout: function () {
-			// tags:
-			//		private
-
-			this._layoutRenderers(this.renderData);
-			if (this.secondarySheet) {
-				this.secondarySheet._layoutRenderers(this.secondarySheet.renderData);
-			}
-		},
-
-		onRowHeaderClick: function (e) {
-			// summary:
-			//		Event dispatched when the row header cell of the secondary sheet is clicked.
-			// tags:
-			//		callback
-
-		},
-
-		_setSubColumnsAttr: function (value) {
-			var old = this.get("subColumns");
-			if (old != value) {
-				this._secondaryHeightInvalidated = true;
-			}
-			this._set("subColumns", value);
-		},
-
-		refreshRendering: function (recursive) {
-			this.inherited(arguments);
-			if (this._secondaryHeightInvalidated) {
-				this._secondaryHeightInvalidated = false;
-				var h = domGeometry.getMarginBox(this.secondarySheetNode).h;
+		refreshRendering: function (props) {
+			if ("subColumns" in props && this.secondarySheet) {
+				var h = domGeometry.getMarginBox(this.secondarySheet).h;
 				this.resizeSecondarySheet(h);
 			}
-			if (recursive && this.secondarySheet) {
-				this.secondarySheet.refreshRendering(true);
+			if (this.secondarySheet) {
+				// Forward property changes to second sheet
+				this.forwardProperties.forEach(function (prop) {
+					if (prop in props && this[prop] !== null && this[prop] !== undefined) {
+						var value = typeof prop === "function" ? this[prop].bind(this) : this[prop];
+						this.secondarySheet[prop] = value;
+					}
+				}, this);
+				this.secondarySheet.deliver();
 			}
 		},
 
@@ -149,9 +127,17 @@ define([
 			//		Warning: this method is only available for the default template and default CSS.
 			// height: Integer
 			//		The new height in pixels.
-			if (this.secondarySheetNode) {
+
+			if (this.secondarySheet) {
 				var headerH = domGeometry.getMarginBox(this.header).h;
-				domStyle.set(this.secondarySheetNode, "height", height + "px");
+
+				if (headerH <= 0) {
+					// we were called while hidden or unattached, so just return, otherwise the main
+					// calendar gets put over the column labels and you can't click them.
+					// TODO: fix when this method is called
+					return;
+				}
+				domStyle.set(this.secondarySheet, "height", height + "px");
 				this.secondarySheet._resizeHandler(null, true);
 				var top = (height + headerH + this.headerPadding);
 				if (this.subHeader && this.subColumns) {
@@ -165,168 +151,59 @@ define([
 			}
 		},
 
-		updateRenderers: function (obj, stateOnly) {
-			this.inherited(arguments);
-			if (this.secondarySheet) {
-				this.secondarySheet.updateRenderers(obj, stateOnly);
-			}
-		},
-
-		_setItemsAttr: function (value) {
-			this.inherited(arguments);
-			if (this.secondarySheet) {
-				this.secondarySheet.set("items", value);
-			}
-		},
-
-		_setDecorationItemsAttr: function (value) {
-			this.inherited(arguments);
-			if (this.secondarySheet) {
-				this.secondarySheet.set("decorationItems", value);
-			}
-		},
-
-		_setStartDateAttr: function (value) {
-			this.inherited(arguments);
-			if (this.secondarySheet) {
-				this.secondarySheet.set("startDate", value);
-			}
-		},
-
-		_setColumnCountAttr: function (value) {
-			this.inherited(arguments);
-			if (this.secondarySheet) {
-				this.secondarySheet.set("columnCount", value);
-			}
-		},
-
-		_setHorizontalRendererAttr: function (value) {
-			if (this.secondarySheet) {
-				this.secondarySheet.set("horizontalRenderer", value);
-			}
-		},
-
-		_getHorizontalRendererAttr: function () {
-			if (this.secondarySheet) {
-				return this.secondarySheet.get("horizontalRenderer");
-			}
-			return null;
-		},
-
-		_setHorizontalDecorationRendererAttr: function (value) {
-			this.inherited(arguments);
-			if (this.secondarySheet) {
-				this.secondarySheet.set("horizontalDecorationRenderer", value);
-			}
-		},
-
-		_getHorizontalRendererAttr: function () {
-			if (this.secondarySheet) {
-				return this.secondarySheet.get("horizontalDecorationRenderer");
-			}
-			return null;
-		},
-
-		_setExpandRendererAttr: function (value) {
-			if (this.secondarySheet) {
-				this.secondarySheet.set("expandRenderer", value);
-			}
-		},
-
-		_getExpandRendererAttr: function () {
-			if (this.secondarySheet) {
-				return this.secondarySheet.get("expandRenderer");
-			}
-			return null;
-		},
-
-		_setTextDirAttr: function (value) {
-			this.secondarySheet.set("textDir", value);
-			this._set("textDir", value);
-		},
+		updateRenderers: register.superCall(function (sup) {
+			return function (obj, stateOnly) {
+				sup.apply(this, arguments);
+				if (this.secondarySheet) {
+					this.secondarySheet.updateRenderers(obj, stateOnly);
+				}
+			};
+		}),
 
 		_defaultItemToRendererKindFunc: function (item) {
 			return item.allDay ? null : "vertical"; // String
 		},
 
-		getSecondarySheet: function () {
-			// summary:
-			//		Returns the secondary sheet
-			// returns: dojox/calendar/MatrixView
-			return this.secondarySheet;
-		},
-
-		_onGridTouchStart: function (e) {
-			this.inherited(arguments);
+		// TODO: combine to use pointer events?
+		_onGridTouchStart: register.after(function () {
 			this._doEndItemEditing(this.secondarySheet, "touch");
-		},
+		}),
 
-		_onGridMouseDown: function (e) {
-			this.inherited(arguments);
+		_onGridMouseDown: register.after(function () {
 			this._doEndItemEditing(this.secondarySheet, "mouse");
-		},
+		}),
 
-		_configureScrollBar: function (renderData) {
+		_configureScrollBar: register.superCall(function (sup) {
+			return function () {
+				sup.apply(this, arguments);
+				if (this.secondarySheet) {
+					var atRight = (this.effectiveDir === "ltr" || this.scrollBarRTLPosition == "right");
+					domStyle.set(this.secondarySheet, atRight ? "right" : "left", this.scrollbarWidth + "px");
+					domStyle.set(this.secondarySheet, atRight ? "left" : "right", "0");
 
-			this.inherited(arguments);
-			if (this.secondarySheetNode) {
-				var atRight = this.isLeftToRight() ? true : this.scrollBarRTLPosition == "right";
-				domStyle.set(this.secondarySheetNode, atRight ? "right" : "left", renderData.scrollbarWidth + "px");
-				domStyle.set(this.secondarySheetNode, atRight ? "left" : "right", "0");
+					this.secondarySheet._hScrollNodes.forEach(function (elt) {
+						domClass.toggle(elt.parentNode, "dojoxCalendarHorizontalScroll", this.hScrollBarEnabled);
+					}, this);
+				}
+			};
+		}),
 
-				arr.forEach(this.secondarySheet._hScrollNodes, function (elt) {
-					domClass[renderData.hScrollBarEnabled ? "add" : "remove"](elt.parentNode,
-						"dojoxCalendarHorizontalScroll");
-				}, this);
-			}
-		},
+		_configureHScrollDomNodes: register.superCall(function (sup) {
+			return function (styleWidth) {
+				sup.apply(this, arguments);
+				if (this.secondarySheet && this.secondarySheet._configureHScrollDomNodes) {
+					this.secondarySheet._configureHScrollDomNodes(styleWidth);
+				}
+			};
+		}),
 
-		_configureHScrollDomNodes: function (styleWidth) {
-			this.inherited(arguments);
-			if (this.secondarySheet && this.secondarySheet._configureHScrollDomNodes) {
-				this.secondarySheet._configureHScrollDomNodes(styleWidth);
-			}
-		},
-
-		_setHScrollPosition: function (pos) {
-			this.inherited(arguments);
-			if (this.secondarySheet) {
-				this.secondarySheet._setHScrollPosition(pos);
-			}
-		},
-
-		_refreshItemsRendering: function () {
-			this.inherited(arguments);
-			if (this.secondarySheet) {
-				var rd = this.secondarySheet.renderData;
-				this.secondarySheet._computeVisibleItems(rd);
-				this.secondarySheet._layoutRenderers(rd);
-			}
-		},
-
-		_layoutRenderers: function (renderData) {
-			if (!this.secondarySheet._domReady) {
-				this.secondarySheet._domReady = true;
-				this.secondarySheet._layoutRenderers(this.secondarySheet.renderData);
-			}
-
-			this.inherited(arguments);
-		},
-
-		_layoutDecorationRenderers: function (renderData) {
-			if (!this.secondarySheet._decDomReady) {
-				this.secondarySheet._decDomReady = true;
-				this.secondarySheet._layoutDecorationRenderers(this.secondarySheet.renderData);
-			}
-
-			this.inherited(arguments);
-		},
-
-		invalidateRendering: function () {
-			if (this.secondarySheet) {
-				this.secondarySheet.invalidateRendering();
-			}
-			this.inherited(arguments);
-		}
+		_setHScrollPosition: register.superCall(function (sup) {
+			return function (pos) {
+				sup.apply(this, arguments);
+				if (this.secondarySheet) {
+					this.secondarySheet._setHScrollPosition(pos);
+				}
+			};
+		})
 	});
 });

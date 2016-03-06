@@ -1,3 +1,5 @@
-<div class="dojoxCalendarExpand" onselectstart="return false;" data-dojo-attach-event="click:_onClick,touchstart:_onMouseDown,touchend:_onClick,mousedown:_onMouseDown,mouseup:_onMouseUp,mouseover:_onMouseOver,mouseout:_onMouseOut">
-	<div class="bg"><span data-dojo-attach-point="expand">▼</span><span style="display:none" data-dojo-attach-point="collapse">▲</span></div>
-</div>
+<template class="dojoxCalendarExpand" on-selectstart="return false;" on-click="{{_onClick}}"
+		on-touchstart="{{_onMouseDown}}" on-touchend="{{_onClick}}" onmousedown="{{_onMouseDown}}"
+		on-mouseup="{{_onMouseUp}}" on-mouseover="{{_onMouseOver}}" on-mouseout="{{_onMouseOut}}">
+	<div class="bg"><span attach-point="expand">▼</span><span style="display:none" attach-point="collapse">▲</span></div>
+</template>

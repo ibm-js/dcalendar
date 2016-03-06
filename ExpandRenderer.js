@@ -1,40 +1,25 @@
 define([
-	"dojo/_base/declare",
-	"dojo/_base/lang",
-	"dojo/_base/event",
-	"dojo/_base/window",
-	"dojo/on",
+	"delite/register",
 	"dojo/dom-class",
 	"dojo/dom-style",
-	"dijit/_WidgetBase",
-	"dijit/_TemplatedMixin",
-	"dojo/text!./templates/ExpandRenderer.html"
+	"delite/Widget",
+	"delite/handlebars!./templates/ExpandRenderer.html"
 ], function (
-	declare,
-	lang,
-	event,
-	win,
-	on,
+	register,
 	domClass,
 	domStyle,
-	_WidgetBase,
-	_TemplatedMixin,
+	Widget,
 	template
 ) {
 
-	return declare("dojox.calendar.ExpandRenderer", [_WidgetBase, _TemplatedMixin], {
-
+	return register("d-calendar-expander", [HTMLElement, Widget], {
 		// summary:
 		//		The default renderer display in MatrixView cells where some item renderers
 		//		cannot be displayed because of size constraints.
 
-		templateString: template,
+		template: template,
 
 		baseClass: "dojoxCalendarExpand",
-
-		// owner: dojox/calendar/_ViewBase
-		//		The view that contains this renderer.
-		owner: null,
 
 		// focused: Boolean
 		//		Indicates that the renderer is focused.
@@ -64,6 +49,8 @@ define([
 		//		Column index where this renderer is used.
 		columnIndex: -1,
 
+		// TODO: replace most of the code below with template
+
 		_setExpandedAttr: function (value) {
 			domStyle.set(this.expand, "display", value ? "none" : "inline-block");
 			domStyle.set(this.collapse, "display", value ? "inline-block" : "none");
@@ -84,16 +71,15 @@ define([
 
 		_setState: function (prop, value, cssClass) {
 			if (this[prop] != value) {
-				var tn = this.stateNode || this.domNode;
-				domClass[value ? "add" : "remove"](tn, cssClass);
+				var tn = this.stateNode || this;
+				domClass.toggle(tn, cssClass, value);
 				this._set(prop, value);
 			}
 		},
 
+		// TODO: use event delegation; setup listeners on MatrixView
 		_onClick: function (e) {
-			// tags:
-			//		private
-
+			// TODO: we should just emit an event; shouldn't need to know about our owner
 			if (this.owner && this.owner.expandRendererClickHandler) {
 				this.owner.expandRendererClickHandler(e, this);
 			}
@@ -103,15 +89,15 @@ define([
 			// tags:
 			//		private
 
-			event.stop(e);
-			this.set("down", true);
+			e.stopPropagation();
+			this.down = true;
 		},
 
-		_onMouseUp: function (e) {
+		_onMouseUp: function () {
 			// tags:
 			//		private
 
-			this.set("down", false);
+			this.down = false;
 		},
 
 		_onMouseOver: function (e) {
@@ -120,8 +106,8 @@ define([
 
 			if (!this.up) {
 				var buttonDown = e.button == 1;
-				this.set("up", !buttonDown);
-				this.set("down", buttonDown);
+				this.up = !buttonDown;
+				this.down = buttonDown;
 			}
 		},
 
@@ -130,14 +116,14 @@ define([
 			//		private
 
 			var node = e.relatedTarget;
-			while (node != e.currentTarget && node != win.doc.body && node != null) {
+			while (node != e.currentTarget && node != this.ownerDocument.body && node != null) {
 				node = node.parentNode;
 			}
 			if (node == e.currentTarget) {
 				return;
 			}
-			this.set("up", false);
-			this.set("down", false);
+			this.up = false;
+			this.down = false;
 		}
 	});
 });

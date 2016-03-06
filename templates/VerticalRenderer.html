@@ -1,13 +1,13 @@
-<div class="dojoxCalendarEvent dojoxCalendarVertical" onselectstart="return false;">
+<template class="dojoxCalendarEvent dojoxCalendarVertical" on-selectstart="return false;">
 	<div class="bg"></div>
 	<dl style="width:100%;">
-		<dd data-dojo-attach-point="beforeIcon" class="beforeIcon">&#x25B2;</dd>
-		<dd data-dojo-attach-point="startTimeLabel" class="startTime"></dd>
-		<dd data-dojo-attach-point="summaryLabel" class="summary"></dd>
+		<dd attach-point="beforeIcon" class="beforeIcon">&#x25B2;</dd>
+		<dd attach-point="startTimeLabel" class="startTime"></dd>
+		<dd attach-point="summaryLabel" class="summary"></dd>
 	</dl>
-	<span data-dojo-attach-point="afterIcon" class="afterIcon">&#x25BC;</span>
-	<div data-dojo-attach-point="moveHandle" class="handle moveHandle" ></div>
-	<div data-dojo-attach-point="resizeStartHandle" class="handle resizeStartHandle"></div>
-	<div data-dojo-attach-point="resizeEndHandle" class="handle resizeEndHandle" ></div>
-	<div data-dojo-attach-point="endTimeLabel" class="endTime"></div>
-</div>
+	<span attach-point="afterIcon" class="afterIcon">&#x25BC;</span>
+	<div attach-point="moveHandle" class="handle moveHandle"></div>
+	<div attach-point="resizeStartHandle" class="handle resizeStartHandle"></div>
+	<div attach-point="resizeEndHandle" class="handle resizeEndHandle"></div>
+	<div attach-point="endTimeLabel" class="endTime"></div>
+</template>

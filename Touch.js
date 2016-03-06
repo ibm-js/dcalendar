@@ -1,19 +1,19 @@
 define([
-	"dojo/_base/array",
-	"dojo/_base/lang",
-	"dojo/_base/declare",
+	"dcl/dcl",
 	"dojo/dom",
 	"dojo/dom-geometry",
-	"dojo/_base/window",
-	"dojo/on",
-	"dojo/_base/event",
-	"dojo/keys"
-], function (arr, lang, declare, dom, domGeometry, win, on, event, keys) {
+	"delite/on",
+	"./ViewBase"
+], function (dcl, dom, domGeometry, on, ViewBase) {
 
-	return declare("dojox.calendar.Touch", null, {
+	function stopEvent (e) {
+		e.stopPropagation();
+		e.preventDefault();
+	}
 
+	return dcl(ViewBase, {
 		// summary:
-		//		This plugin is managing the touch interactions on item renderers displayed by a calendar view.
+		//		This mixin manages the touch interactions on item renderers displayed by a calendar view.
 
 		// touchStartEditingTimer: Integer
 		//		The delay of one touch over the renderer before setting the item in editing mode.
@@ -24,22 +24,20 @@ define([
 		//		in touch context.
 		touchEndEditingTimer: 10000,
 
-		postMixInProperties: function () {
-
-			this.on("rendererCreated", lang.hitch(this, function (irEvent) {
-
+		createdCallback: function () {
+			this.on("renderer-created", function (irEvent) {
 				var renderer = irEvent.renderer.renderer;
 
-				this.own(on(renderer.domNode, "touchstart", lang.hitch(this, function (e) {
+				this.own(renderer.on("touchstart", function (e) {
 					this._onRendererTouchStart(e, renderer);
-				})));
-
-			}));
+				}.bind(this)));
+			}.bind(this));
 		},
 
 		_onRendererTouchStart: function (e, renderer) {
 			// tags:
 			//		private
+
 			var p = this._edProps;
 
 			if (p && p.endEditingTimer) {
@@ -63,17 +61,15 @@ define([
 
 				this._endItemEditing("touch", false);
 				p = null;
-
 			}
 
 			// initialize editing properties
 			if (!p) {
-
 				// register event listeners to manage gestures.
 				var handles = [];
 
-				handles.push(on(win.doc, "touchend", lang.hitch(this, this._docEditingTouchEndHandler)));
-				handles.push(on(this.itemContainer, "touchmove", lang.hitch(this, this._docEditingTouchMoveHandler)));
+				handles.push(on(this.ownerDocument, "touchend", this._docEditingTouchEndHandler.bind(this)));
+				handles.push(on(this.itemContainer, "touchmove", this._docEditingTouchMoveHandler.bind(this)));
 
 				this._setEditingProperties({
 					touchMoved: false,
@@ -89,27 +85,23 @@ define([
 			}
 
 			if (this._isEditing) {
-
 				// get info on touches
-				lang.mixin(p, this._getTouchesOnRenderers(e, p.editedItem));
+				dcl.mix(p, this._getTouchesOnRenderers(e, p.editedItem));
 
 				// start an editing gesture.
 				this._startTouchItemEditingGesture(e);
-
 			} else {
-
 				// initial touch that will trigger or not the editing
 
 				if (e.touches.length > 1) {
-					event.stop(e);
+					stopEvent(e);
 					return;
 				}
 
 				// set the selection state without dispatching (on touch end) after a short amount of time.
 				// to allow a bit of time to scroll without selecting (graphically at least)
-				this._touchSelectionTimer = setTimeout(lang.hitch(this, function () {
-
-					this._saveSelectedItems = this.get("selectedItems");
+				this._touchSelectionTimer = setTimeout(function () {
+					this._saveSelectedItems = this.selectedItems;
 
 					var changed = this.selectFromEvent(e, theItem._item, renderer, false);
 
@@ -119,15 +111,14 @@ define([
 						delete this._saveSelectedItems;
 					}
 					this._touchSelectionTimer = null;
-				}), 200);
+				}.bind(this), 200);
 
 				p.start = {x: e.touches[0].screenX, y: e.touches[0].screenY};
 
 				if (this.isItemEditable(p.item, p.rendererKind)) {
 
 					// editing gesture timer
-					this._edProps.startEditingTimer = setTimeout(lang.hitch(this, function () {
-
+					this._edProps.startEditingTimer = setTimeout(function () {
 						// we are editing, so the item *must* be selected.
 						if (this._touchSelectionTimer) {
 							clearTimeout(this._touchSelectionTimer);
@@ -149,8 +140,7 @@ define([
 						// A move gesture is initiated even if we don't move
 						this._startItemEditingGesture([this.getTime(e)], "move", "touch", e);
 
-					}), this.touchStartEditingTimer);
-
+					}.bind(this), this.touchStartEditingTimer);
 				}
 			}
 		},
@@ -188,8 +178,7 @@ define([
 			}
 
 			if (this._editingGesture) {
-
-				event.stop(e);
+				stopEvent(e);
 
 				if (p.itemBeginDispatched) {
 
@@ -218,7 +207,7 @@ define([
 					this._moveOrResizeItemGesture(times, "touch", e, subColumn);
 
 					if (p.editKind == "move") {
-						if (this.renderData.dateModule.compare(p.editedItem.startTime, d) == -1) {
+						if (this.dateModule.compare(p.editedItem.startTime, d) == -1) {
 							this.ensureVisibility(p.editedItem.startTime, p.editedItem.endTime, "start",
 								this.autoScrollTouchMargin);
 						} else {
@@ -235,7 +224,6 @@ define([
 
 				}
 			} // else scroll, if any, is delegated to sub class
-
 		},
 
 		// autoScrollTouchMargin: Integer
@@ -245,7 +233,7 @@ define([
 		_docEditingTouchEndHandler: function (e) {
 			// tags:
 			//		private
-			event.stop(e);
+			stopEvent(e);
 
 			var p = this._edProps;
 
@@ -255,28 +243,21 @@ define([
 			}
 
 			if (this._isEditing) {
-
-				lang.mixin(p, this._getTouchesOnRenderers(e, p.editedItem));
+				dcl.mix(p, this._getTouchesOnRenderers(e, p.editedItem));
 
 				if (this._editingGesture) {
-
-					if (p.touchesLen == 0) {
-
+					if (p.touchesLen === 0) {
 						// all touches were removed => end of editing gesture
 						this._endItemEditingGesture("touch", e);
 
 						if (this.touchEndEditingTimer > 0) {
 
 							// Timer that trigger the end of the item editing mode.
-							p.endEditingTimer = setTimeout(lang.hitch(this, function () {
-
+							p.endEditingTimer = setTimeout(function () {
 								this._endItemEditing("touch", false);
-
-							}), this.touchEndEditingTimer);
+							}.bind(this), this.touchEndEditingTimer);
 						} // else validation must be explicit
-
 					} else {
-
 						if (this._editingGesture) {
 							this._endItemEditingGesture("touch", e);
 						}
@@ -284,12 +265,10 @@ define([
 						this._startTouchItemEditingGesture(e);
 					}
 				}
-
 			} else if (!p.touchMoved) {
+				stopEvent(e);
 
-				event.stop(e);
-
-				arr.forEach(p.handles, function (handle) {
+				p.handles.forEach(function (handle) {
 					handle.remove();
 				});
 
@@ -297,17 +276,16 @@ define([
 					// selection timer was not reached to a proper selection.
 					clearTimeout(this._touchSelectionTimer);
 					this.selectFromEvent(e, p.item._item, p.renderer, true);
-
 				} else if (this._pendingSelectedItem) {
 					// selection timer was reached, dispatch change event
-					this.dispatchChange(this._saveSelectedItems.length == 0 ? null : this._saveSelectedItems[0],
+					this.dispatchChange(this._saveSelectedItems.length === 0 ? null : this._saveSelectedItems[0],
 						this._pendingSelectedItem, null, e); // todo renderer ?
 					delete this._saveSelectedItems;
 					delete this._pendingSelectedItem;
 				}
 
 				if (this._pendingDoubleTap && this._pendingDoubleTap.item == p.item) {
-					this._onItemDoubleClick({
+					this.emit("item-double-click", {
 						triggerEvent: e,
 						renderer: p.renderer,
 						item: p.item._item
@@ -316,17 +294,15 @@ define([
 					clearTimeout(this._pendingDoubleTap.timer);
 
 					delete this._pendingDoubleTap;
-
 				} else {
-
 					this._pendingDoubleTap = {
 						item: p.item,
-						timer: setTimeout(lang.hitch(this, function () {
+						timer: setTimeout(function () {
 							delete this._pendingDoubleTap;
-						}), this.doubleTapDelay)
+						}.bind(this), this.doubleTapDelay)
 					};
 
-					this._onItemClick({
+					this.emit("item-click", {
 						triggerEvent: e,
 						renderer: p.renderer,
 						item: p.item._item
@@ -334,7 +310,6 @@ define([
 				}
 
 				this._edProps = null;
-
 			} else {
 				// scroll view has finished.
 
@@ -342,12 +317,12 @@ define([
 
 					// selection without dipatching was done, but the view scrolled,
 					// so revert last selection
-					this.set("selectedItems", this._saveSelectedItems);
+					this.selectedItems = this._saveSelectedItems;
 					delete this._saveSelectedItems;
 					delete this._pendingSelectedItem;
 				}
 
-				arr.forEach(p.handles, function (handle) {
+				p.handles.forEach(function (handle) {
 					handle.remove();
 				});
 
@@ -380,17 +355,12 @@ define([
 				this._startItemEditingGesture([this.getTime(e, -1, -1, p.resizeStartTouchIndex),
 						this.getTime(e, -1, -1, p.resizeEndTouchIndex)],
 					p.editKind, "touch", e);
-
 			} else if (fromResizeStart && p.touchesLen == 1 && !this._editingGesture) {
-
 				this._startItemEditingGesture([this.getTime(e, -1, -1, p.resizeStartTouchIndex)],
 					"resizeStart", "touch", e);
-
 			} else if (fromResizeEnd && p.touchesLen == 1 && !this._editingGesture) {
-
 				this._startItemEditingGesture([this.getTime(e, -1, -1, p.resizeEndTouchIndex)],
 					"resizeEnd", "touch", e);
-
 			} else {
 				// A move gesture is initiated even if we don't move
 				this._startItemEditingGesture([this.getTime(e)], "move", "touch", e);
@@ -421,7 +391,6 @@ define([
 			var list = this.rendererManager.itemToRenderer[item.id];
 
 			for (var i = 0; i < e.touches.length; i++) {
-
 				if (resizeStartTouchIndex == -1 && hasResizeStart) {
 					touched = dom.isDescendant(e.touches[i].target, irs[0].resizeStartHandle);
 					if (touched) {

@@ -1,48 +1,38 @@
 define([
-	"dojo/_base/declare",
+	"dcl/dcl",
 	"dojo/_base/lang",
-	"dojo/_base/array",
-	"dojo/_base/window",
 	"dojo/_base/event",
 	"dojo/_base/html",
-	"dojo/sniff",
-	"dojo/query",
+	"decor/sniff",
 	"dojo/dom",
 	"dojo/dom-style",
 	"dojo/dom-class",
 	"dojo/dom-construct",
 	"dojo/dom-geometry",
-	"dojo/on",
 	"dojo/date",
 	"dojo/date/locale",
 	"dojo/when",
-	"dijit/_WidgetBase",
-	"dojox/widget/_Invalidating",
-	"dojox/widget/Selection",
+	"delite/Widget",
+	"delite/Selection",
 	"./time",
 	"./StoreMixin",
 	"./StoreManager",
 	"./RendererManager"
 ], function (
-	declare,
+	dcl,
 	lang,
-	arr,
-	win,
 	event,
 	html,
 	has,
-	query,
 	dom,
 	domStyle,
 	domClass,
 	domConstruct,
 	domGeometry,
-	on,
 	date,
 	locale,
 	when,
-	_WidgetBase,
-	_Invalidating,
+	Widget,
 	Selection,
 	timeUtil,
 	StoreMixin,
@@ -67,7 +57,7 @@ define([
 		 //		The event dispatched when an item is clicked, double-clicked or context-clicked.
 		 // item: Object
 		 //		The item clicked.
-		 // renderer: dojox/calendar/_RendererMixin
+		 // renderer: dcalendar/_RendererMixin
 		 //		The item renderer clicked.
 		 // triggerEvent: Event
 		 //		The event at the origin of this event.
@@ -79,9 +69,11 @@ define([
 		 // summary:
 		 //		An item editing event.
 		 // item: Object
-		 //		The render item that is being edited. Set/get the startTime and/or endTime properties to customize editing behavior.
+		 //		The render item that is being edited. Set/get the startTime and/or endTime properties
+		 //		to customize editing behavior.
 		 // storeItem: Object
-		 //		The real data from the store. DO NOT change properties, but you may use properties of this item in the editing behavior logic.
+		 //		The real data from the store. DO NOT change properties, but you may use properties of this item
+		 //		in the editing behavior logic.
 		 // editKind: String
 		 //		Kind of edit: "resizeBoth", "resizeStart", "resizeEnd" or "move".
 		 // dates: Date[]
@@ -92,7 +84,7 @@ define([
 		 //		The end time of data item.
 		 // sheet: String
 		 //		For views with several sheets (columns view for example), the sheet when the event occurred.
-		 // source: dojox/calendar/ViewBase
+		 // source: dcalendar/ViewBase
 		 //		The view where the event occurred.
 		 // eventSource: String
 		 //		The device that triggered the event. This property can take the following values:
@@ -111,10 +103,11 @@ define([
 		 //		An renderer lifecycle event.
 		 // renderer: Object
 		 //		The renderer.
-		 // source: dojox/calendar/ViewBase
+		 // source: dcalendar/ViewBase
 		 //		The view where the event occurred.
 		 // item:Object?
-		 //		The item that will be displayed by the renderer for the "rendererCreated" and "rendererReused" events.
+		 //		The item that will be displayed by the renderer for the
+		 //		"renderer-created" and "renderer-reused" events.
 	 };
 	 =====*/
 
@@ -123,17 +116,15 @@ define([
 	var cssPrefix = has("webkit") ? "-webkit-" : has("mozilla") ?  "-moz-" : "";
 
 
-	return declare("dojox.calendar.ViewBase", [_WidgetBase, StoreMixin, _Invalidating, Selection], {
+	return dcl([Widget, StoreMixin, Selection], {
 
 		// summary:
-		//		The dojox.calendar.ViewBase widget is the base of calendar view widgets
+		//		Base class of the views (ColumnView, MatrixView, etc.).
 
-		// datePackage: Object
+		// datePackage: String
 		//		JavaScript namespace to find Calendar routines.
 		//		Uses Gregorian Calendar routines at dojo.date by default.
 		datePackage: date,
-
-		_calendar: "gregorian",
 
 		// viewKind: String
 		//		Kind of the view. Used by the calendar widget to determine how to configure the view.
@@ -159,15 +150,6 @@ define([
 
 		_cssDays: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
 
-		_getFormatItemTimeFuncAttr: function () {
-			if (this.formatItemTimeFunc) {
-				return this.formatItemTimeFunc;
-			}
-			if (this.owner != null) {
-				return this.owner.get("formatItemTimeFunc");
-			}
-		},
-
 		// The listeners added by the view itself.
 		_viewHandles: null,
 
@@ -175,72 +157,150 @@ define([
 		//		The maximum time amount in milliseconds between to touchstart events that trigger a double-tap event.
 		doubleTapDelay: 300,
 
-		constructor: function (/*Object*/ args) {
-			args = args || {};
+		////////////////////////////////////////////////////////
+		//
+		// Computed properties, not to be set directly.
+		// Most of these used to be inside renderData.
+		//
+		////////////////////////////////////////////////////////
 
-			this._calendar = args.datePackage ? args.datePackage.substr(args.datePackage.lastIndexOf(".") + 1) :
-				this._calendar;
-			this.dateModule = args.datePackage ? lang.getObject(args.datePackage, false) : date;
-			this.dateClassObj = this.dateModule.Date || Date;
-			this.dateLocaleModule = args.datePackage ? lang.getObject(args.datePackage + ".locale", false) : locale;
+		// Range of dates currently displayed by the view
+		startTime: null,
+		endTime: null,
 
+		dates: null,
+
+		sheetHeight: -1,
+
+		// visibleItems: Object[]
+		//		List of events that appear on the calendar given the current time constraints
+		//		(determined by startDate, columnCount, rowCount, etc.)
+		visibleItems: null,
+
+		// visibleDecorationItems: Object[]
+		//		List of decorations that appear on the calendar given the current time constraints
+		//		(determined by startDate, columnCount, rowCount, etc.)
+		visibleDecorationItems: null,
+
+		_setDatePackageAttr: function (/*String||Object*/ dp) {
+			if (dp === null || typeof dp === "string") {
+				this._calendar = dp ? dp.substr(dp.lastIndexOf(".") + 1) : "gregorian";
+				this.dateModule = dp ? lang.getObject(dp, false) : date;
+				this.dateClassObj = this.dateModule.Date || Date;
+				this.dateLocaleModule = dp ? lang.getObject(dp + ".locale", false) : locale;
+			}
+			this._set("datePackage", dp);
+		},
+		
+		createdCallback: function () {
 			this._viewHandles = [];
 
-			this.storeManager = new StoreManager({owner: this, _ownerItemsProperty: "items"});
-			this.storeManager.on("layoutInvalidated", lang.hitch(this, this._refreshItemsRendering));
-			this.storeManager.on("dataLoaded", lang.hitch(this, function (items) {
-				this.set("items", items);
-			}));
-			this.storeManager.on("renderersInvalidated", lang.hitch(this, function (item) {
-				this.updateRenderers(item);
-			}));
+			// Set default date package for now.  If user specifies date package these setting will be overwritten.
+			this._setDatePackageAttr(null);
+
+			this.storeManager = new StoreManager({
+				owner: this,
+				_ownerItemsProperty: "items",
+				store: this.store
+			});
+			this.storeManager.on("layout-invalidated", function () {
+				// Trigger call to refreshRendering(), and full relayout of all the items.
+				this.items = this.storeManager.items;
+			}.bind(this));
+			this.storeManager.on("data-loaded", function (items) {
+				// Trigger call to refreshRendering(), and full layout of all the items.
+				this.items = items;
+			}.bind(this));
+			// For minor changes to a single renderer, just update the renderer w/out calling this.refreshRendering()
+			this.storeManager.on("renderers-invalidated", this.updateRenderers.bind(this));
 
 			this.rendererManager = new RendererManager({owner: this});
-			this.rendererManager.on("rendererCreated", lang.hitch(this, this._onRendererCreated));
-			this.rendererManager.on("rendererReused", lang.hitch(this, this._onRendererReused));
-			this.rendererManager.on("rendererRecycled", lang.hitch(this, this._onRendererRecycled));
-			this.rendererManager.on("rendererDestroyed", lang.hitch(this, this._onRendererDestroyed));
+			this.rendererManager.on("renderer-created", this.emit.bind(this, "renderer-created"));
+			this.rendererManager.on("renderer-reused", this.emit.bind(this, "renderer-reused"));
+			this.rendererManager.on("renderer-recycled", this.emit.bind(this, "renderer-recycled"));
+			this.rendererManager.on("renderer-destroyed", this.emit.bind(this, "renderer-destroyed"));
 
 			this.decorationStoreManager = new StoreManager({owner: this, _ownerItemsProperty: "decorationItems"});
-			this.decorationStoreManager.on("layoutInvalidated",
-				lang.hitch(this, this._refreshDecorationItemsRendering));
-			this.decorationStoreManager.on("dataLoaded", lang.hitch(this, function (items) {
-				this.set("decorationItems", items);
-			}));
+			this.decorationStoreManager.on("data-loaded", function (items) {
+				this.decorationItems = items;
+			}.bind(this));
+			this.decorationStoreManager.on("layout-invalidated", function () {
+				this.decorationItems = this.decorationStoreManager.items;
+			}.bind(this));
 			this.decorationRendererManager = new RendererManager({owner: this});
 
 			this._setupDayRefresh();
 		},
 
-		destroy: function (preserveDom) {
+		// Use dcl.after() so that subclass can set this.startTime and this.endTime before we fire off the query
+		// and do the filtering of results.
+		computeProperties: dcl.after(function (args) {
+			var oldVals = args[0];
 
+			if ("store" in oldVals) {
+				// Start the new query and then computeProperties() will be invoked again when we get the query results.
+				this.storeManager.store = this.store;
+				return;
+			}
+
+			// If the list of items has changed, or the startTime/endTime has changed,
+			// need to recompute which items are visible.
+			// But, while editing in no live layout we must not to recompute items (duplicate renderers),
+			// so in that case defer until editing has finished.
+			// TODO: filtering should actually be done by the store
+			if (!this._isEditing) {
+				if ("items" in oldVals || "_isEditing" in oldVals || "startTime" in oldVals || "endTime" in oldVals) {
+					this.visibleItems = this.storeManager._computeVisibleItems(this.startTime, this.endTime);
+				}
+				if ("decorationItems" in oldVals || "_isEditing" in oldVals ||
+						"startTime" in oldVals || "endTime" in oldVals) {
+					this.visibleDecorationItems = this.decorationStoreManager._computeVisibleItems(this.startTime,
+						this.endTime);
+				}
+			}
+		}),
+
+		refreshRendering: function (oldVals) {
+			// Create the grid/boilerplate initially, and update it whenever we move to a new month etc.
+			if ("dates" in oldVals) {
+				this._createRendering();
+			}
+
+			// Add the events.
+			if ("dates" in oldVals || "visibleItmes" in oldVals) {
+				this._layoutRenderers();
+			}
+			if ("dates" in oldVals || "visibleDecorationItems" in oldVals) {
+				this._layoutDecorationRenderers();
+			}
+		},
+
+		destroy: function () {
 			this.rendererManager.destroy();
 			this.decorationRendererManager.destroy();
 
 			while (this._viewHandles.length > 0) {
 				this._viewHandles.pop().remove();
 			}
-
-			this.inherited(arguments);
 		},
 
 		_setupDayRefresh: function () {
 			// Refresh the view when the current day changes.
-			var now = new Date();
-			var d = timeUtil.floor(now, "day", 1);
-			var d = this.dateModule.add(d, "day", 1);
+			var now = this.newDate(new Date());
+			var d = timeUtil.floorToDay(now, true, this.dateClassObj);
+			d = this.dateModule.add(d, "day", 1);
 			// manages DST at 24h
 			if (d.getHours() == 23) {
 				d = this.dateModule.add(d, "hour", 2); // go to 1am
 			} else {
 				d = timeUtil.floorToDay(d, true, this.dateClassObj);
 			}
-			setTimeout(lang.hitch(this, function () {
+			setTimeout(function () {
 				if (!this._isEditing) {
-					this.refreshRendering(true); // recursive refresh
+					this.notifyCurrentValue("dates");// TODO: what do I put here to make refreshRendering() rerender?
 				}
 				this._setupDayRefresh();
-			}), d.getTime() - now.getTime() + 5000);
+			}.bind(this), d.getTime() - now.getTime() + 5000);
 			// add 5 seconds to be sure to be tomorrow
 		},
 
@@ -252,7 +312,7 @@ define([
 			//		On other use cases, this method must called when the window is resized and/or
 			//		when the orientation has changed.
 			if (changeSize) {
-				domGeometry.setMarginBox(this.domNode, changeSize);
+				domGeometry.setMarginBox(this, changeSize);
 			}
 		},
 
@@ -285,30 +345,6 @@ define([
 			//		protected
 		},
 
-		_getTopOwner: function () {
-			// summary:
-			//		Returns the top owner: the calendar or the parent view.
-			var p = this;
-			while (p.owner != undefined) {
-				p = p.owner;
-			}
-			return p;
-		},
-
-		_createRenderData: function () {
-			// summary:
-			//		Creates the object that contains all the data needed to render this widget.
-			// tags:
-			//		protected
-		},
-
-		_validateProperties: function () {
-			// summary:
-			//		Validates the widget properties before the rendering pass.
-			// tags:
-			//		protected
-		},
-
 		_setText: function (node, text, allowHTML) {
 			// summary:
 			//		Creates a text node under the parent node after having removed children nodes if any.
@@ -321,20 +357,19 @@ define([
 					// span > textNode
 					node.childNodes[0].childNodes[0].nodeValue = text;
 				} else {
-
 					while (node.hasChildNodes()) {
 						node.removeChild(node.lastChild);
 					}
 
-					var tNode = win.doc.createElement("span");
-					if (has("dojo-bidi")) {
+					var tNode = this.ownerDocument.createElement("span");
+					if (has("bidi")) {
 						this.applyTextDir(tNode, text);
 					}
 
 					if (allowHTML) {
 						tNode.innerHTML = text;
 					} else {
-						tNode.appendChild(win.doc.createTextNode(text));
+						tNode.appendChild(this.ownerDocument.createTextNode(text));
 					}
 					node.appendChild(tNode);
 				}
@@ -353,13 +388,13 @@ define([
 			// returns: Boolean
 
 			while (node != ancestor && node != document) {
-
 				if (domClass.contains(node, className)) {
 					return true;
 				}
 
 				node = node.parentNode;
 			}
+
 			return false;
 		},
 
@@ -408,6 +443,7 @@ define([
 			// reuse: Boolean
 			//		Whether use the specified instance or create a new one. Default is false.
 			// returns: Date
+
 			return timeUtil.floorToDay(date, reuse, this.dateClassObj);
 		},
 
@@ -419,6 +455,7 @@ define([
 			// reuse: Boolean
 			//		Whether use the specified instance or create a new one. Default is false.
 			// returns: Date
+
 			return timeUtil.floorToMonth(date, reuse, this.dateClassObj);
 		},
 
@@ -435,6 +472,7 @@ define([
 			// reuse: Boolean
 			//		Whether use the specified instance or create a new one. Default is false.
 			// returns: Date
+
 			return timeUtil.floor(date, unit, steps, reuse, this.dateClassObj);
 		},
 
@@ -443,9 +481,8 @@ define([
 			//		Returns whether the specified date is in the current day.
 			// date: Date
 			//		The date to test.
-			// renderData: Object
-			//		The current renderData
 			// returns: Boolean
+
 			return timeUtil.isToday(date, this.dateClassObj);
 		},
 
@@ -455,15 +492,14 @@ define([
 			// d:Date
 			//		The date to test.
 			// returns: Boolean
+
 			return timeUtil.isStartOfDay(d, this.dateClassObj, this.dateModule);
 		},
 
-		isOverlapping: function (renderData, start1, end1, start2, end2, includeLimits) {
+		isOverlapping: function (start1, end1, start2, end2, includeLimits) {
 			// summary:
 			//		Computes if the first time range defined by the start1 and end1 parameters
 			//		is overlapping the second time range defined by the start2 and end2 parameters.
-			// renderData: Object
-			//		The render data.
 			// start1: Date
 			//		The start time of the first time range.
 			// end1: Date
@@ -475,15 +511,14 @@ define([
 			// includeLimits: Boolean
 			//		Whether include the end time or not.
 			// returns: Boolean
-			return timeUtil.isOverlapping(renderData, start1, end1, start2, end2, includeLimits);
+
+			return timeUtil.isOverlapping(this.dateModule, start1, end1, start2, end2, includeLimits);
 		},
 
-		computeRangeOverlap: function (renderData, start1, end1, start2, end2, includeLimits) {
+		computeRangeOverlap: function (start1, end1, start2, end2, includeLimits) {
 			// summary:
 			//		Computes the overlap time range of the time ranges.
 			//		Returns a vector of Date with at index 0 the start time and at index 1 the end time.
-			// renderData: Object.
-			//		The render data.
 			// start1: Date
 			//		The start time of the first time range.
 			// end1: Date
@@ -495,7 +530,8 @@ define([
 			// includeLimits: Boolean
 			//		Whether include the end time or not.
 			// returns: Date[]
-			var cal = renderData.dateModule;
+
+			var cal = this.dateModule;
 
 			if (start1 == null || start2 == null || end1 == null || end2 == null) {
 				return null;
@@ -505,17 +541,16 @@ define([
 			var comp2 = cal.compare(start2, end1);
 
 			if (includeLimits) {
-
-				if (comp1 == 0 || comp1 == 1 || comp2 == 0 || comp2 == 1) {
+				if (comp1 === 0 || comp1 === 1 || comp2 === 0 || comp2 === 1) {
 					return null;
 				}
-			} else if (comp1 == 1 || comp2 == 1) {
+			} else if (comp1 === 1 || comp2 === 1) {
 				return null;
 			}
 
 			return [
-				this.newDate(cal.compare(start1, start2) > 0 ? start1 : start2, renderData),
-				this.newDate(cal.compare(end1, end2) > 0 ? end2 : end1, renderData)
+				this.newDate(cal.compare(start1, start2) > 0 ? start1 : start2),
+				this.newDate(cal.compare(end1, end2) > 0 ? end2 : end1)
 			];
 		},
 
@@ -527,6 +562,7 @@ define([
 			// date2: Date
 			//		The second date.
 			// returns: Boolean
+
 			if (date1 == null || date2 == null) {
 				return false;
 			}
@@ -534,14 +570,11 @@ define([
 			return date1.getFullYear() == date2.getFullYear() &&
 				date1.getMonth() == date2.getMonth() &&
 				date1.getDate() == date2.getDate();
-
 		},
 
-		computeProjectionOnDate: function (renderData, refDate, date, max) {
+		computeProjectionOnDate: function (refDate, date, max) {
 			// summary:
 			//		Computes the time to pixel projection in a day.
-			// renderData: Object
-			//		The render data.
 			// refDate: Date
 			//		The reference date that defines the destination date.
 			// date: Date
@@ -552,10 +585,9 @@ define([
 			//		protected
 			// returns: Number
 
-
-			var cal = renderData.dateModule;
-			var minH = renderData.minHours;
-			var maxH = renderData.maxHours;
+			var cal = this.dateModule;
+			var minH = this.minHours;
+			var maxH = this.maxHours;
 
 			if (max <= 0 || cal.compare(date, refDate) == -1) {
 				return 0;
@@ -565,7 +597,7 @@ define([
 				return d.getHours() * 3600 + d.getMinutes() * 60 + d.getSeconds();
 			};
 
-			var referenceDate = this.floorToDay(refDate, false, renderData);
+			var referenceDate = this.floorToDay(refDate, false);
 
 			if (date.getDate() != referenceDate.getDate()) {
 				if (date.getMonth() == referenceDate.getMonth()) {
@@ -595,11 +627,10 @@ define([
 			var ONE_DAY = 86400; // 24h x 60m x 60s
 
 			if (this.isSameDay(refDate, date) || maxH > 24) {
-
 				var d = lang.clone(refDate);
 				var minTime = 0;
 
-				if (minH != null && minH != 0) {
+				if (minH !== null && minH !== 0) {
 					d.setHours(minH);
 					minTime = gt(d);
 				}
@@ -608,7 +639,7 @@ define([
 				d.setHours(maxH);
 
 				var maxTime;
-				if (maxH == null || maxH == 24) {
+				if (maxH === null || maxH === 24) {
 					maxTime = ONE_DAY;
 				} else if (maxH > 24) {
 					maxTime = ONE_DAY + gt(d);
@@ -637,19 +668,17 @@ define([
 				delta -= minTime;
 
 				res = (max * delta) / (maxTime - minTime);
-
 			} else {
-
 				if (date.getDate() < refDate.getDate() &&
 					date.getMonth() == refDate.getMonth()) {
 					return 0;
 				}
 
 				var d2 = this.floorToDay(date);
-				var dp1 = renderData.dateModule.add(refDate, "day", 1);
-				dp1 = this.floorToDay(dp1, false, renderData);
+				var dp1 = this.dateModule.add(refDate, "day", 1);
+				dp1 = this.floorToDay(dp1, false);
 
-				if (cal.compare(d2, refDate) == 1 && cal.compare(d2, dp1) == 0 || cal.compare(d2, dp1) == 1) {
+				if (cal.compare(d2, refDate) === 1 && cal.compare(d2, dp1) === 0 || cal.compare(d2, dp1) === 1) {
 					res = max;
 				} else {
 					res = 0;
@@ -659,7 +688,7 @@ define([
 			return res;
 		},
 
-		getTime: function (e, x, y, touchIndex) {
+		getTime: function (/*===== e, x, y, touchIndex =====*/) {
 			// summary:
 			//		Returns the time displayed at the specified point by this component.
 			// e: Event
@@ -672,10 +701,11 @@ define([
 			// touchIndex: Integer
 			//		If parameter 'e' is not null and a touch event, the index of the touch to use.
 			// returns: Date
+
 			return null;
 		},
 
-		getSubColumn: function (e, x, y, touchIndex) {
+		getSubColumn: function (/*===== e, x, y, touchIndex =====*/) {
 			// summary:
 			//		Returns the sub column at the specified point by this component.
 			// e: Event
@@ -697,6 +727,7 @@ define([
 			//		Returns the sub column index that has the specified value, if any. -1 otherwise.
 			// value: String
 			//		The sub column index.
+
 			if (this.subColumns) {
 				for (var i = 0; i < this.subColumns.length; i++) {
 					if (this.subColumns[i] == value) {
@@ -716,6 +747,7 @@ define([
 			//		- the time in milliseconds since gregorian epoch.
 			//		- a Date instance
 			// returns: Date
+
 			return timeUtil.newDate(obj, this.dateClassObj);
 		},
 
@@ -725,14 +757,14 @@ define([
 			// item: Object
 			//		The item to test
 			// returns: Boolean
-			var rd = this.renderData;
-			var cal = rd.dateModule;
 
-			if (cal.compare(item.startTime, rd.startTime) == -1) {
+			var cal = this.dateModule;
+
+			if (cal.compare(item.startTime, this.startTime) == -1) {
 				return false;
 			}
 
-			return cal.compare(item.endTime, rd.endTime) != 1;
+			return cal.compare(item.endTime, this.endTime) != 1;
 		},
 
 		_ensureItemInView: function (item) {
@@ -745,21 +777,21 @@ define([
 			// tags:
 			//		protected
 
-			var rd = this.renderData;
-			var cal = rd.dateModule;
+			var cal = this.dateModule;
 
 			var duration = Math.abs(cal.difference(item.startTime, item.endTime, "millisecond"));
 			var fixed = false;
 
-			if (cal.compare(item.startTime, rd.startTime) == -1) {
-				item.startTime = rd.startTime;
+			if (cal.compare(item.startTime, this.startTime) == -1) {
+				item.startTime = this.startTime;
 				item.endTime = cal.add(item.startTime, "millisecond", duration);
 				fixed = true;
-			} else if (cal.compare(item.endTime, rd.endTime) == 1) {
-				item.endTime = rd.endTime;
+			} else if (cal.compare(item.endTime, this.endTime) === 1) {
+				item.endTime = this.endTime;
 				item.startTime = cal.add(item.endTime, "millisecond", -duration);
 				fixed = true;
 			}
+
 			return fixed;
 		},
 
@@ -778,19 +810,6 @@ define([
 		//		Auto scrolling is used when moving focus to a non visible renderer using keyboard
 		//		and while editing an item.
 		autoScroll: true,
-
-		_autoScroll: function (gx, gy, orientation) {
-			// summary:
-			//		Starts or stops the auto scroll according to the mouse cursor position during an item editing.
-			// gx: Integer
-			//		The position of the mouse cursor along the x-axis.
-			// gy: Integer
-			//		The position of the mouse cursor along the y-axis.
-			// tags:
-			//		extension
-
-			return false;
-		},
 
 		// scrollMethod: String
 		//		Method used to scroll the view, for example the scroll of column view.
@@ -820,7 +839,6 @@ define([
 
 				this._setScrollPosition(pos);
 			}
-
 		},
 
 		_startAutoScroll: function (step) {
@@ -828,6 +846,7 @@ define([
 			//		Starts the auto scroll of the view (if it's scrollable). Used only during editing.
 			// tags:
 			//		protected
+
 			var sp = this._scrollProps;
 			if (!sp) {
 				sp = this._scrollProps = {};
@@ -837,7 +856,7 @@ define([
 
 			if (!sp.isScrolling) {
 				sp.isScrolling = true;
-				sp.scrollTimer = setInterval(lang.hitch(this, this._onScrollTimer_tick), 10);
+				sp.scrollTimer = setInterval(this._onScrollTimerTick.bind(this), 10);
 			}
 		},
 
@@ -846,6 +865,7 @@ define([
 			//		Stops the auto scroll of the view (if it's scrollable). Used only during editing.
 			// tags:
 			//		protected
+
 			var sp = this._scrollProps;
 
 			if (sp && sp.isScrolling) {
@@ -855,16 +875,15 @@ define([
 			this._scrollProps = null;
 		},
 
-		_onScrollTimer_tick: function (pos) {
+		_onScrollTimerTick: function (/*===== pos =====*/) {
 		},
 
 		_scrollPos: 0,
 		_hscrollPos: 0,
 
-		//	_hScrollNodes: DOMNodes[]
+		//	_hScrollNodes: HTMLElement[]
 		//		Array of nodes that will be scrolled horizontally.
-		//		Must be set by sub class on buildRendering.
-
+		//		Must be set by sub class on render().
 		_hScrollNodes: null,
 
 		_setScrollPositionBase: function (pos, vertical) {
@@ -881,7 +900,7 @@ define([
 			// determine scroll method once.
 			if (this._domScroll === undefined) {
 
-				var sm = this.get("scrollMethod");
+				var sm = this.scrollMethod;
 				if (sm === "auto") {
 					this._domScroll = !has("ios") && !has("android") && !has("webkit");
 				} else {
@@ -912,17 +931,16 @@ define([
 				this._hScrollPos = pos;
 			}
 
-			var rtl = !this.isLeftToRight();
+			var rtl = (this.effectiveDir === "rtl");
 
 			if (this._domScroll) {
 				if (vertical) {
 					this.scrollContainer.scrollTop = pos;
 				} else {
-					arr.forEach(this._hScrollNodes, function (elt) {
+					this._hScrollNodes.forEach(function (elt) {
 						domStyle.set(elt, "left", ((rtl ? 1 : -1) * pos) + "px");
-					}, this);
+					});
 				}
-
 			} else {
 				var cssProp = cssPrefix + "transform";
 
@@ -930,9 +948,9 @@ define([
 					domStyle.set(this.sheetContainer, cssProp, "translateY(-" + pos + "px)");
 				} else {
 					var css = "translateX(" + (rtl ? "" : "-") + pos + "px)";
-					arr.forEach(this._hScrollNodes, function (elt) {
+					this._hScrollNodes.forEach(function (elt) {
 						domStyle.set(elt, cssProp, css);
-					}, this);
+					});
 				}
 			}
 		},
@@ -942,6 +960,7 @@ define([
 			//		Sets the verical scroll position (if the view is scrollable), using the scroll method defined.
 			// tags:
 			//		protected
+
 			this._setScrollPositionBase(pos, true);
 		},
 
@@ -962,27 +981,7 @@ define([
 
 			this._setScrollPositionBase(pos, false);
 		},
-
-		_setHScrollPositionImpl: function (pos, useDom, cssProperty) {
-			// summary:
-			//		Sets the horizontal scroll position on sub elements (if the view is scrollable),
-			//		using the scroll method defined.
-			//		Important: must be implemented by sub classes and not called directly.
-			//		Use _setHScrollPosition() method instead.
-			// tags:
-			//		private
-
-			var css = useDom ? null : "translateX(-" + pos + "px)";
-			arr.forEach(this._hScrollNodes, function (elt) {
-				if (useDom) {
-					elt.scrollLeft = pos;
-					domStyle.set(elt, "left", (-pos) + "px");
-				} else {
-					domStyle.set(elt, cssProp, css);
-				}
-			}, this);
-		},
-
+		
 		_hScrollPos: 0,
 
 		_getHScrollPosition: function () {
@@ -995,7 +994,7 @@ define([
 			return this._hScrollPos;
 		},
 
-		scrollView: function (dir) {
+		scrollView: function (/*===== dir =====*/) {
 			// summary:
 			//		If the view is scrollable, scrolls it vertically to the specified direction.
 			// dir: Integer
@@ -1004,7 +1003,8 @@ define([
 			//		extension
 		},
 
-		ensureVisibility: function (start, end, margin, visibilityTarget, duration) {
+		
+		ensureVisibility: function (/*===== start, end, margin, visibilityTarget, duration =====*/) {
 			// summary:
 			//		Scrolls the view if the [start, end] time range is not visible or only partially visible.
 			// start: Date
@@ -1020,7 +1020,6 @@ define([
 			//		Optional, the maximum duration of the scroll animation.
 			// tags:
 			//		extension
-
 		},
 
 		////////////////////////////////////////////////////////
@@ -1029,52 +1028,65 @@ define([
 		//
 		////////////////////////////////////////////////////////
 
-		_getStoreAttr: function () {
-			if (this.owner) {
-				return this.owner.get("store");
-			}
-			return this.store;
+		// TODO: do the filtering in the store rather than in calendar JS code!
+		_computeVisibleItems: function () {
+			// summary:
+			//		Computes the data items that are in the displayed interval.
+			// tags:
+			//		protected
+
+			return this.storeManager._computeVisibleItems(this.startTime, this.endTime);
 		},
 
-		_setItemsAttr: function (value) {
-			this._set("items", value);
-			this.displayedItemsInvalidated = true;
+		_getItemStoreStateObj: function (/*Object*/item) {
+			// tags
+			//		private
+			return this.storeManager._getItemStoreStateObj(item);
 		},
 
-		_refreshItemsRendering: function () {
-			var rd = this.renderData;
-			this._computeVisibleItems(rd);
-			this._layoutRenderers(rd);
+		getItemStoreState: function (item) {
+			//	summary:
+			//		Returns the creation state of an item.
+			//		This state is changing during the interactive creation of an item.
+			//		Valid values are:
+			//		- "unstored": The event is being interactively created. It is not in the store yet.
+			//		- "storing": The creation gesture has ended, the event is being added to the store.
+			//		- "stored": The event is not in the two previous states, and is assumed to be in the store
+			//		(not checking because of performance reasons, use store API for testing existence in store).
+			// item: Object
+			//		The item.
+			// returns: String
+
+			return this.storeManager.getItemStoreState(item);
+		},
+
+		_cleanItemStoreState: function (id) {
+			this.storeManager._cleanItemStoreState(id);
+		},
+
+		_setItemStoreState: function (/*Object*/item, /*String*/state) {
+			// tags
+			//		private
+			this.storeManager._setItemStoreState(item, state);
 		},
 
 		_refreshDecorationItemsRendering: function () {
-			var rd = this.renderData;
-			this._computeVisibleItems(rd);
-			this._layoutDecorationRenderers(rd);
+			this._computeVisibleItems();
+			this._layoutDecorationRenderers();
 		},
 
 		invalidateLayout: function () {
 			// summary:
 			//		Triggers a re-layout of the renderers.
-			this._layoutRenderers(this.renderData);
-			this._layoutDecorationRenderers(this.renderData);
-		},
+			//		Generally this shouldn't be used; layout happens automatically on property changes.
 
-		_setDecorationItemsAttr: function (value) {
-			this._set("decorationItems", value);
-			this.displayedDecorationItemsInvalidated = true;
-		},
-
-		_getDecorationStoreAttr: function () {
-			if (this.owner) {
-				return this.owner.get("decorationStore");
-			}
-			return this.decorationStore;
+			this._layoutRenderers();
+			this._layoutDecorationRenderers();
 		},
 
 		_setDecorationStoreAttr: function (value) {
-			this.decorationStore = value;
-			this.decorationStoreManager.set("store", value);
+			this._set("decorationStore", value);
+			this.decorationStoreManager.store = value;
 		},
 
 		////////////////////////////////////////////////////////
@@ -1095,8 +1107,7 @@ define([
 			// tags:
 			//		protected
 
-
-			if (layoutItems.length == 0) {
+			if (layoutItems.length === 0) {
 				return {
 					numLanes: 0,
 					addedPassRes: [1]
@@ -1112,7 +1123,7 @@ define([
 
 			var addedPassRes = null;
 			if (func) {
-				addedPassRes = lang.hitch(this, func)(lanes);
+				addedPassRes = func.call(this, lanes);
 			}
 
 			return {
@@ -1130,6 +1141,7 @@ define([
 			//		The array of lanes.
 			// tags:
 			//		protected
+
 			var stop = true;
 
 			for (var i = 0; i < lanes.length; i++) {
@@ -1158,12 +1170,10 @@ define([
 		},
 
 
-		_layoutInterval: function (renderData, index, start, end, items) {
+		_layoutInterval: function (/*===== index, start, end, items =====*/) {
 			// summary:
 			//		For each item in the items list: retrieve a renderer,
 			//		compute its location and size and add it to the DOM.
-			// renderData: Object
-			//		The render data.
 			// index: Integer
 			//		The index of the interval.
 			// start: Date
@@ -1185,29 +1195,27 @@ define([
 
 		_sortItemsFunction: function (a, b) {
 			var res = this.dateModule.compare(a.startTime, b.startTime);
-			if (res == 0) {
+			if (res === 0) {
 				res = -1 * this.dateModule.compare(a.endTime, b.endTime);
 			}
 			return res;
 		},
 
-
-		_layoutRenderers: function (renderData) {
-			this._layoutRenderersImpl(renderData, this.rendererManager, renderData.items, "dataItems");
+		_layoutRenderers: function () {
+			this._layoutRenderersImpl(this.rendererManager, this.visibleItems, "dataItems");
 		},
 
-		_layoutDecorationRenderers: function (renderData) {
-			this._layoutRenderersImpl(renderData, this.decorationRendererManager, renderData.decorationItems,
+		_layoutDecorationRenderers: function () {
+			this._layoutRenderersImpl(this.decorationRendererManager, this.visibleDecorationItems,
 				"decorationItems");
 		},
 
-		_layoutRenderersImpl: function (renderData, rendererManager, items, itemType) {
+		_layoutRenderersImpl: function (rendererManager, items, itemType) {
 			// summary:
 			//		Renders the data items. This method will call the _layoutInterval() method.
-			// renderData: Object
-			//		The render data.
 			// tags:
 			//		protected
+
 			if (!items) {
 				return;
 			}
@@ -1215,44 +1223,44 @@ define([
 			// recycle renderers first
 			rendererManager.recycleItemRenderers();
 
-			var cal = renderData.dateModule;
+			var cal = this.dateModule;
 
 			// Date
-			var startDate = this.newDate(renderData.startTime);
+			var startDate = this.newDate(this.startTime);
 
 			// Date and time
 			var startTime = lang.clone(startDate);
 
 			var endDate;
 
-			var items = items.concat();
+			items = items.concat();
 
 			var itemsTemp = [], events;
 			var processing = {};
 
 			var index = 0;
 
-			while (cal.compare(startDate, renderData.endTime) == -1 && items.length > 0) {
+			while (cal.compare(startDate, this.endTime) == -1 && items.length > 0) {
 
 				endDate = this.addAndFloor(startDate, this._layoutUnit, this._layoutStep);
 
 				var endTime = lang.clone(endDate);
 
-				if (renderData.minHours) {
-					startTime.setHours(renderData.minHours);
+				if (this.minHours) {
+					startTime.setHours(this.minHours);
 				}
 
-				if (renderData.maxHours != undefined && renderData.maxHours != 24) {
-					if (renderData.maxHours < 24) {
+				if (this.maxHours !== undefined && this.maxHours != 24) {
+					if (this.maxHours < 24) {
 						endTime = cal.add(endDate, "day", -1);
 					} // else > 24
-					endTime = this.floorToDay(endTime, true, renderData);
-					endTime.setHours(renderData.maxHours - (renderData.maxHours < 24 ? 0 : 24));
+					endTime = this.floorToDay(endTime, true);
+					endTime.setHours(this.maxHours - (this.maxHours < 24 ? 0 : 24));
 				}
 
 				// look for events that overlap the current sub interval
-				events = arr.filter(items, function (item) {
-					var r = this.isOverlapping(renderData, item.startTime, item.endTime, startTime, endTime);
+				events = items.filter(function (item) {
+					var r = this.isOverlapping(item.startTime, item.endTime, startTime, endTime);
 					if (r) {
 						processing[item.id] = true;
 						itemsTemp.push(item);
@@ -1271,10 +1279,11 @@ define([
 
 				// if event are in the current sub interval, layout them
 				if (events.length > 0) {
-					// Sort the item according a sorting function, by default start time then end time comparison are used.
-					events.sort(lang.hitch(this, this.layoutPriorityFunction ? this.layoutPriorityFunction :
-						this._sortItemsFunction));
-					this._layoutInterval(renderData, index, startTime, endTime, events, itemType);
+					// Sort the item according a sorting function,
+					// by default start time then end time comparison are used.
+					events.sort(this.layoutPriorityFunction ? this.layoutPriorityFunction.bind(this) :
+						this._sortItemsFunction.bind(this));
+					this._layoutInterval(index, startTime, endTime, events, itemType);
 				}
 
 				startDate = endDate;
@@ -1283,7 +1292,7 @@ define([
 				index++;
 			}
 
-			this._onRenderersLayoutDone(this);
+			this.emit("renderers-layout-done");
 		},
 
 		/////////////////////////////////////////////////////////////////
@@ -1325,15 +1334,18 @@ define([
 			// returns: String
 			// tags:
 			//		protected
+
 			if (this.itemToRendererKindFunc) {
 				return this.itemToRendererKindFunc(item);
 			}
+
 			return this._defaultItemToRendererKindFunc(item); // String
 		},
 
-		_defaultItemToRendererKindFunc: function (item) {
+		_defaultItemToRendererKindFunc: function (/*===== item =====*/) {
 			// tags:
-			//		private
+			//		extension
+
 			return null;
 		},
 
@@ -1354,100 +1366,10 @@ define([
 			return this.rendererManager.createRenderer(item, kind, rendererClass, cssClass);
 		},
 
-		_onRendererCreated: function (e) {
-			if (e.source == this) {
-				this.onRendererCreated(e);
-			}
-			if (this.owner != null) {
-				this.owner._onRendererCreated(e);
-			}
-		},
-
-		onRendererCreated: function (e) {
-			// summary:
-			//		Event dispatched when an item renderer has been created.
-			// e: __rendererLifecycleEventArgs
-			//		The renderer lifecycle event.
-			// tags:
-			//		callback
-		},
-
-		_onRendererRecycled: function (e) {
-			if (e.source == this) {
-				this.onRendererRecycled(e);
-			}
-			if (this.owner != null) {
-				this.owner._onRendererRecycled(e);
-			}
-		},
-
-		onRendererRecycled: function (e) {
-			// summary:
-			//		Event dispatched when an item renderer has been recycled.
-			// e: __rendererLifecycleEventArgs
-			//		The renderer lifecycle event.
-			// tags:
-			//		callback
-
-		},
-
-		_onRendererReused: function (e) {
-			if (e.source == this) {
-				this.onRendererReused(e);
-			}
-			if (this.owner != null) {
-				this.owner._onRendererReused(e);
-			}
-		},
-
-		onRendererReused: function (e) {
-			// summary:
-			//		Event dispatched when an item renderer that was recycled is reused.
-			// e: __rendererLifecycleEventArgs
-			//		The renderer lifecycle event.
-			// tags:
-			//		callback
-		},
-
-		_onRendererDestroyed: function (e) {
-			if (e.source == this) {
-				this.onRendererDestroyed(e);
-			}
-			if (this.owner != null) {
-				this.owner._onRendererDestroyed(e);
-			}
-		},
-
-		onRendererDestroyed: function (e) {
-			// summary:
-			//		Event dispatched when an item renderer is destroyed.
-			// e: __rendererLifecycleEventArgs
-			//		The renderer lifecycle event.
-			// tags:
-			//		callback
-		},
-
-		_onRenderersLayoutDone: function (view) {
-			// tags:
-			//		private
-
-			this.onRenderersLayoutDone(view);
-			if (this.owner != null) {
-				this.owner._onRenderersLayoutDone(view);
-			}
-		},
-
-		onRenderersLayoutDone: function (view) {
-			// summary:
-			//		Event triggered when item renderers layout has been done.
-			// tags:
-			//		callback
-		},
-
 		_recycleRenderer: function (renderer, remove) {
 			// summary:
 			//		Recycles the item renderer to be reused in the future.
-			// renderer: dojox/calendar/_RendererMixin
+			// renderer: dcalendar/_RendererMixin
 			//		The item renderer to recycle.
 			// tags:
 			//		protected
@@ -1458,7 +1380,7 @@ define([
 		_destroyRenderer: function (renderer) {
 			// summary:
 			//		Destroys the item renderer.
-			// renderer: dojox/calendar/_RendererMixin
+			// renderer: dcalendar/_RendererMixin
 			//		The item renderer to destroy.
 			// tags:
 			//		protected
@@ -1470,6 +1392,11 @@ define([
 			// tags:
 			//		private
 
+			if (!this.renderManager) {
+				// Avoid failure from dcl (or delite?) problem where SimpleColumnView#_setVerticalRendererAttr() is
+				// called while creating a subclass of SimpleColumnView.
+				return;
+			}
 			this.rendererManager.destroyRenderersByKind(kind);
 		},
 
@@ -1480,37 +1407,24 @@ define([
 			//		according to its event current editing state.
 			// item: Object
 			//		The store data item.
-			// renderer: dojox/calendar/_RendererMixin
+			// renderer: dcalendar/_RendererMixin
 			//		The item renderer.
 			// tags:
 			//		protected
 
-			var moveEnabled = this.isItemMoveEnabled(item, renderer.rendererKind);
-			var resizeEnabled = this.isItemResizeEnabled(item, renderer.rendererKind);
-			var changed = false;
-
-			if (moveEnabled != renderer.get("moveEnabled")) {
-				renderer.set("moveEnabled", moveEnabled);
-				changed = true;
-			}
-			if (resizeEnabled != renderer.get("resizeEnabled")) {
-				renderer.set("resizeEnabled", resizeEnabled);
-				changed = true;
-			}
-
-			if (changed) {
-				renderer.updateRendering();
-			}
+			renderer.moveEnabled = this.isItemMoveEnabled(item, renderer.rendererKind);
+			renderer.resizeEnabled = this.isItemResizeEnabled(item, renderer.rendererKind);
+			renderer.deliver();
 		},
 
 		updateRenderers: function (obj, stateOnly) {
 			// summary:
-			//		Updates all the renderers that represents the specified item(s).
+			//		Updates all the renderers that represent the specified item(s).
 			// obj: Object
-			//		A render item or an array of render items.
+			//		An item or an array of items.
 			// stateOnly: Boolean
 			//		Whether only the state of the item has changed (selected, edited, edited, focused)
-			//		or a more global change has occured.
+			//		or a more global change has occurred.
 			// tags:
 			//		protected
 
@@ -1521,7 +1435,6 @@ define([
 			var items = lang.isArray(obj) ? obj : [obj];
 
 			for (var i = 0; i < items.length; i++) {
-
 				var item = items[i];
 
 				if (item == null || item.id == null) {
@@ -1534,7 +1447,7 @@ define([
 					continue;
 				}
 
-				var selected = this.isItemSelected(item);
+				var selected = this.isSelected(item);
 				var hovered = this.isItemHovered(item);
 				var edited = this.isItemBeingEdited(item);
 				var focused = this.showFocus ? this.isItemFocused(item) : false;
@@ -1542,26 +1455,23 @@ define([
 				for (var j = 0; j < list.length; j++) {
 
 					var renderer = list[j].renderer;
-					renderer.set("hovered", hovered);
-					renderer.set("selected", selected);
-					renderer.set("edited", edited);
-					renderer.set("focused", focused);
-					renderer.set("storeState", this.getItemStoreState(item));
+					renderer.hovered = hovered;
+					renderer.selected = selected;
+					renderer.edited = edited;
+					renderer.focused = focused;
+					renderer.storeState = this.getItemStoreState(item);
 
 					this.applyRendererZIndex(item, list[j], hovered, selected, edited, focused);
 
 					if (!stateOnly) {
-						renderer.set("item", item); // force content refresh
-						if (renderer.updateRendering) {
-							renderer.updateRendering(); // reuse previously set dimensions
-						}
+						renderer.notifyCurrentValue("item"); // force content refresh
+						renderer.deliver();
 					}
 				}
-
 			}
 		},
 
-		applyRendererZIndex: function (item, renderer, hovered, selected, edited, focused) {
+		applyRendererZIndex: function (item, renderer, hovered, selected, edited /*=====, focused =====*/) {
 			// summary:
 			//		Applies the z-index to the renderer based on the state of the item.
 			//		This methods is setting a z-index of 20 is the item is selected or edited
@@ -1583,11 +1493,11 @@ define([
 			//		protected
 
 			domStyle.set(renderer.container,
-				{"zIndex": edited || selected ? 20 : item.lane == undefined ? 0 : item.lane});
+				{"zIndex": edited || selected ? 20 : item.lane === undefined ? 0 : item.lane});
 		},
 
 		getIdentity: function (item) {
-			return this.owner ? this.owner.getIdentity(item) : item.id;
+			return item.id;
 		},
 
 		/////////////////////////////////////////////////////
@@ -1601,7 +1511,7 @@ define([
 			//		Sets the current hovered item.
 			// item: Object
 			//		The data item.
-			// renderer: dojox/calendar/_RendererMixin
+			// renderer: dcalendar/_RendererMixin
 			//		The item renderer.
 			// tags:
 			//		protected
@@ -1634,13 +1544,13 @@ define([
 			// item: Object
 			//		The item.
 			// returns: Boolean
+
 			if (this._isEditing && this._edProps) {
 				return item.id == this._edProps.editedItem.id;
 			}
 			return this.owner ?
 				this.owner.isItemHovered(item) :
 			this.hoveredItem != null && this.hoveredItem.id == item.id;
-
 		},
 
 		isItemFocused: function (item) {
@@ -1649,81 +1559,8 @@ define([
 			// item: Object
 			//		The item.
 			// returns: Boolean
+
 			return this._isItemFocused ? this._isItemFocused(item) : false;
-		},
-
-		////////////////////////////////////////////////////////////////////
-		//
-		// Selection delegation
-		//
-		///////////////////////////////////////////////////////////////////
-
-		_setSelectionModeAttr: function (value) {
-			if (this.owner) {
-				this.owner.set("selectionMode", value);
-			} else {
-				this.inherited(arguments);
-			}
-		},
-
-		_getSelectionModeAttr: function (value) {
-			if (this.owner) {
-				return this.owner.get("selectionMode");
-			}
-			return this.inherited(arguments);
-		},
-
-		_setSelectedItemAttr: function (value) {
-			if (this.owner) {
-				this.owner.set("selectedItem", value);
-			} else {
-				this.inherited(arguments);
-			}
-		},
-
-		_getSelectedItemAttr: function (value) {
-			if (this.owner) {
-				return this.owner.get("selectedItem");
-			}
-			return this.selectedItem; // no getter on super class (dojox.widget.Selection)
-		},
-
-		_setSelectedItemsAttr: function (value) {
-			if (this.owner) {
-				this.owner.set("selectedItems", value);
-			} else {
-				this.inherited(arguments);
-			}
-		},
-
-		_getSelectedItemsAttr: function () {
-			if (this.owner) {
-				return this.owner.get("selectedItems");
-			}
-			return this.inherited(arguments);
-		},
-
-		isItemSelected: function (item) {
-			if (this.owner) {
-				return this.owner.isItemSelected(item);
-			}
-			return this.inherited(arguments);
-		},
-
-		selectFromEvent: function (e, item, renderer, dispatch) {
-			if (this.owner) {
-				this.owner.selectFromEvent(e, item, renderer, dispatch);
-			} else {
-				this.inherited(arguments);
-			}
-		},
-
-		setItemSelected: function (item, value) {
-			if (this.owner) {
-				this.owner.setItemSelected(item, value);
-			} else {
-				this.inherited(arguments);
-			}
 		},
 
 		////////////////////////////////////////////////////////////////////
@@ -1749,28 +1586,18 @@ define([
 		 =====*/
 
 
-		_getCreateItemFuncAttr: function () {
-			if (this.owner) {
-				return this.owner.get("createItemFunc");
-			}
-			return this.createItemFunc;
-		},
-
 		// createOnGridClick: Boolean
 		//		Indicates whether the user can create new event by clicking and dragging the grid.
 		//		A createItem function must be defined on the view or the calendar object.
 		createOnGridClick: false,
 
-		_getCreateOnGridClickAttr: function () {
-			if (this.owner) {
-				return this.owner.get("createOnGridClick");
-			}
-			return this.createOnGridClick;
-		},
 
 		////////////////////////////////////////////////////////////////////
 		//
 		// Event creation
+		//
+		// TODO: setup listeners for these events from ViewBase.html rather than requiring
+		// every template to do it.
 		//
 		///////////////////////////////////////////////////////////////////
 
@@ -1792,7 +1619,7 @@ define([
 
 			this._doEndItemEditing(this.owner, "mouse");
 
-			this.set("focusedItem", null);
+			this.focusedItem = null;
 			this.selectFromEvent(e, null, null, true);
 
 			if (this._setTabIndexAttr) {
@@ -1801,7 +1628,7 @@ define([
 
 			if (this._onRendererHandleMouseDown) {
 
-				var f = this.get("createItemFunc");
+				var f = this.createItemFunc;
 
 				if (!f) {
 					return;
@@ -1809,14 +1636,14 @@ define([
 
 				var newItem = this._createdEvent = f(this, this.getTime(e), e, this.getSubColumn(e));
 
-				var store = this.get("store");
+				var store = this.store;
 
 				if (!newItem || store == null) {
 					return;
 				}
 
 				// calendar needs an ID to work with
-				if (store.getIdentity(newItem) == undefined) {
+				if (store.getIdentity(newItem) === undefined) {
 					var id = "_tempId_" + (this._tempIdCount++);
 					newItem[store.idProperty] = id;
 					if (this._tempItemsMap == null) {
@@ -1830,12 +1657,13 @@ define([
 				this._setItemStoreState(newItem, "unstored");
 
 				// add the new temporary item to the displayed list and force view refresh
-				var owner = this._getTopOwner();
-				var items = owner.get("items");
+				var items = this.items;
 
-				owner.set("items", items ? items.concat([newRenderItem]) : [newRenderItem]);
+				this.items = (items ? items.concat([newRenderItem]) : [newRenderItem]);
+				
+				
 
-				this._refreshItemsRendering();
+				this.deliver();	// trigger renderer for new item to be created
 
 				// renderer created in _refreshItemsRenderering()
 				var renderers = this.getRenderers(newItem);
@@ -1850,14 +1678,9 @@ define([
 			}
 		},
 
-		_onGridMouseMove: function (e) {
+		_onGridMouseUp: function (/*===== e =====*/) {
 			// tags:
-			//		private
-		},
-
-		_onGridMouseUp: function (e) {
-			// tags:
-			//		private
+			//		extension
 		},
 
 		_onGridTouchStart: function (e) {
@@ -1879,7 +1702,7 @@ define([
 
 				lang.mixin(p, this._getTouchesOnRenderers(e, p.editedItem));
 
-				if (p.touchesLen == 0) {
+				if (p.touchesLen === 0) {
 
 					if (p && p.endEditingTimer) {
 						clearTimeout(p.endEditingTimer);
@@ -1889,34 +1712,33 @@ define([
 				}
 			}
 
-			this._doEndItemEditing(this.owner, "touch");
+			this._doEndItemEditing("touch");
 
 			event.stop(e);
-
 		},
 
-		_doEndItemEditing: function (obj, eventSource) {
+		_doEndItemEditing: function (eventSource) {
 			// tags:
 			//		private
 
-			if (obj && obj._isEditing) {
-				var p = obj._edProps;
+			if (this && this._isEditing) {
+				var p = this._edProps;
 				if (p && p.endEditingTimer) {
 					clearTimeout(p.endEditingTimer);
 					p.endEditingTimer = null;
 				}
-				obj._endItemEditing(eventSource, false);
+				this._endItemEditing(eventSource, false);
 			}
 		},
 
-		_onGridTouchEnd: function (e) {
+		_onGridTouchEnd: function (/*===== e =====*/) {
 			// tags:
-			//		private
+			//		extension
 		},
 
-		_onGridTouchMove: function (e) {
+		_onGridTouchMove: function (/*===== e =====*/) {
 			// tags:
-			//		private
+			//		extension
 		},
 
 		__fixEvt: function (e) {
@@ -1927,119 +1749,27 @@ define([
 			return e;
 		},
 
-		_dispatchCalendarEvt: function (e, name) {
-			// summary:
-			//		Adds view properties to event and enable bubbling at owner level.
-			// e: Event
-			//		The dispatched event.
-			// name: String
-			//		The event name.
-			// tags:
-			//		protected
+		// Override delite/CustomElement#emit() to mix in properties from __fixEvt()
+		emit: dcl.superCall(function (sup) {
+			return function (name, eventObj) {
+				eventObj = this.__fixEvt(eventObj || {});
+				return sup.call(this, name, eventObj);
+			};
+		}),
 
-			e = this.__fixEvt(e);
-			this[name](e);
-			if (this.owner) {
-				this.owner[name](e);
-			}
-			return e;
-		},
 
 		_onGridClick: function (e) {
-			// tags:
-			//		private
-			if (!e.triggerEvent) {
-				e = {
-					date: this.getTime(e),
-					triggerEvent: e
-				};
-			}
-
-			this._dispatchCalendarEvt(e, "onGridClick");
-		},
-
-		onGridClick: function (e) {
-			// summary:
-			//		Event dispatched when the grid has been clicked.
-			// e: __GridClickEventArgs
-			//		The event dispatched when the grid is clicked.
-			// tags:
-			//		callback
+			this.emit("grid-click", {
+				date: this.getTime(e),
+				triggerEvent: e
+			});
 		},
 
 		_onGridDoubleClick: function (e) {
-			// tags:
-			//		private
-
-			if (!e.triggerEvent) {
-				e = {
-					date: this.getTime(e),
-					triggerEvent: e
-				};
-			}
-
-			this._dispatchCalendarEvt(e, "onGridDoubleClick");
-		},
-
-		onGridDoubleClick: function (e) {
-			// summary:
-			//		Event dispatched when the grid has been double-clicked.
-			// e: __GridClickEventArgs
-			//		The event dispatched when the grid is double-clicked.
-			// tags:
-			//		protected
-
-		},
-
-		_onItemClick: function (e) {
-			// tags:
-			//		private
-
-			this._dispatchCalendarEvt(e, "onItemClick");
-		},
-
-		onItemClick: function (e) {
-			// summary:
-			//		Event dispatched when an item renderer has been clicked.
-			// e: __ItemMouseEventArgs
-			//		The event dispatched when an item is clicked.
-			// tags:
-			//		callback
-
-		},
-
-		_onItemDoubleClick: function (e) {
-			// tags:
-			//		private
-
-			this._dispatchCalendarEvt(e, "onItemDoubleClick");
-		},
-
-		onItemDoubleClick: function (e) {
-			// summary:
-			//		Event dispatched when an item renderer has been double-clicked.
-			// e: __ItemMouseEventArgs
-			//		The event dispatched when an item is double-clicked.
-			// tags:
-			//		callback
-
-		},
-
-		_onItemContextMenu: function (e) {
-			this._dispatchCalendarEvt(e, "onItemContextMenu");
-			// tags:
-			//		private
-
-		},
-
-		onItemContextMenu: function (e) {
-			// summary:
-			//		Event dispatched when an item renderer has been context-clicked.
-			// e: __ItemMouseEventArgs
-			//		The event dispatched when an item is context-clicked.
-			// tags:
-			//		callback
-
+			this.emit("grid-double-click", {
+				date: this.getTime(e),
+				triggerEvent: e
+			});
 		},
 
 		//////////////////////////////////////////////////////////
@@ -2058,36 +1788,33 @@ define([
 			// tags:
 			//		protected
 
-
 			var list = this.rendererManager.itemToRenderer[item.id];
 
-			if (list == null) {
+			if (!list) {
 				return null;
 			}
 
 			// trivial and most common use case.
-			if (list.length == 1) {
+			if (list.length === 1) {
 				var node = list[0].renderer;
 				return [node, node];
 			}
 
-			var rd = this.renderData;
 			var resizeStartFound = false;
 			var resizeEndFound = false;
 
 			var res = [];
 
 			for (var i = 0; i < list.length; i++) {
-
 				var ir = list[i].renderer;
 
 				if (!resizeStartFound) {
-					resizeStartFound = rd.dateModule.compare(ir.item.range[0], ir.item.startTime) == 0;
+					resizeStartFound = this.dateModule.compare(ir.item.range[0], ir.item.startTime) === 0;
 					res[0] = ir;
 				}
 
 				if (!resizeEndFound) {
-					resizeEndFound = rd.dateModule.compare(ir.item.range[1], ir.item.endTime) == 0;
+					resizeEndFound = this.dateModule.compare(ir.item.range[1], ir.item.endTime) === 0;
 					res[1] = ir;
 				}
 
@@ -2103,7 +1830,8 @@ define([
 		//		A flag that indicates whether or not the user can edit
 		//		items in the data provider.
 		//		If <code>true</code>, the item renderers in the control are editable.
-		//		The user can click on an item renderer, or use the keyboard or touch devices, to move or resize the associated event.
+		//		The user can click on an item renderer, or use the keyboard or touch devices,
+		//		to move or resize the associated event.
 		editable: true,
 
 		// moveEnabled: Boolean
@@ -2138,6 +1866,7 @@ define([
 			// rendererKind: String
 			//		The kind of renderer.
 			// returns: Boolean
+
 			return this.isItemEditable(item, rendererKind) && this.moveEnabled &&
 				(this.owner ? this.owner.isItemMoveEnabled(item, rendererKind) : true);
 		},
@@ -2166,7 +1895,9 @@ define([
 			// item: Object
 			//		The item to test.
 			// returns: Boolean
-			return this._isEditing && this._edProps && this._edProps.editedItem && this._edProps.editedItem.id == item.id;
+
+			return this._isEditing && this._edProps && this._edProps.editedItem &&
+				this._edProps.editedItem.id == item.id;
 		},
 
 		_setEditingProperties: function (props) {
@@ -2181,7 +1912,8 @@ define([
 
 		_startItemEditing: function (item, eventSource) {
 			// summary:
-			//		Configures the component, renderers to start one (mouse) of several (touch, keyboard) editing gestures.
+			//		Configures the component, renderers to start one (mouse) of several (touch, keyboard) editing
+			//		gestures.
 			// item: Object
 			//		The item that will be edited.
 			// eventSource: String
@@ -2190,25 +1922,24 @@ define([
 			//		protected
 
 			this._isEditing = true;
-			this._getTopOwner()._isEditing = true;
 			var p = this._edProps;
 
 			p.editedItem = item;
 			p.storeItem = item._item;
 			p.eventSource = eventSource;
 
-			p.secItem = this._secondarySheet ? this._findRenderItem(item.id, this._secondarySheet.renderData.items) : null;
-			p.ownerItem = this.owner ? this._findRenderItem(item.id, this.items) : null;
+			p.secItem = this._secondarySheet ? this._findRenderItem(item.id, this._secondarySheet.items) :
+				null;
 
 			if (!p.liveLayout) {
 				p.editSaveStartTime = item.startTime;
 				p.editSaveEndTime = item.endTime;
 
 				p.editItemToRenderer = this.rendererManager.itemToRenderer;
-				p.editItems = this.renderData.items;
+				p.editItems = this.items;
 				p.editRendererList = this.rendererManager.rendererList;
 
-				this.renderData.items = [p.editedItem];
+				this.items = [p.editedItem];
 				var id = p.editedItem.id;
 
 				this.rendererManager.itemToRenderer = {};
@@ -2217,24 +1948,24 @@ define([
 
 				p.editRendererIndices = [];
 
-				arr.forEach(list, lang.hitch(this, function (ir, i) {
+				list.forEach(function (ir) {
 					if (this.rendererManager.itemToRenderer[id] == null) {
 						this.rendererManager.itemToRenderer[id] = [ir];
 					} else {
 						this.rendererManager.itemToRenderer[id].push(ir);
 					}
 					this.rendererManager.rendererList.push(ir);
-				}));
+				}, this);
 
 				// remove in old map & list the occurrence used by the edited item
-				p.editRendererList = arr.filter(p.editRendererList, function (ir) {
+				p.editRendererList = p.editRendererList.filter(function (ir) {
 					return ir != null && ir.renderer.item.id != id;
 				});
 				delete p.editItemToRenderer[id];
 			}
 
 			// graphic feedback refresh
-			this._layoutRenderers(this.renderData);
+			this._layoutRenderers();
 
 			this._onItemEditBegin({
 				item: item,
@@ -2250,15 +1981,7 @@ define([
 			this._editStartTimeSave = this.newDate(e.item.startTime);
 			this._editEndTimeSave = this.newDate(e.item.endTime);
 
-			this._dispatchCalendarEvt(e, "onItemEditBegin");
-		},
-
-		onItemEditBegin: function (e) {
-			// summary:
-			//		Event dispatched when the item is entering the editing mode.
-			// tags:
-			//		callback
-
+			this.emit("item-edit-begin", e);
 		},
 
 		_endItemEditing: function (/*String*/eventSource, /*Boolean*/canceled) {
@@ -2277,28 +2000,29 @@ define([
 			}
 
 			this._isEditing = false;
-			this._getTopOwner()._isEditing = false;
 
 			var p = this._edProps;
 
-			arr.forEach(p.handles, function (handle) {
-				handle.remove();
-			});
+			if (p.handles) {
+				p.handles.forEach(function (handle) {
+					handle.remove();
+				});
+			}
 
 			if (!p.liveLayout) {
-				this.renderData.items = p.editItems;
+				this.items = p.editItems;
 				this.rendererManager.rendererList = p.editRendererList.concat(this.rendererManager.rendererList);
 				lang.mixin(this.rendererManager.itemToRenderer, p.editItemToRenderer);
 			}
 
-			this._onItemEditEnd(lang.mixin(this._createItemEditEvent(), {
+			this._onItemEditEnd({
 				item: p.editedItem,
 				storeItem: p.storeItem,
 				eventSource: eventSource,
 				completed: !canceled
-			}));
+			});
 
-			this._layoutRenderers(this.renderData);
+			this._layoutRenderers();
 
 			this._edProps = null;
 		},
@@ -2307,11 +2031,10 @@ define([
 			// tags:
 			//		private
 
-			this._dispatchCalendarEvt(e, "onItemEditEnd");
+			var synthEvent = this.emit("item-edit-end", e);
 
-			if (!e.isDefaultPrevented()) {
-
-				var store = this.get("store");
+			if (!synthEvent.defaultPrevented) {
+				var store = this.store;
 
 				// updated store item
 				var storeItem = this.renderItemToItem(e.item, store);
@@ -2336,7 +2059,7 @@ define([
 						}
 
 						// add to the store.
-						when(store.add(storeItem, options), lang.hitch(this, function (res) {
+						when(store.add(storeItem, options), function (res) {
 							var id;
 							if (lang.isObject(res)) {
 								id = store.getIdentity(res);
@@ -2347,7 +2070,7 @@ define([
 							if (id != oldID) {
 								this._removeRenderItem(oldID);
 							}
-						}));
+						}.bind(this));
 
 					} else { // creation canceled
 						// cleanup items list
@@ -2368,54 +2091,17 @@ define([
 		},
 
 		_removeRenderItem: function (id) {
-
-			var owner = this._getTopOwner();
-			var items = owner.get("items");
+			var items = this.items;
 			var l = items.length;
-			var found = false;
 			for (var i = l - 1; i >= 0; i--) {
 				if (items[i].id == id) {
 					items.splice(i, 1);
-					found = true;
+					this.notifyCurrentValue("items"); //force a complete relayout
 					break;
 				}
 			}
 			this._cleanItemStoreState(id);
-			if (found) {
-				owner.set("items", items); //force a complete relayout
-				this.invalidateLayout();
-			}
 		},
-
-		onItemEditEnd: function (e) {
-			// summary:
-			//		Event dispatched when the item is leaving the editing mode.
-			// tags:
-			//		protected
-
-		},
-
-		_createItemEditEvent: function () {
-			// tags:
-			//		private
-
-			var e = {
-				cancelable: true,
-				bubbles: false,
-				__defaultPrevent: false
-			};
-
-			e.preventDefault = function () {
-				this.__defaultPrevented = true;
-			};
-
-			e.isDefaultPrevented = function () {
-				return this.__defaultPrevented;
-			};
-
-			return e;
-		},
-
 
 		_startItemEditingGesture: function (dates, editKind, eventSource, e) {
 			// summary:
@@ -2443,7 +2129,7 @@ define([
 
 			p.editKind = editKind;
 
-			this._onItemEditBeginGesture(this.__fixEvt(lang.mixin(this._createItemEditEvent(), {
+			this._onItemEditBeginGesture({
 				item: item,
 				storeItem: p.storeItem,
 				startTime: item.startTime,
@@ -2453,16 +2139,15 @@ define([
 				triggerEvent: e,
 				dates: dates,
 				eventSource: eventSource
-			})));
+			});
 
 			p.itemBeginDispatched = true;
-
 		},
-
 
 		_onItemEditBeginGesture: function (e) {
 			// tags:
 			//		private
+
 			var p = this._edProps;
 
 			var item = p.editedItem;
@@ -2479,7 +2164,7 @@ define([
 				p.editingItemRefTime[1] = this.newDate(item.endTime);
 			}
 
-			var cal = this.renderData.dateModule;
+			var cal = this.dateModule;
 
 			p.inViewOnce = this._isItemInView(item);
 
@@ -2490,34 +2175,24 @@ define([
 
 			p._initDuration = cal.difference(item.startTime, item.endTime, item.allDay ? "day" : "millisecond");
 
-			this._dispatchCalendarEvt(e, "onItemEditBeginGesture");
+			var synthEvent = this.emit("item-edit-begin-gesture", e);
 
-			if (!e.isDefaultPrevented()) {
-
+			if (!synthEvent.defaultPrevented) {
 				if (e.eventSource == "mouse") {
 					var cursor = e.editKind == "move" ? "move" : this.resizeCursor;
 					p.editLayer = domConstruct.create("div", {
-						style: "position: absolute; left:0; right:0; bottom:0; top:0; z-index:30; tabIndex:-1; background-image:url('" + this._blankGif + "'); cursor: " + cursor,
-						onresizestart: function (e) {
+						style: "position: absolute; left:0; right:0; bottom:0; top:0; z-index:30; tabIndex:-1; " +
+							"background-image:url('" + this._blankGif + "'); cursor: " + cursor,
+						onresizestart: function () {
 							return false;
 						},
-						onselectstart: function (e) {
+						onselectstart: function () {
 							return false;
 						}
-					}, this.domNode);
+					}, this);
 					p.editLayer.focus();
 				}
 			}
-		},
-
-		onItemEditBeginGesture: function (e) {
-			// summary:
-			//		Event dispatched when an editing gesture is beginning.
-			// e: __itemEditingEventArgs
-			//		The editing event.
-			// tags:
-			//		callback
-
 		},
 
 		_waDojoxAddIssue: function (d, unit, steps) {
@@ -2533,21 +2208,21 @@ define([
 			// tags:
 			//		protected
 
-			var cal = this.renderData.dateModule;
+			var cal = this.dateModule;
 			if (this._calendar != "gregorian" && steps < 0) {
 				var gd = d.toGregorian();
 				gd = date.add(gd, unit, steps);
-				return new this.renderData.dateClassObj(gd);
+				return new this.dateClassObj(gd);
 			} else {
 				return cal.add(d, unit, steps);
 			}
 		},
 
-		_computeItemEditingTimes: function (item, editKind, rendererKind, times, eventSource) {
+		_computeItemEditingTimes: function (item, editKind, rendererKind, times /*=====, eventSource =====*/) {
 			// tags:
-			//		private
+			//		extension
 
-			var cal = this.renderData.dateModule;
+			var cal = this.dateModule;
 			var p = this._edProps;
 			if (editKind == "move") {
 				var diff = cal.difference(p.editingTimeFrom[0], times[0], "millisecond");
@@ -2578,8 +2253,7 @@ define([
 
 			var p = this._edProps;
 			var item = p.editedItem;
-			var rd = this.renderData;
-			var cal = rd.dateModule;
+			var cal = this.dateModule;
 			var editKind = p.editKind;
 
 			var newTimes = [dates[0]];
@@ -2607,22 +2281,20 @@ define([
 					// TODO abstract change?
 					item.subColumn = subColumn;
 					// refresh the other properties that depends on this one (especially cssClass)
-					var store = this.get("store");
+					var store = this.store;
 					var storeItem = this.renderItemToItem(item, store);
 					lang.mixin(item, this.itemToRenderItem(storeItem, store));
 					moveOrResizeDone = true;
 				}
-				if (cal.compare(item.startTime, newTime) != 0) {
+				if (cal.compare(item.startTime, newTime) !== 0) {
 					var duration = cal.difference(item.startTime, item.endTime, "millisecond");
 					item.startTime = this.newDate(newTime);
 					item.endTime = cal.add(item.startTime, "millisecond", duration);
 					moveOrResizeDone = true;
 				}
-
 			} else if (editKind == "resizeStart") {
-
-				if (cal.compare(item.startTime, newTime) != 0) {
-					if (cal.compare(item.endTime, newTime) != -1) {
+				if (cal.compare(item.startTime, newTime) !== 0) {
+					if (cal.compare(item.endTime, newTime) !== -1) {
 						item.startTime = this.newDate(newTime);
 					} else { // swap detected
 						if (allowSwap) {
@@ -2645,8 +2317,8 @@ define([
 
 			} else if (editKind == "resizeEnd") {
 
-				if (cal.compare(item.endTime, newTime) != 0) {
-					if (cal.compare(item.startTime, newTime) != 1) {
+				if (cal.compare(item.endTime, newTime) !== 0) {
+					if (cal.compare(item.startTime, newTime) !== 1) {
 						item.endTime = this.newDate(newTime);
 					} else { // swap detected
 
@@ -2698,7 +2370,7 @@ define([
 				return false;
 			}
 
-			var evt = lang.mixin(this._createItemEditEvent(), {
+			var evt = {
 				item: item,
 				storeItem: p.storeItem,
 				startTime: item.startTime,
@@ -2707,7 +2379,7 @@ define([
 				rendererKind: p.rendererKind,
 				triggerEvent: e,
 				eventSource: eventSource
-			});
+			};
 
 			// trigger snapping, rounding, minimal duration, boundaries checks etc.
 			if (editKind == "move") {
@@ -2717,7 +2389,7 @@ define([
 			}
 
 			// prevent invalid range
-			if (cal.compare(item.startTime, item.endTime) == 1) {
+			if (cal.compare(item.startTime, item.endTime) === 1) {
 				var tmp = item.startTime;
 				item.startTime = item.endTime;
 				item.endTime = tmp;
@@ -2725,23 +2397,19 @@ define([
 
 			moveOrResizeDone =
 				oldSubColumn != item.subColumn ||
-				cal.compare(oldStart, item.startTime) != 0 ||
-				cal.compare(oldEnd, item.endTime) != 0;
+				cal.compare(oldStart, item.startTime) !== 0 ||
+				cal.compare(oldEnd, item.endTime) !== 0;
 
 			if (!moveOrResizeDone) {
 				return false;
 			}
 
-			this._layoutRenderers(this.renderData);
+			this._layoutRenderers();
 
 			if (p.liveLayout && p.secItem != null) {
 				p.secItem.startTime = item.startTime;
 				p.secItem.endTime = item.endTime;
-				this._secondarySheet._layoutRenderers(this._secondarySheet.renderData);
-			} else if (p.ownerItem != null && this.owner.liveLayout) {
-				p.ownerItem.startTime = item.startTime;
-				p.ownerItem.endTime = item.endTime;
-				this.owner._layoutRenderers(this.owner.renderData);
+				this._secondarySheet._layoutRenderers();
 			}
 
 			return true;
@@ -2751,7 +2419,7 @@ define([
 			// tags:
 			//		private
 
-			list = list || this.renderData.items;
+			list = list || this.items;
 			for (var i = 0; i < list.length; i++) {
 				if (list[i].id == id) {
 					return list[i];
@@ -2764,23 +2432,19 @@ define([
 			// tags:
 			//		private
 
-			this._dispatchCalendarEvt(e, "onItemEditMoveGesture");
+			var synthEvent = this.emit("item-edit-move-gesture", e);
 
-			if (!e.isDefaultPrevented()) {
-
+			if (!synthEvent.defaultPrevented) {
 				var p = e.source._edProps;
-				var rd = this.renderData;
-				var cal = rd.dateModule;
+				var cal = this.dateModule;
 				var newStartTime, newEndTime;
 
 				if (p.rendererKind == "label" || (this.roundToDay && !e.item.allDay)) {
-
-					newStartTime = this.floorToDay(e.item.startTime, false, rd);
+					newStartTime = this.floorToDay(e.item.startTime, false);
 					newStartTime.setHours(p._itemEditBeginSave.getHours());
 					newStartTime.setMinutes(p._itemEditBeginSave.getMinutes());
 
 					newEndTime = cal.add(newStartTime, "millisecond", p._initDuration);
-
 				} else if (e.item.allDay) {
 					newStartTime = this.floorToDay(e.item.startTime, true);
 					newEndTime = cal.add(newStartTime, "day", p._initDuration);
@@ -2805,36 +2469,24 @@ define([
 
 		_DAY_IN_MILLISECONDS: 24 * 60 * 60 * 1000,
 
-		onItemEditMoveGesture: function (e) {
-			// summary:
-			//		Event dispatched during a move editing gesture.
-			// e: __itemEditingEventArgs
-			//		The editing event.
-			// tags:
-			//		callback
-
-		},
-
 		_onItemEditResizeGesture: function (e) {
 			// tags:
 			//		private
 
-			this._dispatchCalendarEvt(e, "onItemEditResizeGesture");
+			var synthEvent = this.emit("item-edit-resize-gesture", e);
 
-			if (!e.isDefaultPrevented()) {
-
+			if (!synthEvent.defaultPrevented) {
 				var p = e.source._edProps;
-				var rd = this.renderData;
-				var cal = rd.dateModule;
+				var cal = this.dateModule;
 
 				var newStartTime = e.item.startTime;
 				var newEndTime = e.item.endTime;
 
 				if (e.editKind == "resizeStart") {
 					if (e.item.allDay) {
-						newStartTime = this.floorToDay(e.item.startTime, false, this.renderData);
+						newStartTime = this.floorToDay(e.item.startTime, false, this);
 					} else if (this.roundToDay) {
-						newStartTime = this.floorToDay(e.item.startTime, false, rd);
+						newStartTime = this.floorToDay(e.item.startTime, false);
 						newStartTime.setHours(p._itemEditBeginSave.getHours());
 						newStartTime.setMinutes(p._itemEditBeginSave.getMinutes());
 					} else {
@@ -2843,11 +2495,11 @@ define([
 				} else if (e.editKind == "resizeEnd") {
 					if (e.item.allDay) {
 						if (!this.isStartOfDay(e.item.endTime)) {
-							newEndTime = this.floorToDay(e.item.endTime, false, this.renderData);
+							newEndTime = this.floorToDay(e.item.endTime, false, this);
 							newEndTime = cal.add(newEndTime, "day", 1);
 						}
 					} else if (this.roundToDay) {
-						newEndTime = this.floorToDay(e.item.endTime, false, rd);
+						newEndTime = this.floorToDay(e.item.endTime, false);
 						newEndTime.setHours(p._itemEditEndSave.getHours());
 						newEndTime.setMinutes(p._itemEditEndSave.getMinutes());
 					} else {
@@ -2869,7 +2521,7 @@ define([
 				var minimalDay = e.item.allDay ||
 					p._initDuration >= this._DAY_IN_MILLISECONDS && !this.allowResizeLessThan24H;
 
-				this.ensureMinimalDuration(this.renderData, e.item,
+				this.ensureMinimalDuration(e.item,
 					minimalDay ? "day" : this.minDurationUnit,
 					minimalDay ? 1 : this.minDurationSteps,
 					e.editKind);
@@ -2883,16 +2535,6 @@ define([
 					this._ensureItemInView(e.item);
 				}
 			}
-		},
-
-		onItemEditResizeGesture: function (e) {
-			// summary:
-			//		Event dispatched during a resize editing gesture.
-			// e: __itemEditingEventArgs
-			//		The editing event.
-			// tags:
-			//		callback
-
 		},
 
 		_endItemEditingGesture: function (/*String*/eventSource, /*Event*/e) {
@@ -2910,7 +2552,7 @@ define([
 
 			p.itemBeginDispatched = false;
 
-			this._onItemEditEndGesture(lang.mixin(this._createItemEditEvent(), {
+			this._onItemEditEndGesture({
 				item: item,
 				storeItem: p.storeItem,
 				startTime: item.startTime,
@@ -2919,8 +2561,7 @@ define([
 				rendererKind: p.rendererKind,
 				triggerEvent: e,
 				eventSource: eventSource
-			}));
-
+			});
 		},
 
 		_onItemEditEndGesture: function (e) {
@@ -2932,36 +2573,22 @@ define([
 			delete p._itemEditBeginSave;
 			delete p._itemEditEndSave;
 
-			this._dispatchCalendarEvt(e, "onItemEditEndGesture");
+			var synthEvent = this.emit("item-edit-end-gesture", e);
 
-			if (!e.isDefaultPrevented()) {
+			if (!synthEvent.defaultPrevented) {
 				if (p.editLayer) {
-					setTimeout(lang.hitch(this, function () {
-						if (this.domNode) { // for unit tests
-							this.domNode.focus();
-							p.editLayer.parentNode.removeChild(p.editLayer);
-							p.editLayer = null;
-						}
-					}), 10);
+					setTimeout(function () {
+						this.focus();
+						p.editLayer.parentNode.removeChild(p.editLayer);
+						p.editLayer = null;
+					}.bind(this), 10);
 				}
 			}
 		},
 
-		onItemEditEndGesture: function (e) {
-			// summary:
-			//		Event dispatched at the end of an editing gesture.
-			// e: __itemEditingEventArgs
-			//		The editing event.
-			// tags:
-			//		callback
-
-		},
-
-		ensureMinimalDuration: function (renderData, item, unit, steps, editKind) {
+		ensureMinimalDuration: function (item, unit, steps, editKind) {
 			// summary:
 			//		During the resize editing gesture, ensures that the item has the specified minimal duration.
-			// renderData: Object
-			//		The render data.
 			// item: Object
 			//		The edited item.
 			// unit: String
@@ -2970,12 +2597,13 @@ define([
 			//		The number of time units.
 			// editKind: String
 			//		The edit kind: "resizeStart" or "resizeEnd".
+
 			var minTime;
-			var cal = renderData.dateModule;
+			var cal = this.dateModule;
 
 			if (editKind == "resizeStart") {
 				minTime = cal.add(item.endTime, unit, -steps);
-				if (cal.compare(item.startTime, minTime) == 1) {
+				if (cal.compare(item.startTime, minTime) === 1) {
 					item.startTime = minTime;
 				}
 			} else {
@@ -2985,10 +2613,6 @@ define([
 				}
 			}
 		},
-
-		// doubleTapDelay: Integer
-		//		The maximum delay between two taps needed to trigger an "itemDoubleClick" event, in touch context.
-		doubleTapDelay: 300,
 
 		// snapUnit: String
 		//		The unit of the snapping to apply during the editing of an event.
@@ -3009,24 +2633,30 @@ define([
 		minDurationSteps: 1,
 
 		// liveLayout: Boolean
-		//		If true, all the events are laid out during the editing gesture. If false, only the edited event is laid out.
+		//		If true, all the events are laid out during the editing gesture.
+		//		If false, only the edited event is laid out.
 		liveLayout: false,
 
 		// stayInView: Boolean
-		//		Specifies during editing, if the item is already in view, if the item must stay in the time range defined by the view or not.
+		//		Specifies during editing, if the item is already in view,
+		//		if the item must stay in the time range defined by the view or not.
 		stayInView: true,
 
 		// allowStartEndSwap: Boolean
-		//		Specifies if the start and end time of an item can be swapped during an editing gesture. Note that using the keyboard this property is ignored.
+		//		Specifies if the start and end time of an item can be swapped during an editing gesture.
+		//		Note that using the keyboard this property is ignored.
 		allowStartEndSwap: true,
 
 		// allowResizeLessThan24H: Boolean
-		//		If an event has a duration greater than 24 hours, indicates if using a resize gesture, it can be resized to last less than 24 hours.
-		//		This flag is usually used when two different kind of renderers are used (MatrixView) to prevent changing the kind of renderer during an editing gesture.
+		//		If an event has a duration greater than 24 hours, indicates if using a resize gesture,
+		//		it can be resized to last less than 24 hours.
+		//		This flag is usually used when two different kind of renderers are used (MatrixView)
+		//		to prevent changing the kind of renderer during an editing gesture.
 		allowResizeLessThan24H: false,
 
 		// allowSubColumnMove: Boolean
-		//		If several sub columns are displayed, indicated if the data item can be reassigned to another sub column by an editing gesture.
+		//		If several sub columns are displayed, indicated if the data item can be reassigned
+		//		to another sub column by an editing gesture.
 		allowSubColumnMove: true
 	});
 });

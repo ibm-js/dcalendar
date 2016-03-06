@@ -1,16 +1,19 @@
 define([
-	"dojo/_base/array",
-	"dojo/_base/lang",
-	"dojo/_base/declare",
-	"dojo/on",
-	"dojo/_base/event",
-	"dojo/keys"
-], function (arr, lang, declare, on, event, keys) {
+	"dcl/dcl",
+	"./ViewBase"
+], function (dcl, keys, ViewBase) {
 
-	return declare("dojox.calendar.Keyboard", null, {
-
+	function stopEvent (e) {
+		e.stopPropagation();
+		e.preventDefault();
+	}
+	
+	return dcl(ViewBase, {
 		// summary:
 		//		This mixin is managing the keyboard interactions on a calendar view.
+
+		// TODO: this keeps the focus on the ViewBase widget itself, and just switches an imaginary focus
+		// outline over the renderers.  I bet it's not accessible for screen readers.
 
 		// keyboardUpDownUnit: String
 		//		Unit used during editing of an event using the keyboard and the up or down keys were pressed.
@@ -49,9 +52,9 @@ define([
 		//		Valid values are "week", "day", "hours" "minute".
 		allDayKeyboardLeftRightSteps: 1,
 
-		postCreate: function () {
-			this.inherited(arguments);
-			this._viewHandles.push(on(this.domNode, "keydown", lang.hitch(this, this._onKeyDown)));
+		postRender: function () {
+			this._viewHandles.push(this.on("keydown", this._onKeyDown.bind(this)));
+			this.setAttribute("tabIndex", this.tabIndex);
 		},
 
 		// resizeModfier: String
@@ -86,27 +89,19 @@ define([
 				var old = this.focusedItem;
 				this._set("focusedItem", value);
 				this.updateRenderers([old, this.focusedItem], true);
-				this.onFocusChange({
+				this.emit("focus-change", {
 					oldValue: old,
 					newValue: value
 				});
 			}
 			if (value != null) {
-				if (this.owner != null && this.owner.get("focusedItem") != null) {
-					this.owner.set("focusedItem", null);
+				if (this.owner != null && this.owner.focusedItem != null) {
+					this.owner.focusedItem = null;
 				}
-				if (this._secondarySheet != null && this._secondarySheet.set("focusedItem") != null) {
-					this._secondarySheet.set("focusedItem", null);
+				if (this._secondarySheet != null && this._secondarySheet.focusedItem != null) {
+					this._secondarySheet.focusedItem = null;
 				}
 			}
-		},
-
-		onFocusChange: function (e) {
-			// summary:
-			//		Event dispatched when the focus has changed.
-			// tags:
-			//		callback
-
 		},
 
 		// showFocus: Boolean
@@ -123,26 +118,26 @@ define([
 			//		- 1: Move focus to the next item in the list.
 			//		- -1: Move focus to the previous item in the list.
 
-			if (!this.renderData || !this.renderData.items || this.renderData.items.length == 0) {
+			if (!this.visibleItems || this.visibleItems.length === 0) {
 				return null;
 			}
 
 			var index = -1;
-			var list = this.renderData.items;
+			var list = this.visibleItems;
 			var max = list.length - 1;
-			var focusedItem = this.get("focusedItem");
+			var focusedItem = this.focusedItem;
 
 			// find current index.
 			if (focusedItem == null) {
 				index = dir > 0 ? 0 : max;
 			} else {
-				arr.some(list, lang.hitch(this, function (item, i) {
+				list.some(function (item, i) {
 					var found = item.id == focusedItem.id;
 					if (found) {
 						index = i;
 					}
 					return found;
-				}));
+				}.bind(this));
 				index = this._focusNextItemImpl(dir, index, max);
 			}
 
@@ -150,9 +145,8 @@ define([
 			var reachedOnce = false;
 			var old = -1;
 
-			while (old != index && (!reachedOnce || index != 0)) {
-
-				if (!reachedOnce && index == 0) {
+			while (old != index && (!reachedOnce || index !== 0)) {
+				if (!reachedOnce && index === 0) {
 					reachedOnce = true;
 				}
 
@@ -160,12 +154,11 @@ define([
 
 				if (this.rendererManager.itemToRenderer[item.id] != null) {
 					// found item
-					this.set("focusedItem", item);
+					this.focusedItem = item;
 					return;
 				}
 				old = index;
 				index = this._focusNextItemImpl(dir, index, max);
-
 			}
 		},
 
@@ -173,10 +166,10 @@ define([
 			// tags:
 			//		private
 
-			if (index == -1) { // not found should not occur
+			if (index === -1) { // not found should not occur
 				index = dir > 0 ? 0 : max;
 			} else {
-				if (index == 0 && dir == -1 || index == max && dir == 1) {
+				if (index === 0 && dir == -1 || index === max && dir === 1) {
 					return index;
 				}
 				index = dir > 0 ? ++index : --index;
@@ -194,16 +187,16 @@ define([
 			// tags:
 			//		private
 
-			if (!this.isLeftToRight()) {
+			if (this.effectiveDir === "rtl") {
 				dir = dir == 1 ? -1 : 1;
 			}
 			this.showFocus = true;
 			this._focusNextItem(dir);
 
-			var focusedItem = this.get("focusedItem");
+			var focusedItem = this.focusedItem;
 
 			if (!e.ctrlKey && focusedItem) {
-				this.set("selectedItem", focusedItem);
+				this.selectedItem = focusedItem;
 			}
 
 			if (focusedItem) {
@@ -213,15 +206,15 @@ define([
 		},
 
 		_checkDir: function (dir, value) {
-			return this.isLeftToRight() && dir == value ||
-				!this.isLeftToRight() && dir == (value == "left" ? "right" : "left");
+			return this.effectiveDir === "ltr" && dir == value ||
+				this.effectiveDir === "rtl" && dir == (value == "left" ? "right" : "left");
 		},
 
 		_keyboardItemEditing: function (e, dir) {
 			// tags:
 			//		private
 
-			event.stop(e);
+			stopEvent(e);
 
 			var p = this._edProps;
 
@@ -252,7 +245,7 @@ define([
 				var updateTime = true;
 				if (idx != -1) {
 					if (this._checkDir(dir, "left")) {
-						if (idx == 0) {
+						if (idx === 0) {
 							subColumn = this.subColumns[this.subColumns.length - 1];
 						} else {
 							updateTime = false;
@@ -267,11 +260,11 @@ define([
 						}
 					}
 					if (updateTime) {
-						newTime = this.renderData.dateModule.add(d, unit, steps);
+						newTime = this.dateModule.add(d, unit, steps);
 					}
 				}
 			} else {
-				newTime = this.renderData.dateModule.add(d, unit, steps);
+				newTime = this.dateModule.add(d, unit, steps);
 			}
 
 			this._startItemEditingGesture([d], editKind, "keyboard", e);
@@ -279,7 +272,7 @@ define([
 			this._endItemEditingGesture(editKind, "keyboard", e, false);
 
 			if (editKind == "move") {
-				if (this.renderData.dateModule.compare(newTime, d) == -1) {
+				if (this.dateModule.compare(newTime, d) == -1) {
 					this.ensureVisibility(p.editedItem.startTime, p.editedItem.endTime, "start");
 				} else {
 					this.ensureVisibility(p.editedItem.startTime, p.editedItem.endTime, "end");
@@ -290,17 +283,11 @@ define([
 		},
 
 		_onKeyDown: function (e) {
-			// tags:
-			//		private
+			var focusedItem = this.focusedItem;
 
-			var focusedItem = this.get("focusedItem");
-
-			switch (e.keyCode) {
-
-				case keys.ESCAPE:
-
+			switch (e.key) {
+				case "Esc":
 					if (this._isEditing) {
-
 						if (this._editingGesture) {
 							this._endItemEditingGesture("keyboard", e, true);
 						}
@@ -311,25 +298,21 @@ define([
 					}
 					break;
 
-				case keys.SPACE:
-
-					event.stop(e); // prevent browser shortcut
+				case "Spacebar":
+					stopEvent(e); // prevent browser shortcut
 
 					if (focusedItem != null) {
-						this.setItemSelected(focusedItem, e.ctrlKey ? !this.isItemSelected(focusedItem) : true);
+						this.setSelected(focusedItem, e.ctrlKey ? !this.isSelected(focusedItem) : true);
 					}
 					break;
 
-				case keys.ENTER:
-
-					event.stop(e); // prevent browser shortcut
+				case "Enter":
+					stopEvent(e); // prevent browser shortcut
 
 					if (focusedItem != null) {
-
 						if (this._isEditing) {
 							this._endItemEditing("keyboard", false);
 						} else {
-
 							var renderers = this.rendererManager.itemToRenderer[focusedItem.id];
 
 							if (renderers && renderers.length > 0 &&
@@ -342,7 +325,7 @@ define([
 									liveLayout: this.liveLayout
 								};
 
-								this.set("selectedItem", focusedItem);
+								this.selectedItem = focusedItem;
 
 								this._startItemEditing(focusedItem, "keyboard");
 							}
@@ -350,9 +333,8 @@ define([
 					}
 					break;
 
-				case keys.LEFT_ARROW:
-
-					event.stop(e); // prevent browser shortcut
+				case "ArrowLeft":
+					stopEvent(e); // prevent browser shortcut
 
 					if (this._isEditing) {
 						this._keyboardItemEditing(e, "left");
@@ -361,9 +343,8 @@ define([
 					}
 					break;
 
-				case keys.RIGHT_ARROW:
-
-					event.stop(e); // prevent browser shortcut
+				case "ArrowRight":
+					stopEvent(e); // prevent browser shortcut
 
 					if (this._isEditing) {
 						this._keyboardItemEditing(e, "right");
@@ -372,7 +353,7 @@ define([
 					}
 					break;
 
-				case keys.UP_ARROW:
+				case "ArrowUp":
 					if (this._isEditing) {
 						this._keyboardItemEditing(e, "up");
 					} else if (this.scrollable) {
@@ -380,7 +361,7 @@ define([
 					}
 					break;
 
-				case keys.DOWN_ARROW:
+				case "ArrowDown":
 					if (this._isEditing) {
 						this._keyboardItemEditing(e, "down");
 					} else if (this.scrollable) {

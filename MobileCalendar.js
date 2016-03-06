@@ -1,6 +1,5 @@
 define([
-	"dojo/_base/declare",
-	"dojo/_base/lang",
+	"delite/register",
 	"./CalendarBase",
 	"./ColumnView",
 	"./ColumnViewSecondarySheet",
@@ -10,17 +9,17 @@ define([
 	"./LabelRenderer",
 	"./ExpandRenderer",
 	"./Touch",
-	"dojo/text!./templates/MobileCalendar.html",
-	"dojox/mobile/Button"
-], function (declare, lang, CalendarBase, ColumnView, ColumnViewSecondarySheet, VerticalRenderer,
+	"delite/handlebars!./templates/MobileCalendar.html"
+], function (register, CalendarBase, ColumnView, ColumnViewSecondarySheet, VerticalRenderer,
 		  MatrixView, HorizontalRenderer, LabelRenderer, ExpandRenderer, Touch, template) {
 
-	return declare("dojox.calendar.MobileCalendar", CalendarBase, {
+	return register("d-calendar-mobile", [HTMLElement, CalendarBase], {
 
 		// summary:
-		//		This class defines a calendar widget that display events in time designed to be used in mobile environment.
+		//		This class defines a calendar widget that display events in time
+		//		designed to be used in mobile environment.
 
-		templateString: template,
+		template: template,
 
 		_createDefaultViews: function () {
 			// summary:
@@ -29,20 +28,21 @@ define([
 			//		- A dojox.calendar.MatrixView instance used to display the other time intervals.
 			//		The views are mixed with Mouse and Keyboard to allow editing items using mouse and keyboard.
 
-			var secondarySheetClass = declare([ColumnViewSecondarySheet, Touch]);
+			var secondarySheetClass = register("d-calendar-second-sheet-mobile", [ColumnViewSecondarySheet, Touch], {
+			});
 
-			var colView = declare([ColumnView, Touch])(lang.mixin({
+			var colView = register("d-calendar-column-view-mobile", [ColumnView, Touch], {
 				secondarySheetClass: secondarySheetClass,
 				verticalRenderer: VerticalRenderer,
 				horizontalRenderer: HorizontalRenderer,
 				expandRenderer: ExpandRenderer
-			}, this.columnViewProps));
+			})(this.columnViewProps);
 
-			var matrixView = declare([MatrixView, Touch])(lang.mixin({
+			var matrixView = register("d-calendar-matrix-view-mobile", [MatrixView, Touch], {
 				horizontalRenderer: HorizontalRenderer,
 				labelRenderer: LabelRenderer,
 				expandRenderer: ExpandRenderer
-			}, this.matrixViewProps));
+			})(this.matrixViewProps);
 
 			this.columnView = colView;
 			this.matrixView = matrixView;
@@ -54,15 +54,14 @@ define([
 			return views;
 		},
 
-		installDefaultViewsActions: function (views) {
+		installDefaultViewsActions: function () {
 			// summary:
 			//		Installs the default actions on newly created default views.
 			//		By default this action is registering:
-			//		- the matrixViewRowHeaderClick method	on the rowHeaderClick event of the matrix view.
-			//		- the columnViewColumnHeaderClick method	on the columnHeaderClick event of the column view.
-			this.matrixView.on("rowHeaderClick", lang.hitch(this, this.matrixViewRowHeaderClick));
-			this.columnView.on("columnHeaderClick", lang.hitch(this, this.columnViewColumnHeaderClick));
+			//		- the matrixViewRowHeaderClick method	on the row-header-click event of the matrix view.
+			//		- the columnViewColumnHeaderClick method	on the column-header-click event of the column view.
+			this.matrixView.on("row-header-click", this.matrixViewRowHeaderClick.bind(this));
+			this.columnView.on("column-header-click", this.columnViewColumnHeaderClick.bind(this));
 		}
-
 	});
 });

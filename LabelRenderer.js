@@ -1,17 +1,14 @@
 define([
-	"dojo/_base/declare",
-	"dijit/_WidgetBase",
-	"dijit/_TemplatedMixin",
-	"./_RendererMixin",
-	"dojo/text!./templates/LabelRenderer.html"
-], function (declare, _WidgetBase, _TemplatedMixin, _RendererMixin, template) {
+	"delite/register",
+	"./RenderBase",
+	"delite/handlebars!./templates/LabelRenderer.html"
+], function (register, _RendererMixin, template) {
 
-	return declare("dojox.calendar.LabelRenderer", [_WidgetBase, _TemplatedMixin, _RendererMixin], {
-
+	return register("d-calendar-label", [HTMLElement, _RendererMixin], {
 		// summary:
 		//		The default item label renderer.
 
-		templateString: template,
+		template: template,
 
 		_orientation: "horizontal",
 
@@ -25,23 +22,20 @@ define([
 			endTimeLabel: 30
 		},
 
-		_isElementVisible: function (elt, startHidden, endHidden, size) {
-			switch (elt) {
-				case "startTimeLabel":
-					// hide hour part of all day events on subsequent days
-					if (this.item.allDay && this.item.range[0].getTime() !== this.item.startTime.getTime()) {
-						return false;
-					}
-					break;
-			}
-			return this.inherited(arguments);
-		},
+		_isElementVisible: register.superCall(function (sup) {
+			return function (elt) {
+				switch (elt) {
+					case "startTimeLabel":
+						// hide hour part of all day events on subsequent days
+						if (this.item.allDay && this.item.range[0].getTime() !== this.item.startTime.getTime()) {
+							return false;
+						}
+						break;
+				}
+				return sup.apply(this, arguments);
+			};
+		}),
 
-		_displayValue: "inline",
-
-		postCreate: function () {
-			this.inherited(arguments);
-			this._applyAttributes();
-		}
+		_displayValue: "inline"
 	});
 });

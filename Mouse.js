@@ -1,23 +1,13 @@
 define([
-	"dojo/_base/array",
-	"dojo/_base/declare",
-	"dojo/_base/event",
-	"dojo/_base/lang",
-	"dojo/_base/window",
+	"dcl/dcl",
 	"dojo/dom-geometry",
-	"dojo/mouse",
-	"dojo/on",
-	"dojo/keys"
+	"delite/on",
+	"./ViewBase"
 ], function (
-	arr,
-	declare,
-	event,
-	lang,
-	win,
+	dcl,
 	domGeometry,
-	mouse,
 	on,
-	keys
+	ViewBase
 ) {
 
 	/*=====
@@ -26,14 +16,14 @@ define([
 		 //		The event dispatched when an item is clicked, double-clicked or context-clicked.
 		 // item: Object
 		 //		The item clicked.
-		 // renderer: dojox/calendar/_RendererMixin
+		 // renderer: dcalendar/_RendererMixin
 		 //		The item renderer clicked.
 		 // triggerEvent: Event
 		 //		The event at the origin of this event.
 	 };
 	 =====*/
 
-	return declare("dojox.calendar.Mouse", null, {
+	return dcl(ViewBase, {
 
 		// summary:
 		//		This plugin is managing the mouse interactions on item renderers displayed by a calendar view.
@@ -43,135 +33,101 @@ define([
 		//		mouse button down before triggering the editing gesture.
 		triggerExtent: 3,
 
-		postMixInProperties: function () {
-			this.inherited(arguments);
-
-			this.on("rendererCreated", lang.hitch(this, function (irEvent) {
-
+		createdCallback: function () {
+			this.on("renderer-created", function (irEvent) {
 				var renderer = irEvent.renderer.renderer;
 
-				this.own(on(renderer.domNode, "click", lang.hitch(this, function (e) {
-					event.stop(e);
-					this._onItemClick({
+				this.own(renderer.on("click", function (e) {
+					e.stopPropagation();
+					this.emit("item-click", {
 						triggerEvent: e,
 						renderer: renderer,
 						item: renderer.item._item
 					});
-				})));
+				}.bind(this)));
 
-				this.own(on(renderer.domNode, "dblclick", lang.hitch(this, function (e) {
-					event.stop(e);
-					this._onItemDoubleClick({
+				this.own(renderer.on("dblclick", function (e) {
+					e.stopPropagation();
+					this.emit("item-double-click", {
 						triggerEvent: e,
 						renderer: renderer,
 						item: renderer.item._item
 					});
-				})));
+				}.bind(this)));
 
-				this.own(on(renderer.domNode, "contextmenu", lang.hitch(this, function (e) {
-					this._onItemContextMenu({
+				this.own(renderer.on("contextmenu", function (e) {
+					this.emit("item-context-menu", {
 						triggerEvent: e,
 						renderer: renderer,
 						item: renderer.item._item
 					});
-				})));
+				}.bind(this)));
 
 				if (renderer.resizeStartHandle) {
-					this.own(on(renderer.resizeStartHandle, "mousedown", lang.hitch(this, function (e) {
+					this.own(on(renderer.resizeStartHandle, "mousedown", function (e) {
 						this._onRendererHandleMouseDown(e, renderer, "resizeStart");
-					})));
+					}.bind(this)));
 				}
 
 				if (renderer.moveHandle) {
-					this.own(on(renderer.moveHandle, "mousedown", lang.hitch(this, function (e) {
+					this.own(on(renderer.moveHandle, "mousedown", function (e) {
 						this._onRendererHandleMouseDown(e, renderer, "move");
-					})));
+					}.bind(this)));
 
 				}
 
 				if (renderer.resizeEndHandle) {
-					this.own(on(renderer.resizeEndHandle, "mousedown", lang.hitch(this, function (e) {
+					this.own(on(renderer.resizeEndHandle, "mousedown", function (e) {
 						this._onRendererHandleMouseDown(e, renderer, "resizeEnd");
-					})));
+					}.bind(this)));
 				}
 
-				this.own(on(renderer.domNode, "mousedown", lang.hitch(this, function (e) {
+				this.own(renderer.on("mousedown", function (e) {
 					this._rendererMouseDownHandler(e, renderer);
-				})));
+				}.bind(this)));
 
 
-				this.own(on(irEvent.renderer.container, mouse.enter, lang.hitch(this, function (e) {
-					if (!renderer.item) return;
+				this.own(on(irEvent.renderer.container, "mouseenter", function (e) {
+					if (!renderer.item) {
+						return;
+					}
 
 					if (!this._editingGesture) {
 						this._setHoveredItem(renderer.item.item, renderer);
-						this._onItemRollOver(this.__fixEvt({
+						this.emit("item-roll-over", {
 							item: renderer.item._item,
 							renderer: renderer,
 							triggerEvent: e
-						}));
-					}
-				})));
+						});
 
-				this.own(on(renderer.domNode, mouse.leave, lang.hitch(this, function (e) {
-					if (!renderer.item) return;
+					}
+				}.bind(this)));
+
+				this.own(on(renderer, "mouseleave", function (e) {
+					if (!renderer.item) {
+						return;
+					}
 					if (!this._editingGesture) {
 						this._setHoveredItem(null);
 
-						this._onItemRollOut(this.__fixEvt({
+						this.emit("item-roll-out", {
 							item: renderer.item._item,
 							renderer: renderer,
 							triggerEvent: e
-						}));
+						});
 					}
-				})));
-
-			}));
-		},
-
-		_onItemRollOver: function (e) {
-			// tags:
-			//		private
-
-			this._dispatchCalendarEvt(e, "onItemRollOver");
-		},
-
-		onItemRollOver: function (e) {
-			// summary:
-			//		Event dispatched when the mouse cursor in going over an item renderer.
-			// e: __ItemMouseEventArgs
-			//		The event dispatched when the mouse cursor enters in the item renderer.
-			// tags:
-			//		callback
-
-		},
-
-		_onItemRollOut: function (e) {
-			// tags:
-			//		private
-
-			this._dispatchCalendarEvt(e, "onItemRollOut");
-		},
-
-		onItemRollOut: function (e) {
-			// summary:
-			//		Event dispatched when the mouse cursor in leaving an item renderer.
-			// e: __ItemMouseEventArgs
-			//		The event dispatched when the mouse cursor enters in the item renderer.
-			// tags:
-			//		protected
-
+				}.bind(this)));
+			}.bind(this));
 		},
 
 		_rendererMouseDownHandler: function (e, renderer) {
-
 			// summary:
 			//		Callback if the user clicked on the item renderer but not on a handle.
 			//		Manages item selection.
 			// tags:
 			//		private
 
-			event.stop(e);
+			e.stopPropagation();
 
 			var item = renderer.item._item;
 
@@ -191,8 +147,7 @@ define([
 			// tags:
 			//		private
 
-
-			event.stop(e);
+			e.stopPropagation();
 
 			this.showFocus = false;
 
@@ -220,12 +175,12 @@ define([
 					liveLayout: this.liveLayout
 				};
 
-				this.set("focusedItem", this._edProps.editedItem);
+				this.focusedItem = this._edProps.editedItem;
 			}
 
 			var handles = [];
-			handles.push(on(win.doc, "mouseup", lang.hitch(this, this._editingMouseUpHandler)));
-			handles.push(on(win.doc, "mousemove", lang.hitch(this, this._editingMouseMoveHandler)));
+			handles.push(on(this.ownerDocument, "mouseup", this._editingMouseUpHandler.bind(this)));
+			handles.push(on(this.ownerDocument, "mousemove", this._editingMouseMoveHandler.bind(this)));
 
 			var p = this._edProps;
 			p.handles = handles;
@@ -277,13 +232,21 @@ define([
 				this._endItemEditing("mouse", false);
 
 			} else { // handlers were not removed by endItemEditing
-				arr.forEach(p.handles, function (handle) {
+				p.handles.forEach(function (handle) {
 					handle.remove();
 				});
 			}
 		},
 
 		_autoScroll: function (globalX, globalY, isVertical) {
+			// summary:
+			//		Starts or stops the auto scroll according to the mouse cursor position during an item editing.
+			// gx: Integer
+			//		The position of the mouse cursor along the x-axis.
+			// gy: Integer
+			//		The position of the mouse cursor along the y-axis.
+			// tags:
+			//		extension
 
 			if (!this.scrollable || !this.autoScroll) {
 				return false;
