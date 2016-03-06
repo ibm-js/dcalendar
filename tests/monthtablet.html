@@ -2,8 +2,8 @@
 <html>
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-		<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=no" />
-		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=no">
+		<meta name="apple-mobile-web-app-capable" content="yes">
 
 		<title>Month Column View Sample: Tablet</title>
 		<style type="text/css">
@@ -20,20 +20,17 @@
 
 		<script type="text/javascript">
 			require({
-				baseUrl: "../..",
-				paths: {
-					demo: "dcalendar/tests"
-				}
+				baseUrl: "../.."
 			}, [
-				"dojo/_base/declare", "dojo/on", "dojo/date/locale", "dojo/parser", "dojo/date", "dojo/_base/lang",
-				"dojo/dom", "dojo/dom-construct", "dojo/dom-class", "dojo/_base/window",
-				"dijit/registry", "dojo/query", "dcalendar/MonthColumnView", "dcalendar/Touch",
+				"delite/register", "dojo/date/locale", "dojo/date",
+				"dojo/dom", "dojo/dom-construct", "dojo/dom-class",
+				"dcalendar/MonthColumnView", "dcalendar/Touch",
 				"dcalendar/MobileVerticalRenderer", "dcalendar/time", "dojo/store/Memory", "dojo/store/Observable",
-				"dojo/_base/fx", "dojo/domReady!"
+				"dojo/_base/fx", "requirejs-domready/domReady!"
 			], function(
-				declare, on, locale, parser, date, lang, dom, domConstruct, domClass, win, registry, query,
+				register, locale, date, dom, domConstruct, domClass,
 				MonthColumnView, CalendarTouch, VerticalRenderer, time, Memory, Observable, fx
-			){
+			) {
 				// Calendar model creation
 
 				var dateClassObj = Date;
@@ -74,7 +71,7 @@
 
 						newObj.endTime = date.add(newObj.startTime, "minute", modelBase[i].duration);
 
-						if(modelBase[i].allDay != undefined){
+						if (modelBase[i].allDay != undefined) {
 							newObj.allDay = modelBase[i].allDay;
 						}
 
@@ -86,17 +83,20 @@
 
 				// Calendar creation & configuration
 
-				monthView = declare([MonthColumnView, CalendarTouch])({
-					store: new Observable(new Memory({data: someData})),
+				var MyMonthColumnView = register("my-month-column-view", [MonthColumnView, CalendarTouch], {
 					startDate: startOfMonth,
 					verticalRenderer: VerticalRenderer,
 					columnCount: 1
-				}, "calendarNode");
+				});
+				var monthView = new MyMonthColumnView({
+					id: "calendar",
+					store: new Observable(new Memory({data: someData}))
+				});
+				monthView.placeAt("calendarNode", "replace");
 
 				// Events management
 
-				monthView.on("gridDoubleClick", function(e){
-
+				monthView.on("grid-double-click", function(e) {
 					// create a event when double-clicking on grid.
 					var d = monthView.floorToDay(e.date, true);
 
@@ -110,13 +110,13 @@
 					id++;
 					monthView.store.add(item);
 
-					monthView.set("selectedItem", item);
-					monthView.set("focusedItem", item);
+					monthView.selectedItem = item;
+					monthView.focusedItem = item;
 				});
 
 				fx.fadeOut({
 					node:"loadingPanel",
-					onEnd: function(node){
+					onEnd: function(node) {
 						node.parentNode.removeChild(node)
 					}
 				}).play(500);

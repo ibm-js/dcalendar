@@ -2,8 +2,8 @@
 <html>
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-		<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=no" />
-		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,minimum-scale=1,user-scalable=no">
+		<meta name="apple-mobile-web-app-capable" content="yes">
 
 		<title>MatrixView Sample: Tablet</title>
 		<style type="text/css">
@@ -20,20 +20,16 @@
 
 		<script type="text/javascript">
 			require({
-				baseUrl: "../..",
-				paths: {
-					demo: "dcalendar/tests"
-				}
+				baseUrl: "../.."
 			}, [
-				"dojo/_base/declare", "dojo/on", "dojo/date/locale", "dojo/parser", "dojo/date", "dojo/_base/lang",
-				"dojo/dom", "dojo/dom-construct", "dojo/dom-class", "dojo/_base/window",
-				"dijit/registry", "dojo/query", "dcalendar/MatrixView", "dcalendar/Touch",
+				"delite/register", "dojo/date/locale", "dojo/date",
+				"dcalendar/MatrixView", "dcalendar/Touch",
 				"dcalendar/MobileHorizontalRenderer", "dcalendar/LabelRenderer", "dcalendar/ExpandRenderer", "dojo/store/Memory", "dojo/store/Observable",
-				 "dojo/_base/fx", "dojo/domReady!"
+				 "dojo/_base/fx", "requirejs-domready/domReady!"
 			], function(
-				declare, on, locale, parser, date, lang, dom, domConstruct, domClass, win, registry, query,
+				register, locale, date,
 				MatrixView, CalendarTouch, HorizontalRenderer, LabelRenderer, ExpandRenderer, Memory, Observable, fx
-			){
+			) {
 				// Calendar model creation
 
 				var dateClassObj = Date;
@@ -52,7 +48,7 @@
 				];
 
 				// TODO manage first day of week
-				var floorToWeek= function(d){
+				var floorToWeek= function(d) {
 					d.setHours(0);
 					d.setMinutes(0);
 					d.setSeconds(0);
@@ -83,7 +79,7 @@
 
 						newObj.endTime = date.add(newObj.startTime, "minute", modelBase[i].duration);
 
-						if(modelBase[i].allDay != undefined){
+						if (modelBase[i].allDay != undefined) {
 							newObj.allDay = modelBase[i].allDay;
 						}
 
@@ -96,9 +92,8 @@
 
 				// Calendar creation & configuration
 
-				matrixView = declare([MatrixView, CalendarTouch])({
+				var MatrixView = register("my-matrix-view", [MatrixView, CalendarTouch], {
 					startDate: startOfWeek,
-					store: new Observable(new Memory({data: someData})),
 					horizontalRenderer: HorizontalRenderer,
 					horizontalRendererHeight: 20,
 					labelRenderer: LabelRenderer,
@@ -106,9 +101,14 @@
 					expandRenderer: ExpandRenderer,
 					expandRendererHeight: 20,
 					verticalGap:2
-				}, "calendarNode");
+				});
+				var matrixView = new MatrixView({
+					id: "calendar",
+					store: new Observable(new Memory({data: someData}))
+				});
+				matrixView.placeAt("calendarNode", "replace");
 
-				var setRowWidth = function(value){
+				var setRowWidth = function(value) {
 					matrixView.grid.style.left = value + "px";
 					matrixView.yearColumnHeader.style.width = value + "px";
 					matrixView.columnHeader.style.left = value + "px";
@@ -116,16 +116,16 @@
 					matrixView.itemContainer.style.left = value + "px";
 				};
 
-				window.onresize = window.onorientationchange = function(e){
+				window.onresize = window.onorientationchange = function(e) {
 					matrixView.resize();
-					var n = matrixView.domNode;
-					if(n.offsetWidth > n.offsetHeight){
+					var n = matrixView;
+					if (n.offsetWidth > n.offsetHeight) {
 						matrixView.columnHeaderLabelLength = "wide";
-						matrixView.set("rowCount", 2);
+						matrixView.rowCount = 2;
 						setRowWidth(50);
-					}else{
+					} else {
 						matrixView.columnHeaderLabelLength = "abbr";
-						matrixView.set("rowCount", 4);
+						matrixView.rowCount = 4;
 						setRowWidth(20);
 					}
 				};
@@ -134,7 +134,7 @@
 
 				// Events management
 
-				matrixView.on("gridDoubleClick", function(e){
+				matrixView.on("grid-double-click", function(e) {
 					// create a event when double-clicking on grid.
 					var d = matrixView.floorToDay(e.date, true);
 
@@ -147,19 +147,19 @@
 					id++;
 					matrixView.store.add(item);
 
-					matrixView.set("selectedItem", item);
-					matrixView.set("focusedItem", item);
+					matrixView.selectedItem = item;
+					matrixView.focusedItem = item;
 					onMatrixViewChange(item);
 				});
 
-				matrixView.on("rowHeaderClick", function(e){
+				matrixView.on("row-header-click", function(e) {
 					var expIndex = matrixView.getExpandedRowIndex();
-					if(expIndex == e.index){
+					if (expIndex == e.index) {
 						matrixView.collapseRow();
-					}else if(expIndex == -1){
+					}else if (expIndex == -1) {
 						matrixView.expandRow(e.index);
-					}else{
-						var h = matrixView.on("expandAnimationEnd", function(){
+					} else {
+						var h = matrixView.on("expand-animation-end", function() {
 							h.remove();
 							matrixView.expandRow(e.index);
 						});
@@ -169,7 +169,7 @@
 
 				fx.fadeOut({
 					node:"loadingPanel",
-					onEnd: function(node){
+					onEnd: function(node) {
 						node.parentNode.removeChild(node)
 					}
 				}).play(500);

@@ -1,17 +1,13 @@
 define([
-	"dojo/_base/declare",
-	"dojo/_base/lang",
-	"dojo/on",
+	"delite/register",
 	"dcalendar/Calendar",
 	"dcalendar/MonthColumnView",
 	"dcalendar/VerticalRenderer",
 	"dcalendar/Mouse",
 	"dcalendar/Keyboard",
-	"dojo/text!./CalendarMonthColumn.html"
+	"delite/handlebars!./CalendarMonthColumn.html"
 ], function (
-	declare,
-	lang,
-	on,
+	register,
 	Calendar,
 	MonthColumnView,
 	VerticalRenderer,
@@ -19,72 +15,72 @@ define([
 	Keyboard,
 	template
 ) {
-	return declare("demo.ExtendedCalendar", Calendar, {
+	return register("my-extended-calendar", Calendar, {
 
 		// summary:
 		//		A Calendar subclass that embeds a month column view.
 
-		templateString: template,
+		template: template,
 
 		verticalRenderer: VerticalRenderer,
 
-		_createDefaultViews: function(){
-			this.inherited(arguments);
-			// create the month column view.
-			this.monthColumnView = declare([MonthColumnView, Keyboard, Mouse])({
-				verticalRenderer: VerticalRenderer
-			});
+		_createDefaultViews: register.superCall(function (sup) {
+			return function () {
+				sup.apply(this, arguments);
+				// create the month column view.
+				this.monthColumnView = register("my-month-column-view", [MonthColumnView, Keyboard, Mouse])({
+					verticalRenderer: VerticalRenderer
+				});
 
-			this.monthColumnView.on("columnHeaderClick", lang.hitch(this, function(e){
-				this.set("dateInterval", "month");
-				this.set("dateIntervalSteps", 1);
-				this.set("date", e.date);
-			}));
+				this.monthColumnView.on("column-header-click", function (e) {
+					this.dateInterval = "month";
+					this.dateIntervalSteps = 1;
+					this.date = e.date;
+				}.bind(this));
 
-			return [this.columnView, this.matrixView, this.monthColumnView];
+				return [this.columnView, this.matrixView, this.monthColumnView];
+			};
+		}),
+
+
+		_computeCurrentView: register.superCall(function (sup) {
+			return function () {
+				// show the month column view if the duration is greater than 31x2 days
+				if (this._duration > 62) {
+					return this.monthColumnView;
+				} else {
+					return sup.apply(this, arguments);
+				}
+			};
+		}),
+
+		_configureView: register.superCall(function (sup) {
+			return function () {
+				var view = this.currentView,
+					timeInterval = this._timeInterval;
+
+				// show only from January to June or from July to December
+				if (view.viewKind == "monthColumns") {
+					var m = timeInterval[0].getMonth();
+					var d = this.newDate(timeInterval[0]);
+					d.setMonth(m < 6 ? 0 : 6);
+					view.startDate = d;
+					view.columnCount = 6;
+				} else {
+					sup.apply(this, arguments);
+				}
+			};
+		}),
+
+		sixMonthButtonClick: function () {
+			this.dateIntervalSteps = 6;
+			this.dateInterval = "month";
 		},
 
-		_computeCurrentView: function(startDate, endDate, duration){
-			// show the month column view if the duration is greater than 31x2 days
-			if(duration>62){
-				return this.monthColumnView;
-			}else{
-				return this.inherited(arguments);
-			}
-		},
-
-		_configureView: function(view, index, timeInterval, duration){
-			// show only from January to June or from July to December
-			if(view.viewKind == "monthColumns"){
-				var m = timeInterval[0].getMonth();
-				var d = this.newDate(timeInterval[0]);
-				d.setMonth(m<6?0:6);
-				view.set("startDate", d);
-				view.set("columnCount", 6);
-			}else{
-				this.inherited(arguments);
-			}
-		},
-
-		configureButtons: function(){
-			// configure the 6 months button
-			this.inherited(arguments);
-			if(this.sixMonthButton){
-				// should set label from resource bundle here!
-				this.own(
-					on(this.sixMonthButton, "click", lang.hitch(this, function(){
-						this.set("dateIntervalSteps", 6);
-						this.set("dateInterval", "month");
-					}))
-				);
-			}
-		},
-
-		matrixViewRowHeaderClick: function(e){
-			this.set("dateInterval", "week");
-			this.set("dateIntervalSteps", 1);
-			this.set("date", e.date);
+		matrixViewRowHeaderClick: function (e) {
+			this.dateInterval = "week";
+			this.dateIntervalSteps = 1;
+			this.date = e.date;
 		}
-
 	});
 });

@@ -23,25 +23,20 @@
 
 		<script type="text/javascript">
 			require({
-				baseUrl: "../..",
-				paths: {
-					demo: "dcalendar/tests"
-				}
+				baseUrl: "../.."
 			}, [
-				"dojo/_base/declare", "dojo/_base/fx", "dojo/on", "dojo/date/locale", "dojo/parser", "dojo/date", "dojo/_base/lang",
-				"dojo/dom", "dojo/dom-style", "dojo/dom-construct", "dojo/dom-class", "dojo/_base/window", "dijit/registry", "dojo/query", "dcalendar/SimpleColumnView",
-				"dcalendar/ColumnViewSecondarySheet", "dcalendar/Keyboard", "dcalendar/Mouse",	"dcalendar/VerticalRenderer",
+				"delite/register", "dojo/_base/fx", "dojo/date/locale", "dojo/date",
+				"dojo/dom-class",
+				"dcalendar/SimpleColumnView",
+				"dcalendar/ColumnViewSecondarySheet", "dcalendar/Keyboard", "dcalendar/Mouse", "dcalendar/VerticalRenderer",
 				"dcalendar/HorizontalRenderer", "dcalendar/ExpandRenderer", "dojo/store/Memory", "dojo/store/Observable",
 				"dijit/form/VerticalSlider", "dijit/form/NumberSpinner", "dijit/form/ComboBox", "dijit/form/DateTextBox", "dijit/form/TimeTextBox",
 				"dijit/form/TextBox", "dijit/form/Button", "dijit/TitlePane", "dijit/Tooltip", "dijit/form/CheckBox",
-				"dojo/domReady!"
+				"requirejs-domready/domReady!"
 			], function(
-				declare, fx,on, locale, parser, date, lang, dom, domStyle, domConstruct, domClass, win, registry, query,
-				ColumnView, ColumnViewSecondarySheet, CalendarKeyboard, CalendarMouse, VerticalRenderer, HorizontalRenderer, ExpandRenderer, Memory, Observable, VerticalSlider,
-				NumberSpinner, ComboBox, DateTextBox, TimeTextBox, TextBox, Button, TitlePane, Tooltip, CheckBox
-			){
-				parser.parse();
-
+				register, fx, locale, date, domClass,
+				ColumnView, ColumnViewSecondarySheet, CalendarKeyboard, CalendarMouse, VerticalRenderer, HorizontalRenderer, ExpandRenderer, Memory, Observable
+			) {
 				// Calendar model creation
 
 				var dateClassObj = Date;
@@ -55,7 +50,7 @@
 				];
 
 				// TODO manage first day of week
-				var floorToWeek= function(d){
+				var floorToWeek= function(d) {
 					d.setHours(0);
 					d.setMinutes(0);
 					d.setSeconds(0);
@@ -92,7 +87,7 @@
 
 				// Calendar creation & configuration
 
-				colView = declare([ColumnView, CalendarKeyboard, CalendarMouse])({
+				colView = register("my-column-view", [ColumnView, CalendarKeyboard, CalendarMouse])({
 					store: new Observable(new Memory({data: someData})),
 
 					startDate: startOfWeek,
@@ -103,25 +98,26 @@
 					verticalRenderer: VerticalRenderer,
 					horizontalRenderer: HorizontalRenderer,
 					expandRenderer: ExpandRenderer,
-					cssClassFunc: function(item){
+					cssClassFunc: function(item) {
 						return item.calendar == "cal1" ? "Calendar1" : "Calendar2"
 					},
-					styleRowHeaderCell: function(node, h, m, rd){
-						if(h >= 24){
+					styleRowHeaderCell: function(node, h, m) {
+						if (h >= 24) {
 							domClass.add(node, "overnight");
 						}
 					},
 					style:"position:absolute;left:10px;right:10px;top:10px;bottom:10px"
-				}, "calendarNode2");
+				});
+				colView.placeAt("calendarNode2", "replace");
 
 				// Events management
 
 
 				// Enable creation of event interactively by ctrl clicking grid.
-				var createItem = function(view, d, e, subColumn){
+				var createItem = function(view, d, e, subColumn) {
 
 					// create item by maintaining control key
-					if(!e.ctrlKey || e.shiftKey || e.altKey){
+					if (!e.ctrlKey || e.shiftKey || e.altKey) {
 						return null;
 					}
 
@@ -146,31 +142,31 @@
 					return item;
 				};
 
-				colView.set("createOnGridClick", true);
-				colView.set("createItemFunc", createItem);
+				colView.createOnGridClick = true;
+				colView.createItemFunc = createItem;
 
 				var startDateSave;
 				var columnCountSave;
 
-				colView.on("columnHeaderClick", function(e){
-					if (colView.get("columnCount") == 1) {
-						colView.set("startDate", startDateSave);
-						colView.set("columnCount", columnCountSave);
+				colView.on("column-header-click", function(e) {
+					if (colView.columnCount == 1) {
+						colView.startDate = startDateSave;
+						colView.columnCount = columnCountSave;
 					} else {
-						startDateSave = colView.get("startDate");
-						columnCountSave = colView.get("columnCount");
-						colView.set("startDate", e.date);
-						colView.set("columnCount", 1);
+						startDateSave = colView.startDate;
+						columnCountSave = colView.columnCount;
+						colView.startDate = e.date;
+						colView.columnCount = 1;
 					}
 				});
 
-				window.onresize = function(){
+				window.onresize = function() {
 					colView.resize();
 				};
 
 				fx.fadeOut({
 					node:"loadingPanel",
-					onEnd: function(node){
+					onEnd: function(node) {
 						node.parentNode.removeChild(node)
 					}
 				}).play(500);

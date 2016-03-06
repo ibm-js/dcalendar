@@ -12,7 +12,7 @@
 			html{
 				font-family: Lucida grande, Tahoma, Verdana, Arial, Sans-serif;
 			}
-			#calendarNode {
+			#calendar {
 		      position:absolute;
 		      left: 10px;
 		      right: 10px;
@@ -27,42 +27,42 @@
 
 		<script type="text/javascript">
 			require({
-				baseUrl: "../..",
-				paths: {
-					demo: "dcalendar/tests"
-				}
+				baseUrl: "../.."
 			}, [
-				"dojo/_base/declare", "dojo/ready", "dojo/_base/lang", "dojo/_base/sniff", "dojo/_base/array", "dojo/_base/fx", "dojo/dom-class", "dojo/on",
-				 "dojo/date/locale", "dojo/parser",	"dojo/dom", "dojo/dom-construct",	"dojo/store/Memory",
-				 "dojo/store/Observable",	"dcalendar/Calendar", "dijit/Menu", "dijit/CheckedMenuItem",
-				"dojo/domReady!"
+				"delite/register",
+				"dojo/_base/fx", "dojo/dom-class",
+				"dojo/parser",
+				"dojo/store/Memory", "dojo/store/Observable",
+				"dcalendar/Calendar",
+				"dijit/Menu", "dijit/CheckedMenuItem",
+				"requirejs-domready/domReady!"
 			], function(
-				declare, ready, lang, has, arr, fx, domClass, on, locale, parser, dom, domConstruct,
+				register,
+				fx, domClass, parser,
 				Memory, Observable, Calendar
-			){
-				var ECalendar = declare("extended.Calendar", Calendar, {
-
-				  isItemEditable: function(item, rendererKind){
+			) {
+				var ECalendar = register("my-calendar", [Calendar], {
+				  isItemEditable: function(item, rendererKind) {
 					return this.editable && item.editable;
 				  },
 
-				  isItemResizeEnabled: function(item, rendererKind){
+				  isItemResizeEnabled: function(item, rendererKind) {
 					  return this.isItemEditable(item, rendererKind) && item.resizeEnabled;
 				  },
 
-				  isItemMoveEnabled: function(item, rendererKind){
+				  isItemMoveEnabled: function(item, rendererKind) {
 					  return this.isItemEditable(item, rendererKind) && item.moveEnabled;
 				  }
 				});
 
 
-				// parse after class definition
+				// parse Menu
 				parser.parse();
 
-				calendar.set("cssClassFunc", function(item){
+				calendar.cssClassFunc = function(item) {
 					// Use custom css class on renderers depending of a parameter (calendar).
 					return item.calendar == "cal1" ? "Calendar1" : "Calendar2"
-				});
+				};
 
 				// Calendar model creation
 				var modelBase = [
@@ -100,35 +100,35 @@
 				}
 
 				var store = new Observable(new Memory({data: someData}));
-				calendar.set("store", store);
-				calendar.set("date", startOfWeek);
+				calendar.store = store;
+				calendar.date = startOfWeek;
 
 				// show context menu on right clicking an event
-				calendar.on("itemContextMenu", function(e){
+				calendar.on("item-context-menu", function(e) {
 					dojo.stopEvent(e.triggerEvent);
 					calendarContextMenu._openMyself({
-						target: e.renderer.domNode,
+						target: e.renderer,
 						coords: {x: e.triggerEvent.pageX, y: e.triggerEvent.pageY}
 					});
 				});
 
-				contextMenuEditable.on("click", function(e){
-					arr.forEach(calendar.selectedItems, function(item){
-						item.editable = contextMenuEditable.get("checked");
+				contextMenuEditable.on("click", function(e) {
+					calendar.selectedItems.forEach( function(item) {
+						item.editable = contextMenuEditable.checked;
 						calendar.store.put(item, {overwrite: true});
 					});
 				});
 
-				contextMenuMove.on("click", function(e){
-					arr.forEach(calendar.selectedItems, function(item){
-						item.moveEnabled = contextMenuMove.get("checked");
+				contextMenuMove.on("click", function(e) {
+					calendar.selectedItems.forEach( function(item) {
+						item.moveEnabled = contextMenuMove.checked;
 						calendar.store.put(item, {overwrite: true});
 					});
 				});
 
-				contextMenuResize.on("click", function(e){
-					arr.forEach(calendar.selectedItems, function(item){
-						item.resizeEnabled = contextMenuResize.get("checked");
+				contextMenuResize.on("click", function(e) {
+					calendar.selectedItems.forEach( function(item) {
+						item.resizeEnabled = contextMenuResize.checked;
 						calendar.store.put(item, {overwrite: true});
 					});
 				});
@@ -137,7 +137,7 @@
 				// Hide loading panel when application is ready
 				fx.fadeOut({
 					node:"loadingPanel",
-					onEnd: function(node){
+					onEnd: function(node) {
 						node.parentNode.removeChild(node)
 					}
 				}).play(500);
@@ -147,12 +147,12 @@
 		<div id="loadingPanel" style="position:absolute;z-index:10;width:100%;height:100%;background:#ffffff">
 			<span style="background: #DBEB8F;padding:2px">Loading...</span>
 		</div>
-		<div id="calendarNode" data-dojo-id="calendar" data-dojo-type="extended.Calendar">
+		<my-calendar id="calendar">
 			<div data-dojo-type="dijit.Menu" data-dojo-id="calendarContextMenu" style="display: none;">
 				<div data-dojo-type="dijit.CheckedMenuItem" data-dojo-id="contextMenuEditable" data-dojo-props="checked:true">Editable</div>
 				<div data-dojo-type="dijit.CheckedMenuItem" data-dojo-id="contextMenuMove" data-dojo-props="checked:true">Move enabled</div>
 				<div data-dojo-type="dijit.CheckedMenuItem" data-dojo-id="contextMenuResize" data-dojo-props="checked:true">Resize enabled</div>
 			</div>
-		</div>
+		</my-calendar>
 	</body>
 </html>

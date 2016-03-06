@@ -5,7 +5,7 @@ html, body {
     height: 100%;
 }
 
-#calendarNode {
+#calendar {
 	position:absolute;
 	left:5px;
 	right:5px;

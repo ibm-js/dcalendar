@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html>
-
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 		<title>Calendar Sample: Desktop</title>
@@ -22,14 +21,15 @@
 			require({
 				baseUrl: "../.."
 			}, [
-				"dojo/_base/declare", "dojo/_base/lang", "dojo/_base/sniff", "dojo/_base/array", "dojo/_base/fx", "dojo/on",
-				"dojo/date/locale", "dojo/parser",	"dojo/Deferred", "dojo/dom", "dojo/dom-construct",	"dojo/store/Memory",
-				"dojo/store/Observable",	"dcalendar/Calendar", "dijit/Calendar", "dijit/Menu", "dijit/MenuItem",
-				"dojo/domReady!"
+				"dojo/_base/declare", "dojo/_base/fx",
+				"dojo/parser", "dojo/Deferred", "dojo/dom", "dojo/store/Memory",
+				"dojo/store/Observable", "dcalendar/Calendar", "dijit/Calendar", "dijit/Menu", "dijit/MenuItem",
+				"requirejs-domready/domReady!"
 			], function(
-				declare, lang, has, arr, fx, on, locale, parser, Deferred, dom, domConstruct,
-				Memory, Observable, Calendar
-			){
+				declare, fx, parser, Deferred, dom,
+				Memory, Observable
+			) {
+				// For dijit/Menu only
 				parser.parse();
 
 				// Display different hint every 10 seconds
@@ -42,9 +42,9 @@
 				var hintIdx = 0;
 				dom.byId("hint").innerHTML = hints[0];
 
-				setInterval(function(){
+				setInterval(function() {
 					fx.fadeOut({node: "hint",
-						onEnd: function(){
+						onEnd: function() {
 							hintIdx = hintIdx+1>hints.length-1 ? 0 : hintIdx+1;
 							dom.byId("hint").innerHTML = hints[hintIdx];
 							fx.fadeIn({node: "hint"}).play(500);
@@ -89,18 +89,18 @@
 				// Observable is breaking completely the inheritance chain
 
 				var DelayedMemory = declare(Memory, {
-					put: function(value, options){
+					put: function(value, options) {
 						var def = new Deferred();
 						var res = this.inherited(arguments);
-						setTimeout(lang.hitch(this, function(){
+						setTimeout(function() {
 							def.resolve(res);
-						}), 1000);
+						}, 1000);
 						return def;
 					},
 
 					newIdCount: 100,
 
-					add: function(value, options){
+					add: function(value, options) {
 						value.id = this.newIdCount++;
 						return this.inherited(arguments, [value, options]);
 					}
@@ -108,14 +108,14 @@
 
 				var store = new Observable(DelayedMemory({data: []}));
 
-				calendar.set("store", store);
-				calendar.set("date", startOfWeek);
+				calendar.store = store;
+				calendar.date = startOfWeek;
 
 				// Enable creation of event interactively by ctrl clicking grid.
-				var createItem = function(view, d, e){
+				var createItem = function(view, d, e) {
 
 					// create item by maintaining control key
-					if(!e.ctrlKey || e.shiftKey || e.altKey){
+					if (!e.ctrlKey || e.shiftKey || e.altKey) {
 						return null;
 					}
 
@@ -124,10 +124,10 @@
 					var colView = calendar.columnView;
 					var cal = calendar.dateModule;
 
-					if(view == colView){
+					if (view == colView) {
 						start = calendar.floorDate(d, "minute", colView.timeSlotDuration);
 						end = cal.add(start, "minute", colView.timeSlotDuration);
-					}else{
+					} else {
 						start = calendar.floorToDay(d);
 						end = cal.add(start, "day", 1);
 					}
@@ -145,20 +145,20 @@
 					return item;
 				};
 
-				calendar.set("createOnGridClick", true);
-				calendar.set("createItemFunc", createItem);
+				calendar.createOnGridClick = true;
+				calendar.createItemFunc = createItem;
 
 				// show context menu on right clicking an event
-				calendar.on("itemContextMenu", function(e){
+				calendar.on("item-context-menu", function(e) {
 					dojo.stopEvent(e.triggerEvent);
 					calendarContextMenu._openMyself({
-						target: e.renderer.domNode,
+						target: e.renderer,
 						coords: {x: e.triggerEvent.pageX, y: e.triggerEvent.pageY}
 					});
 				});
 
-				contextMenuDelete.on("click", function(){
-					arr.forEach(calendar.selectedItems, function(item){
+				contextMenuDelete.on("click", function() {
+					calendar.selectedItems.forEach(function(item) {
 						calendar.store.remove(item.id);
 					});
 				});
@@ -166,7 +166,7 @@
 				// Hide loading panel when application is ready
 				fx.fadeOut({
 					node:"loadingPanel",
-					onEnd: function(node){
+					onEnd: function(node) {
 						node.parentNode.removeChild(node)
 					}
 				}).play(500);
@@ -177,12 +177,11 @@
 			<span style="background: #DBEB8F;padding:2px">Loading...</span>
 		</div>
 
-		<div data-dojo-id="calendar" data-dojo-type="dojox.calendar.Calendar"
-			style="position:absolute;left:10px;top:10px;bottom:30px;right:10px">
+		<d-calendar id="calendar" style="position:absolute;left:10px;top:10px;bottom:30px;right:10px">
 			<div data-dojo-type="dijit.Menu" data-dojo-id="calendarContextMenu" style="display: none;">
 				<div data-dojo-type="dijit.MenuItem" data-dojo-id="contextMenuDelete" data-dojo-props="iconClass:'dijitIcon dijitIconDelete'">Delete</div>
 			</div>
-		</div>
+		</d-calendar>
 		<div id="hint" style="position:absolute;left:10px;height:15px;bottom:10px;right:10px;color:#999;overflow:auto"></div>
 	</body>
 </html>

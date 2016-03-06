@@ -13,7 +13,7 @@
 			html{
 				font-family: Lucida grande, Tahoma, Verdana, Arial, Sans-serif;
 			}
-			#calendarNode {
+			#calendar {
 		      position:absolute;
 		      left: 10px;
 		      right: 10px;
@@ -31,19 +31,21 @@
 			require({
 				baseUrl: "../.."
 			}, [
-				"dojo/_base/declare",
-				"dojo/_base/lang", "dojo/_base/sniff", "dojo/_base/array", "dojo/_base/fx", "dojo/dom-class", "dojo/on",
-				"dojo/date/locale", "dojo/parser",	"dojo/dom", "dojo/dom-construct",	"dojo/store/Memory",
-				"dojo/store/Observable",	"dcalendar/Calendar", "dijit/Menu", "dijit/MenuItem"
-			], function(declare, lang, has, arr, fx, domClass, on, locale, parser, dom, domConstruct,
-					Memory, Observable, Calendar){
+				"dojo/_base/fx", "dojo/parser",
+				"dojo/store/Memory", "dojo/store/Observable",
+				"dcalendar/Calendar",
+				"dijit/Menu", "dijit/MenuItem"
+			], function(
+				fx, parser, Memory, Observable
+			) {
 
+				// for dijit/Menu
 				parser.parse();
 
-				calendar.set("cssClassFunc", function(item){
+				calendar.cssClassFunc = function(item) {
 					// Use custom css class on renderers depending of a parameter (calendar).
 					return item.calendar == "cal1" ? "Calendar1" : "Calendar2"
-				});
+				};
 
 				// Calendar model creation
 				var modelBase = [
@@ -81,77 +83,77 @@
 				}
 
 				var store = new Observable(new Memory({data: someData}));
-				calendar.set("store", store);
-				calendar.set("date", startOfWeek);
+				calendar.store = store;
+				calendar.date = startOfWeek;
 
 				// show context menu on right clicking an event
-				calendar.on("itemContextMenu", function(e){
+				calendar.on("item-context-menu", function(e) {
 					dojo.stopEvent(e.triggerEvent);
-					console.log("itemContextMenu", e.item.summary);
-					if(e.item.calendar == undefined){
+					console.log("item-context-menu", e.item.summary);
+					if (e.item.calendar == undefined) {
 						alert("itemContextMenu not ok");
 					}
 				});
 
-				calendar.on("itemClick", function(e){
-					console.log("itemClick", e.item.summary);
-					if(e.item.calendar == undefined){
+				calendar.on("item-click", function(e) {
+					console.log("item-click", e.item.summary);
+					if (e.item.calendar == undefined) {
 						alert("itemClick not ok");
 					}
 				});
-				calendar.on("itemDoubleClick", function(e){
-					console.log("itemDoubleClick", e.item.summary);
-					if(e.item.calendar == undefined){
+				calendar.on("item-double-click", function(e) {
+					console.log("item-double-click", e.item.summary);
+					if (e.item.calendar == undefined) {
 						alert("itemDoubleClick not ok");
 					}
 				});
-				calendar.on("itemRollOver", function(e){
-					console.log("itemRollOver", e.item.summary);
-					if(e.item.calendar == undefined){
+				calendar.on("item-roll-over", function(e) {
+					console.log("item-roll-over", e.item.summary);
+					if (e.item.calendar == undefined) {
 						alert("itemRollOver not ok");
 					}
 				});
-				calendar.on("itemRollOut", function(e){
-					console.log("itemRollOut", e.item.summary);
-					if(e.item.calendar == undefined){
+				calendar.on("item-roll-out", function(e) {
+					console.log("item-roll-out", e.item.summary);
+					if (e.item.calendar == undefined) {
 						alert("itemRollOut not ok");
 					}
 				});
 
 				// editing events
-				calendar.on("itemEditBegin", function(e){
-					console.log("itemEditBegin", e.storeItem.summary);
-					if(e.storeItem.calendar == undefined){
+				calendar.on("item-edit-begin", function(e) {
+					console.log("item-edit-begin", e.storeItem.summary);
+					if (e.storeItem.calendar == undefined) {
 						alert("itemEditBegin not ok");
 					}
 				});
-				calendar.on("itemEditBeginGesture", function(e){
-					console.log("itemEditBeginGesture", e.storeItem.summary);
-					if(e.storeItem.calendar == undefined){
+				calendar.on("item-edit-begin-gesture", function(e) {
+					console.log("item-edit-begin-gesture", e.storeItem.summary);
+					if (e.storeItem.calendar == undefined) {
 						alert("itemEditBeginGesture not ok");
 					}
 				});
-				calendar.on("itemEditMoveGesture", function(e){
-					console.log("itemEditMoveGesture", e.storeItem.summary);
-					if(e.storeItem.calendar == undefined){
+				calendar.on("item-edit-move-gesture", function(e) {
+					console.log("item-edit-move-gesture", e.storeItem.summary);
+					if (e.storeItem.calendar == undefined) {
 						alert("itemEditMoveGesture not ok");
 					}
 				});
-				calendar.on("itemEditResizeGesture", function(e){
-					console.log("itemEditResizeGesture", e.storeItem.summary);
-					if(e.storeItem.calendar == undefined){
+				calendar.on("item-edit-resize-gesture", function(e) {
+					console.log("item-edit-resize-gesture", e.storeItem.summary);
+					if (e.storeItem.calendar == undefined) {
 						alert("itemEditResizeGesture not ok");
 					}
 				});
-				calendar.on("itemEditEndGesture", function(e){
-					console.log("itemEditEndGesture", e.storeItem.summary);
-					if(e.storeItem.calendar == undefined){
+				calendar.on("item-edit-end-gesture", function(e) {
+					console.log("item-edit-end-gesture", e.storeItem.summary);
+					if (e.storeItem.calendar == undefined) {
 						alert("itemEditEndGesture not ok");
 					}
 				});
-				calendar.on("itemEditEnd", function(e){
-					console.log("itemEditEnd", e.storeItem.summary);
-					if(e.storeItem.calendar == undefined){
+				calendar.on("item-edit-end", function(e) {
+					console.log("item-edit-end", e.storeItem.summary);
+					if (e.storeItem.calendar == undefined) {
 						alert("itemEditEnd not ok");
 					}
 				});
@@ -159,7 +161,7 @@
 				// Hide loading panel when application is ready
 				fx.fadeOut({
 					node:"loadingPanel",
-					onEnd: function(node){
+					onEnd: function(node) {
 						node.parentNode.removeChild(node)
 					}
 				}).play(500);
@@ -170,10 +172,10 @@
 			<span style="background: #DBEB8F;padding:2px">Loading...</span>
 		</div>
 
-		<div id="calendarNode" data-dojo-id="calendar" data-dojo-type="dojox.calendar.Calendar">
+		<d-calendar id="calendar">
 			<div data-dojo-type="dijit.Menu" data-dojo-id="calendarContextMenu" style="display: none;">
 				<div data-dojo-type="dijit.MenuItem" data-dojo-id="contextMenuEditable" >Useless menu item</div>
 			</div>
-		</div>
+		</d-calendar>
 	</body>
 </html>

@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html>
-
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 		<title>MatrixView Sample: Desktop</title>
@@ -17,12 +16,10 @@
 		<script type="text/javascript" src="../../requirejs/require.js"></script>
 
 		<script type="text/javascript">
-
 			require({
 				baseUrl:"../.."
 			}, [
-				"dojo/_base/declare",
-				"dojo/on",
+				"delite/register",
 				"dojo/date/locale",
 				"dojo/parser",
 				"dojo/date",
@@ -30,9 +27,6 @@
 				"dojo/dom",
 				"dojo/dom-construct",
 				"dojo/dom-class",
-				"dojo/_base/window",
-				"dijit/registry",
-				"dojo/query",
 				"dcalendar/MatrixView",
 				"dcalendar/Keyboard",
 				"dcalendar/Mouse",
@@ -53,41 +47,41 @@
 				"dijit/Tooltip",
 				"dijit/form/CheckBox",
 				"dojo/_base/fx",
-				"dojo/domReady!"
+				"requirejs-domready/domReady!"
 			], function(
-				declare, on, locale, parser, date, lang, dom, domConstruct, domClass, win, registry, query,
+				register, locale, parser, date, lang, dom, domConstruct, domClass,
 				MatrixView, CalendarKeyboard, CalendarMouse,
 				HorizontalRenderer, DecorationRenderer, LabelRenderer, ExpandRenderer,
 				Memory, Observable, VerticalSlider,
 				NumberSpinner, ComboBox, DateTextBox, TimeTextBox, TextBox, Button, TitlePane, Tooltip, CheckBox, fx
-			){
-
+			) {
+				// for TitlePane etc.
 				parser.parse();
 
 				// singleton
-				win.doc.appState = {
+				document.appState = {
 					moveDisabledMap: {},
 					resizeDisabledMap: {}
 				};
 
-				var mergeDateTime = function(isStart){
+				var mergeDateTime = function(isStart) {
 					var dateEditor = isStart ? itemStartDateEditor : itemEndDateEditor;
 					var timeEditor = isStart ? itemStartTimeEditor : itemEndTimeEditor;
-					var date = dateEditor.get("value");
-					var time = timeEditor.get("value");
+					var date = dateEditor.value;
+					var time = timeEditor.value;
 					date.setHours(time.getHours());
 					date.setMinutes(time.getMinutes());
 					return date;
 				};
 
-				var addLogEntry = function(name, content){
+				var addLogEntry = function(name, content) {
 					var tr = domConstruct.create("tr", null, dom.byId("logBody"), "first");
 					var td = domConstruct.create("td", null, tr);
-					td.appendChild(win.doc.createTextNode(locale.format(new Date(), {selector:"time", timePattern:"h:mm:ss"})));
+					td.appendChild(document.createTextNode(locale.format(new Date(), {selector:"time", timePattern:"h:mm:ss"})));
 					var td = domConstruct.create("td", null, tr);
-					td.appendChild(win.doc.createTextNode(name));
+					td.appendChild(document.createTextNode(name));
 					td = domConstruct.create("td", null, tr);
-					td.appendChild(win.doc.createTextNode(content));
+					td.appendChild(document.createTextNode(content));
 				};
 
 				// Calendar model creation
@@ -117,7 +111,7 @@
 				];
 
 				// TODO manage first day of week
-				var floorToWeek= function(d){
+				var floorToWeek= function(d) {
 					d.setHours(0);
 					d.setMinutes(0);
 					d.setSeconds(0);
@@ -126,14 +120,14 @@
 					return d;
 				};
 
-				var createModel = function(modelBase){
+				var createModel = function(modelBase) {
 
 					var someData = [];
 
 					var startOfWeek = new dateClassObj();
 					startOfWeek = floorToWeek(startOfWeek);
 
-					startDateEditor.set("value", startOfWeek);
+					startDateEditor.value = startOfWeek;
 
 					var id;
 					for (var w=0; w<5; w++) {
@@ -153,7 +147,7 @@
 
 							newObj.endTime = date.add(newObj.startTime, "minute", modelBase[i].duration);
 
-							if(modelBase[i].allDay != undefined){
+							if (modelBase[i].allDay != undefined) {
 								newObj.allDay = modelBase[i].allDay;
 							}
 
@@ -172,34 +166,37 @@
 
 				// Calendar creation & configuration
 
-				matrixView = declare([MatrixView, CalendarKeyboard, CalendarMouse])({
-
-					store: new Observable(new Memory({data: itemsData})),
-					decorationStore: new Observable(new Memory({data: decorationItemsData})),
+				var MatrixView = register("my-matrix-view", [MatrixView, CalendarKeyboard, CalendarMouse], {
 					horizontalRenderer: HorizontalRenderer,
 					horizontalDecorationRenderer: DecorationRenderer,
 					labelRenderer: LabelRenderer,
 					expandRenderer: ExpandRenderer,
 					verticalGap:4,
-					cssClassFunc: function(item){
+					cssClassFunc: function(item) {
 						return item.calendar == "cal1" ? "Calendar1" : "Calendar2"
 					},
-					isItemMoveEnabled: function(item, kind){
-						return this.isItemEditable(item, kind) && win.doc.appState.moveDisabledMap[item.id] !== true;
+					isItemMoveEnabled: function(item, kind) {
+						return this.isItemEditable(item, kind) && document.appState.moveDisabledMap[item.id] !== true;
 					},
-					isItemResizeEnabled: function(item, kind){
-						return this.isItemEditable(item, kind) && win.doc.appState.resizeDisabledMap[item.id] !== true;
+					isItemResizeEnabled: function(item, kind) {
+						return this.isItemEditable(item, kind) && document.appState.resizeDisabledMap[item.id] !== true;
 					}
-				}, "calendarNode");
+				});
+				var matrixView = new MatrixView({
+					id: "calendar",
+					store: new Observable(new Memory({data: itemsData})),
+					decorationStore: new Observable(new Memory({data: decorationItemsData}))
+				});
+				matrixView.placeAt("calendarNode", "replace");
 
 				// matrix view is *not* in a dijit container, must register resize handler
-				window.onresize = function(e){
+				window.onresize = function(e) {
 					matrixView.resize(e);
 				};
 
 				// Events management
 
-				matrixView.on("gridDoubleClick", function(e){
+				matrixView.on("grid-double-click", function(e) {
 
 					// create a event when double-clicking on grid.
 					var d = matrixView.floorToDay(e.date, true);
@@ -214,19 +211,19 @@
 					id++;
 					matrixView.store.add(item);
 
-					matrixView.set("selectedItem", item);
-					matrixView.set("focusedItem", item);
+					matrixView.selectedItem = item;
+					matrixView.focusedItem = item;
 					onMatrixViewChange(item);
 				});
 
-				matrixView.on("rowHeaderClick", function(e){
+				matrixView.on("row-header-click", function(e) {
 					var expIndex = matrixView.getExpandedRowIndex();
-					if(expIndex == e.index){
+					if (expIndex == e.index) {
 						matrixView.collapseRow();
-					}else if(expIndex == -1){
+					}else if (expIndex == -1) {
 						matrixView.expandRow(e.index);
-					}else{
-						var h = matrixView.on("expandAnimationEnd", function(){
+					} else {
+						var h = matrixView.on("expand-animation-end", function() {
 							h.remove();
 							matrixView.expandRow(e.index);
 						});
@@ -236,9 +233,8 @@
 
 				var editedItem;
 
-				var onMatrixViewChange = function(item){
-
-					if (item == null){
+				var onMatrixViewChange = function(item) {
+					if (item == null) {
 						editedItem = null;
 
 						itemSummaryEditor.set("value", null);
@@ -268,9 +264,7 @@
 						moveEnabledCB.set("checked", false);
 
 						calendarEditor.set("disabled", true);
-
-					}else{
-
+					} else {
 						editedItem = lang.mixin({}, item);
 
 						var allDay = item.allDay === true;
@@ -299,34 +293,33 @@
 						allDayCB.set("checked", allDay, false);
 
 						resizeEnabledCB.set("disabled", false);
-						resizeEnabledCB.set("checked", win.doc.appState.resizeDisabledMap[item.id] !== true);
+						resizeEnabledCB.set("checked", document.appState.resizeDisabledMap[item.id] !== true);
 
 						moveEnabledCB.set("disabled", false);
-						moveEnabledCB.set("checked", win.doc.appState.moveDisabledMap[item.id] !== true);
+						moveEnabledCB.set("checked", document.appState.moveDisabledMap[item.id] !== true);
 					}
 
 					var res = "";
-					if(item == null){
+					if (item == null) {
 						res = null;
-					}else{
-						var list = matrixView.get("selectedItems");
-						for(var i=0; i<list.length; i++){
+					} else {
+						var list = matrixView.selectedItems;
+						for (var i=0; i<list.length; i++) {
 							res += list[i].summary;
-							if(i != list.length-1){
+							if (i != list.length-1) {
 								res += ", ";
 							}
 						}
 					}
-					addLogEntry("onChange", res);
+					addLogEntry("change", res);
 				};
 
 
-				allDayCB.on("change", function(value){
-
+				allDayCB.on("change", function(value) {
 					itemStartTimeEditor.set("disabled", value);
 					itemEndTimeEditor.set("disabled", value);
 					var d;
-					if(value){
+					if (value) {
 						d = itemStartTimeEditor.get("value");
 						matrixView.floorToDay(d, true);
 						itemStartTimeEditor.set("value", d);
@@ -334,14 +327,14 @@
 						matrixView.floorToDay(d, true);
 						itemEndTimeEditor.set("value", d);
 
-						if(!matrixView.isStartOfDay(editedItem.endTime)){
+						if (!matrixView.isStartOfDay(editedItem.endTime)) {
 							d = itemEndDateEditor.get("value");
 							matrixView.floorToDay(d, true);
 							d = matrixView.renderData.dateModule.add(d, "day", 1);
 							itemEndDateEditor.set("value", d);
 						}
 
-					}else{
+					} else {
 						editedItem.startTime.setHours(8);
 						editedItem.endTime.setHours(9);
 						itemStartTimeEditor.set("value", editedItem.startTime);
@@ -354,200 +347,199 @@
 
 				});
 
-				matrixView.on("change", function(e){
+				matrixView.on("change", function(e) {
 					onMatrixViewChange(e.newValue);
 				});
 
-				startDateEditor.on("change", function(value){
-					matrixView.set("startDate", value);
+				startDateEditor.on("change", function(value) {
+					matrixView.startDate = value;
 				});
 
-				updateItemButton.on("click", function(value){
-
+				updateItemButton.on("click", function(value) {
 					if (editedItem != null) {
 						editedItem.summary = itemSummaryEditor.get("value");
-						if(allDayCB.get("value")){
-							if(!matrixView.isStartOfDay(editedItem.startTime)){
-								editedItem.startTime = matrixView.floorToDay(itemStartDateEditor.get("value"), true);
+						if (allDayCB.get("value")) {
+							if (!matrixView.isStartOfDay(editedItem.startTime)) {
+								editedItem.startTime = matrixView.floorToDay(itemStartDateEditor.value, true);
 							}
-							if(!matrixView.isStartOfDay(editedItem.endTime)){
-								editedItem.endTime = matrixView.floorToDay(itemEndDateEditor.get("value"), true);
+							if (!matrixView.isStartOfDay(editedItem.endTime)) {
+								editedItem.endTime = matrixView.floorToDay(itemEndDateEditor.value, true);
 							}
 							editedItem.allDay = true;
-						}else{
+						} else {
 							editedItem.startTime = mergeDateTime(true);
 							editedItem.endTime = mergeDateTime(false);
 							delete editedItem.allDay;
 						}
 
-						var calValue = calendarEditor.get("value");
+						var calValue = calendarEditor.value;
 						editedItem.calendar = calValue == "Calendar 1" ? "cal1" : "cal2";
 						matrixView.store.put(editedItem);
 					}
 
 				});
 
-				dateFormatButton.on("click", function(){
-					matrixView.set("rowHeaderDatePattern", rowHeaderFormatEditor.value);
-					//matrixView.set("columnHeaderDatePattern", columnHeaderFormatEditor.value);
+				dateFormatButton.on("click", function() {
+					matrixView.rowHeaderDatePattern = rowHeaderFormatEditor.value;
+					//matrixView.columnHeaderDatePattern = columnHeaderFormatEditor.value;
 
-					matrixView.set("cellHeaderLongPattern", cellLongFormatEditor.value);
-					matrixView.set("cellHeaderShortPattern", cellShortFormatEditor.value);
+					matrixView.cellHeaderLongPattern = cellLongFormatEditor.value;
+					matrixView.cellHeaderShortPattern = cellShortFormatEditor.value;
 				});
 
-				var formatItemTimeFunc = function(d, rd){
-					return rd.dateLocaleModule.format(d, {
+				var formatItemTimeFunc = function(d) {
+					return this.dateLocaleModule.format(d, {
 						selector: 'time',
 						timePattern: d.getMinutes() == 0 ? "ha":"h:mma"}
 					).toLowerCase();
 				};
 
-				customTimeFormatCB.on("change", function(value){
-					matrixView.set("formatItemTimeFunc", value ? formatItemTimeFunc : null);
+				customTimeFormatCB.on("change", function(value) {
+					matrixView.formatItemTimeFunc = (value ? formatItemTimeFunc : null);
 				});
 
-				matrixView.on("itemClick", function(e){
-					addLogEntry("onItemClick", e.item.summary);
+				matrixView.on("item-click", function(e) {
+					addLogEntry("item-click", e.item.summary);
 				});
-				matrixView.on("itemDoubleClick", function(e){
-					addLogEntry("onItemDoubleClick", e.item.summary);
+				matrixView.on("item-double-click", function(e) {
+					addLogEntry("item-double-click", e.item.summary);
 				});
-				matrixView.on("gridClick", function(e){
-					addLogEntry("onGridClick", locale.format(e.date, {datePattern:"yyyy/MM/dd", timePattern:"h:mm"}));
+				matrixView.on("grid-click", function(e) {
+					addLogEntry("grid-click", locale.format(e.date, {datePattern:"yyyy/MM/dd", timePattern:"h:mm"}));
 				});
-				matrixView.on("gridDoubleClick", function(e){
-					addLogEntry("onGridDoubleClick", locale.format(e.date, {datePattern:"yyyy/MM/dd", timePattern:"h:mm"}));
-				});
-
-				matrixView.on("itemRollOut", function(e){
-					addLogEntry("onItemRollOut", e.item.summary);
+				matrixView.on("grid-double-click", function(e) {
+					addLogEntry("grid-double-click", locale.format(e.date, {datePattern:"yyyy/MM/dd", timePattern:"h:mm"}));
 				});
 
-				var getDataTipLabel = function(item){
-					return "<b>" + item.summary + "</b><br/><table><tr><td style='text-align:right'>" +
-						"Start:</td><td>" + matrixView.renderData.dateLocaleModule.format(item.startTime, {formatLength: "short"}) + "</td></tr><tr><td style='text-align:right'>" +
-						"End:</td><td>" + matrixView.renderData.dateLocaleModule.format(item.endTime, {formatLength: "short"}) + "</td></tr></table>";
+				matrixView.on("item-roll-out", function(e) {
+					addLogEntry("item-roll-out", e.item.summary);
+				});
+
+				var getDataTipLabel = function(item) {
+					return "<b>" + item.summary + "</b><br><table><tr><td style='text-align:right'>" +
+						"Start:</td><td>" + matrixView.dateLocaleModule.format(item.startTime, {formatLength: "short"}) + "</td></tr><tr><td style='text-align:right'>" +
+						"End:</td><td>" + matrixView.dateLocaleModule.format(item.endTime, {formatLength: "short"}) + "</td></tr></table>";
 				};
 
-				matrixView.on("focusChange", function(e){
-					addLogEntry("focusChange", e.newValue ? e.newValue.summary: "null");
+				matrixView.on("focus-change", function(e) {
+					addLogEntry("focus-change", e.newValue ? e.newValue.summary: "null");
 				});
 
-				matrixView.on("itemRollOver", function(e){
-					addLogEntry("onItemRollOver", e.item.summary);
+				matrixView.on("item-roll-over", function(e) {
+					addLogEntry("item-roll-over", e.item.summary);
 				});
 
-				matrixView.on("itemEditBegin", function(e){
-					addLogEntry("onItemEditBegin", e.item.summary);
+				matrixView.on("item-edit-begin", function(e) {
+					addLogEntry("item-edit-begin", e.item.summary);
 				});
 
-				matrixView.on("itemEditBeginGesture", function(e){
-					addLogEntry("onItemEditBeginGesture", e.editKind + ", " + e.item.summary);
+				matrixView.on("item-edit-begin-gesture", function(e) {
+					addLogEntry("item-edit-begin-gesture", e.editKind + ", " + e.item.summary);
 				});
 
 				var showDataTipAfterLayout = false;
-				matrixView.on("itemEditMoveGesture", function(e){
+				matrixView.on("item-edit-move-gesture", function(e) {
 					showDataTipAfterLayout = true;
 				});
 
-				matrixView.on("itemEditEndGesture", function(e){
-					addLogEntry("onItemEditEndGesture", e.editKind + ", " + e.item.summary);
+				matrixView.on("item-edit-end-gesture", function(e) {
+					addLogEntry("item-edit-end-gesture", e.editKind + ", " + e.item.summary);
 
 					onMatrixViewChange(e.item);
 
 				});
 
-				matrixView.on("itemEditEnd", function(e){
-					addLogEntry("onItemEditEnd", e.item.summary + ", completed:" + e.completed);
+				matrixView.on("item-edit-end", function(e) {
+					addLogEntry("item-edit-end", e.item.summary + ", completed:" + e.completed);
 				});
 
-				editableCB.on("change", function(value){
-					matrixView.set("editable", value);
+				editableCB.on("change", function(value) {
+					matrixView.editable = value;
 				});
 
-				keyEditableCB.on("change", function(value){
-					matrixView.set("keyboardEditable", value);
+				keyEditableCB.on("change", function(value) {
+					matrixView.keyboardEditable = value;
 				});
 
-				liveEditCB.on("change", function(value){
+				liveEditCB.on("change", function(value) {
 					matrixView.liveLayout = value;
 				});
 
-				allowSwapCB.on("change", function(value){
+				allowSwapCB.on("change", function(value) {
 					matrixView.allowStartEndSwap = value;
 				});
 
-				viewConstrainCB.on("change", function(value){
+				viewConstrainCB.on("change", function(value) {
 					matrixView.stayInView = value;
 				});
 
-				resizeEnabledCB.watch("disabled", function(oldV, newV){
-					if (newV){
+				resizeEnabledCB.watch("disabled", function(oldV, newV) {
+					if (newV) {
 						domClass.remove("resizeEnabledCBLabel", "disabled");
-					}else{
+					} else {
 						domClass.add("resizeEnabledCBLabel", "disabled");
 					}
 				});
 
-				moveEnabledCB.watch("disabled", function(oldV, newV){
-					if (newV){
+				moveEnabledCB.watch("disabled", function(oldV, newV) {
+					if (newV) {
 						domClass.remove("moveEnabledCBLabel", "disabled");
-					}else{
+					} else {
 						domClass.add("moveEnabledCBLabel", "disabled");
 					}
 				});
 
-				resizeEnabledCB.on("change", function(value){
+				resizeEnabledCB.on("change", function(value) {
 					if (matrixView.selectedItem) {
-						if (value){
-							delete win.doc.appState.resizeDisabledMap[matrixView.selectedItem.id]
+						if (value) {
+							delete document.appState.resizeDisabledMap[matrixView.selectedItem.id]
 						} else {
-							win.doc.appState.resizeDisabledMap[matrixView.selectedItem.id] = true;
+							document.appState.resizeDisabledMap[matrixView.selectedItem.id] = true;
 						}
 					}
 				});
 
-				moveEnabledCB.on("change", function(value){
+				moveEnabledCB.on("change", function(value) {
 					if (matrixView.selectedItem) {
-						if (value){
-							delete win.doc.appState.moveDisabledMap[matrixView.selectedItem.id]
+						if (value) {
+							delete document.appState.moveDisabledMap[matrixView.selectedItem.id]
 						} else {
-							win.doc.appState.moveDisabledMap[matrixView.selectedItem.id] = true;
+							document.appState.moveDisabledMap[matrixView.selectedItem.id] = true;
 						}
 					}
 				});
 
-				roundToDayCB.on("change", function(value){
-					matrixView.set("roundToDay", value);
+				roundToDayCB.on("change", function(value) {
+					matrixView.roundToDay = value;
 				});
 
-				overlapEditor.on("change", function(value){
-					matrixView.set("percentOverlap", this.value);
-					vGapEditor.set("disabled", value!=0);
+				overlapEditor.on("change", function(value) {
+					matrixView.percentOverlap = this.value;
+					vGapEditor.disabled = (value != 0);
 				});
 
 				// the item to renderer kind functions.
 				var itemToRendererKindFuncs = [
 					null,
-					function(item){ return "horizontal"; },
-					function(item){ return item.allDay ? "horizontal" : "label"},
-					function(item){ return "label"}
+					function(item) { return "horizontal"; },
+					function(item) { return item.allDay ? "horizontal" : "label"},
+					function(item) { return "label"}
 				];
 
-				rendererKindEditor.set("store", new Memory({data:[
+				rendererKindEditor.store = new Memory({data:[
 					{id:0, label: "default"},
 					{id:1, label: "All horizontals"},
 					{id:2, label: "Only all day horizontals"},
 					{id:3, label: "All labels"}
-				]}));
+				]});
 
-				rendererKindEditor.watch("item", function(prop, oldValue, newValue){
-					matrixView.set("itemToRendererKindFunc", itemToRendererKindFuncs[newValue.id]);
+				rendererKindEditor.watch("item", function(prop, oldValue, newValue) {
+					matrixView.itemToRendererKindFunc = itemToRendererKindFuncs[newValue.id];
 				});
 
 				fx.fadeOut({
 					node:"loadingPanel",
-					onEnd: function(node){
+					onEnd: function(node) {
 						node.parentNode.removeChild(node)
 					}
 				}).play(500);
@@ -569,12 +561,12 @@
 
 					<tr>
 						<td>Column count:</td>
-						<td><div data-dojo-id="columnCountEditor" data-dojo-type="dijit.form.NumberSpinner" style="width:80px" constraints="{min:1, max:14}" value="7" intermediateChanges="true" onChange="matrixView.set('columnCount', this.value);"></div></td>
+						<td><div data-dojo-id="columnCountEditor" data-dojo-type="dijit.form.NumberSpinner" style="width:80px" constraints="{min:1, max:14}" value="7" intermediateChanges="true" onChange="matrixView.columnCount = this.value;"></div></td>
 					</tr>
 
 					<tr>
 						<td>Row count:</td>
-						<td><div data-dojo-id="rowCountEditor" data-dojo-type="dijit.form.NumberSpinner" style="width:80px" constraints="{min:1, max:14}" value="5" intermediateChanges="true" onChange="matrixView.set('rowCount', this.value);"></div></td>
+						<td><div data-dojo-id="rowCountEditor" data-dojo-type="dijit.form.NumberSpinner" style="width:80px" constraints="{min:1, max:14}" value="5" intermediateChanges="true" onChange="matrixView.rowCount = this.value;"></div></td>
 					</tr>
 				</table>
 			</div>
@@ -586,39 +578,39 @@
 							<label for="roundToDayCB">Round to day:</label>
 						</td>
 						<td class="smallText">
-							<input type="checkbox" data-dojo-id="roundToDayCB" data-dojo-type="dijit.form.CheckBox" checked="true"/>
+							<input type="checkbox" data-dojo-id="roundToDayCB" data-dojo-type="dijit.form.CheckBox" checked="true">
 						</td>
 					</tr>
 
 					<tr>
 						<td>Overlap (%):</td>
-						<td><div data-dojo-id="overlapEditor" data-dojo-type="dijit.form.NumberSpinner" value="0" constraints="{min:0, max:100}" intermediateChanges="true" smallDelta="10" style="width:80px" onChange="matrixView.set('percentOverlap', this.value);"></div></td>
+						<td><div data-dojo-id="overlapEditor" data-dojo-type="dijit.form.NumberSpinner" value="0" constraints="{min:0, max:100}" intermediateChanges="true" smallDelta="10" style="width:80px" onChange="matrixView.percentOverlap = this.value;"></div></td>
 					</tr>
 
 					<tr>
 						<td>Vertical gap (px):</td>
-						<td><div data-dojo-id="vGapEditor" data-dojo-type="dijit.form.NumberSpinner" style="width:80px" constraints="{min:0, max:30}" value="4" intermediateChanges="true" onChange="matrixView.set('verticalGap', this.value);"></div></td>
+						<td><div data-dojo-id="vGapEditor" data-dojo-type="dijit.form.NumberSpinner" style="width:80px" constraints="{min:0, max:30}" value="4" intermediateChanges="true" onChange="matrixView.verticalGap = this.value;"></div></td>
 					</tr>
 
 					<tr>
 						<td>Horiz. height (px):</td>
-						<td><div data-dojo-id="hRendererHeightEditor" data-dojo-type="dijit.form.NumberSpinner" style="width:80px" constraints="{min:0, max:50}" value="17" intermediateChanges="true" onChange="matrixView.set('horizontalRendererHeight', this.value);"></div></td>
+						<td><div data-dojo-id="hRendererHeightEditor" data-dojo-type="dijit.form.NumberSpinner" style="width:80px" constraints="{min:0, max:50}" value="17" intermediateChanges="true" onChange="matrixView.horizontalRendererHeight = this.value;"></div></td>
 					</tr>
 
 					<tr>
 						<td>Labels height (px):</td>
-						<td><div data-dojo-id="lRendererHeightEditor" data-dojo-type="dijit.form.NumberSpinner" style="width:80px" constraints="{min:0, max:50}" value="14" intermediateChanges="true" onChange="matrixView.set('labelRendererHeight', this.value);"></div></td>
+						<td><div data-dojo-id="lRendererHeightEditor" data-dojo-type="dijit.form.NumberSpinner" style="width:80px" constraints="{min:0, max:50}" value="14" intermediateChanges="true" onChange="matrixView.labelRendererHeight = this.value;"></div></td>
 					</tr>
 
 					<tr>
 						<td>Expand irs height (px):</td>
-						<td><div data-dojo-id="eRendererHeightEditor" data-dojo-type="dijit.form.NumberSpinner" style="width:80px" constraints="{min:0, max:50}" value="15" intermediateChanges="true" onChange="matrixView.set('expandRendererHeight', this.value);"></div></td>
+						<td><div data-dojo-id="eRendererHeightEditor" data-dojo-type="dijit.form.NumberSpinner" style="width:80px" constraints="{min:0, max:50}" value="15" intermediateChanges="true" onChange="matrixView.expandRendererHeight = this.value;"></div></td>
 					</tr>
 
 					<tr>
 						<td>Selection mode:</td>
 						<td>
-							<select data-dojo-id="selectionModeEditor" data-dojo-type="dijit.form.ComboBox" style="width:80px;" onChange="matrixView.set('selectionMode', this.value);">
+							<select data-dojo-id="selectionModeEditor" data-dojo-type="dijit.form.ComboBox" style="width:80px;" onChange="matrixView.selectionMode = this.value;">
 								<option>none</option>
 								<option selected>single</option>
 								<option>multiple</option>
@@ -658,7 +650,7 @@
 						<td class="smallText" >
 							<label for="customTimeFormatCB">Time format ex:</label>
 						</td><td>
-							<input type="checkbox" data-dojo-id="customTimeFormatCB" data-dojo-type="dijit.form.CheckBox" checked="false" />
+							<input type="checkbox" data-dojo-id="customTimeFormatCB" data-dojo-type="dijit.form.CheckBox" checked="false">
 
 						</td>
 					</tr>
@@ -689,7 +681,7 @@
 
 					<tr>
 						<td colspan="2" class="smallText" >
-							<input type="checkbox" data-dojo-id="allDayCB" data-dojo-type="dijit.form.CheckBox" checked="false" disabled="true" />
+							<input type="checkbox" data-dojo-id="allDayCB" data-dojo-type="dijit.form.CheckBox" checked="false" disabled="true">
 							<label for="allDayCB">All day</label>
 						</td>
 					</tr>
@@ -732,43 +724,43 @@
 				<table>
 					<tr>
 						<td colspan="2" class="smallText" >
-							<input type="checkbox" data-dojo-id="liveEditCB" data-dojo-type="dijit.form.CheckBox" checked="false" />
+							<input type="checkbox" data-dojo-id="liveEditCB" data-dojo-type="dijit.form.CheckBox" checked="false">
 							<label for="liveEditCB">Live layout</label>
 						</td>
 					</tr>
 					<tr>
 						<td colspan="2" class="smallText" >
-							<input type="checkbox" data-dojo-id="allowSwapCB" data-dojo-type="dijit.form.CheckBox" checked="true" />
+							<input type="checkbox" data-dojo-id="allowSwapCB" data-dojo-type="dijit.form.CheckBox" checked="true">
 							<label for="allowSwapCB">Allow start/end swap</label>
 						</td>
 					</tr>
 					<tr>
 						<td colspan="2" class="smallText" >
-							<input type="checkbox" data-dojo-id="editableCB" data-dojo-type="dijit.form.CheckBox" checked="true" />
+							<input type="checkbox" data-dojo-id="editableCB" data-dojo-type="dijit.form.CheckBox" checked="true">
 							<label for="editableCB">Editable (global)</label>
 						</td>
 					</tr>
 					<tr>
 						<td colspan="2" class="smallText" >
-							<input type="checkbox" data-dojo-id="keyEditableCB" data-dojo-type="dijit.form.CheckBox" checked="true" />
+							<input type="checkbox" data-dojo-id="keyEditableCB" data-dojo-type="dijit.form.CheckBox" checked="true">
 							<label for="keyEditableCB">Keyboard Editable (global)</label>
 						</td>
 					</tr>
 					<tr>
 						<td colspan="2" class="smallText" >
-							<input type="checkbox" data-dojo-id="viewConstrainCB" data-dojo-type="dijit.form.CheckBox" checked="true" />
+							<input type="checkbox" data-dojo-id="viewConstrainCB" data-dojo-type="dijit.form.CheckBox" checked="true">
 							<label for="viewConstrainCB">Stay in view (global)</label>
 						</td>
 					</tr>
 					<tr>
 						<td colspan="2" class="smallText" >
-							<input type="checkbox" id="moveEnabledCB" data-dojo-id="moveEnabledCB" data-dojo-type="dijit.form.CheckBox" checked="false" disabled="true" />
+							<input type="checkbox" id="moveEnabledCB" data-dojo-id="moveEnabledCB" data-dojo-type="dijit.form.CheckBox" checked="false" disabled="true">
 							<label id="moveEnabledCBLabel" for="moveEnabledCB" class="disabled">Move Enabled (item)</label>
 						</td>
 					</tr>
 					<tr>
 						<td colspan="2" class="smallText" >
-							<input type="checkbox" id="resizeEnabledCB" data-dojo-id="resizeEnabledCB" data-dojo-type="dijit.form.CheckBox" checked="false" disabled="true" />
+							<input type="checkbox" id="resizeEnabledCB" data-dojo-id="resizeEnabledCB" data-dojo-type="dijit.form.CheckBox" checked="false" disabled="true">
 							<label id="resizeEnabledCBLabel" for="resizeEnabledCB" class="disabled">Resize Enabled (item)</label>
 						</td>
 					</tr>
@@ -799,7 +791,6 @@
 		<div id="calendarNode"></div>
 
 		<div id="eventLogPane" title="Calendar events" data-dojo-type="dijit.TitlePane" toggleable="false" >
-
 			<div id="logTableContainer">
 				<table id="logTable">
 					<tbody id="logBody"></tbody>

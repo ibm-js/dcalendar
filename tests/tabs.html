@@ -30,26 +30,26 @@
 
 		<script type="text/javascript">
 			require({
-				baseUrl: "../..",
-				paths: {
-					demo: "dcalendar/tests"
-				}
+				baseUrl: "../.."
 			}, [
-				"dojo/_base/lang", "dojo/_base/sniff", "dojo/_base/array", "dojo/_base/fx", "dojo/dom-class", "dojo/on",
-				 "dojo/date/locale", "dojo/parser",	"dojo/dom", "dojo/dom-construct",	"dojo/store/Memory",
-				 "dojo/store/Observable",	"dcalendar/Calendar", "dcalendar/ColumnView", "dijit/TitlePane",
-				 "dijit/layout/TabContainer", "dijit/layout/ContentPane",
-				"dojo/domReady!"
+				"dojo/_base/fx",
+				"dojo/parser",
+				"dojo/store/Memory",
+				"dojo/store/Observable",
+				"dcalendar/Calendar", "dcalendar/ColumnView",
+				"dijit/TitlePane", "dijit/layout/TabContainer", "dijit/layout/ContentPane",
+				"requirejs-domready/domReady!"
 			], function(
-				lang, has, arr, fx, domClass, on, locale, parser, dom, domConstruct,
-				Memory, Observable, Calendar
-			){
+				fx, parser,
+				Memory, Observable
+			) {
+				// for TabContainer
 				parser.parse();
 
-				calendar.set("cssClassFunc", function(item){
+				calendar.cssClassFunc = function(item) {
 					// Use custom css class on renderers depending of a parameter (calendar).
 					return item.calendar == "cal1" ? "Calendar1" : "Calendar2"
-				});
+				};
 
 				// Calendar model creation
 				var modelBase = [
@@ -84,13 +84,13 @@
 				}
 
 				var store = new Observable(new Memory({data: someData}));
-				calendar.set("store", store);
-				calendar.set("date", startOfWeek);
+				calendar.store = store;
+				calendar.date = startOfWeek;
 
 				// Hide loading panel when application is ready
 				fx.fadeOut({
 					node:"loadingPanel",
-					onEnd: function(node){
+					onEnd: function(node) {
 						node.parentNode.removeChild(node)
 					}
 				}).play(500);
@@ -106,10 +106,10 @@
 				Lorem ipsum and all around...
 			</div>
 			<div data-dojo-type="dijit.layout.ContentPane"  title="Calendar">
-				<div data-dojo-id="calendar" data-dojo-type="dojox.calendar.Calendar"></div>
+				<d-calendar id="calendar"></d-calendar>
 			</div>
 			<div data-dojo-type="dijit.layout.ContentPane"  title="Columns View">
-				<div data-dojo-id="colview" data-dojo-type="dojox.calendar.ColumnView"></div>
+				<d-calendar-column-view id="colview"></d-calendar-column-view>
 			</div>
 		</div>
 	</body>

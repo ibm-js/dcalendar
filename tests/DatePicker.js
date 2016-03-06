@@ -1,10 +1,8 @@
 define([
 	"dojo/_base/declare",
-	"dojo/_base/lang",
 	"dijit/Calendar"
 ], function (
 	declare,
-	lang,
 	Calendar
 ) {
 	return declare("demo.DatePicker", Calendar, {

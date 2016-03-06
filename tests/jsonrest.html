@@ -18,31 +18,26 @@
 
 		<script type="text/javascript">
 			require({
-				baseUrl: "../..",
-				paths: {
-					demo: "dcalendar/tests"
-				}
+				baseUrl: "../.."
 			}, [
-				"dojo/_base/declare", "dojo/_base/fx", "dojo/on", "dojo/Deferred", "dojo/when",
-				"dojo/date/locale", "dojo/parser",	"dojo/store/JsonRest",
+				"dojo/_base/declare", "dojo/_base/fx", "dojo/Deferred", "dojo/when",
+				"dojo/store/JsonRest",
 				"dojo/store/Memory", "dojo/store/Observable", "dojo/store/Cache",
 				"dcalendar/Calendar", "dojo/date/stamp",
-				"dijit/layout/BorderContainer", "dijit/layout/ContentPane", "dojo/domReady!"
+				"requirejs-domready/domReady!"
 			], function(
-				declare, fx, on, Deferred, when, locale, parser, JsonRest, Memory, Observable, Cache, Calendar, stamp
-			){
-				parser.parse();
-
+				declare, fx, Deferred, when, JsonRest, Memory, Observable, Cache, Calendar, stamp
+			) {
 				var startOfWeek = calendar.floorToWeek(new calendar.dateClassObj());
 
 				// Subclass to handle the ID problem
 				// If the server is generating an ID, the calendar needs the temporary ID
 				// to synchronize its internal state.
 				var ExtJsonRest = declare(JsonRest, {
-					add: function(object, options){
+					add: function(object, options) {
 						var tempId = options && options.temporaryId;
 						var def = new Deferred();
-						when(this.inherited(arguments), function(item){
+						when(this.inherited(arguments), function(item) {
 							item.temporaryId = tempId;
 							def.resolve(item);
 						});
@@ -54,23 +49,23 @@
 				// This sample needs a service that hosts REST service that can answer to the Jsonrest store !!
 				// WARNING
 
-				calendar.on("timeIntervalChange", function(e){
+				calendar.on("time-interval-change", function(e) {
 					var startTimeStr = stamp.toISOString(e.startTime, {zulu: true, milliseconds: true});
 					var endTimeStr = stamp.toISOString(e.endTime, {zulu: true, milliseconds: true});
 					calendar.query = {
 						startTime: startTimeStr,
 						endTime:endTimeStr
 					};
-					calendar.set("store", new Observable(new ExtJsonRest({target: "/cal/calendar/"})));
+					calendar.store = new Observable(new ExtJsonRest({target: "/cal/calendar/"}));
 				});
 
-				calendar.set("date", startOfWeek);
+				calendar.date = startOfWeek;
 
 				// Enable creation of event interactively by ctrl clicking grid.
-				var createItem = function(view, d, e){
+				var createItem = function(view, d, e) {
 
 					// create item by maintaining control key
-					if(!e.ctrlKey || e.shiftKey || e.altKey){
+					if (!e.ctrlKey || e.shiftKey || e.altKey) {
 						return null;
 					}
 
@@ -79,10 +74,10 @@
 					var colView = calendar.columnView;
 					var cal = calendar.dateModule;
 
-					if(view == colView){
+					if (view == colView) {
 						start = calendar.floorDate(d, "minute", colView.timeSlotDuration);
 						end = cal.add(start, "minute", colView.timeSlotDuration);
-					}else{
+					} else {
 						start = calendar.floorToDay(d);
 						end = cal.add(start, "day", 1);
 					}
@@ -99,16 +94,16 @@
 
 				var interactive = true;
 
-				if(interactive){
-					calendar.set("createOnGridClick", true);
-					calendar.set("createItemFunc", createItem);
-				}else{
+				if (interactive) {
+					calendar.createOnGridClick = true;
+					calendar.createItemFunc = createItem;
+				} else {
 					var count = 0;
-					calendar.on("gridDoubleClick", function(e){
+					calendar.on("grid-double-click", function(e) {
 						var item = createItem(calendar.columnView, e.date, e.triggerEvent);
-						if(item){
+						if (item) {
 							// no id set here and not temporary id in options.
-							calendar.get("store").add(item, {temporaryId:"toto"});
+							calendar.store.add(item, {temporaryId:"toto"});
 						}
 					});
 				}
@@ -116,7 +111,7 @@
 				// Hide loading panel when application is ready
 				fx.fadeOut({
 					node:"loadingPanel",
-					onEnd: function(node){
+					onEnd: function(node) {
 						node.parentNode.removeChild(node)
 					}
 				}).play(500);
@@ -127,11 +122,7 @@
 			<span style="background: #DBEB8F;padding:2px">Loading...</span>
 		</div>
 
-		<div data-dojo-type="dijit.layout.BorderContainer" style="width:100%;height:100%" data-dojo-props="design:'sidebar', gutters:true" >
-			<div data-dojo-type="dijit.layout.ContentPane" data-dojo-props="splitter:false, region:'center'">
-			<div data-dojo-id="calendar" data-dojo-type="dojox.calendar.Calendar" style="position:absolute;left:10px;top:10px;bottom:10px;right:10px">
-				</div>
-			</div>
-		</div>
+		<d-calendar id="calendar" style="position:absolute;left:10px;top:10px;bottom:10px;right:10px">
+		</d-calendar>
 	</body>
 </html>
