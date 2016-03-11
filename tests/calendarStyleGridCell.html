@@ -52,9 +52,12 @@
 					this.defaultStyleGridCell(node, date);
 				};
 
-				calendar.columnView.secondarySheet.styleGridCellFunc = func;
-				calendar.matrixView.styleGridCellFunc = func;
-				calendar.monthColumnView.styleGridCellFunc = func;
+				calendar.on("delite-add-child", function (child){
+					child.itemToRendererKindFunc = itemToRendererKindFunc;
+					if (child.secondarySheet) {
+						child.secondarySheet.itemToRendererKindFunc = itemToRendererKindFunc;
+					}
+				});
 
 				// Hide loading panel when application is ready
 				fx.fadeOut({

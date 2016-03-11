@@ -143,6 +143,7 @@ define([
 
 		// summary:
 		//		This class defines a generic calendar widget that manages several views to display event in time.
+		//		It needs to be subclassed, specifically defining `_computeCurrentView()`.
 
 		baseClass: "dojoxCalendar",
 
@@ -281,8 +282,6 @@ define([
 		_nls: _nls,
 
 		createdCallback: function (/*Object*/args) {
-			this._set("views", []);
-
 			args = args || {};
 			this._calendar = args.datePackage ? args.datePackage.substr(args.datePackage.lastIndexOf(".") + 1) :
 				this._calendar;
@@ -292,12 +291,12 @@ define([
 		},
 
 		postRender: function () {
-			if (this.views == null || this.views.length === 0) {
-				this.views = this._createDefaultViews();
-			}
-
-			// TODO: two-way selection delegation?  But it's selecting renderers, not items themselves...
-			// TODO: map view.editing upward
+			this.viewContainer.on("delite-add-child", function(evt) {
+				this._onViewAdded(evt.child);
+			}.bind(this));
+			this.on("delite-remove-child", function(evt) {
+				this.viewContainer._onViewRemoved(evt.child);
+			}.bind(this));
 		},
 
 		resize: function (changeSize) {
@@ -400,17 +399,45 @@ define([
 
 				this._timeInterval = timeInterval;
 
-				this._duration =
-					this.dateModule.difference(this._timeInterval[0], this._timeInterval[1], "day");
+				this._duration = this.dateModule.difference(this._timeInterval[0], this._timeInterval[1], "day");
 
 				this.currentView = this._computeCurrentView();
 			}
 		},
 
 		refreshRendering: function (props) {
+			if ("currentView" in props) {
+				// View changed...
+				var oldView = props.currentView,
+					newView = this.currentView;
+
+				if (oldView) {
+					oldView.beforeDeactivate();
+				}
+				newView.beforeActivate();
+
+				this.viewContainer.show(newView);
+
+				// Remove the display:none setting from the new view.  show() removes it on
+				// a delay (due to a Promise#then() call), but we need it removed immediately
+				// so that it doesn't interfere with javascript sizing.
+				newView.style.display = "";
+
+				if (oldView) {
+					oldView.afterDeactivate();
+				}
+				newView.afterActivate();
+
+				this.emit("current-view-change", {
+					oldView: oldView,
+					newView: newView
+				});
+			}
+
 			if (this.currentView) {
 				// Reflect any property changes to the current view.  Or, if we just switched the current view,
-				// then reflect all properties to the new view
+				// then reflect all properties to the new view.
+				// Do this after the view is shown so that javascript sizing works.
 				this.forwardProperties.forEach(function (prop) {
 					if ("currentView" in props || (prop in props && this[prop] !== null && this[prop] !== undefined)) {
 						var value = typeof prop === "function" ? this[prop].bind(this) : this[prop];
@@ -422,29 +449,6 @@ define([
 				this._configureView();
 
 				this.emit("view-configuration-change");
-			}
-
-			if ("currentView" in props && props.currentView !== this.currentView) {
-				// View changed...
-				var oldView = props.currentView,
-					newView = this.currentView;
-
-				if (oldView) {
-					oldView.beforeDeactivate();
-				}
-				newView.beforeActivate();
-
-				this._showView(oldView, newView);
-
-				if (oldView) {
-					oldView.afterDeactivate();
-				}
-				newView.afterActivate();
-
-				this.emit("current-view-change", {
-					oldView: oldView,
-					newView: newView
-				});
 			}
 		},
 
@@ -529,71 +533,6 @@ define([
 			return [s, e];
 		},
 
-		/////////////////////////////////////////////////////
-		//
-		// View Management
-		// TODO: Replace this all with ViewStack
-		//
-		/////////////////////////////////////////////////////
-
-		// views: dcalendar/ViewBase[]
-		//		The views displayed by the widget.
-		//		To add/remove only one view, prefer, respectively, the addView() or removeView() methods.
-		views: null,
-
-		_setViewsAttr: function (views) {
-			this._get("views").forEach(this._onViewRemoved, this);
-			
-			if (!views) {
-				views = [];
-			}
-
-			views.forEach(this._onViewAdded, this);
-			
-			this._set("views", views.concat());
-		},
-
-		_createDefaultViews: function () {
-			// summary:
-			//		Creates the default views.
-			//		This method does nothing and is designed to be overridden.
-			// tags:
-			//		protected
-		},
-
-		addView: function (view, index) {
-			// summary:
-			//		Add a view to the calendar's view list.
-			// view: dcalendar/ViewBase
-			//		The view to add to the calendar.
-			// index: Integer
-			//		Optional, the index where to insert the view in current view list.
-			// tags:
-			//		protected
-
-			if (index <= 0 || index > this.views.length) {
-				index = this.views.length;
-			}
-			this.views.splice(index, view);
-			this._onViewAdded(view);
-		},
-
-		removeView: function (view, index) {
-			// summary:
-			//		Removes a view from the calendar's view list.
-			// view: dcalendar/ViewBase
-			//		The view to remove from the calendar.
-			// tags:
-			//		protected
-
-			if (index < 0 || index >= this.views.length) {
-				return;
-			}
-
-			this._onViewRemoved(this.views[index]);
-			this.views.splice(index, 1);
-		},
-
 		_onViewAdded: function (view) {
 			view.owner = this;
 			view.buttonContainer = this.buttonContainer;
@@ -602,18 +541,13 @@ define([
 			view.dateModule = this.dateModule;
 			view.dateClassObj = this.dateClassObj;
 			view.dateLocaleModule = this.dateLocaleModule;
-			domStyle.set(view, "display", "none");
 			domClass.add(view, "view");
-			domConstruct.place(view, this.viewContainer);
-			this.emit("view-added", {view: view});
 		},
 
 		_onViewRemoved: function (view) {
 			view.owner = null;
 			view.buttonContainer = null;
 			domClass.remove(view, "view");
-			this.viewContainer.removeChild(view);
-			this.emit("view-removed", {view: view});
 		},
 
 		_configureView: function () {
@@ -659,12 +593,9 @@ define([
 
 		_computeCurrentView: function () {
 			// summary:
-			//		If the time range is lasting less than seven days
-			//		returns the column view or the matrix view otherwise.
+			//		Create and return the proper view for the given state of properties (time range etc.)
 			// tags:
 			//		protected
-
-			return this._duration <= 7 ? this.columnView : this.matrixView;
 		},
 
 		matrixViewRowHeaderClick: function (e) {

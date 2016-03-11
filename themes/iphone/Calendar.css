@@ -17,6 +17,7 @@
   right: 0;
   top: 0;
   bottom: 32px;
+  height: auto;
 }
 .dojoxCalendar .view {
   position: absolute;

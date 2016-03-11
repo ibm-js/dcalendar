@@ -24,29 +24,23 @@ define([
 
 		verticalRenderer: VerticalRenderer,
 
-		_createDefaultViews: register.superCall(function (sup) {
-			return function () {
-				sup.apply(this, arguments);
-				// create the month column view.
-				this.monthColumnView = register("my-month-column-view", [MonthColumnView, Keyboard, Mouse])({
-					verticalRenderer: VerticalRenderer
-				});
-
-				this.monthColumnView.on("column-header-click", function (e) {
-					this.dateInterval = "month";
-					this.dateIntervalSteps = 1;
-					this.date = e.date;
-				}.bind(this));
-
-				return [this.columnView, this.matrixView, this.monthColumnView];
-			};
-		}),
-
-
 		_computeCurrentView: register.superCall(function (sup) {
 			return function () {
 				// show the month column view if the duration is greater than 31x2 days
 				if (this._duration > 62) {
+					if (!this.monthColumnView) {
+						this.monthColumnView = register("my-month-column-view", [MonthColumnView, Keyboard, Mouse])({
+							verticalRenderer: VerticalRenderer
+						});
+
+						this.monthColumnView.on("column-header-click", function (e) {
+							this.dateInterval = "month";
+							this.dateIntervalSteps = 1;
+							this.date = e.date;
+						}.bind(this));
+
+						this.appendChild(this.monthColumnView);
+					}
 					return this.monthColumnView;
 				} else {
 					return sup.apply(this, arguments);

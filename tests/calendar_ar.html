@@ -171,9 +171,12 @@
 					return null
 				};
 
-				calendar.columnView.itemToRendererKindFunc = itemToRendererKindFunc;
-				calendar.columnView.secondarySheet.itemToRendererKindFunc = itemToRendererKindFunc;
-				calendar.matrixView.itemToRendererKindFunc = itemToRendererKindFunc;
+				calendar.on("delite-add-child", function (child){
+					child.itemToRendererKindFunc = itemToRendererKindFunc;
+					if (child.secondarySheet) {
+						child.secondarySheet.itemToRendererKindFunc = itemToRendererKindFunc;
+					}
+				});
 
 				// show context menu on right clicking an event
 				calendar.on("item-context-menu", function(e) {

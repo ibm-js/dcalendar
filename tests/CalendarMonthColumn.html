@@ -1,4 +1,4 @@
-<template>
+<template requires="deliteful/ViewStack">
 	<div attach-point="buttonContainer" class="buttonContainer">
 		<button on-click="{{previousRange}}">{{this.effectiveDir === "ltr" ? "&#x25C0;" : "&#x25B6;"}}</button>
 		<button on-click="{{nextRange}}">{{this.effectiveDir === "ltr" ? "&#x25B6;" : "&#x25C0;"}}</button>
@@ -11,5 +11,5 @@
 		<button on-click="{{monthButtonClick}}">{{_nls.monthButton}}</button>
 		<button on-click="{{sixMonthButtonClick}}">6 Months</button>
 	</div>
-	<div attach-point="viewContainer" class="viewContainer"></div>
+	<d-view-stack attach-point="viewContainer" transition="none" class="viewContainer"></d-view-stack>
 </template>
