@@ -262,15 +262,15 @@ define([
 
 		refreshRendering: function (oldVals) {
 			// Create the grid/boilerplate initially, and update it whenever we move to a new month etc.
-			if ("dates" in oldVals) {
+			if ("dates" in oldVals || "attached" in oldVals) {
 				this._createRendering();
 			}
 
 			// Add the events.
-			if ("dates" in oldVals || "visibleItmes" in oldVals) {
+			if ("dates" in oldVals || "visibleItmes" in oldVals || "attached" in oldVals) {
 				this._layoutRenderers();
 			}
-			if ("dates" in oldVals || "visibleDecorationItems" in oldVals) {
+			if ("dates" in oldVals || "visibleDecorationItems" in oldVals || "attached" in oldVals) {
 				this._layoutDecorationRenderers();
 			}
 		},

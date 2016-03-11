@@ -339,12 +339,6 @@ define([
 			// tags:
 			//		private
 
-			if (this.rowHeight <= 0) {
-				this.columnCount = 1;
-				this.rowCount = 1;
-				return;
-			}
-
 			this.sheetHeight = this.itemContainer.offsetHeight;
 			this._computeRowsHeight();
 
