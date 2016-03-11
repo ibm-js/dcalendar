@@ -178,13 +178,13 @@ define([
 		//		If endDate property is set, this mininum value of endDate.
 		maxDate: null,
 
-		// dateInterval:String
+		// dateInterval: String
 		//		The date interval used to compute along with the <code>date</code> and
 		//		<code>dateIntervalSteps</code> the time interval to display.
 		//		Valid values are "day", "week" (default value) and "month".
 		dateInterval: "week",
 
-		// dateIntervalSteps:Integer
+		// dateIntervalSteps: Integer
 		//		The number of date intervals used to compute along with the <code>date</code> and
 		//		<code>dateInterval</code> the time interval to display.
 		//		Default value is 1.
@@ -310,7 +310,7 @@ define([
 			}
 		},
 
-		computeProperties: function (props) {
+		computeProperties: function (oldVals) {
 			var cal = this.dateModule;
 			var startDate = this.startDate;
 			var endDate = this.endDate;
@@ -362,8 +362,8 @@ define([
 				}
 			}
 
-			if ("startDate" in props || "endDate" in props || "date" in props ||
-				"dateInterval" in props) {
+			if ("startDate" in oldVals || "endDate" in oldVals || "date" in oldVals ||
+				"dateInterval" in oldVals || "dateIntervalSteps" in oldVals) {
 
 				var timeInterval = this.computeTimeInterval();
 
@@ -373,9 +373,9 @@ define([
 
 					this._timeInterval = timeInterval;
 
-					if ("date" in props) {
+					if ("date" in oldVals) {
 						this._lastValidDate = this.date;
-					} else if ("startDate" in props || "endDate" in props) {
+					} else if ("startDate" in oldVals || "endDate" in oldVals) {
 						this._lastValidStartDate = this.startDate;
 						this._lastValidEndDate = this.endDate;
 					}
@@ -387,11 +387,11 @@ define([
 						endTime: timeInterval[1]
 					});
 				} else {
-					if ("date" in props) {
+					if ("date" in oldVals) {
 						if (this.lastValidDate != null) {
 							this.date = this.lastValidDate;
 						}
-					} else if ("startDate" in props || "endDate" in props) {
+					} else if ("startDate" in oldVals || "endDate" in oldVals) {
 						this.startDate = this._lastValidStartDate;
 						this.endDate = this._lastValidEndDate;
 					}
