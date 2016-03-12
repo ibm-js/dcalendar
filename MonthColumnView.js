@@ -123,11 +123,7 @@ define([
 		//		Unit of layout: each column is displaying a month.
 		_layoutUnit: "month",
 
-		_columnHeaderHandlers: null,
-
 		createdCallback: function () {
-			this._columnHeaderHandlers = [];
-
 			// Apparently these are in here rather than in the prototype so they
 			// override the values in Keyboard.js regardless of inheritance order.
 			this.keyboardUpDownUnit = "day";
@@ -138,13 +134,6 @@ define([
 			this.allDayKeyboardUpDownSteps = 1;
 			this.allDayKeyboardLeftRightUnit = "month";
 			this.allDayKeyboardLeftRightSteps = 1;
-		},
-
-		destroy: function () {
-			this._cleanupColumnHeader();
-			if (this.scrollBar) {
-				this.scrollBar.destroy();
-			}
 		},
 
 		_vScrollBarOnScroll: function (e) {
@@ -466,7 +455,7 @@ define([
 
 		_columnHeaderClick: function (e) {
 			e.stopPropagation();
-			var index = query("td", this.columnHeaderTable).indexOf(e.currentTarget);
+			var index = e.currentTarget.index;
 			this.emit("column-header-click", {
 				index: index,
 				date: this.dates[index][0],
@@ -484,93 +473,26 @@ define([
 			if (!table) {
 				return;
 			}
+			var tr = table.rows[0] || table.insertRow();
 
-			var tbody = table.firstChild;
-			if (!tbody) {
-				tbody = html.create("tbody", null, table);
-			}
-
-			var tr = tbody.firstChild;
-			if (!tr) {
-				tr = domConstruct.create("tr", null, tbody);
-			}
-
-			var i, td;
-
-			// Create new cells if necessary
-			// TODO: use event delegation
+			// Adjust number of cells to equal this.columnCount.
+			var i;
 			for (i = tr.children.length; i < this.columnCount; i++) {
-				td = domConstruct.create("td", null, tr);
-
-				var h = [];
-				h.push(on(td, "click", this._columnHeaderClick.bind(this)));
-
-				if (has("touch-events")) {
-					h.push(on(td, "touchstart", function (e) {
-						e.stopPropagation();
-						domClass.add(e.currentTarget, "Active");
-					}));
-
-					h.push(on(td, "touchend", function (e) {
-						e.stopPropagation();
-						domClass.remove(e.currentTarget, "Active");
-					}));
-				} else {
-					h.push(on(td, "mousedown", function (e) {
-						e.stopPropagation();
-						domClass.add(e.currentTarget, "Active");
-					}));
-
-					h.push(on(td, "mouseup", function (e) {
-						e.stopPropagation();
-						domClass.remove(e.currentTarget, "Active");
-					}));
-
-					h.push(on(td, "mouseover", function (e) {
-						e.stopPropagation();
-						domClass.add(e.currentTarget, "Hover");
-					}));
-
-					h.push(on(td, "mouseout", function (e) {
-						e.stopPropagation();
-						domClass.remove(e.currentTarget, "Hover");
-					}));
-
-				}
-
-				this._columnHeaderHandlers.push(h);
+				var td = tr.insertCell();
+				on(td, "click", this._columnHeaderClick.bind(this));
 			}
-
-			// Remove old cells if we have too many.
 			for (i = tr.children.length; i > this.columnCount; i--) {
-				td = tr.lastChild;
-				tr.removeChild(td);
-				domConstruct.destroy(td);
-				var list = this._columnHeaderHandlers.pop();
-				while (list.length > 0) {
-					list.pop().remove();
-				}
+				tr.removeChild(tr.lastChild);
 			}
 
 			// fill & configure
 			query("td", table).forEach(function (td, i) {
 				td.className = "";
+				td.index = i;
 				var d = this.dates[i][0];
 				this._setText(td, this._formatColumnHeaderLabel(d));
 				this.styleColumnHeaderCell(td, d);
 			}, this);
-		},
-
-		_cleanupColumnHeader: function () {
-			// tags:
-			//		private
-
-			while (this._columnHeaderHandlers.length > 0) {
-				var list = this._columnHeaderHandlers.pop();
-				while (list.length > 0) {
-					list.pop().remove();
-				}
-			}
 		},
 
 		styleColumnHeaderCell: function (/*===== node, date =====*/) {
@@ -597,33 +519,24 @@ define([
 			}
 			domStyle.set(table, "height", this.sheetHeight + "px");
 
-			var tbody = table.firstChild;
-			if (!tbody) {
-				tbody = html.create("tbody", null, table);
-			}
-
-			// Create extra rows if needed.
+			// Adjust number of rows to equal this.maxDayCount.
 			var i;
-			for (i = tbody.children.length; i < this.maxDayCount; i++) {
-				domConstruct.create("tr", null, tbody);
+			for (i = table.rows.length; i < this.maxDayCount; i++) {
+				table.insertRow();
 			}
-
-			// Remove excess rows if necessary
-			for (i = tbody.children.length; i > this.maxDayCount; i--) {
-				tbody.removeChild(tbody.lastChild);
+			for (i = table.rows.length; i > this.maxDayCount; i--) {
+				table.deleteRow(-1);
 			}
 
 			// Set the CSS classes
-			Array.prototype.forEach.call(tbody.children, function (tr, row) {
+			Array.prototype.forEach.call(table.rows, function (tr, row) {
 				tr.className = "";
 
-				// Add <td> nodes if necessary.
+				// Adjust number of cells to equal this.columnCount.
 				for (i = tr.children.length; i < this.columnCount; i++) {
-					var td = domConstruct.create("td", null, tr);
+					var td = tr.insertCell();
 					domConstruct.create("span", null, td);
 				}
-
-				// Remove excess <td> nodes if necessary.
 				for (i = tr.children.length; i > this.columnCount; i--) {
 					tr.removeChild(tr.lastChild);
 				}
@@ -714,24 +627,14 @@ define([
 
 			domStyle.set(table, "height", this.sheetHeight + "px");
 
-			var tbody = table.firstChild;
-			if (!tbody) {
-				tbody = html.create("tbody", null, table);
-			}
+			var tr = table.rows[0] || table.insertRow();
 
-			var tr = tbody.firstChild;
-			if (!tr) {
-				tr = domConstruct.create("tr", null, tbody);
-			}
-
-			// Create more cells if needed.
+			// Adjust number of cells to equal this.columnCount.
 			var i;
 			for (i = tr.children.length; i < this.columnCount; i++) {
-				var td = domConstruct.create("td", null, tr);
+				var td = tr.insertCell();
 				domConstruct.create("div", {"className": "dojoxCalendarContainerColumn"}, td);
 			}
-
-			// Remove excess cells if necessary
 			for (i = tr.children.length; i > this.columnCount; i--) {
 				tr.removeChild(tr.lastChild);
 			}

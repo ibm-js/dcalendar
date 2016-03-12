@@ -246,11 +246,11 @@
 .dojoxCalendarColumnView .dojoxCalendarColumnHeaderTable .dojoxCalendarWeekend {
   color: #999999;
 }
-.dojoxCalendarColumnView .dojoxCalendarColumnHeaderTable td.Hover {
+.dojoxCalendarColumnView .dojoxCalendarColumnHeaderTable td:hover {
   cursor: pointer;
   background: #f8fafd url("images/accordionItemHover.gif") bottom repeat-x;
 }
-.dojoxCalendarColumnView .dojoxCalendarColumnHeaderTable td.Active {
+.dojoxCalendarColumnView .dojoxCalendarColumnHeaderTable td:active {
   cursor: pointer;
 }
 .dojoxCalendarColumnView .dojoxCalendarSubHeader {

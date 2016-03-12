@@ -173,11 +173,6 @@ define([
 			// so that we can release all the item renderers w/out releasing expand renderers (or vice-versa).
 			this._ddRendererList = [];
 			this._ddRendererPool = [];
-			this._rowHeaderHandles = [];
-		},
-
-		destroy: function () {
-			this._cleanupRowHeader();
 		},
 
 		computeProperties: function (oldVals) {
@@ -359,21 +354,12 @@ define([
 			if (!table) {
 				return;
 			}
+			var tr = table.rows[0] || table.insertRow();
 
-			var tbody = table.firstChild;
-			if (!tbody) {
-				tbody = html.create("tbody", null, table);
-			}
-
-			var tr = tbody.firstChild;
-			if (!tr) {
-				tr = domConstruct.create("tr", null, tbody);
-			}
-
-			// Build HTML structure (incremental)
+			// Adjust number of cells to equal this.columnCount.
 			var i, actualColumns = tr.children.length;
 			for (i = actualColumns; i < this.columnCount; i++) {
-				domConstruct.create("td", null, tr);	// create additional cells (if needed)
+				tr.insertCell();	// create additional cells (if needed)
 			}
 			for (i = actualColumns; i > this.columnCount; i--) {
 				tr.removeChild(tr.lastChild);		// remove excess cells (if necessary)
@@ -413,23 +399,8 @@ define([
 			}
 		},
 
-		_rowHeaderHandles: null,
-
-		_cleanupRowHeader: function () {
-			// tags:
-			//		private
-
-			while (this._rowHeaderHandles.length > 0) {
-				var list = this._rowHeaderHandles.pop();
-				while (list.length > 0) {
-					list.pop().remove();
-				}
-			}
-		},
-
-
 		_rowHeaderClick: function (e) {
-			var index = query("td", this.rowHeaderTable).indexOf(e.currentTarget);
+			var index = e.currentTarget.index;
 			this.emit("row-header-click", {
 				index: index,
 				date: this.dates[index][0],
@@ -443,64 +414,28 @@ define([
 			// tags:
 			//		private
 
-			var rowHeaderTable = this.rowHeaderTable;
-			if (!rowHeaderTable) {
+			var table = this.rowHeaderTable;
+			if (!table) {
 				return;
 			}
 
-			var tbody = rowHeaderTable.firstChild;
-			if (!tbody) {
-				tbody = domConstruct.create("tbody", null, rowHeaderTable);
-			}
-
-			// Build HTML structure
+			// Adjust number of rows to equal this.rowCount.
 			var i;
-
-			// create rows rows (if necessary)
-			for (i = tbody.children.length; i < this.rowCount; i++) {
-				var tr = domConstruct.create("tr", null, tbody);
-				var td = domConstruct.create("td", null, tr);
-
-				// TODO: use event delegation
-				var h = [];
-
-				h.push(on(td, "click", this._rowHeaderClick.bind(this)));
-
-				if (!has("touch")) {
-					h.push(on(td, "mousedown", function (e) {
-						domClass.add(e.currentTarget, "Active");
-					}));
-
-					h.push(on(td, "mouseup", function (e) {
-						domClass.remove(e.currentTarget, "Active");
-					}));
-
-					h.push(on(td, "mouseover", function (e) {
-						domClass.add(e.currentTarget, "Hover");
-					}));
-
-					h.push(on(td, "mouseout", function (e) {
-						domClass.remove(e.currentTarget, "Hover");
-					}));
-				}
-				this._rowHeaderHandles.push(h);
+			for (i = table.rows.length; i < this.rowCount; i++) {
+				var td = table.insertRow().insertCell();
+				on(td, "click", this._rowHeaderClick.bind(this));
 			}
-
-			// delete unwanted rows
-			for (i = tbody.children.length; i > this.rowCount; i--) {
-				tbody.removeChild(tbody.lastChild);
-				var list = this._rowHeaderHandles.pop();
-				while (list.length > 0) {
-					list.pop().remove();
-				}
+			for (i = table.rows.length; i > this.rowCount; i--) {
+				table.deleteRow(-1);
 			}
 
 			// fill labels
-			Array.prototype.forEach.call(tbody.children, function (tr, i) {
+			Array.prototype.forEach.call(table.rows, function (tr, i) {
 				domStyle.set(tr, "height", this._getRowHeight(i) + "px");
 
 				var td = tr.firstChild;
 				td.className = "";
+				td.index = i;
 
 				var d = this.dates[i][0];
 				this.styleRowHeaderCell(td, d);
@@ -531,39 +466,27 @@ define([
 				return;
 			}
 
-			var tbody = table.firstChild;
-			if (!tbody) {
-				tbody = domConstruct.create("tbody", null, table);
-			}
-
-			// add more rows (if necessary)
+			// Adjust number of rows to equal this.rowCount.
 			var i;
-			for (i = tbody.children.length; i < this.rowCount; i++) {
-				domConstruct.create("tr", null, tbody);
+			for (i = table.rows.length; i < this.rowCount; i++) {
+				table.insertRow();
+			}
+			for (i = table.rows.length; i > this.rowCount; i--) {
+				table.deleteRow(-1);
 			}
 
-			// delete excess rows (if necessary)
-			for (i = tbody.children.length; i > this.rowCount; i--) {
-				tbody.removeChild(tbody.lastChild);
-			}
-
-			Array.prototype.forEach.call(tbody.children, function (tr, i) {
-				// add extra cells (if necessary)
+			// Set the CSS classes
+			Array.prototype.forEach.call(table.rows, function (tr, row) {
+				// Adjust number of cells to equal this.columnCount.
 				for (i = tr.children.length; i < this.columnCount; i++) {
-					var td = domConstruct.create("td", null, tr);
+					var td = tr.insertCell();
 					domConstruct.create("span", null, td);
 				}
-
-				// delete excess cells (if necessary)
 				for (i = tr.children.length; i > this.columnCount; i--) {
 					tr.removeChild(tr.lastChild);
 				}
-			}, this);
 
-			// Set the CSS classes
-			Array.prototype.forEach.call(tbody.children, function (tr, row) {
 				domStyle.set(tr, "height", this._getRowHeight(row) + "px");
-
 				tr.className = "";
 
 				Array.prototype.forEach.call(tr.children, function (td, col) {
@@ -641,33 +564,23 @@ define([
 				return;
 			}
 
-			var tbody = table.firstChild;
-			if (!tbody) {
-				tbody = domConstruct.create("tbody", null, table);
-			}
-
-			// Add more rows (if necessary)
+			// Adjust number of rows to equal this.rowCount.
 			var i;
-			for (i = tbody.children.length; i < this.rowCount; i++) {
-				var tr = domConstruct.create("tr", null, tbody);
+			for (i = table.rows.length; i < this.rowCount; i++) {
+				var tr = table.insertRow();
 				tr.className = "dojoxCalendarItemContainerRow";
-				var td = domConstruct.create("td", null, tr);
+				var td = tr.insertCell();
 				var div = domConstruct.create("div", null, td);
 				div.className = "dojoxCalendarContainerRow";
 			}
-
-			// Delete extra rows
-			for (i = tbody.children.length; i > this.rowCount; i--) {
-				tbody.removeChild(tbody.lastChild);
+			for (i = table.rows.length; i > this.rowCount; i--) {
+				table.deleteRow(-1);
 			}
 
-			var rows = [];
-			Array.prototype.forEach.call(tbody.children, function (tr, i) {
+			this.cells = Array.prototype.map.call(table.rows, function (tr, i) {
 				domStyle.set(tr, "height", this._getRowHeight(i) + "px");
-				rows.push(tr.childNodes[0].childNodes[0]);
+				return tr.childNodes[0].childNodes[0];
 			}, this);
-
-			this.cells = rows;
 		},
 
 		resize: register.superCall(function (sup) {

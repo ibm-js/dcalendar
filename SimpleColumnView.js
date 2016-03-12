@@ -140,22 +140,9 @@ define([
 
 		_showSecondarySheet: false,
 
-		_columnHeaderHandlers: null,
-
 		// Computed properties, mostly formerly in renderData
 		hourCount: -1,
 		slotSize: -1,
-
-		createdCallback: function () {
-			this._columnHeaderHandlers = [];
-		},
-
-		destroy: function (preserveDom) {
-			this._cleanupColumnHeader();
-			if (this.scrollBar) {
-				this.scrollBar.destroy(preserveDom);
-			}
-		},
 
 		_vScrollBarOnScroll: function (e) {
 			this._setScrollPosition(e.target.value);
@@ -687,8 +674,7 @@ define([
 
 		_columnHeaderClick: function (e) {
 			e.stopPropagation();
-
-			var index = query("td", this.columnHeaderTable).indexOf(e.currentTarget);
+			var index = e.currentTarget.index;
 			this.emit("column-header-click", {
 				index: index,
 				date: this.dates[index],
@@ -706,75 +692,21 @@ define([
 			if (!table) {
 				return;
 			}
+			var tr = table.rows[0] || table.insertRow();
 
-			var tbody = table.firstChild;
-			if (!tbody) {
-				tbody = html.create("tbody", null, table);
-			}
-
-			var tr = tbody.firstChild;
-			if (!tr) {
-				tr = domConstruct.create("tr", null, tbody);
-			}
-
-			// Create cells (if needed)
-			// TODO: use event delegation
+			// Adjust number of cells to equal this.columnCount.
 			for (var i = tr.children.length; i < this.columnCount; i++) {
-				var td = domConstruct.create("td", null, tr);
-
-				var h = [];
-				h.push(on(td, "click", this._columnHeaderClick.bind(this)));
-
-				if (has("touch-events")) {
-					h.push(on(td, "touchstart", function (e) {
-						event.stop(e);
-						domClass.add(e.currentTarget, "Active");
-					}));
-
-					h.push(on(td, "touchend", function (e) {
-						event.stop(e);
-						domClass.remove(e.currentTarget, "Active");
-					}));
-				} else {
-					h.push(on(td, "mousedown", function (e) {
-						event.stop(e);
-						domClass.add(e.currentTarget, "Active");
-					}));
-
-					h.push(on(td, "mouseup", function (e) {
-						event.stop(e);
-						domClass.remove(e.currentTarget, "Active");
-					}));
-
-					h.push(on(td, "mouseover", function (e) {
-						event.stop(e);
-						domClass.add(e.currentTarget, "Hover");
-					}));
-
-					h.push(on(td, "mouseout", function (e) {
-						event.stop(e);
-						domClass.remove(e.currentTarget, "Hover");
-					}));
-
-				}
-
-				this._columnHeaderHandlers.push(h);
+				var td = tr.insertCell();
+				on(td, "click", this._columnHeaderClick.bind(this));
 			}
-
-			// Delete excess rows
 			for (i = tr.children.length; i > this.columnCount; i--) {
-				td = tr.lastChild;
-				tr.removeChild(td);
-				domConstruct.destroy(td);
-				var list = this._columnHeaderHandlers.pop();
-				while (list.length > 0) {
-					list.pop().remove();
-				}
+				tr.removeChild(tr.lastChild);
 			}
 
 			// fill & configure
 			Array.prototype.forEach.call(tr.children, function (td, i) {
 				td.className = "";
+				td.index = i;
 				var d = this.dates[i];
 				this._setText(td, this._formatColumnHeaderLabel(d));
 				this.styleColumnHeaderCell(td, d);
@@ -784,15 +716,6 @@ define([
 				var d = this.dates[0];
 				this._setText(this.yearColumnHeaderContent, this.dateLocaleModule.format(d,
 					{selector: "date", datePattern: "yyyy"}));
-			}
-		},
-
-		_cleanupColumnHeader: function () {
-			while (this._columnHeaderHandlers.length > 0) {
-				var list = this._columnHeaderHandlers.pop();
-				while (list.length > 0) {
-					list.pop().remove();
-				}
 			}
 		},
 
@@ -830,28 +753,16 @@ define([
 				return;
 			}
 
-			var tbody = table.firstChild;
-			if (!tbody) {
-				tbody = html.create("tbody", null, table);
-			}
+			var tr = table.rows[0] || table.insertRow();
 
-			var tr = tbody.firstChild;
-			if (!tr) {
-				tr = domConstruct.create("tr", null, tbody);
-			}
-
-			// create cells (if needed)
-			var i, td;
+			// Adjust number of cells to equal this.columnCount.
+			var i;
 			for (i = tr.children.length; i < this.columnCount; i++) {
-				td = domConstruct.create("td", null, tr);
+				var td = tr.insertCell();
 				domConstruct.create("div", {"className": "dojoxCalendarSubHeaderContainer"}, td);
 			}
-
-			// delete excess cells (if necessary)
 			for (i = tr.children.length; i > this.columnCount; i--) {
-				td = tr.lastChild;
-				tr.removeChild(td);
-				domConstruct.destroy(td);
+				tr.removeChild(tr.lastChild);
 			}
 
 			// fill & configure
@@ -860,13 +771,11 @@ define([
 				td.className = "";
 
 				query(".dojoxCalendarSubHeaderContainer", td).forEach(function (div, i) {
-					// Create child <div>'s if necessary.
+					// Adjust the number of child <div>'s to match subCount.
 					for (i = div.children.length; i < subCount; i++) {
 						domConstruct.create("div", {
 							"className": "dojoxCalendarSubHeaderCell dojoxCalendarSubHeaderLabel"}, div);
 					}
-
-					// Remove excess <div>'s
 					for (i = div.children.length; i > subCount; i--) {
 						div.removeChild(div.lastChild);
 					}
@@ -884,9 +793,7 @@ define([
 				}, this);
 
 				var d = this.dates[i];
-
 				this.styleSubColumnHeaderCell(td, d);
-
 			}, this);
 		},
 
@@ -938,8 +845,8 @@ define([
 			// tags:
 			//		private
 			
-			var rowHeaderTable = this.rowHeaderTable;
-			if (!rowHeaderTable) {
+			var table = this.rowHeaderTable;
+			if (!table) {
 				return;
 			}
 
@@ -948,32 +855,23 @@ define([
 					"dojoxCalendarRowHeaderLabelContainer"}, this.rowHeader);
 			}
 			
-			domStyle.set(rowHeaderTable, "height", this.sheetHeight + "px");
+			domStyle.set(table, "height", this.sheetHeight + "px");
 
-			var tbody = rowHeaderTable.firstChild;
-			if (!tbody) {
-				tbody = domConstruct.create("tbody", null, rowHeaderTable);
-			}
-
-
-			// build new rows (if necessary)
+			// Adjust number of rows to match nbRows.
 			var nbRows = Math.floor(60 / this.rowHeaderGridSlotDuration) * this.hourCount;
 			var i;
-			for (i = tbody.children.length; i < nbRows; i++) {
-				var tr = domConstruct.create("tr", null, tbody);
-				domConstruct.create("td", null, tr);
+			for (i = table.rows.length; i < nbRows; i++) {
+				table.insertRow().insertCell();
 			}
-
-			// delete excess rows (if necessary)
-			for (i = tbody.children.length; i > nbRows; i--) {
-				tbody.removeChild(tbody.lastChild);
+			for (i = table.rows.length; i > nbRows; i--) {
+				table.deleteRow(-1);
 			}
 
 			// fill labels
 			var size = Math.ceil(this.hourSize / (60 / this.rowHeaderGridSlotDuration));
 			var d = new Date(2000, 0, 1, 0, 0, 0);
 
-			Array.prototype.forEach.call(tbody.children, function (tr, i) {
+			Array.prototype.forEach.call(table.rows, function (tr, i) {
 				var td = tr.firstChild;
 				td.className = "";
 
@@ -1053,29 +951,21 @@ define([
 
 			domStyle.set(table, "height", this.sheetHeight + "px");
 
-			var tbody = table.firstElementChild;
-			if (!tbody) {
-				tbody = domConstruct.create("tbody", null, table);
-			}
 
-
-
-			// Build time slots (if needed)
+			// Adjust the number of time slots to match nbRows.
 			var i;
 			var nbRows = Math.floor(60 / this.timeSlotDuration) * this.hourCount;
-			for (i = tbody.children.length; i < nbRows; i++) {
-				domConstruct.create("tr", null, tbody);
+			for (i = table.rows.length; i < nbRows; i++) {
+				table.insertRow();
 			}
-
-			// remove excess time slots (if necessary)
-			for (i = tbody.children.length; i > nbRows; i--) {
-				tbody.removeChild(tbody.lastChild);
+			for (i = table.rows.length; i > nbRows; i--) {
+				table.removeRow(i-1);
 			}
 
 			// Likewise, add or remove <td> for each <tr>.
-			Array.prototype.forEach.call(tbody.children, function (tr) {
+			Array.prototype.forEach.call(table.rows, function (tr) {
 				for (i = tr.children.length; i < this.columnCount; i++) {
-					domConstruct.create("td", null, tr);
+					tr.insertCell();
 				}
 				for (i = tr.children.length; i > this.columnCount; i--) {
 					tr.removeChild(tr.lastChild);
@@ -1083,12 +973,12 @@ define([
 			}, this);
 
 			// Set the CSS classes
-			Array.prototype.forEach.call(tbody.children, function (tr) {
+			Array.prototype.forEach.call(table.rows, function (tr, idx) {
 				domStyle.set(tr, "height", this.slotSize + "px");
 
 				// the minutes part of the time of day displayed by the current tr
-				var m = (i * this.timeSlotDuration) % 60;
-				var h = this.minHours + Math.floor((i * this.timeSlotDuration) / 60);
+				var m = (idx * this.timeSlotDuration) % 60;
+				var h = this.minHours + Math.floor((idx * this.timeSlotDuration) / 60);
 				Array.prototype.forEach.call(tr.children, function (td, col) {
 					td.className = "";
 					this.styleGridCell(td, this.dates[col], h, m);
@@ -1159,27 +1049,19 @@ define([
 			if (!table) {
 				return;
 			}
-			var tbody = table.firstElementChild;
-			if (!tbody) {
-				tbody = domConstruct.create("tbody", null, table);
-			}
-			var tr = tbody.firstElementChild;
-			if (!tr) {
-				tr = domConstruct.create("tr", null, tbody);
-			}
+
+			var tr = table.rows[0] || table.insertRow();
 
 
 			domStyle.set(table, "height", this.sheetHeight + "px");
 
 
-			// build new cells (if necessary)
+			// Adjust number of cells to equal this.columnCount.
 			var i;
 			for (i = tr.children.length; i < this.columnCount; i++) {
-				var td = domConstruct.create("td", null, tr);
+				var td = tr.insertCell();
 				domConstruct.create("div", {"className": "dojoxCalendarContainerColumn"}, td);
 			}
-
-			// remove excess cells (if necessary)
 			for (i = tr.children.length; i > this.columnCount; i--) {
 				tr.removeChild(tr.lastChild);
 			}
@@ -1190,8 +1072,8 @@ define([
 				var div = td.firstChild;
 				domStyle.set(div, "height", this.sheetHeight + "px");
 
-				// Create more dojoxCalendarSubContainerColumn (if necessary).
-				for (i = div.children.length; i < this.subColumnCount; i++) {
+				// Adjust the number of div.dojoxCalendarSubContainerColumn to equal subCount.
+				for (i = div.children.length; i < subCount; i++) {
 					var subdiv = domConstruct.create("div",
 						{"className": "dojoxCalendarSubContainerColumn"}, div);
 					domConstruct.create("div",
@@ -1199,9 +1081,7 @@ define([
 					domConstruct.create("div",
 						{"className": "dojoxCalendarEventContainerColumn"}, subdiv);
 				}
-
-				// Remove excess dojoxCalendarSubContainerColumn (if necessary).
-				for (i = div.children.length; i > this.subColumnCount; i--) {
+				for (i = div.children.length; i > subCount; i--) {
 					div.removeChild(div.lastChild);
 				}
 

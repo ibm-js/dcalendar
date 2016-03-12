@@ -163,11 +163,11 @@
 .dojoxCalendarMonthColumnView .dojoxCalendarColumnHeaderTable td:first-child {
   border-left: 1px solid #b1badf;
 }
-.dojoxCalendarMonthColumnView .dojoxCalendarColumnHeaderTable td.Hover {
+.dojoxCalendarMonthColumnView .dojoxCalendarColumnHeaderTable td:hover {
   cursor: pointer;
   background: #f9f9f9 url("images/accordionItemActive.png") top repeat-x;
 }
-.dojoxCalendarMonthColumnView .dojoxCalendarColumnHeaderTable td.Active {
+.dojoxCalendarMonthColumnView .dojoxCalendarColumnHeaderTable td:active {
   cursor: pointer;
 }
 .dojoxCalendarMonthColumnView .dojoxCalendarDecoration {

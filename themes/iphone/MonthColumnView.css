@@ -139,7 +139,7 @@
   -moz-transition-duration: 0.2s;
   transition-duration: 0.2s;
 }
-.dojoxCalendarMonthColumnView .dojoxCalendarColumnHeaderTable td.Hover {
+.dojoxCalendarMonthColumnView .dojoxCalendarColumnHeaderTable td:hover {
   cursor: pointer;
 }
 .dojoxCalendarMonthColumnView .dojoxCalendarEvent {

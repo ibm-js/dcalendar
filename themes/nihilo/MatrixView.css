@@ -196,10 +196,10 @@
 .dojoxCalendarMatrixView .dojoxCalendarRowHeaderTable td:last-child {
   border-bottom: 1px solid #cccccc;
 }
-.dojoxCalendarMatrixView .dojoxCalendarRowHeaderTable td.Hover {
+.dojoxCalendarMatrixView .dojoxCalendarRowHeaderTable td:hover {
   background-color: #f5f5f5;
 }
-.dojoxCalendarMatrixView .dojoxCalendarRowHeaderTable td.Active {
+.dojoxCalendarMatrixView .dojoxCalendarRowHeaderTable td:active {
   background-color: #cccccc;
 }
 .dojoxCalendarMatrixView .dojoxCalendarContainer {

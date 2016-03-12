@@ -160,14 +160,14 @@
 .dojoxCalendarMonthColumnView .dojoxCalendarColumnHeaderTable td:first-child {
   border-left: 1px solid #b5bcc7;
 }
-.dojoxCalendarMonthColumnView .dojoxCalendarColumnHeaderTable td.Hover {
+.dojoxCalendarMonthColumnView .dojoxCalendarColumnHeaderTable td:hover {
   cursor: pointer;
   background-image: url("images/titlebar.png");
   background-repeat: repeat-x;
   background-color: #abd6ff;
   border-color: #769dc0;
 }
-.dojoxCalendarMonthColumnView .dojoxCalendarColumnHeaderTable td.Active {
+.dojoxCalendarMonthColumnView .dojoxCalendarColumnHeaderTable td:active {
   cursor: pointer;
   background-color: #7dbefa;
   border-color: #769dc0;
