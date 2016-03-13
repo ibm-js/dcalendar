@@ -4,8 +4,6 @@
   border-top-right-radius: 5px;
   -webkit-border-top-left-radius: 5px;
   -webkit-border-top-right-radius: 5px;
-  -moz-border-top-right-radius: 5px;
-  -moz-border-top-left-radius: 5px;
   white-space: nowrap;
   padding: 1px 2px 2px 1px;
 }
@@ -114,8 +112,7 @@
   overflow: hidden;
   -moz-user-select: none;
   -webkit-user-select: none;
-  khtml-user-select: none;
-  user-select: none;
+  -ms-user-select: none;
 }
 .dojoxCalendarMonthColumnView .dojoxCalendarColumnHeader {
   position: absolute;
@@ -147,11 +144,9 @@
   border-bottom: 1px solid #b5bcc7;
   -moz-user-select: none;
   -webkit-user-select: none;
-  khtml-user-select: none;
-  user-select: none;
+  -ms-user-select: none;
   color: #000000;
   -webkit-transition-duration: 0.2s;
-  -moz-transition-duration: 0.2s;
   transition-duration: 0.2s;
 }
 .dojoxCalendarMonthColumnView .dojoxCalendarColumnHeaderTable td:last-child {
@@ -173,14 +168,12 @@
   border-color: #769dc0;
   background-position: 0 -136px;
   -webkit-transition-duration: 0s;
-  -moz-transition-duration: 0s;
   transition-duration: 0s;
 }
 .dojoxCalendarMonthColumnView .dojoxCalendarDecoration {
   display: block;
   position: absolute;
   background-color: #a71744;
-  filter: alpha(opacity=@ {op});
   opacity: 0.2;
 }
 .dojoxCalendarMonthColumnView .dojoxCalendarEvent {
@@ -201,9 +194,7 @@
   border: 1px solid #260000;
   border-radius: 5px;
   -webkit-border-radius: 5px;
-  -moz-border-radius: 5px;
   background-color: #9f0000;
-  filter: alpha(opacity=@ {op});
   opacity: 0.9;
 }
 .dojoxCalendarMonthColumnView .dojoxCalendarEvent .startTime {
@@ -227,12 +218,10 @@
 .dojoxCalendarMonthColumnView .dojoxCalendarEvent .handle {
   z-index: 2;
   background-color: #F00;
-  filter: alpha(opacity=@ {op});
   opacity: 0;
   -moz-user-select: none;
   -webkit-user-select: none;
-  khtml-user-select: none;
-  user-select: none;
+  -ms-user-select: none;
 }
 .dojoxCalendarMonthColumnView .dojoxCalendarEvent .moveHandle {
   position: absolute;
@@ -271,7 +260,6 @@
 }
 .dojoxCalendarMonthColumnView .dojoxCalendarEvent.Edited .bg {
   border: dashed 1px #FFFFFF;
-  filter: alpha(opacity=@ {op});
   opacity: 0.7;
 }
 .dojoxCalendarMonthColumnView .dojoxCalendarEvent.Focused .bg {
