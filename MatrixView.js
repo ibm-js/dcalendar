@@ -10,7 +10,6 @@ define([
 	"dojo/dom-style",
 	"dojo/dom-geometry",
 	"dojo/dom-construct",
-	"dojo/query!css2",
 	"dojo/i18n",
 	"./ViewBase",
 	"delite/handlebars!./templates/MatrixView.html"
@@ -26,7 +25,6 @@ define([
 	domStyle,
 	domGeometry,
 	domConstruct,
-	query,
 	i18n,
 	ViewBase,
 	template
@@ -627,7 +625,7 @@ define([
 				}
 				this._resizeTimer = setTimeout(function () {
 					delete this._resizeTimer;
-					this._resizeRowsImpl(this.itemContainer, "tr");
+					this._resizeRowsImpl(this.itemContainer);
 					this._layoutRenderers();
 					this._layoutDecorationRenderers();
 					if (this.resizeAnimationDuration === 0) {
@@ -809,13 +807,13 @@ define([
 			}
 
 			if (this.rowHeaderTable) {
-				this._resizeRowsImpl(this.rowHeaderTable, "tr");
+				this._resizeRowsImpl(this.rowHeaderTable);
 			}
 			if (this.gridTable) {
-				this._resizeRowsImpl(this.gridTable, "tr");
+				this._resizeRowsImpl(this.gridTable);
 			}
 			if (this.itemContainerTable) {
-				this._resizeRowsImpl(this.itemContainerTable, "tr");
+				this._resizeRowsImpl(this.itemContainerTable);
 			}
 		},
 
@@ -880,10 +878,10 @@ define([
 			}
 		},
 
-		_resizeRowsImpl: function (tableNode, qry) {
+		_resizeRowsImpl: function (tableNode) {
 			// tags:
 			//		private
-			query(qry, tableNode).forEach(function (tr, i) {
+			Array.protoype.forEach.call(tableNode.rows, function (tr, i) {
 				domStyle.set(tr, "height", this._getRowHeight(i) + "px");
 			}, this);
 		},

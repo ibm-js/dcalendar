@@ -14,7 +14,6 @@ define([
 	"dojo/dom-geometry",
 	"dojo/dom-construct",
 	"dojo/mouse",
-	"dojo/query!css2",
 	"dojo/i18n",
 	"./metrics"
 ], function (
@@ -33,7 +32,6 @@ define([
 	domGeometry,
 	domConstruct,
 	mouse,
-	query,
 	i18n,
 	metrics
 ) {
@@ -486,7 +484,7 @@ define([
 			}
 
 			// fill & configure
-			query("td", table).forEach(function (td, i) {
+			Array.prototype.forEach.call(tr.children, function (td, i) {
 				td.className = "";
 				td.index = i;
 				var d = this.dates[i][0];
@@ -549,7 +547,7 @@ define([
 						d = this.dates[col][row];
 					}
 
-					var span = query("span", td)[0];
+					var span = td.firstChild;
 					this._setText(span, this.showCellLabel ? this._formatGridCellLabel(d, row, col) : null);
 
 					this.styleGridCell(td, d, col, row);
@@ -639,14 +637,13 @@ define([
 				tr.removeChild(tr.lastChild);
 			}
 
-			var bgCols = [];
-			query("td > div", table).forEach(function (div) {
+			this.cells = Array.prototype.map.call(tr.children, function (td) {
+				var div = td.firstChild;
 				domStyle.set(div, {
 					"height": this.sheetHeight + "px"
 				});
-				bgCols.push(div);
+				return div;
 			}, this);
-			this.cells = bgCols;
 		},
 
 		///////////////////////////////////////////////////////////////
@@ -898,9 +895,9 @@ define([
 		},
 
 		refreshRendering: register.before(function () {
-			//make sure to clear hiddens object state
-			// TODO: query on td.dojoxCalendarHiddenEvents
-			query("td", this.gridTable).forEach(function (td) {
+			// make sure to clear hidden object state
+			Array.prototype.forEach.call(this.gridTable.querySelectorAll("td.dojoxCalendarHiddenEvents"),
+					function (td) {
 				domClass.remove(td, "dojoxCalendarHiddenEvents");
 			});
 		}),

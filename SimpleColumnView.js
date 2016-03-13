@@ -15,7 +15,6 @@ define([
 	"dojo/dom-geometry",
 	"dojo/dom-construct",
 	"dojo/mouse",
-	"dojo/query!css2",
 	"./metrics"
 ], function (
 	dcl,
@@ -34,7 +33,6 @@ define([
 	domGeometry,
 	domConstruct,
 	mouse,
-	query,
 	metrics
 ) {
 
@@ -769,27 +767,26 @@ define([
 			var subCount = this.subColumnCount;
 			Array.prototype.forEach.call(tr.children, function (td, i) {
 				td.className = "";
+				var div = td.firstChild;
 
-				query(".dojoxCalendarSubHeaderContainer", td).forEach(function (div, i) {
-					// Adjust the number of child <div>'s to match subCount.
-					for (i = div.children.length; i < subCount; i++) {
-						domConstruct.create("div", {
-							"className": "dojoxCalendarSubHeaderCell dojoxCalendarSubHeaderLabel"}, div);
-					}
-					for (i = div.children.length; i > subCount; i--) {
-						div.removeChild(div.lastChild);
-					}
+				// Adjust the number of child <div>'s to match subCount.
+				for (i = div.children.length; i < subCount; i++) {
+					domConstruct.create("div", {
+						"className": "dojoxCalendarSubHeaderCell dojoxCalendarSubHeaderLabel"}, div);
+				}
+				for (i = div.children.length; i > subCount; i--) {
+					div.removeChild(div.lastChild);
+				}
 
-					var colW = (100 / subCount) + "%";
-					Array.prototype.forEach.call(div.children, function (div, i) {
-						div.className = "dojoxCalendarSubHeaderCell dojoxCalendarSubHeaderLabel";
-						var col = subCount == 1 ? i : Math.floor(i / subCount);
-						var subColIdx = subCount == 1 ? 0 : i - col * subCount;
-						domStyle.set(div, {width: colW, left: ((subColIdx * 100) / subCount) + "%"});
-						domClass.toggle(div, "subColumn", subColIdx < subCount - 1 && subCount !== 1);
-						domClass.add(div, this.subColumns[subColIdx]);
-						this._setText(div, this.subColumnLabelFunc(this.subColumns[subColIdx]));
-					}, this);
+				var colW = (100 / subCount) + "%";
+				Array.prototype.forEach.call(div.children, function (div, i) {
+					div.className = "dojoxCalendarSubHeaderCell dojoxCalendarSubHeaderLabel";
+					var col = subCount == 1 ? i : Math.floor(i / subCount);
+					var subColIdx = subCount == 1 ? 0 : i - col * subCount;
+					domStyle.set(div, {width: colW, left: ((subColIdx * 100) / subCount) + "%"});
+					domClass.toggle(div, "subColumn", subColIdx < subCount - 1 && subCount !== 1);
+					domClass.add(div, this.subColumns[subColIdx]);
+					this._setText(div, this.subColumnLabelFunc(this.subColumns[subColIdx]));
 				}, this);
 
 				var d = this.dates[i];
@@ -897,7 +894,7 @@ define([
 
 			size = Math.ceil(this.hourSize / (60 / this.rowHeaderLabelSlotDuration));
 
-			query(">span", lc).forEach(function (span, i) {
+			Array.prototype.forEach.call(lc.children, function (span, i) {
 				d.setHours(0);
 				d.setMinutes(this.minHours * 60 + (i * this.rowHeaderLabelSlotDuration));
 				this._configureRowHeaderLabel(span, d, i, size * i);
@@ -1067,7 +1064,6 @@ define([
 			}
 
 			var subCount = this.subColumnCount;
-			var bgCols = [], decoCols = [];
 			Array.prototype.forEach.call(tr.children, function (td) {
 				var div = td.firstChild;
 				domStyle.set(div, "height", this.sheetHeight + "px");
@@ -1091,19 +1087,11 @@ define([
 					var subColIdx = subCount == 1 ? 0 : i - col * subCount;
 					domStyle.set(div, {width: colW, left: ((subColIdx * 100) / subCount) + "%"});
 					domClass.toggle(div, "subColumn", subColIdx < subCount - 1 && subCount !== 1);
-
-					query(".dojoxCalendarEventContainerColumn", div).forEach(function (eventContainer) {
-						bgCols.push(eventContainer);
-					}, this);
-
-					query(".dojoxCalendarDecorationContainerColumn", div).forEach(function (decoContainer) {
-						decoCols.push(decoContainer);
-					}, this);
 				}, this);
 			}, this);
 
-			this.cells = bgCols;
-			this.decorationCells = decoCols;
+			this.cells = tr.querySelectorAll(".dojoxCalendarEventContainerColumn");
+			this.decorationCells = tr.querySelectorAll(".dojoxCalendarDecorationContainerColumn");
 		},
 
 		// showTimeIndicator: Boolean
