@@ -1,12 +1,12 @@
 @import "ColumnViewCommon.less";
 
-.dojoxCalendarColumnView {
+.d-calendar-column-view {
 	display: block;
 	cursor: default;
 	-webkit-user-select: none;
 }
 
-.dojoxCalendarColumnView .dojoxCalendarHeader {
+.d-calendar-column-view .d-calendar-header {
 	position: absolute;
 	left: 0;
 	right: 0;
@@ -15,7 +15,7 @@
 	.border-box;
 }
 
-.dojoxCalendarColumnView .dojoxCalendarScrollContainer {
+.d-calendar-column-view .d-calendar-scroll-container {
 	left: 0;
 	right: 0;
 	bottom: 0;
@@ -28,13 +28,13 @@
 	.border-box;
 }
 
-.dojoxCalendarColumnView .dojoxCalendarGrid {
+.d-calendar-column-view .d-calendar-grid {
 	position: absolute;
 	left: @row-header-width;
 	right: 0;
 }
 
-.dojoxCalendarColumnView .dojoxCalendarGridTable {
+.d-calendar-column-view .d-calendar-grid-table {
 	border-collapse: collapse;
 	table-layout: fixed;
 	width: 100%;
@@ -43,36 +43,36 @@
 	padding: 0;
 }
 
-.dojoxCalendarColumnView .dojoxCalendarGridTable td {
+.d-calendar-column-view .d-calendar-grid-table td {
 	border-top: dotted 1px #B5BCC7;
 	border-right: @outer-border;
 	.border-box;
 }
 
-.dojoxCalendarColumnView td.hour {
+.d-calendar-column-view td.hour {
 	border-top: @hour-stroke;
 }
 
-.dojoxCalendarColumnView td.halfhour {
+.d-calendar-column-view td.half-hour {
 	border-top: @half-hour-stroke;
 }
 
-.dojoxCalendarColumnView  td.quarterhour {
+.d-calendar-column-view  td.quarter-hour {
 	border-top: @quarter-hour-stroke;
 }
 
-.dojoxCalendarColumnView span.hour {
+.d-calendar-column-view span.hour {
 	color: @label-color;
 	background-color: @row-color;
 }
 
-.dojoxCalendarColumnView span.halfhour,
-.dojoxCalendarColumnView span.quarterhour {
+.d-calendar-column-view span.half-hour,
+.d-calendar-column-view span.quarter-hour {
 	color: @secondary-label-color;
 	background-color: @row-color;
 }
 
-.dojoxCalendarColumnView .dojoxCalendarContainer {
+.d-calendar-column-view .d-calendar-container {
 	position: absolute;
 	top: 0;
 	left: @row-header-width;
@@ -92,7 +92,7 @@
 	}
 }
 
-.dojoxCalendarColumnView .dojoxCalendarContainerTable {
+.d-calendar-column-view .d-calendar-container-table {
 	border-collapse: collapse;
 	table-layout: fixed;
 	width: 100%;
@@ -101,42 +101,42 @@
 	padding: 0;
 }
 
-.dojoxCalendarColumnView .dojoxCalendarContainerTable td {
+.d-calendar-column-view .d-calendar-container-table td {
 	height: 100%;
 	padding: 0;
 	vertical-align: top;
 }
 
-.dojoxCalendarColumnView .dojoxCalendarContainerColumn {
+.d-calendar-column-view .d-calendar-container-column {
 	position: relative;
 	width:100%;
 }
 
-.dojoxCalendarColumnView .dojoxCalendarSubContainerColumn {
+.d-calendar-column-view .d-calendar-sub-container-column {
 	position: absolute;
 	top: 0;
 	box-sizing: border-box;
 	height:100%;
 }
 
-.dojoxCalendarColumnView .dojoxCalendarEventContainerColumn {
+.d-calendar-column-view .d-calendar-event-container-column {
 	position: relative;
 	height:100%;
 	margin-left: 1px;
 	margin-right: 5px;
 }
 
-.dojoxCalendarColumnView  .dojoxCalendarSubContainerColumn.subColumn {
+.d-calendar-column-view  .d-calendar-sub-container-column.sub-column {
 	border-right: @sub-column-border;
 }
 
-.dojoxCalendarColumnView .dojoxCalendarEventContainer {
+.d-calendar-column-view .d-calendar-event-container {
 	position: absolute;
 	overflow: hidden;
 	.select-none;
 }
 
-.dojoxCalendarColumnView .dojoxCalendarYearColumnHeader {
+.d-calendar-column-view .d-calendar-year-column-header {
 	position: absolute;
 	height: @column-header-height;
 	left: 0;
@@ -147,19 +147,19 @@
 	.border-box;
 }
 
-.dojoxCalendarColumnView .dojoxCalendarYearColumnHeader table {
+.d-calendar-column-view .d-calendar-year-column-header table {
 	position:relative;
 	width:100%;
 	height:100%;
 }
 
-.dojoxCalendarColumnView .dojoxCalendarYearColumnHeader table td {
+.d-calendar-column-view .d-calendar-year-column-header table td {
 	text-align: center;
 	vertical-align: middle;
 	color: @header-label-color;
 }
 
-.dojoxCalendarColumnView .dojoxCalendarColumnHeader {
+.d-calendar-column-view .d-calendar-column-header {
 	position: absolute;
 	height: @column-header-height;
 	left: @row-header-width;
@@ -168,7 +168,7 @@
 	cursor: default;
 }
 
-.dojoxCalendarColumnView .dojoxCalendarColumnHeaderTable {
+.d-calendar-column-view .d-calendar-column-header-table {
 	border-collapse: collapse;
 	table-layout: fixed;
 	position: relative;
@@ -178,7 +178,7 @@
 	height: 100%;
 }
 
-.dojoxCalendarColumnView .dojoxCalendarColumnHeaderTable td {
+.d-calendar-column-view .d-calendar-column-header-table td {
 	overflow:hidden;
 	white-space: nowrap;
 	vertical-align: middle;
@@ -193,14 +193,14 @@
 }
 
 /*
- * The dojoxCalendarToday & dojoxCalendarWeekend classes is added by the
+ * The d-calendar-today & d-calendar-weekend classes is added by the
  * ColumnView.styleColumnHeaderCell method that can be subclassed to add/remove css classes
  */
-.dojoxCalendarColumnView .dojoxCalendarColumnHeaderTable .dojoxCalendarToday {
+.d-calendar-column-view .d-calendar-column-header-table .d-calendar-today {
 	color: @today-label-color;
 }
 
-.dojoxCalendarColumnView .dojoxCalendarRowHeader {
+.d-calendar-column-view .d-calendar-row-header {
 	position: absolute;
 	width: @row-header-width;
 	cursor: default;
@@ -210,18 +210,18 @@
 	.border-box;
 }
 
-.dojoxCalendarColumnView .dojoxCalendarRowHeaderLabelContainer {
+.d-calendar-column-view .d-calendar-row-header-label-container {
 	width: 100%;
 	height: 100%;
 	z-index: 10;
 }
 
-.dojoxCalendarColumnView .dojoxCalendarRowHeaderLabel {
+.d-calendar-column-view .d-calendar-row-header-label {
 	right: 4px;
 	position: absolute;
 }
 
-.dojoxCalendarColumnView .dojoxCalendarRowHeaderTable {
+.d-calendar-column-view .d-calendar-row-header-table {
 	border-collapse: collapse;
 	table-layout: fixed;
 	position: relative;
@@ -234,23 +234,23 @@
 /*
  * The ColumnView.styleRowHeaderCell method that can be subclassed to add/remove css classes per hour.
  */
-.dojoxCalendarColumnView .dojoxCalendarRowHeaderTable td {
+.d-calendar-column-view .d-calendar-row-header-table td {
 	vertical-align: top;
 	text-align: right;
 	color: @header-label-color;
 	border-top: 1px solid transparent;
 }
 
-.dojoxCalendarColumnView .dojoxCalendarRowHeaderTable tr:first-child td	 {
+.d-calendar-column-view .d-calendar-row-header-table tr:first-child td {
 	border-top: 1px solid transparent;
 }
 
-.dojoxCalendarColumnView .dojoxCalendarRowHeaderTable td span {
+.d-calendar-column-view .d-calendar-row-header-table td span {
 	padding-top: 2px;
 	padding-right: 4px;
 }
 
-.dojoxCalendarColumnView .dojoxCalendarEvent {
+.d-calendar-column-view .d-calendar-event {
 	display: block;
 	position: absolute;
 	text-align: left;
@@ -258,7 +258,7 @@
 	cursor: default;
 }
 
-.dojoxCalendarColumnView .dojoxCalendarEvent .bg {
+.d-calendar-column-view .d-calendar-event .bg {
 	position: absolute;
 	left: 0;
 	right: 0;
@@ -271,53 +271,53 @@
 	.opacity(90);
 }
 
-.dojoxCalendarColumnView .dojoxCalendarEvent.Hovered .bg {
+.d-calendar-column-view .d-calendar-event.hovered .bg {
 	background-color: #CC0000;
 }
 
-.dojoxCalendarColumnView .dojoxCalendarEvent.Selected .bg {
+.d-calendar-column-view .d-calendar-event.selected .bg {
 	background-color: #660000;
 }
 
-.dojoxCalendarColumnView .dojoxCalendarEvent.Edited .bg {
+.d-calendar-column-view .d-calendar-event.edited .bg {
 	border: dashed 1px #FFFFFF;
 	.opacity(70);
 }
 
-.dojoxCalendarColumnView .dojoxCalendarEvent.Focused .bg {
+.d-calendar-column-view .d-calendar-event.focused .bg {
 	border: dashed 1px #FFFFFF;
 }
 
-.dojoxCalendarColumnView .dojoxCalendarEvent .summary {
+.d-calendar-column-view .d-calendar-event .summary {
 }
 
-.dojoxCalendarColumnView .dojoxCalendarEvent .startTime {
+.d-calendar-column-view .d-calendar-event .start-time {
 	font-weight: bold;
 }
 
-.dojoxCalendarColumnView .dojoxCalendarEvent .endTime {
+.d-calendar-column-view .d-calendar-event .end-time {
 	position: absolute;
 	font-weight: bold;
 	bottom:10px;
 	left: 3px;
 }
 
-.dojoxCalendarColumnView .dojoxCalendarEvent .beforeIcon {
+.d-calendar-column-view .d-calendar-event .before-icon {
 	text-align: center;
 }
 
-.dojoxCalendarColumnView .dojoxCalendarEvent .afterIcon {
+.d-calendar-column-view .d-calendar-event .after-icon {
 	position: absolute;
 	bottom: 2px;
 	width: 100%;
 	text-align: center;
 }
 
-.dojoxCalendarColumnView .dojoxCalendarEvent .handle {
+.d-calendar-column-view .d-calendar-event .handle {
 	.glass-view;
 }
 
-.dojoxCalendarEvent .resizeHandle div {
+.d-calendar-event .resize-handle div {
 	position:absolute;
 	left: 3px;
 	right: 3px;
@@ -328,11 +328,11 @@
 	.rounded-corners(5px);
 }
 
-.dojoxCalendarEvent .resizeHandle div:active {
+.d-calendar-event .resize-handle div:active {
 	.opacity(60);
 }
 
-.dojoxCalendarColumnView .dojoxCalendarEvent .moveHandle {
+.d-calendar-column-view .d-calendar-event .move-handle {
 	position: absolute;
 	top:0;
 	width:100%;
@@ -340,7 +340,7 @@
 	cursor:move;
 }
 
-.dojoxCalendarColumnView .dojoxCalendarEvent .resizeStartHandle {
+.d-calendar-column-view .d-calendar-event .resize-start-handle {
 	position: absolute;
 	top:0;
 	left: 0;
@@ -349,7 +349,7 @@
 	z-index: 2;
 }
 
-.dojoxCalendarColumnView .dojoxCalendarEvent .resizeEndHandle {
+.d-calendar-column-view .d-calendar-event .resize-end-handle {
 	position: absolute;
 	bottom:0;
 	left: 0;
@@ -358,21 +358,21 @@
 	z-index: 2;
 }
 
-.dojoxCalendarColumnView .dojoxCalendarEvent dl {
+.d-calendar-column-view .d-calendar-event dl {
 	margin: 0;
 }
 
-.dojoxCalendarColumnView .dojoxCalendarEvent dd {
+.d-calendar-column-view .d-calendar-event dd {
 	margin: 0;
 	padding: 0 3px;
 	text-align: left;
 }
 
-.dojoxCalendarEvent.Edited dd {
+.d-calendar-event.edited dd {
 	margin-top: 7px
 }
 
-.dojoxCalendarColumnView .dojoxCalendarVScrollBar {
+.d-calendar-column-view .d-calendar-v-scroll-bar {
 	display: block;
 	position: absolute;
 	top: @sheet-top;
@@ -381,7 +381,7 @@
 	overflow-x: hidden;
 }
 
-.dojoxCalendarColumnView .dojoxCalendarColumnViewSecondarySheet {
+.d-calendar-column-view .d-calendar-column-view-secondary-sheet {
 	position: absolute;
 	left: 0;
 	right: 0;
@@ -389,7 +389,7 @@
 	height: @secondary-sheet-height;
 }
 
-.dojoxCalendarColumnView .dojoxCalendarColumnViewSecondarySheet .dojoxCalendarGrid {
+.d-calendar-column-view .d-calendar-column-view-secondary-sheet .d-calendar-grid {
 	position: absolute;
 	left: @row-header-width;
 	right: 0;
@@ -398,7 +398,7 @@
 	.border-box;
 }
 
-.dojoxCalendarColumnView .dojoxCalendarColumnViewSecondarySheet .dojoxCalendarContainer {
+.d-calendar-column-view .d-calendar-column-view-secondary-sheet .d-calendar-container {
 	position: absolute;
 	top: 0;
 	left: @row-header-width;
@@ -407,7 +407,7 @@
 	cursor: default;
 }
 
-.dojoxCalendarColumnView .dojoxCalendarColumnViewSecondarySheet .dojoxCalendarRowHeader {
+.d-calendar-column-view .d-calendar-column-view-secondary-sheet .d-calendar-row-header {
 	position: absolute;
 	left: 0;
 	top: 0;
@@ -419,7 +419,7 @@
 	.border-box;
 }
 
-.dojoxCalendarColumnView .dojoxCalendarColumnViewSecondarySheet .dojoxCalendarGridTable td {
+.d-calendar-column-view .d-calendar-column-view-secondary-sheet .d-calendar-grid-table td {
 	text-align: right;
 	vertical-align: top;
 	border-top: @inner-border;
@@ -428,21 +428,21 @@
 	.border-box;
 }
 
-.dojoxCalendarColumnView .dojoxCalendarColumnViewSecondarySheet .dojoxCalendarGridTable tr:last-child td	 {
+.d-calendar-column-view .d-calendar-column-view-secondary-sheet .d-calendar-grid-table tr:last-child td {
 	border-bottom: @outer-border;
 }
 
-.dojoxCalendarColumnView .dojoxCalendarColumnViewSecondarySheet .dojoxCalendarGridTable td:last-child	 {
+.d-calendar-column-view .d-calendar-column-view-secondary-sheet .d-calendar-grid-table td:last-child {
 	border-right: @outer-border;
 }
 
-.dojoxCalendarColumnView .dojoxCalendarColumnViewSecondarySheet .dojoxCalendarRowHeaderTable td {
+.d-calendar-column-view .d-calendar-column-view-secondary-sheet .d-calendar-row-header-table td {
 	border-top: @inner-border;
 	border-right: @outer-border;
 	border-bottom: @outer-border;
 }
 
-.dojoxCalendarColumnView .dojoxCalendarColumnViewSecondarySheet .dojoxCalendarEvent.dojoxHorizontal .labels {
+.d-calendar-column-view .d-calendar-column-view-secondary-sheet .d-calendar-event.dojoxHorizontal .labels {
 	position: absolute;
 	left: 3px;
 	right: 1px;
@@ -450,12 +450,12 @@
 	overflow: hidden;
 }
 
-.dojoxCalendarColumnView .dojoxCalendarColumnViewSecondarySheet .dojoxCalendarEvent.dojoxHorizontal.Edited .labels {
+.d-calendar-column-view .d-calendar-column-view-secondary-sheet .d-calendar-event.dojoxHorizontal.edited .labels {
 	left: 33px;
 	right: 31px;
 }
 
-.dojoxCalendarColumnView .dojoxCalendarColumnViewSecondarySheet .dojoxCalendarEvent.dojoxLabel .labels {
+.d-calendar-column-view .d-calendar-column-view-secondary-sheet .d-calendar-event.dojoxLabel .labels {
 	position: absolute;
 	left: 2px;
 	right: 2px;
@@ -463,7 +463,7 @@
 	overflow: hidden;
 }
 
-.dojoxCalendarColumnView .dojoxCalendarColumnViewSecondarySheet .dojoxCalendarEvent .resizeHandle {
+.d-calendar-column-view .d-calendar-column-view-secondary-sheet .d-calendar-event .resize-handle {
 	top: auto;
 	text-align: auto;
 	position: absolute;
@@ -476,7 +476,7 @@
 	text-align: center;
 }
 
-.dojoxCalendarColumnView .dojoxCalendarColumnViewSecondarySheet .dojoxCalendarEvent .resizeHandle div {
+.d-calendar-column-view .d-calendar-column-view-secondary-sheet .d-calendar-event .resize-handle div {
 	position:auto;
 	width: auto;
 	height: auto;
@@ -490,19 +490,19 @@
 }
 
 
-.dojoxCalendarColumnView .dojoxCalendarColumnViewSecondarySheet .dojoxCalendarEvent .resizeStartHandle span {
+.d-calendar-column-view .d-calendar-column-view-secondary-sheet .d-calendar-event .resize-start-handle span {
 	position: absolute;
 	bottom: 2px;
 	left: 10px;
 }
 
-.dojoxCalendarColumnView .dojoxCalendarColumnViewSecondarySheet .dojoxCalendarEvent .resizeEndHandle span {
+.d-calendar-column-view .d-calendar-column-view-secondary-sheet .d-calendar-event .resize-end-handle span {
 	position: absolute;
 	bottom: 2px;
 	left: 10px;
 }
 
-.dojoxCalendarColumnView .dojoxCalendarColumnViewSecondarySheet .dojoxCalendarEvent .moveHandle {
+.d-calendar-column-view .d-calendar-column-view-secondary-sheet .d-calendar-event .move-handle {
 
 	position: absolute;
 	left:0;
@@ -511,36 +511,36 @@
 	right:0;
 }
 
-.dojoxCalendarColumnView .dojoxCalendarColumnViewSecondarySheet .dojoxCalendarEvent .resizeStartHandle {
+.d-calendar-column-view .d-calendar-column-view-secondary-sheet .d-calendar-event .resize-start-handle {
 	right: auto;
 }
 
-.dojoxCalendarColumnView .dojoxCalendarColumnViewSecondarySheet .dojoxCalendarEvent .resizeEndHandle {
+.d-calendar-column-view .d-calendar-column-view-secondary-sheet .d-calendar-event .resize-end-handle {
 	right:0px;
 	left:auto;
 }
 
-.dojoxCalendarColumnView .dojoxCalendarColumnViewSecondarySheet .dojoxCalendarEvent.Edited .resizeHandle {
+.d-calendar-column-view .d-calendar-column-view-secondary-sheet .d-calendar-event.edited .resize-handle {
 	.opacity(30);
 }
 
-.dojoxCalendarColumnView .dojoxCalendarColumnViewSecondarySheet .dojoxCalendarEvent .afterIcon {
+.d-calendar-column-view .d-calendar-column-view-secondary-sheet .d-calendar-event .after-icon {
 	width:auto;
 }
 
-.dojoxCalendarColumnView .dojoxCalendarColumnViewSecondarySheet .dojoxCalendarEvent .endTime {
+.d-calendar-column-view .d-calendar-column-view-secondary-sheet .d-calendar-event .end-time {
 	position: relative;
 	bottom:auto;
 	left: auto;
 }
 
-.dojoxCalendarColumnView .dojoxCalendarColumnViewSecondarySheet .dojoxCalendarExpand {
+.d-calendar-column-view .d-calendar-column-view-secondary-sheet .d-calendar-expand {
 	display: block;
 	position: absolute;
 	text-align: center;
 }
 
-.dojoxCalendarColumnView .dojoxCalendarColumnViewSecondarySheet .dojoxCalendarExpand .bg {
+.d-calendar-column-view .d-calendar-column-view-secondary-sheet .d-calendar-expand .bg {
 	position: relative;
 	margin-right: 10%;
 	margin-left: 10%;
@@ -554,16 +554,16 @@
 	transition-duration: 0.2s;
 }
 
-.dojoxCalendarColumnView .dojoxCalendarColumnViewSecondarySheet .dojoxCalendarExpand.Up .bg {
+.d-calendar-column-view .d-calendar-column-view-secondary-sheet .d-calendar-expand.up .bg {
 	background-color: @expand-up-color;
 	border: @inner-border;
 }
 
-.dojoxCalendarColumnView .dojoxCalendarColumnViewSecondarySheet .dojoxCalendarExpand.Down .bg {
+.d-calendar-column-view .d-calendar-column-view-secondary-sheet .d-calendar-expand.down .bg {
 	background-color: @expand-down-color;
 	border: @inner-border;
 }
 
-.dojoxCalendarColumnView .dojoxCalendarColumnViewSecondarySheet .dojoxCalendarEvent div {
+.d-calendar-column-view .d-calendar-column-view-secondary-sheet .d-calendar-event div {
 	white-space:nowrap;
 }

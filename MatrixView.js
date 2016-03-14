@@ -63,7 +63,7 @@ define([
 
 		template: template,
 
-		baseClass: "dojoxCalendarMatrixView",
+		baseClass: "d-calendar-matrix-view",
 
 		// viewKind: String
 		//		Type of the view. Used by the calendar widget to determine how to configure the view.
@@ -381,7 +381,7 @@ define([
 		styleColumnHeaderCell: function (node, date) {
 			// summary:
 			//		Styles the CSS classes to the node that displays a column header cell.
-			//		By default this method is setting the "dojoxCalendarWeekend"
+			//		By default this method is setting the "d-calendar-weekend"
 			//		if the day of week represents a weekend.
 			// node: Node
 			//		The DOM node that displays the column in the grid.
@@ -393,7 +393,7 @@ define([
 			domClass.add(node, this._cssDays[date.getDay()]);
 
 			if (this.isWeekEnd(date)) {
-				domClass.add(node, "dojoxCalendarWeekend");
+				domClass.add(node, "d-calendar-weekend");
 			}
 		},
 
@@ -509,9 +509,9 @@ define([
 			// summary:
 			//		Styles the CSS classes to the node that displays a cell.
 			//		By default this method is setting the following CSS classes:
-			//		- "dojoxCalendarToday" class name if the date displayed is the current date,
-			//		- "dojoxCalendarWeekend" if the date represents a weekend or
-			//		- "dojoxCalendarDayDisabled" if the date is out of the [refStartTime, refEndTime] interval.
+			//		- "d-calendar-today" class name if the date displayed is the current date,
+			//		- "d-calendar-weekend" if the date represents a weekend or
+			//		- "d-calendar-day-disabled" if the date is out of the [refStartTime, refEndTime] interval.
 			//		- the CSS class corresponding of the displayed day of week ("Sun", "Mon" and so on).
 			// node: Node
 			//		The DOM node that displays the cell in the grid.
@@ -524,13 +524,13 @@ define([
 
 			var cal = this.dateModule;
 			if (this.isToday(date)) {
-				domClass.add(node, "dojoxCalendarToday");
+				domClass.add(node, "d-calendar-today");
 			} else if (this.refStartTime != null && this.refEndTime != null &&
 				(cal.compare(date, this.refEndTime) >= 0 ||
 				cal.compare(cal.add(date, "day", 1), this.refStartTime) <= 0)) {
-				domClass.add(node, "dojoxCalendarDayDisabled");
+				domClass.add(node, "d-calendar-day-disabled");
 			} else if (this.isWeekEnd(date)) {
-				domClass.add(node, "dojoxCalendarWeekend");
+				domClass.add(node, "d-calendar-weekend");
 			}
 		},
 
@@ -566,10 +566,10 @@ define([
 			var i;
 			for (i = table.rows.length; i < this.rowCount; i++) {
 				var tr = table.insertRow();
-				tr.className = "dojoxCalendarItemContainerRow";
+				tr.className = "d-calendar-item-container-row";
 				var td = tr.insertCell();
 				var div = domConstruct.create("div", null, td);
-				div.className = "dojoxCalendarContainerRow";
+				div.className = "d-calendar-container-row";
 			}
 			for (i = table.rows.length; i > this.rowCount; i--) {
 				table.deleteRow(-1);
@@ -1445,7 +1445,7 @@ define([
 					if (posY + irHeight <= maxH) {
 
 						ir = this._createRenderer(item, "horizontal", this.horizontalRenderer,
-							"dojoxCalendarHorizontal");
+							"d-calendar-horizontal");
 
 						var fullHeight = this.isItemBeingEdited(item) && !this.liveLayout && this._isEditing;
 						h = fullHeight ? cellH - this.cellPaddingTop : irHeight;
@@ -1472,7 +1472,7 @@ define([
 					}
 				} else { //itemsType === "decorationItems"
 					ir = this.decorationRendererManager.createRenderer(item, "horizontal",
-						this.horizontalDecorationRenderer, "dojoxCalendarDecoration");
+						this.horizontalDecorationRenderer, "d-calendar-decoration");
 
 					h = cellH;
 					w = item.end - item.start;
@@ -1525,7 +1525,7 @@ define([
 								end: left + celPos.w
 							});
 
-							var ir = this._createRenderer(item, "label", this.labelRenderer, "dojoxCalendarLabel");
+							var ir = this._createRenderer(item, "label", this.labelRenderer, "d-calendar-label");
 
 							var fullHeight = this.isItemBeingEdited(item) && !this.liveLayout && this._isEditing;
 							var h = fullHeight ? this._getRowHeight(index) - this.cellPaddingTop : irHeight;

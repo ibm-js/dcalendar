@@ -19,20 +19,19 @@ define([
 ) {
 
 	return register("d-calendar-column-view", [SimpleColumnView], {
-
 		// summary:
-		//		This class defines a simple column view that also uses a secondary
+		//		This class extends SimpleColumnView by adding a secondary
 		//		sheet to display long or all day events.
-		//		By default an dojox.calendar.ColumnViewSecondarySheet instance is created.
+		//		By default a dcalendar/ColumnViewSecondarySheet instance is created.
 		//		Set the secondarySheetClass property to define the class to instantiate,
 		//		for example to mix the default class with Mouse, Keyboard or Touch plugins.
 
 		template: template,
 
-		baseClass: "dojoxCalendarColumnView",
+		baseClass: "d-calendar-column-view",
 
 		// secondarySheetClass: Class
-		//		The secondary sheet class, by default dojox.calendar.ColumnViewSecondarySheet.
+		//		The secondary sheet class, by default dcalendar/ColumnViewSecondarySheet.
 		secondarySheetClass: ColumnViewSecondarySheet,
 
 		// secondarySheetProps: Object
@@ -182,7 +181,7 @@ define([
 					domStyle.set(this.secondarySheet, atRight ? "left" : "right", "0");
 
 					this.secondarySheet._hScrollNodes.forEach(function (elt) {
-						domClass.toggle(elt.parentNode, "dojoxCalendarHorizontalScroll", this.hScrollBarEnabled);
+						domClass.toggle(elt.parentNode, "d-calendar-horizontal-scroll", this.hScrollBarEnabled);
 					}, this);
 				}
 			};

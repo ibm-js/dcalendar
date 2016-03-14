@@ -55,7 +55,7 @@ define([
 		//		The month column view is a calendar view used to display a month per column
 		//		where each cell of the column is a day.
 
-		baseClass: "dojoxCalendarMonthColumnView",
+		baseClass: "d-calendar-month-column-view",
 
 		template: template,
 
@@ -565,8 +565,8 @@ define([
 			// summary:
 			//		Styles the CSS classes to the node that displays a column.
 			//		By default this method is setting the following CSS classes:
-			//		- "dojoxCalendarToday" class name if the date displayed is the current date,
-			//		- "dojoxCalendarWeekend" if the date represents a weekend,
+			//		- "d-calendar-today" class name if the date displayed is the current date,
+			//		- "d-calendar-weekend" if the date represents a weekend,
 			//		- the CSS class corresponding of the displayed day of week ("Sun", "Mon" and so on),
 			// node: Node
 			//		The DOM node that displays the cell in the grid.
@@ -584,9 +584,9 @@ define([
 			}
 			domClass.add(node, this._cssDays[date.getDay()]);
 			if (this.isToday(date)) {
-				domClass.add(node, "dojoxCalendarToday");
+				domClass.add(node, "d-calendar-today");
 			} else if (this.isWeekEnd(date)) {
-				domClass.add(node, "dojoxCalendarWeekend");
+				domClass.add(node, "d-calendar-weekend");
 			}
 		},
 
@@ -631,7 +631,7 @@ define([
 			var i;
 			for (i = tr.children.length; i < this.columnCount; i++) {
 				var td = tr.insertCell();
-				domConstruct.create("div", {"className": "dojoxCalendarContainerColumn"}, td);
+				domConstruct.create("div", {"className": "d-calendar-container-column"}, td);
 			}
 			for (i = tr.children.length; i > this.columnCount; i--) {
 				tr.removeChild(tr.lastChild);
@@ -834,7 +834,7 @@ define([
 						w = extent == 1 ? w : w * ( extent - (extent - 1) * hOverlap);
 					}
 
-					ir = this._createRenderer(item, "vertical", this.verticalRenderer, "dojoxCalendarVertical");
+					ir = this._createRenderer(item, "vertical", this.verticalRenderer, "d-calendar-vertical");
 
 					domStyle.set(ir.container, {
 						"top": item.start + "px",
@@ -868,7 +868,7 @@ define([
 					renderer.deliver();
 				} else { //itemsType === "decorationItems"
 					ir = this.decorationRendererManager.createRenderer(item, "vertical",
-						this.verticalDecorationRenderer, "dojoxCalendarDecoration");
+						this.verticalDecorationRenderer, "d-calendar-decoration");
 
 					domStyle.set(ir.container, {
 						"top": item.start + "px",
@@ -896,9 +896,9 @@ define([
 
 		refreshRendering: register.before(function () {
 			// make sure to clear hidden object state
-			Array.prototype.forEach.call(this.gridTable.querySelectorAll("td.dojoxCalendarHiddenEvents"),
+			Array.prototype.forEach.call(this.gridTable.querySelectorAll("td.d-calendar-hidden-events"),
 					function (td) {
-				domClass.remove(td, "dojoxCalendarHiddenEvents");
+				domClass.remove(td, "d-calendar-hidden-events");
 			});
 		}),
 
@@ -930,7 +930,7 @@ define([
 			for (var row in bgItems) {
 				if (bgItems[row]) {
 					var node = this._getCellAt(row, col, false);
-					domClass.add(node, "dojoxCalendarHiddenEvents");
+					domClass.add(node, "d-calendar-hidden-events");
 				}
 			}
 		},

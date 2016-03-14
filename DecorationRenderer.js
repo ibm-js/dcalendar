@@ -9,7 +9,7 @@ define([
 		// summary:
 		//		The default item vertical renderer.
 
-		baseClass: "dojoxCalendarDecoration",
+		baseClass: "d-calendar-decoration",
 
 		// TODO: replace this method with class={{item.cssClass}} template? (or with null handling,
 		// if needed)

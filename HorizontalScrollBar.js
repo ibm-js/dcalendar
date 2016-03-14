@@ -11,7 +11,7 @@ define([
 	 */
 	return register("d-calendar-horizontal-scrollbar", [VerticalScrollBar], {
 
-		baseClass: "dojoxCalendarHScrollBar",
+		baseClass: "d-calendar-h-scroll-bar",
 
 		// direction: String
 		//		Direction of the scroll bar. Valid values are "vertical" or "horizontal".

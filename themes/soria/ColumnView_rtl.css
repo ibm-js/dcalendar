@@ -7,137 +7,137 @@
   white-space: nowrap;
   padding: 1px 2px 2px 1px;
 }
-.dojoxCalendarColumnView.d-rtl .dojoxCalendarScrollContainer {
+.d-calendar-column-view.d-rtl .d-calendar-scroll-container {
   border-left: none;
   border-right: none;
 }
-.dojoxCalendarColumnView.d-rtl .dojoxCalendarGrid {
+.d-calendar-column-view.d-rtl .d-calendar-grid {
   left: 0;
   right: 70px;
 }
-.dojoxCalendarColumnView.d-rtl .dojoxCalendarGridTable td {
+.d-calendar-column-view.d-rtl .d-calendar-grid-table td {
   border-left: 1px solid #b1badf;
   border-right: none;
 }
-.dojoxCalendarColumnView.d-rtl .dojoxCalendarContainer {
+.d-calendar-column-view.d-rtl .d-calendar-container {
   left: 0;
   right: 70px;
 }
-.dojoxCalendarColumnView.d-rtl .dojoxCalendarEventContainerColumn {
+.d-calendar-column-view.d-rtl .d-calendar-event-container-column {
   margin-right: 2px;
   margin-left: 7px;
 }
-.dojoxCalendarColumnView.d-rtl .dojoxCalendarSubColumnBorder.subColumn {
+.d-calendar-column-view.d-rtl .d-calendar-sub-column-border.sub-column {
   border-right: none;
   border-left: 1px solid #dddddd;
 }
-.dojoxCalendarColumnView.d-rtl .dojoxCalendarYearColumnHeader {
+.d-calendar-column-view.d-rtl .d-calendar-year-column-header {
   right: 0;
   width: 68px;
 }
-.dojoxCalendarColumnView.d-rtl .dojoxCalendarColumnHeader {
+.d-calendar-column-view.d-rtl .d-calendar-column-header {
   left: 0;
   right: 70px;
 }
-.dojoxCalendarColumnView.d-rtl .dojoxCalendarColumnHeaderTable td {
+.d-calendar-column-view.d-rtl .d-calendar-column-header-table td {
   border-right: none;
   border-left: 1px solid #bfbfbf;
 }
-.dojoxCalendarColumnView.d-rtl .dojoxCalendarColumnHeaderTable td:last-child {
+.d-calendar-column-view.d-rtl .d-calendar-column-header-table td:last-child {
   border-right: none;
   border-left: 1px solid #b1badf;
 }
-.dojoxCalendarColumnView.d-rtl .dojoxCalendarSubColumnHeader {
+.d-calendar-column-view.d-rtl .d-calendar-sub-column-header {
   right: 70px;
   left: 0;
 }
-.dojoxCalendarColumnView.d-rtl .dojoxCalendarSubRowHeader {
+.d-calendar-column-view.d-rtl .d-calendar-subrow-header {
   left: auto;
   right: 0;
 }
-.dojoxCalendarColumnView.d-rtl .dojoxCalendarSubColumnHeaderTable {
+.d-calendar-column-view.d-rtl .d-calendar-sub-column-header-table {
   border-left: 1px solid #b1badf;
   border-right: none;
 }
-.dojoxCalendarColumnView.d-rtl .dojoxCalendarSubColumnHeaderTable table.subColumn td {
+.d-calendar-column-view.d-rtl .d-calendar-sub-column-header-table table.sub-column td {
   border-left: none;
   border-right: none;
 }
-.dojoxCalendarColumnView.d-rtl .dojoxCalendarSubColumnHeaderTable td {
+.d-calendar-column-view.d-rtl .d-calendar-sub-column-header-table td {
   border-left: 1px solid #bfbfbf;
   border-right: none;
 }
-.dojoxCalendarColumnView.d-rtl .dojoxCalendarSubColumnHeaderTable td:last-child {
+.d-calendar-column-view.d-rtl .d-calendar-sub-column-header-table td:last-child {
   border-left: 1px solid #b1badf;
   border-right: none;
 }
-.dojoxCalendarColumnView.d-rtl .dojoxCalendarRowHeaderLabel {
+.d-calendar-column-view.d-rtl .d-calendar-row-header-label {
   right: auto;
   left: 4px;
 }
-.dojoxCalendarColumnView.d-rtl .dojoxCalendarEvent .summary {
+.d-calendar-column-view.d-rtl .d-calendar-event .summary {
   text-align: right;
 }
-.dojoxCalendarColumnView.d-rtl .dojoxCalendarEvent .startTime {
+.d-calendar-column-view.d-rtl .d-calendar-event .start-time {
   text-align: right;
 }
-.dojoxCalendarColumnView.d-rtl .dojoxCalendarEvent .endTime {
+.d-calendar-column-view.d-rtl .d-calendar-event .end-time {
   text-align: right;
 }
-.dojoxCalendarColumnView.d-rtl .dojoxCalendarVScrollBar {
+.d-calendar-column-view.d-rtl .d-calendar-v-scroll-bar {
   margin-left: -1px;
 }
-.dojoxCalendarColumnView.d-rtl .dojoxCalendarGrid {
+.d-calendar-column-view.d-rtl .d-calendar-grid {
   right: 70px;
   left: 0;
 }
-.dojoxCalendarColumnView.d-rtl .dojoxCalendarGridTable td {
+.d-calendar-column-view.d-rtl .d-calendar-grid-table td {
   text-align: left;
   border-bottom: 1px solid #bfbfbf;
   border-left: 1px solid #bfbfbf;
   border-right: none;
 }
-.dojoxCalendarColumnView.d-rtl .dojoxCalendarGridTable td span {
+.d-calendar-column-view.d-rtl .d-calendar-grid-table td span {
   padding-left: 2px;
 }
-.dojoxCalendarColumnView.d-rtl .dojoxCalendarGridTable td:last-child {
+.d-calendar-column-view.d-rtl .d-calendar-grid-table td:last-child {
   border-left: 1px solid #b1badf;
 }
-.dojoxCalendarColumnView.d-rtl .dojoxCalendarContainer {
+.d-calendar-column-view.d-rtl .d-calendar-container {
   right: 70px;
   left: 0;
 }
-.dojoxCalendarColumnView.d-rtl .dojoxCalendarContainerTable td {
+.d-calendar-column-view.d-rtl .d-calendar-container-table td {
   border-bottom: solid 1px transparent;
   border-right: solid 1px transparent;
   text-align: right;
   vertical-align: top;
 }
-.dojoxCalendarColumnView.d-rtl .dojoxCalendarYearColumnHeader {
+.d-calendar-column-view.d-rtl .d-calendar-year-column-header {
   position: absolute;
   right: 0;
   left: auto;
 }
-.dojoxCalendarColumnView.d-rtl .dojoxCalendarColumnHeader {
+.d-calendar-column-view.d-rtl .d-calendar-column-header {
   right: 70px;
   left: 0;
 }
-.dojoxCalendarColumnView.d-rtl .dojoxCalendarColumnViewSecondarySheet .dojoxCalendarColumnHeaderTable td {
+.d-calendar-column-view.d-rtl .d-calendar-column-view-secondary-sheet .d-calendar-column-header-table td {
   border-left: 1px solid #b1badf;
   border-right: none;
 }
-.dojoxCalendarColumnView.d-rtl .dojoxCalendarRowHeader {
+.d-calendar-column-view.d-rtl .d-calendar-row-header {
   right: 0;
   left: auto;
 }
-.dojoxCalendarColumnView.d-rtl .dojoxCalendarEvent .resizeStartHandle {
+.d-calendar-column-view.d-rtl .d-calendar-event .resize-start-handle {
   right: 0;
 }
-.dojoxCalendarColumnView.d-rtl .dojoxCalendarEvent .resizeEndHandle {
+.d-calendar-column-view.d-rtl .d-calendar-event .resize-end-handle {
   left: 0;
   right: auto;
 }
-.dojoxCalendarColumnView.d-rtl .dojoxCalendarEvent.dojoxCalendarHorizontal .labels {
+.d-calendar-column-view.d-rtl .d-calendar-event.d-calendar-horizontal .labels {
   text-align: right;
   right: 2px;
 }

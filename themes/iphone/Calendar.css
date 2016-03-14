@@ -1,9 +1,9 @@
 @import url("MatrixView.css");
 @import url("ColumnView.css");
-.dojoxCalendar {
+.d-calendar {
   display: block;
 }
-.dojoxCalendar .buttonContainer {
+.d-calendar .button-container {
   position: absolute;
   left: 0;
   right: 0;
@@ -11,7 +11,7 @@
   height: 32px;
   text-align: center;
 }
-.dojoxCalendar .viewContainer {
+.d-calendar .view-container {
   position: absolute;
   left: 0;
   right: 0;
@@ -19,7 +19,7 @@
   bottom: 32px;
   height: auto;
 }
-.dojoxCalendar .view {
+.d-calendar .view {
   position: absolute;
   left: 0;
   right: 0;

@@ -53,7 +53,7 @@ define([
 		// summary:
 		//		The simple column view is displaying a day per column. Each cell of a column is a time slot.
 
-		baseClass: "dojoxCalendarColumnView",
+		baseClass: "d-calendar-column-view",
 
 		template: template,
 
@@ -561,8 +561,8 @@ define([
 				domStyle.set(this.secondarySheet, "display", this._showSecondarySheet ? "block" : "none");
 			}
 
-			domClass.toggle(this, "subColumns", this.subColumns);
-			domClass.toggle(this, "secondarySheet", this._showSecondarySheet);
+			domClass.toggle(this, "sub-columns", this.subColumns);
+			domClass.toggle(this, "secondary-sheet", this._showSecondarySheet);
 		},
 
 		_commitProperties: function () {
@@ -603,7 +603,7 @@ define([
 
 			if (this.hScrollBar) {
 				this._hScrollNodes.forEach(function (elt) {
-					domClass.toggle(elt.parentNode,"dojoxCalendarHorizontalScroll", this.hScrollBarEnabled);
+					domClass.toggle(elt.parentNode,"d-calendar-horizontal-scroll", this.hScrollBarEnabled);
 				}, this);
 
 				if (!this.hScrollBarEnabled) {
@@ -721,8 +721,8 @@ define([
 			// summary:
 			//		Styles the CSS classes to the node that displays a column header cell.
 			//		By default this method is setting:
-			//		- "dojoxCalendarToday" class name if the date displayed is the current date,
-			//		- "dojoxCalendarWeekend" if the date represents a weekend,
+			//		- "d-calendar-today" class name if the date displayed is the current date,
+			//		- "d-calendar-weekend" if the date represents a weekend,
 			//		- the CSS class corresponding of the displayed day of week ("Sun", "Mon" and so on).
 			// node: Node
 			//		The DOM node that displays the column in the grid.
@@ -734,9 +734,9 @@ define([
 			domClass.add(node, this._cssDays[date.getDay()]);
 
 			if (this.isToday(date)) {
-				domClass.add(node, "dojoxCalendarToday");
+				domClass.add(node, "d-calendar-today");
 			} else if (this.isWeekEnd(date)) {
-				domClass.add(node, "dojoxCalendarWeekend");
+				domClass.add(node, "d-calendar-weekend");
 			}
 		},
 
@@ -757,7 +757,7 @@ define([
 			var i;
 			for (i = tr.children.length; i < this.columnCount; i++) {
 				var td = tr.insertCell();
-				domConstruct.create("div", {"className": "dojoxCalendarSubHeaderContainer"}, td);
+				domConstruct.create("div", {"className": "d-calendar-sub-header-container"}, td);
 			}
 			for (i = tr.children.length; i > this.columnCount; i--) {
 				tr.removeChild(tr.lastChild);
@@ -772,7 +772,7 @@ define([
 				// Adjust the number of child <div>'s to match subCount.
 				for (i = div.children.length; i < subCount; i++) {
 					domConstruct.create("div", {
-						"className": "dojoxCalendarSubHeaderCell dojoxCalendarSubHeaderLabel"}, div);
+						"className": "d-calendar-sub-header-cell d-calendar-sub-header-label"}, div);
 				}
 				for (i = div.children.length; i > subCount; i--) {
 					div.removeChild(div.lastChild);
@@ -780,7 +780,7 @@ define([
 
 				var colW = (100 / subCount) + "%";
 				Array.prototype.forEach.call(div.children, function (div, i) {
-					div.className = "dojoxCalendarSubHeaderCell dojoxCalendarSubHeaderLabel";
+					div.className = "d-calendar-sub-header-cell d-calendar-sub-header-label";
 					var col = subCount == 1 ? i : Math.floor(i / subCount);
 					var subColIdx = subCount == 1 ? 0 : i - col * subCount;
 					domStyle.set(div, {width: colW, left: ((subColIdx * 100) / subCount) + "%"});
@@ -815,9 +815,9 @@ define([
 			domClass.add(node, this._cssDays[date.getDay()]);
 
 			if (this.isToday(date)) {
-				domClass.add(node, "dojoxCalendarToday");
+				domClass.add(node, "d-calendar-today");
 			} else if (this.isWeekEnd(date)) {
-				domClass.add(node, "dojoxCalendarWeekend");
+				domClass.add(node, "d-calendar-weekend");
 			}
 		},
 
@@ -827,11 +827,11 @@ define([
 					domClass.add(node, "hour");
 					break;
 				case 30:
-					domClass.add(node, "halfhour");
+					domClass.add(node, "half-hour");
 					break;
 				case 15:
 				case 45:
-					domClass.add(node, "quarterhour");
+					domClass.add(node, "quarter-hour");
 					break;
 			}
 		},
@@ -849,7 +849,7 @@ define([
 
 			if (this._rowHeaderLabelContainer == null) {
 				this._rowHeaderLabelContainer = domConstruct.create("div", {"class":
-					"dojoxCalendarRowHeaderLabelContainer"}, this.rowHeader);
+					"d-calendar-row-header-label-container"}, this.rowHeader);
 			}
 			
 			domStyle.set(table, "height", this.sheetHeight + "px");
@@ -886,7 +886,7 @@ define([
 			var wantedLabels = Math.floor(60 / this.rowHeaderLabelSlotDuration) * this.hourCount;
 			for (i = lc.childNodes.length; i < wantedLabels; i++) {
 				var span = domConstruct.create("span", null, lc);
-				domClass.add(span, "dojoxCalendarRowHeaderLabel");
+				domClass.add(span, "d-calendar-row-header-label");
 			}
 			for (i = lc.childNodes.length; i > wantedLabels; i--) {
 				lc.removeChild(lc.lastChild);
@@ -918,7 +918,7 @@ define([
 				(pos + (index === 0 ? this.rowHeaderFirstLabelOffset : this.rowHeaderLabelOffset)) + "px");
 			var h = this.minHours + (index * this.rowHeaderLabelSlotDuration) / 60;
 			var m = (index * this.rowHeaderLabelSlotDuration) % 60;
-			domClass.remove(node, ["hour", "halfhour", "quarterhour"]);
+			domClass.remove(node, ["hour", "half-hour", "quarter-hour"]);
 			this._addMinutesClasses(node, m);
 			this.styleRowHeaderCell(node, h, m);
 		},
@@ -994,8 +994,8 @@ define([
 			// summary:
 			//		Styles the CSS classes to the node that displays a cell.
 			//		By default this method is setting:
-			//		- "dojoxCalendarToday" class name if the date displayed is the current date,
-			//		- "dojoxCalendarWeekend" if the date represents a weekend,
+			//		- "d-calendar-today" class name if the date displayed is the current date,
+			//		- "d-calendar-weekend" if the date represents a weekend,
 			//		- the CSS class corresponding of the displayed day of week ("Sun", "Mon" and so on),
 			//		- the CSS classes corresponfing to the time of day (e.g. "H14" and "M30" for for 2:30pm).
 			// node: Node
@@ -1012,9 +1012,9 @@ define([
 			domClass.add(node, [this._cssDays[date.getDay()], "H" + hours, "M" + minutes]);
 
 			if (this.isToday(date)) {
-				return domClass.add(node, "dojoxCalendarToday");
+				return domClass.add(node, "d-calendar-today");
 			} else if (this.isWeekEnd(date)) {
-				return domClass.add(node, "dojoxCalendarWeekend");
+				return domClass.add(node, "d-calendar-weekend");
 			}
 		},
 
@@ -1057,7 +1057,7 @@ define([
 			var i;
 			for (i = tr.children.length; i < this.columnCount; i++) {
 				var td = tr.insertCell();
-				domConstruct.create("div", {"className": "dojoxCalendarContainerColumn"}, td);
+				domConstruct.create("div", {"className": "d-calendar-container-column"}, td);
 			}
 			for (i = tr.children.length; i > this.columnCount; i--) {
 				tr.removeChild(tr.lastChild);
@@ -1068,14 +1068,14 @@ define([
 				var div = td.firstChild;
 				domStyle.set(div, "height", this.sheetHeight + "px");
 
-				// Adjust the number of div.dojoxCalendarSubContainerColumn to equal subCount.
+				// Adjust the number of div.d-calendar-sub-container-column to equal subCount.
 				for (i = div.children.length; i < subCount; i++) {
 					var subdiv = domConstruct.create("div",
-						{"className": "dojoxCalendarSubContainerColumn"}, div);
+						{"className": "d-calendar-sub-container-column"}, div);
 					domConstruct.create("div",
-						{"className": "dojoxCalendarDecorationContainerColumn"}, subdiv);
+						{"className": "d-calendar-decoration-container-column"}, subdiv);
 					domConstruct.create("div",
-						{"className": "dojoxCalendarEventContainerColumn"}, subdiv);
+						{"className": "d-calendar-event-container-column"}, subdiv);
 				}
 				for (i = div.children.length; i > subCount; i--) {
 					div.removeChild(div.lastChild);
@@ -1086,12 +1086,12 @@ define([
 					var col = subCount == 1 ? i : Math.floor(i / subCount);
 					var subColIdx = subCount == 1 ? 0 : i - col * subCount;
 					domStyle.set(div, {width: colW, left: ((subColIdx * 100) / subCount) + "%"});
-					domClass.toggle(div, "subColumn", subColIdx < subCount - 1 && subCount !== 1);
+					domClass.toggle(div, "sub-column", subColIdx < subCount - 1 && subCount !== 1);
 				}, this);
 			}, this);
 
-			this.cells = tr.querySelectorAll(".dojoxCalendarEventContainerColumn");
-			this.decorationCells = tr.querySelectorAll(".dojoxCalendarDecorationContainerColumn");
+			this.cells = tr.querySelectorAll(".d-calendar-event-container-column");
+			this.decorationCells = tr.querySelectorAll(".d-calendar-decoration-container-column");
 		},
 
 		// showTimeIndicator: Boolean
@@ -1119,7 +1119,7 @@ define([
 
 					if (!this._timeIndicator) {
 						this._timeIndicator = domConstruct.create("div",
-							{"className": "dojoxCalendarTimeIndicator"});
+							{"className": "d-calendar-time-indicator"});
 					}
 
 					var node = this._timeIndicator;
@@ -1370,7 +1370,7 @@ define([
 						w = extent == 1 ? w : w * ( extent - (extent - 1) * hOverlap);
 					}
 
-					ir = this._createRenderer(item, "vertical", this.verticalRenderer, "dojoxCalendarVertical");
+					ir = this._createRenderer(item, "vertical", this.verticalRenderer, "d-calendar-vertical");
 
 					var edited = this.isItemBeingEdited(item);
 					var selected = this.isSelected(item);
@@ -1393,7 +1393,7 @@ define([
 					w = 100;
 					posX = 0;
 					ir = this.decorationRendererManager.createRenderer(item, "vertical",
-						this.verticalDecorationRenderer, "dojoxCalendarDecoration");
+						this.verticalDecorationRenderer, "d-calendar-decoration");
 					renderer = ir.renderer;
 				}
 

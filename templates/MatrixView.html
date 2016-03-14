@@ -1,19 +1,19 @@
 <template>
-	<div  class="dojoxCalendarYearColumnHeader" attach-point="yearColumnHeader">
+	<div  class="d-calendar-year-column-header" attach-point="yearColumnHeader">
 		<table><tr><td><span attach-point="yearColumnHeaderContent"></span></td></tr></table>
 	</div>
-	<div attach-point="columnHeader" class="dojoxCalendarColumnHeader">
-		<table attach-point="columnHeaderTable" class="dojoxCalendarColumnHeaderTable" cellpadding="0" cellspacing="0"></table>
+	<div attach-point="columnHeader" class="d-calendar-column-header">
+		<table attach-point="columnHeaderTable" class="d-calendar-column-header-table" cellpadding="0" cellspacing="0"></table>
 	</div>
-	<div attach-point="rowHeader" class="dojoxCalendarRowHeader">
-		<table attach-point="rowHeaderTable" class="dojoxCalendarRowHeaderTable" cellpadding="0" cellspacing="0"></table>
+	<div attach-point="rowHeader" class="d-calendar-row-header">
+		<table attach-point="rowHeaderTable" class="d-calendar-row-header-table" cellpadding="0" cellspacing="0"></table>
 	</div>
-	<div attach-point="grid" class="dojoxCalendarGrid">
-		<table attach-point="gridTable" class="dojoxCalendarGridTable" cellpadding="0" cellspacing="0"></table>
+	<div attach-point="grid" class="d-calendar-grid">
+		<table attach-point="gridTable" class="d-calendar-grid-table" cellpadding="0" cellspacing="0"></table>
 	</div>
-	<div attach-point="itemContainer" class="dojoxCalendarContainer" on-mousedown="{{_onGridMouseDown}}"
+	<div attach-point="itemContainer" class="d-calendar-container" on-mousedown="{{_onGridMouseDown}}"
 		 on-mouseup="{{_onGridMouseUp}}" on-dblclick="{{_onGridDoubleClick}}" on-touchstart="{{_onGridTouchStart}}"
 		 on-touchmove="{{_onGridTouchMove}}" on-touchend="{{_onGridTouchEnd}}">
-		<table attach-point="itemContainerTable" class="dojoxCalendarContainerTable" cellpadding="0" cellspacing="0" style="width:100%"></table>
+		<table attach-point="itemContainerTable" class="d-calendar-container-table" cellpadding="0" cellspacing="0" style="width:100%"></table>
 	</div>
 </template>

@@ -145,7 +145,7 @@ define([
 		//		This class defines a generic calendar widget that manages several views to display event in time.
 		//		It needs to be subclassed, specifically defining `_computeCurrentView()`.
 
-		baseClass: "dojoxCalendar",
+		baseClass: "d-calendar",
 
 		// datePackage: Object
 		//		JavaScript namespace to find Calendar routines.

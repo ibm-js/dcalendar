@@ -29,7 +29,6 @@ Things *not* changed during port:
 * Still uses DOH for test framework.
 * Still has some dependencies on dojo core; doesn't use jQuery.
 * Doesn't fully conform to ibm-js JSHint standards.
-* Still uses old CSS class names, ex: dojoxCalendarEvent rather than d-calendar-event.
 * Documentation not updated.
 
 -------------------------------------------------------------------------------

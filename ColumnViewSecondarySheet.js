@@ -19,7 +19,7 @@ define([
 
 		template: template,
 
-		baseClass: "dojoxCalendarMatrixView dojoxCalendarColumnViewSecondarySheet",
+		baseClass: "d-calendar-matrix-view d-calendar-column-view-secondary-sheet",
 
 		rowCount: 1,
 

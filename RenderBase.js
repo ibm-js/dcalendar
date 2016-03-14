@@ -172,20 +172,20 @@ define([
 				this.setClassComponent("itemCssClass", this.item ? this.item.cssClass : "");
 			}
 			if ("storeState" in oldVals) {
-				this.setClassComponent("storeState", this.storeState === "storing" ? "Storing" :
-					this.storeState === "unstored" ? "Unstored" : "", tn);
+				this.setClassComponent("storeState", this.storeState === "storing" ? "storing" :
+					this.storeState === "unstored" ? "unstored" : "", tn);
 			}
 			if ("selected" in oldVals) {
-				domClass.toggle(tn, "Selected", this.selected);
+				domClass.toggle(tn, "selected", this.selected);
 			}
 			if ("focused" in oldVals) {
-				domClass.toggle(tn, "Focused", this.focused);
+				domClass.toggle(tn, "focused", this.focused);
 			}
 			if ("edited" in oldVals) {
-				domClass.toggle(tn, "Edited", this.edited);
+				domClass.toggle(tn, "edited", this.edited);
 			}
 			if ("hovered" in oldVals) {
-				domClass.toggle(tn, "Hovered", this.hovered);
+				domClass.toggle(tn, "hovered", this.hovered);
 			}
 
 			var item = this.item,

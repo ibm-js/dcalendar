@@ -21,7 +21,7 @@ define([
 	 */
 	return register("d-calendar-vertical-scrollbar", [HTMLElement, Widget], {
 
-		baseClass: "dojoxCalendarVScrollBar",
+		baseClass: "d-calendar-v-scroll-bar",
 
 		template: template,
 

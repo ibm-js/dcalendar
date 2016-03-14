@@ -405,6 +405,7 @@ define([
 			//		dojox.date.XXXX calendars are not supporting this method.
 			// date: Date
 			//		The date to test.
+
 			return locale.isWeekend(date);
 		},
 
@@ -414,6 +415,7 @@ define([
 			//		dojox.date.XXXX calendar are not supporting the "w" pattern.
 			// date: Date
 			//		The date to format.
+
 			if (date.toGregorian) {
 				date = date.toGregorian();
 			}
@@ -1572,16 +1574,16 @@ define([
 		createItemFunc: null,
 		/*=====
 		 createItemFunc: function(view, d, e){
-		 // summary:
-		 //		A user supplied function that creates a new event.
-		 // view: ViewBase
-		 //		the current view,
-		 // d: Date
-		 //		the date at the clicked location.
-		 // e: MouseEvemt
-		 //		the mouse event (can be used to return null for example)
-		 // subColumn: Object
-		 //		the subcolumn at clicked location (can return null)
+			 // summary:
+			 //		A user supplied function that creates a new event.
+			 // view: ViewBase
+			 //		the current view,
+			 // d: Date
+			 //		the date at the clicked location.
+			 // e: MouseEvemt
+			 //		the mouse event (can be used to return null for example)
+			 // subColumn: Object
+			 //		the subcolumn at clicked location (can return null)
 		 },
 		 =====*/
 
@@ -1691,7 +1693,7 @@ define([
 
 			this._gridProps = {
 				event: e,
-				fromItem: this.isAscendantHasClass(e.target, this.eventContainer, "dojoxCalendarEvent")
+				fromItem: this.isAscendantHasClass(e.target, this.eventContainer, "d-calendar-event")
 			};
 
 			if (this._isEditing) {

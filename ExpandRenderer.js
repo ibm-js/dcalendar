@@ -19,7 +19,7 @@ define([
 
 		template: template,
 
-		baseClass: "dojoxCalendarExpand",
+		baseClass: "d-calendar-expand",
 
 		// focused: Boolean
 		//		Indicates that the renderer is focused.
@@ -58,15 +58,15 @@ define([
 		},
 
 		_setDownAttr: function (value) {
-			this._setState("down", value, "Down");
+			this._setState("down", value, "down");
 		},
 
 		_setUpAttr: function (value) {
-			this._setState("up", value, "Up");
+			this._setState("up", value, "up");
 		},
 
 		_setFocusedAttr: function (value) {
-			this._setState("focused", value, "Focused");
+			this._setState("focused", value, "focused");
 		},
 
 		_setState: function (prop, value, cssClass) {

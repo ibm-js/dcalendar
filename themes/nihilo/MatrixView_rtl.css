@@ -7,59 +7,59 @@
   white-space: nowrap;
   padding: 1px 2px 2px 1px;
 }
-.dojoxCalendarMatrixView.d-rtl .dojoxCalendarGrid {
+.d-calendar-matrix-view.d-rtl .d-calendar-grid {
   right: 50px;
   left: 0;
 }
-.dojoxCalendarMatrixView.d-rtl .dojoxCalendarGridTable td {
+.d-calendar-matrix-view.d-rtl .d-calendar-grid-table td {
   text-align: left;
   border-bottom: 1px solid #e5e5e5;
   border-left: 1px solid #e5e5e5;
   border-right: none;
 }
-.dojoxCalendarMatrixView.d-rtl .dojoxCalendarGridTable td span {
+.d-calendar-matrix-view.d-rtl .d-calendar-grid-table td span {
   padding-left: 2px;
 }
-.dojoxCalendarMatrixView.d-rtl .dojoxCalendarGridTable td:last-child {
+.d-calendar-matrix-view.d-rtl .d-calendar-grid-table td:last-child {
   border-left: 1px solid #cccccc;
 }
-.dojoxCalendarMatrixView.d-rtl .dojoxCalendarContainer {
+.d-calendar-matrix-view.d-rtl .d-calendar-container {
   right: 50px;
   left: 0;
 }
-.dojoxCalendarMatrixView.d-rtl .dojoxCalendarContainerTable td {
+.d-calendar-matrix-view.d-rtl .d-calendar-container-table td {
   border-bottom: solid 1px transparent;
   border-right: solid 1px transparent;
   text-align: right;
   vertical-align: top;
 }
-.dojoxCalendarMatrixView.d-rtl .dojoxCalendarYearColumnHeader {
+.d-calendar-matrix-view.d-rtl .d-calendar-year-column-header {
   position: absolute;
   right: 0;
   left: auto;
 }
-.dojoxCalendarMatrixView.d-rtl .dojoxCalendarColumnHeader {
+.d-calendar-matrix-view.d-rtl .d-calendar-column-header {
   right: 50px;
   left: 0;
 }
-.dojoxCalendarMatrixView.d-rtl .dojoxCalendarColumnHeaderTable td {
+.d-calendar-matrix-view.d-rtl .d-calendar-column-header-table td {
   border-left: 1px solid #cccccc;
   border-right: none;
 }
-.dojoxCalendarMatrixView.d-rtl .dojoxCalendarRowHeader {
+.d-calendar-matrix-view.d-rtl .d-calendar-row-header {
   right: 0;
   left: auto;
 }
-.dojoxCalendarMatrixView.d-rtl .dojoxCalendarEvent.dojoxCalendarHorizontal .labels {
+.d-calendar-matrix-view.d-rtl .d-calendar-event.d-calendar-horizontal .labels {
   text-align: right;
 }
-.dojoxCalendarMatrixView.d-rtl .dojoxCalendarEvent.dojoxCalendarLabel .labels {
+.d-calendar-matrix-view.d-rtl .d-calendar-event.d-calendar-label .labels {
   text-align: right;
 }
-.dojoxCalendarMatrixView.d-rtl .dojoxCalendarEvent .resizeStartHandle {
+.d-calendar-matrix-view.d-rtl .d-calendar-event .resize-start-handle {
   right: 0;
 }
-.dojoxCalendarMatrixView.d-rtl .dojoxCalendarEvent .resizeEndHandle {
+.d-calendar-matrix-view.d-rtl .d-calendar-event .resize-end-handle {
   left: 0;
   right: auto;
 }

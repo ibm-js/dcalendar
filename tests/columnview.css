@@ -1,9 +1,9 @@
- .claro .dojoxCalendarColumnView {
+ .d-calendar-column-view {
   cursor: default;
 	-webkit-user-select: none;
 }
 
-.claro .dojoxCalendarColumnView .dojoxCalendarCalendarEventContainer {
+.d-calendar-column-view .d-calendarCalendarEventContainer {
 	position: absolute;
 	overflow: hidden;
 	-moz-user-select: none;
@@ -14,24 +14,24 @@
 	border-radius: 5px;
 }
 
-.claro .dojoxCalendarColumnView .dojoxCalendarEvent {
+.d-calendar-column-view .d-calendar-event {
 	font-size: 90%;
 	font-family: Tahoma, serifSansSerifMonospace;
 }
 
-.claro .dojoxCalendarColumnView .dojoxCalendarEvent.Calendar2 .bg {
+.d-calendar-column-view .d-calendar-event.Calendar2 .bg {
 	background: #2095B4;
 }
 
-.claro .dojoxCalendarColumnView .dojoxCalendarEvent.Calendar2.Hovered .bg {
+.d-calendar-column-view .d-calendar-event.Calendar2.hovered .bg {
 	background: #24A5C8;
 }
 
-.claro .dojoxCalendarColumnView .dojoxCalendarEvent.Calendar2.Selected .bg {
+.d-calendar-column-view .d-calendar-event.Calendar2.selected .bg {
 	background: #166B81;
 }
 
-.claro .dojoxCalendarColumnView .dojoxCalendarEvent.Calendar2 .startTime {
+.d-calendar-column-view .d-calendar-event.Calendar2 .start-time {
   font-weight: bold;
   border-top-left-radius: 5px;
   border-top-right-radius: 5px;
@@ -46,7 +46,7 @@
   border-left: 1px solid #260000;
   border-right: 1px solid #260000;
 }
-.claro .dojoxCalendarColumnView .dojoxCalendarEvent.Calendar2.Focused .startTime {
+.d-calendar-column-view .d-calendar-event.Calendar2.focused .start-time {
   font-weight: bold;
   border-top-left-radius: 5px;
   border-top-right-radius: 5px;
@@ -61,13 +61,13 @@
   border-left: dashed 1px #ffffff;
   border-right: dashed 1px #ffffff;
 }
-.claro .dojoxCalendarColumnView .dojoxCalendarEvent.Calendar2.Hovered .startTime {
+.d-calendar-column-view .d-calendar-event.Calendar2.hovered .start-time {
   background-color: #0094B4;
 }
-.claro .dojoxCalendarColumnView .dojoxCalendarEvent.Calendar2.Selected .startTime {
+.d-calendar-column-view .d-calendar-event.Calendar2.selected .start-time {
   background-color: #005A6D;
 }
-.claro .dojoxCalendarColumnView .dojoxCalendarEvent.Calendar2.Edited .startTime {
+.d-calendar-column-view .d-calendar-event.Calendar2.edited .start-time {
   background-color: #0095b4;
   border-top: dashed 1px #ffffff;
   border-left: dashed 1px #ffffff;

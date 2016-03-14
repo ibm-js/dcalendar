@@ -1,10 +1,10 @@
 @import "MatrixViewCommon.less";
 
-.dojoxCalendarMatrixView {
+.d-calendar-matrix-view {
 	cursor: default;
 	.select-none;
 
-	.dojoxCalendarGrid {
+	.d-calendar-grid {
 		position: absolute;
 		left: @row-header-width;
 		right: 0px;
@@ -12,7 +12,7 @@
 		bottom: 0px;
 	}
 
-	.dojoxCalendarGridTable {
+	.d-calendar-grid-table {
 		position: relative;
 		width: 100%;
 		height: 100%;
@@ -38,36 +38,36 @@
 			padding-top: 2px;
 		}
 
-		tr:last-child td	 {
+		tr:last-child td {
 			border-bottom: @outer-border;
 		}
 
-		td:last-child	 {
+		td:last-child {
 			border-right: @outer-border;
 		}
 
 		/*
-		 * The dojoxCalendarColToday & dojoxCalendarColWeekend classes is added by the
+		 * The d-calendar-col-today & d-calendar-col-weekend classes are added by the
 		 * MatrixView.styleGridCell method that can be subclassed to add/remove css classes
 		 */
-		td.dojoxCalendarToday	 {
+		td.d-calendar-today {
 			background-color: @today-color;
 			font-weight: bold;
 			color: @today-label-color;
 		}
 
-		.dojoxCalendarWeekend {
+		.d-calendar-weekend {
 			background-color: @week-end-color;
 			color: @week-end-label-color;
 		}
 
-		.dojoxCalendarDayDisabled {
+		.d-calendar-day-disabled {
 			background-color: @disabled-day-color;
 			color: @disabled-day-label-color;
 		}
 	}
 
-	.dojoxCalendarYearColumnHeader {
+	.d-calendar-year-column-header {
 		position: absolute;
 		left: 0px;
 		top: 0px;
@@ -96,7 +96,7 @@
 		}
 	}
 
-	.dojoxCalendarColumnHeader {
+	.d-calendar-column-header {
 		position: absolute;
 		left: @row-header-width;
 		right: 0px;
@@ -106,7 +106,7 @@
 		border-bottom: @outer-border;
 	}
 
-	.dojoxCalendarColumnHeaderTable {
+	.d-calendar-column-header-table {
 		position: relative;
 		width:100%;
 		height: 100%;
@@ -129,15 +129,15 @@
 		}
 
 		/*
-		 * The dojoxCalendarColWeekend class is added by the
+		 * The d-calendar-col-weekend class is added by the
 		 * ColumnView.styleColumnHeaderCell method that can be subclassed to add/remove css class.
 		 */
-		.dojoxCalendarWeekend {
+		.d-calendar-weekend {
 			color: @week-end-label-color;
 		}
 	}
 
-	.dojoxCalendarRowHeader {
+	.d-calendar-row-header {
 		position: absolute;
 		left: 0px;
 		top: @column-header-height;
@@ -148,7 +148,7 @@
 		.select-none;
 	}
 
-	.dojoxCalendarRowHeaderTable {
+	.d-calendar-row-header-table {
 		position: relative;
 		width: 100%;
 		height: 100%;
@@ -190,7 +190,7 @@
 		}
 	}
 
-	.dojoxCalendarContainer {
+	.d-calendar-container {
 		position: absolute;
 		top: @column-header-height;
 		left: @row-header-width;
@@ -199,7 +199,7 @@
 		cursor: default;
 	}
 
-	.dojoxCalendarContainerTable {
+	.d-calendar-container-table {
 		position: relative;
 		width: 100%;
 		height: 100%;
@@ -219,27 +219,27 @@
 			.border-box;
 		}
 
-		td div.dojoxCalendarContainerRow {
+		td div.d-calendar-container-row {
 			position:relative;
 			height:100%;
 			width:100%;
 		}
 	}
 
-	.dojoxCalendarEventContainer {
+	.d-calendar-event-container {
 		position: absolute;
 		overflow: hidden;
 		.select-none;
 	}
 
-	.dojoxCalendarDecoration {
+	.d-calendar-decoration {
 		display: block;
 		position: absolute;
 		background-color: rgb(167, 233, 68);
 		.opacity(20);
 	}
 
-	.dojoxCalendarEvent {
+	.d-calendar-event {
 		display: block;
 		position: absolute;
 		text-align: left;
@@ -248,11 +248,11 @@
 		white-space: nowrap;
 	}
 
-	.dojoxCalendarEvent.dojoxCalendarHorizontal {
+	.d-calendar-event.d-calendar-horizontal {
 		color: #FFF;
 	}
 
-	.dojoxCalendarEvent.dojoxCalendarHorizontal .bg {
+	.d-calendar-event.d-calendar-horizontal .bg {
 		border: @horizontal-border;
 		position: absolute;
 		left: 0;
@@ -264,49 +264,49 @@
 		background-color: @horizontal-color;
 	}
 
-	.dojoxCalendarEvent.dojoxCalendarHorizontal.Hovered  .bg {
+	.d-calendar-event.d-calendar-horizontal.hovered  .bg {
 		background-color: @horizontal-hover-color;
 	}
 
-	.dojoxCalendarEvent.dojoxCalendarHorizontal.Selected .bg {
+	.d-calendar-event.d-calendar-horizontal.selected .bg {
 		background-color: @horizontal-selected-bg-color;
 	}
 
-	.dojoxCalendarEvent.Edited {
+	.d-calendar-event.edited {
 		color: #FFF;
 		font-weight: bold;
 		text-decoration: none;
 	}
 
-	.dojoxCalendarEvent.dojoxCalendarHorizontal.Edited .bg {
+	.d-calendar-event.d-calendar-horizontal.edited .bg {
 		border: dashed 1px #FFF;
 		.opacity(30);
 	}
 
-	.dojoxCalendarEvent.dojoxCalendarHorizontal.Focused .bg {
+	.d-calendar-event.d-calendar-horizontal.focused .bg {
 		border: dashed 1px #FFF;
 	}
 
-	.dojoxCalendarEvent.dojoxCalendarLabel.Hovered {
+	.d-calendar-event.d-calendar-label.hovered {
 		color: #F40;
 	}
 
-	.dojoxCalendarEvent.dojoxCalendarLabel.Selected {
+	.d-calendar-event.d-calendar-label.selected {
 		color: #F00;
 	}
 
-	.dojoxCalendarEvent.dojoxCalendarLabel.Edited {
+	.d-calendar-event.d-calendar-label.edited {
 		border: dashed 1px #FFF;
 		background: #600;
 		.opacity(30);
 		color: #FFF;
 	}
 
-	.dojoxCalendarEvent.dojoxCalendarLabel.Focused {
+	.d-calendar-event.d-calendar-label.focused {
 		border: dashed 1px #000;
 	}
 
-	.dojoxCalendarEvent.dojoxCalendarHorizontal .labels {
+	.d-calendar-event.d-calendar-horizontal .labels {
 		position: absolute;
 		left: 3px;
 		right: 1px;
@@ -314,7 +314,7 @@
 		overflow: hidden;
 	}
 
-	.dojoxCalendarEvent.dojoxCalendarLabel .labels {
+	.d-calendar-event.d-calendar-label .labels {
 		position: absolute;
 		left: 2px;
 		right: 2px;
@@ -322,7 +322,7 @@
 		overflow: hidden;
 	}
 
-	.dojoxCalendarEvent .handle {
+	.d-calendar-event .handle {
 		.glass-view;
 		position: absolute;
 		width:5px;
@@ -330,21 +330,21 @@
 		cursor:e-resize;
 	}
 
-	.dojoxCalendarEvent .moveHandle {
+	.d-calendar-event .move-handle {
 		left:0;
 		top:0;
 		width:100%;
 		cursor:move;
 	}
 
-	.dojoxCalendarEvent .resizeStartHandle {
+	.d-calendar-event .resize-start-handle {
 	}
 
-	.dojoxCalendarEvent .resizeEndHandle {
+	.d-calendar-event .resize-end-handle {
 		right:0px;
 	}
 
-	.dojoxCalendarExpand {
+	.d-calendar-expand {
 		display: block;
 		position: absolute;
 		text-align: center;
@@ -366,12 +366,12 @@
 		}
 	}
 
-	.dojoxCalendarExpand.Up .bg {
+	.d-calendar-expand.up .bg {
 		background-color: @expand-up-color;
 		border: 1px solid @expand-up-color - #555;
 	}
 
-	.dojoxCalendarExpand.Down .bg {
+	.d-calendar-expand.down .bg {
 		background-color: @expand-down-color;
 		border: 1px solid @expand-down-color - #555;
 	}
