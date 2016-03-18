@@ -158,7 +158,7 @@
 					store: new Observable(new Memory({data: itemsData})),
 					decorationStore: new Observable(new Memory({data: decorationItemsData})),
 					subColumns: ["cal1", "cal2"],
-					subColumnLabelFunc: function(v) {
+					subColumnLabel: function(v) {
 						return subColumnsLabels[v];
 					},
 					cssClassFunc: function(item) {
@@ -200,7 +200,7 @@
 				};
 
 				colView.createOnGridClick = true;
-				colView.createItemFunc = createItem;
+				colView.createItem = createItem;
 
 				var startDateSave;
 				var columnCountSave;

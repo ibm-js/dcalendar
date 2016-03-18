@@ -52,9 +52,9 @@ define([
 			"datePackage",
 			"endDate", "date", "minDate", "maxDate", "dateInterval", "dateIntervalSteps",
 			"firstDayOfWeek",
-			"formatItemTimeFunc",
+			"formatItemTime",
 			"editable", "moveEnabled", "resizeEnabled",
-			"createOnGridClick", "createItemFunc",
+			"createOnGridClick", "createItem",
 			"textDir", "decorationStore",
 			"getIdentity"
 		],

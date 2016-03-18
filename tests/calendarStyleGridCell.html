@@ -36,7 +36,7 @@
 
 				calendar.date = startOfWeek;
 
-				calendar.columnView.styleGridCellFunc = function(node, date, hours, minutes) {
+				calendar.columnView.styleGridCell = function(node, date, hours, minutes) {
 					// grey out Wednesday & time range between 12pm and 2pm
 					if (hours >= 12 && hours < 14 || date.getDay() == 3) {
 						domClass.add(node, "greyCell");
@@ -53,9 +53,9 @@
 				};
 
 				calendar.on("delite-add-child", function (child){
-					child.itemToRendererKindFunc = itemToRendererKindFunc;
+					child.itemToRendererKind = itemToRendererKind;
 					if (child.secondarySheet) {
-						child.secondarySheet.itemToRendererKindFunc = itemToRendererKindFunc;
+						child.secondarySheet.itemToRendererKind = itemToRendererKind;
 					}
 				});
 

@@ -786,7 +786,7 @@ define([
 					domStyle.set(div, {width: colW, left: ((subColIdx * 100) / subCount) + "%"});
 					domClass.toggle(div, "subColumn", subColIdx < subCount - 1 && subCount !== 1);
 					domClass.add(div, this.subColumns[subColIdx]);
-					this._setText(div, this.subColumnLabelFunc(this.subColumns[subColIdx]));
+					this._setText(div, this.subColumnLabel(this.subColumns[subColIdx]));
 				}, this);
 
 				var d = this.dates[i];
@@ -795,7 +795,7 @@ define([
 		},
 
 
-		subColumnLabelFunc: function (value) {
+		subColumnLabel: function (value) {
 			// summary:
 			//	Computes the label for a sub column from the subColumns property.
 			//	By default, return the value.
@@ -984,13 +984,7 @@ define([
 			}, this);
 		},
 
-		// styleGridCellFunc: Function
-		//		Custom function to customize the appearance of a grid cell by installing custom CSS class on the node.
-		//		The signature of the function must be the same then the styleGridCell one.
-		//		By default the defaultStyleGridCell function is used.
-		styleGridCellFunc: null,
-
-		defaultStyleGridCell: function (node, date, hours, minutes) {
+		styleGridCell: function (node, date, hours, minutes) {
 			// summary:
 			//		Styles the CSS classes to the node that displays a cell.
 			//		By default this method is setting:
@@ -1015,24 +1009,6 @@ define([
 				return domClass.add(node, "d-calendar-today");
 			} else if (this.isWeekEnd(date)) {
 				return domClass.add(node, "d-calendar-weekend");
-			}
-		},
-
-		styleGridCell: function (node, date, hours, minutes) {
-			// summary:
-			//		Styles the CSS classes to the node that displays a cell.
-			//		Delegates to styleGridCellFunc if defined or defaultStyleGridCell otherwise.
-			// node: Node
-			//		The DOM node that displays the cell in the grid.
-			// date: Date
-			//		The date displayed by this column
-			// tags:
-			//		protected
-
-			if (this.styleGridCellFunc) {
-				this.styleGridCellFunc(node, date, hours, minutes);
-			} else {
-				this.defaultStyleGridCell(node, date, hours, minutes);
 			}
 		},
 

@@ -192,12 +192,12 @@
 			};
 
 			calendar.createOnGridClick = true;
-			calendar.createItemFunc = createItem;
+			calendar.createItem = createItem;
 
 			// filter out event according to their calendar
 			var calendarVisibility = [true, true];
 
-			var itemToRendererKindFunc = function(item) {
+			var itemToRendererKind = function(item) {
 				if (item.cssClass == "Calendar1" && calendarVisibility[0] ||
 					item.cssClass == "Calendar2" && calendarVisibility[1]) {
 						return this._defaultItemToRendererKindFunc(item);
@@ -206,9 +206,9 @@
 			};
 
 			calendar.on("delite-add-child", function (child){
-				child.itemToRendererKindFunc = itemToRendererKindFunc;
+				child.itemToRendererKind = itemToRendererKind;
 				if (child.secondarySheet) {
-					child.secondarySheet.itemToRendererKindFunc = itemToRendererKindFunc;
+					child.secondarySheet.itemToRendererKind = itemToRendererKind;
 				}
 			});
 

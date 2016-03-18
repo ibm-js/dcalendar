@@ -142,11 +142,11 @@ define([
 		//		CSS value to apply to the cursor while resizing an item renderer.
 		resizeCursor: "n-resize",
 
-		// formatItemTimeFunc: Function
+		// formatItemTime: Function
 		//		Optional function to format the time of day of the item renderers.
 		//		The function takes the date, the render data object,
 		//		the view and the data item as arguments and returns a String.
-		formatItemTimeFunc: null,
+		formatItemTime: null,
 
 		_cssDays: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
 
@@ -1321,12 +1321,12 @@ define([
 			return this.rendererManager.getRenderers(item);
 		},
 
-		// itemToRendererKindFunc: Function
+		// itemToRendererKind: Function
 		//		An optional function to associate a kind of renderer ("horizontal", "label" or null)
 		//		with the specified item.
 		//		By default, if an item is lasting more that 24 hours an horizontal item is used,
 		//		otherwise a label is used.
-		itemToRendererKindFunc: null,
+		itemToRendererKind: null,
 
 		_itemToRendererKind: function (item) {
 			// summary:
@@ -1337,8 +1337,8 @@ define([
 			// tags:
 			//		protected
 
-			if (this.itemToRendererKindFunc) {
-				return this.itemToRendererKindFunc(item);
+			if (this.itemToRendererKind) {
+				return this.itemToRendererKind(item);
 			}
 
 			return this._defaultItemToRendererKindFunc(item); // String
@@ -1571,9 +1571,9 @@ define([
 		//
 		///////////////////////////////////////////////////////////////////
 
-		createItemFunc: null,
+		createItem: null,
 		/*=====
-		 createItemFunc: function(view, d, e){
+		 createItem: function(view, d, e){
 			 // summary:
 			 //		A user supplied function that creates a new event.
 			 // view: ViewBase
@@ -1630,7 +1630,7 @@ define([
 
 			if (this._onRendererHandleMouseDown) {
 
-				var f = this.createItemFunc;
+				var f = this.createItem;
 
 				if (!f) {
 					return;

@@ -153,7 +153,7 @@ define([
 			// tags:
 			//		protected
 			if (this.owner) {
-				var f = this.owner.formatItemTimeFunc;
+				var f = this.owner.formatItemTime;
 				if (typeof f === "function") {
 					return f(d, rd, this.owner, this.item);
 				}

@@ -555,11 +555,11 @@ define([
 			}, this);
 		},
 
-		// styleGridCellFunc: Function
+		// styleGridCell: Function
 		//		Custom function to customize the appearance of a grid cell by installing custom CSS class on the node.
 		//		The signature of the function must be the same then the styleGridCell one.
 		//		By default the defaultStyleGridCell function is used.
-		styleGridCellFunc: null,
+		styleGridCell: null,
 
 		defaultStyleGridCell: function (node, date /*===== , col, row =====*/) {
 			// summary:
@@ -593,7 +593,7 @@ define([
 		styleGridCell: function (node, date, col, row) {
 			// summary:
 			//		Styles the CSS classes to the node that displays a column.
-			//		Delegates to styleGridCellFunc if defined or defaultStyleGridCell otherwise.
+			//		Delegates to styleGridCell if defined or defaultStyleGridCell otherwise.
 			// node: Node
 			//		The DOM node that displays the cell in the grid.
 			// date: Date
@@ -605,8 +605,8 @@ define([
 			// tags:
 			//		protected
 
-			if (this.styleGridCellFunc) {
-				this.styleGridCellFunc(node, date, col, row);
+			if (this.styleGridCell) {
+				this.styleGridCell(node, date, col, row);
 			} else {
 				this.defaultStyleGridCell(node, date, col, row);
 			}

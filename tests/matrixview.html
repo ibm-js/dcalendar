@@ -387,7 +387,7 @@
 					matrixView.cellHeaderShortPattern = cellShortFormatEditor.value;
 				});
 
-				var formatItemTimeFunc = function(d) {
+				var formatItemTime = function(d) {
 					return this.dateLocaleModule.format(d, {
 						selector: 'time',
 						timePattern: d.getMinutes() == 0 ? "ha":"h:mma"}
@@ -395,7 +395,7 @@
 				};
 
 				customTimeFormatCB.on("change", function(value) {
-					matrixView.formatItemTimeFunc = (value ? formatItemTimeFunc : null);
+					matrixView.formatItemTime = (value ? formatItemTime : null);
 				});
 
 				matrixView.on("item-click", function(e) {
@@ -534,7 +534,7 @@
 				]});
 
 				rendererKindEditor.watch("item", function(prop, oldValue, newValue) {
-					matrixView.itemToRendererKindFunc = itemToRendererKindFuncs[newValue.id];
+					matrixView.itemToRendererKind = itemToRendererKindFuncs[newValue.id];
 				});
 
 				fx.fadeOut({

@@ -201,11 +201,11 @@ define([
 		//		Special value -1 (default value), means use locale dependent value.
 		firstDayOfWeek: -1,
 
-		// formatItemTimeFunc: Function?
+		// formatItemTime: Function?
 		//		Optional function to format the time of day of the item renderers.
 		//		The function takes the date, the render data object, the view and
 		//		the data item as arguments and returns a String.
-		formatItemTimeFunc: null,
+		formatItemTime: null,
 
 		// editable: Boolean
 		//		A flag that indicates whether or not the user can edit
@@ -246,7 +246,7 @@ define([
 		//		A createItem function must be defined on the view or the calendar object.
 		createOnGridClick: false,
 
-		// createItemFunc: Function
+		// createItem: Function
 		//		A user supplied function that creates a new event.
 		//		This function is used when createOnGridClick is set to true
 		//		and the user is clicking and dragging on the grid.
@@ -254,7 +254,7 @@ define([
 		//
 		//		- view: the current view,
 		//		- d: the date at the clicked location.
-		createItemFunc: null,
+		createItem: null,
 
 		// List of the properties in the calendar that should be reflected to the views,
 		// not including properties to set time range.  Those are handled in _configureView().
@@ -264,9 +264,9 @@ define([
 			"datePackage",
 			"endDate", "date", "minDate", "maxDate", "dateInterval", "dateIntervalSteps",
 			"firstDayOfWeek",
-			"formatItemTimeFunc",
+			"formatItemTime",
 			"editable", "moveEnabled", "resizeEnabled",
-			"createOnGridClick", "createItemFunc",
+			"createOnGridClick", "createItem",
 			"textDir", "decorationStore",
 			"getIdentity"
 		],
