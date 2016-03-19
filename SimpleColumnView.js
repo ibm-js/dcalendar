@@ -207,7 +207,7 @@ define([
 			this.hourSize = this.slotSize * (60 / this.timeSlotDuration);
 			this.sheetHeight = this.hourSize * this.hourCount;
 
-			if ("startDate" in oldVals || "columnCount" in oldVals) {
+			if ("startDate" in oldVals || "columnCount" in oldVals || "source" in oldVals) {
 				this.dates = [];
 				var d = this.floorToDay(this.startDate);
 				for (var col = 0; col < this.columnCount; col++) {
@@ -219,6 +219,10 @@ define([
 				this.startTime.setHours(this.minHours);
 				this.endTime = new this.dateClassObj(this.dates[this.columnCount - 1]);
 				this.endTime.setHours(this.maxHours);
+
+				if (this.source) {
+					this.query = new this.source.Filter().lte("startTime", this.endTime).gte("endTime", this.startTime);
+				}
 
 				this.subColumnCount = this.subColumns ? this.subColumns.length : 1;
 			}

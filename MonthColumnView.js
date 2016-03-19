@@ -168,7 +168,7 @@ define([
 				}
 			}
 
-			if ("startDate" in oldVals || "columnCount" in oldVals) {
+			if ("startDate" in oldVals || "columnCount" in oldVals || "source" in oldVals) {
 				this.dates = [];
 
 				d = this.startDate;
@@ -195,6 +195,10 @@ define([
 				this.startTime = new this.dateClassObj(this.dates[0][0]);
 				this.endTime = new this.dateClassObj(dates[dates.length - 1]);
 				this.endTime = this.dateModule.add(this.endTime, "day", 1);
+
+				if (this.source) {
+					this.query = new this.source.Filter().lte("startTime", this.endTime).gte("endTime", this.startTime);
+				}
 			}
 		},
 

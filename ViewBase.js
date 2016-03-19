@@ -16,7 +16,6 @@ define([
 	"delite/Selection",
 	"./time",
 	"./StoreMixin",
-	"./StoreManager",
 	"./RendererManager"
 ], function (
 	dcl,
@@ -36,7 +35,6 @@ define([
 	Selection,
 	timeUtil,
 	StoreMixin,
-	StoreManager,
 	RendererManager
 ) {
 
@@ -198,67 +196,16 @@ define([
 			// Set default date package for now.  If user specifies date package these setting will be overwritten.
 			this._setDatePackageAttr(null);
 
-			this.storeManager = new StoreManager({
-				owner: this,
-				_ownerItemsProperty: "items",
-				store: this.store
-			});
-			this.storeManager.on("layout-invalidated", function () {
-				// Trigger call to refreshRendering(), and full relayout of all the items.
-				this.items = this.storeManager.items;
-			}.bind(this));
-			this.storeManager.on("data-loaded", function (items) {
-				// Trigger call to refreshRendering(), and full layout of all the items.
-				this.items = items;
-			}.bind(this));
-			// For minor changes to a single renderer, just update the renderer w/out calling this.refreshRendering()
-			this.storeManager.on("renderers-invalidated", this.updateRenderers.bind(this));
-
 			this.rendererManager = new RendererManager({owner: this});
 			this.rendererManager.on("renderer-created", this.emit.bind(this, "renderer-created"));
 			this.rendererManager.on("renderer-reused", this.emit.bind(this, "renderer-reused"));
 			this.rendererManager.on("renderer-recycled", this.emit.bind(this, "renderer-recycled"));
 			this.rendererManager.on("renderer-destroyed", this.emit.bind(this, "renderer-destroyed"));
 
-			this.decorationStoreManager = new StoreManager({owner: this, _ownerItemsProperty: "decorationItems"});
-			this.decorationStoreManager.on("data-loaded", function (items) {
-				this.decorationItems = items;
-			}.bind(this));
-			this.decorationStoreManager.on("layout-invalidated", function () {
-				this.decorationItems = this.decorationStoreManager.items;
-			}.bind(this));
 			this.decorationRendererManager = new RendererManager({owner: this});
 
 			this._setupDayRefresh();
 		},
-
-		// Use dcl.after() so that subclass can set this.startTime and this.endTime before we fire off the query
-		// and do the filtering of results.
-		computeProperties: dcl.after(function (args) {
-			var oldVals = args[0];
-
-			if ("store" in oldVals) {
-				// Start the new query and then computeProperties() will be invoked again when we get the query results.
-				this.storeManager.store = this.store;
-				return;
-			}
-
-			// If the list of items has changed, or the startTime/endTime has changed,
-			// need to recompute which items are visible.
-			// But, while editing in no live layout we must not to recompute items (duplicate renderers),
-			// so in that case defer until editing has finished.
-			// TODO: filtering should actually be done by the store
-			if (!this._isEditing) {
-				if ("items" in oldVals || "_isEditing" in oldVals || "startTime" in oldVals || "endTime" in oldVals) {
-					this.visibleItems = this.storeManager._computeVisibleItems(this.startTime, this.endTime);
-				}
-				if ("decorationItems" in oldVals || "_isEditing" in oldVals ||
-						"startTime" in oldVals || "endTime" in oldVals) {
-					this.visibleDecorationItems = this.decorationStoreManager._computeVisibleItems(this.startTime,
-						this.endTime);
-				}
-			}
-		}),
 
 		refreshRendering: function (oldVals) {
 			// Create the grid/boilerplate initially, and update it whenever we move to a new month etc.
@@ -267,7 +214,7 @@ define([
 			}
 
 			// Add the events.
-			if ("dates" in oldVals || "visibleItmes" in oldVals || "attached" in oldVals) {
+			if ("dates" in oldVals || "visibleItems" in oldVals || "attached" in oldVals) {
 				this._layoutRenderers();
 			}
 			if ("dates" in oldVals || "visibleDecorationItems" in oldVals || "attached" in oldVals) {
@@ -1030,48 +977,6 @@ define([
 		//
 		////////////////////////////////////////////////////////
 
-		// TODO: do the filtering in the store rather than in calendar JS code!
-		_computeVisibleItems: function () {
-			// summary:
-			//		Computes the data items that are in the displayed interval.
-			// tags:
-			//		protected
-
-			return this.storeManager._computeVisibleItems(this.startTime, this.endTime);
-		},
-
-		_getItemStoreStateObj: function (/*Object*/item) {
-			// tags
-			//		private
-			return this.storeManager._getItemStoreStateObj(item);
-		},
-
-		getItemStoreState: function (item) {
-			//	summary:
-			//		Returns the creation state of an item.
-			//		This state is changing during the interactive creation of an item.
-			//		Valid values are:
-			//		- "unstored": The event is being interactively created. It is not in the store yet.
-			//		- "storing": The creation gesture has ended, the event is being added to the store.
-			//		- "stored": The event is not in the two previous states, and is assumed to be in the store
-			//		(not checking because of performance reasons, use store API for testing existence in store).
-			// item: Object
-			//		The item.
-			// returns: String
-
-			return this.storeManager.getItemStoreState(item);
-		},
-
-		_cleanItemStoreState: function (id) {
-			this.storeManager._cleanItemStoreState(id);
-		},
-
-		_setItemStoreState: function (/*Object*/item, /*String*/state) {
-			// tags
-			//		private
-			this.storeManager._setItemStoreState(item, state);
-		},
-
 		_refreshDecorationItemsRendering: function () {
 			this._computeVisibleItems();
 			this._layoutDecorationRenderers();
@@ -1084,11 +989,6 @@ define([
 
 			this._layoutRenderers();
 			this._layoutDecorationRenderers();
-		},
-
-		_setDecorationStoreAttr: function (value) {
-			this._set("decorationStore", value);
-			this.decorationStoreManager.store = value;
 		},
 
 		////////////////////////////////////////////////////////
@@ -1309,7 +1209,7 @@ define([
 
 		getRenderers: function (item) {
 			// summary:
-			//		Returns the renderers that are currently used to displayed the speficied item.
+			//		Returns the renderers that are currently used to displayed the specified item.
 			//		Returns an array of objects that contains two properties:
 			//		- container: The DOM node that contains the renderer.
 			//		- renderer: The dojox.calendar._RendererMixin instance.
@@ -1629,17 +1529,13 @@ define([
 			}
 
 			if (this._onRendererHandleMouseDown) {
-
 				var f = this.createItem;
-
 				if (!f) {
 					return;
 				}
 
 				var newItem = this._createdEvent = f(this, this.getTime(e), e, this.getSubColumn(e));
-
-				var store = this.store;
-
+				var store = this.source;
 				if (!newItem || store == null) {
 					return;
 				}
@@ -1659,12 +1555,8 @@ define([
 				this._setItemStoreState(newItem, "unstored");
 
 				// add the new temporary item to the displayed list and force view refresh
-				var items = this.items;
-
-				this.items = (items ? items.concat([newRenderItem]) : [newRenderItem]);
-				
-				
-
+				var items = this.renderItems;
+				this.renderItems = (items ? items.concat([newRenderItem]) : [newRenderItem]);
 				this.deliver();	// trigger renderer for new item to be created
 
 				// renderer created in _refreshItemsRenderering()
@@ -1938,10 +1830,10 @@ define([
 				p.editSaveEndTime = item.endTime;
 
 				p.editItemToRenderer = this.rendererManager.itemToRenderer;
-				p.editItems = this.items;
+				p.editItems = this.renderItems;
 				p.editRendererList = this.rendererManager.rendererList;
 
-				this.items = [p.editedItem];
+				this.renderItems = [p.editedItem];
 				var id = p.editedItem.id;
 
 				this.rendererManager.itemToRenderer = {};
@@ -2012,7 +1904,7 @@ define([
 			}
 
 			if (!p.liveLayout) {
-				this.items = p.editItems;
+				this.renderItems = p.editItems;
 				this.rendererManager.rendererList = p.editRendererList.concat(this.rendererManager.rendererList);
 				lang.mixin(this.rendererManager.itemToRenderer, p.editItemToRenderer);
 			}
@@ -2036,7 +1928,7 @@ define([
 			var synthEvent = this.emit("item-edit-end", e);
 
 			if (!synthEvent.defaultPrevented) {
-				var store = this.store;
+				var store = this.source;
 
 				// updated store item
 				var storeItem = this.renderItemToItem(e.item, store);
@@ -2076,7 +1968,6 @@ define([
 
 					} else { // creation canceled
 						// cleanup items list
-
 						this._removeRenderItem(s.id);
 					}
 
@@ -2093,7 +1984,7 @@ define([
 		},
 
 		_removeRenderItem: function (id) {
-			var items = this.items;
+			var items = this.renderItems;
 			var l = items.length;
 			for (var i = l - 1; i >= 0; i--) {
 				if (items[i].id == id) {
@@ -2283,7 +2174,7 @@ define([
 					// TODO abstract change?
 					item.subColumn = subColumn;
 					// refresh the other properties that depends on this one (especially cssClass)
-					var store = this.store;
+					var store = this.source;
 					var storeItem = this.renderItemToItem(item, store);
 					lang.mixin(item, this.itemToRenderItem(storeItem, store));
 					moveOrResizeDone = true;
@@ -2421,7 +2312,7 @@ define([
 			// tags:
 			//		private
 
-			list = list || this.items;
+			list = list || this.renderItems;
 			for (var i = 0; i < list.length; i++) {
 				if (list[i].id == id) {
 					return list[i];

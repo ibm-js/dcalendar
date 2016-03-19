@@ -47,16 +47,16 @@ define([
 
 		// List of properties to forward to secondary sheet.
 		forwardProperties: [
-			"store", "query", "queryOptions", "startTimeAttr", "endTimeAttr", "summaryAttr", "allDayAttr",
-			"subColumnAttr", "decodeDate", "encodeDate", "itemToRenderItem", "renderItemToItem",
-			"datePackage",
-			"endDate", "date", "minDate", "maxDate", "dateInterval", "dateIntervalSteps",
-			"firstDayOfWeek",
-			"formatItemTime",
+			// These are the main properties; they control which date range is shown and which events are shown.
+			// Whenever the user goes forwards or backwards in the SimpleColumnView, it
+			// reruns the query, which in turn resets renderItems[].
+			"renderItems", "startDate", "columnCount",
+
+			// These properties will likely never change but they need to at least be passed once.
 			"editable", "moveEnabled", "resizeEnabled",
-			"createOnGridClick", "createItem",
-			"textDir", "decorationStore",
-			"getIdentity"
+			"createOnGridClick",
+			"textDir",
+			"horizontalRenderer", "labelRenderer"
 		],
 
 		render: register.superCall(function (sup) {
@@ -201,6 +201,35 @@ define([
 				sup.apply(this, arguments);
 				if (this.secondarySheet) {
 					this.secondarySheet._setHScrollPosition(pos);
+				}
+			};
+		}),
+
+
+		// Forward updates from the store to the secondarySheet
+		itemRemoved: dcl.superCall(function (sup) {
+			return function (index, renderItems) {
+				sup.apply(this, arguments);
+				if (this.secondarySheet) {
+					this.secondarySheet.itemRemoved(index, renderItems);
+				}
+			};
+		}),
+
+		itemAdded: dcl.superCall(function (sup) {
+			return function (newIndex, newItem, renderItems) {
+				sup.apply(this, arguments);
+				if (this.secondarySheet) {
+					this.secondarySheet.itemAdded(newIndex, newItem, renderItems);
+				}
+			};
+		}),
+
+		itemUpdated: dcl.superCall(function (sup) {
+			return function (index, newItem, renderItems) {
+				sup.apply(this, arguments);
+				if (this.secondarySheet) {
+					this.secondarySheet.itemUpdated(index, newItem, renderItems);
 				}
 			};
 		})

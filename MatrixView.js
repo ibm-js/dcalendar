@@ -206,7 +206,7 @@ define([
 				this.expandRendererHeight = 15;
 			}
 
-			if ("startDate" in oldVals || "columnCount" in oldVals || "rowCount" in oldVals) {
+			if ("startDate" in oldVals || "columnCount" in oldVals || "rowCount" in oldVals || "source" in oldVals) {
 				this.dates = [];
 				var d = this.floorToDay(this.startDate);
 				for (var row = 0; row < this.rowCount; row++) {
@@ -221,6 +221,10 @@ define([
 				this.endTime = this.newDate(this.dates[this.rowCount - 1][this.columnCount - 1], this);
 				this.endTime = this.dateModule.add(this.endTime, "day", 1);
 				this.endTime = this.floorToDay(this.endTime, true);
+
+				if (this.source) {
+					this.query = new this.source.Filter().lte("startTime", this.endTime).gte("endTime", this.startTime);
+				}
 			}
 		},
 

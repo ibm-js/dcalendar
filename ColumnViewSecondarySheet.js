@@ -25,8 +25,6 @@ define([
 
 		cellPaddingTop: 4,
 
-		roundToDay: false,
-
 		_defaultHeight: -1,
 
 		layoutDuringResize: true,

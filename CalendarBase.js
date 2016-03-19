@@ -259,7 +259,7 @@ define([
 		// List of the properties in the calendar that should be reflected to the views,
 		// not including properties to set time range.  Those are handled in _configureView().
 		forwardProperties: [
-			"store", "query", "queryOptions", "startTimeAttr", "endTimeAttr", "summaryAttr", "allDayAttr",
+			"source", "query", "queryOptions", "startTimeAttr", "endTimeAttr", "summaryAttr", "allDayAttr",
 			"subColumnAttr", "decodeDate", "encodeDate", "itemToRenderItem", "renderItemToItem", "cssClassFunc",
 			"datePackage",
 			"endDate", "date", "minDate", "maxDate", "dateInterval", "dateIntervalSteps",
@@ -267,9 +267,11 @@ define([
 			"formatItemTime",
 			"editable", "moveEnabled", "resizeEnabled",
 			"createOnGridClick", "createItem",
-			"textDir", "decorationStore",
+			"textDir",
 			"getIdentity"
 		],
+		// TODO: maybe I can use introspection on delite/StoreMap rather than listing the properties directly?
+		// TODO: have to use another word than "query", because "query" is computed based on startTime / endTime.
 
 		// currentView: dcalendar/ViewBase
 		//		The current view displayed by the Calendar object.
@@ -450,6 +452,11 @@ define([
 
 				this.emit("view-configuration-change");
 			}
+		},
+
+		queryStoreAndInitItems: function () {
+			// Short circuit the delite/Store code.  We don't want to actually query the store,
+			// because that's done in the active view.  We just mix in StoreMixin for the list of properties
 		},
 
 		_timeInterval: null,
