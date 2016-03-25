@@ -1,0 +1,15 @@
+.d-calendar {
+	display: flex;
+	flex-direction: column;
+
+	.button-container {
+		border: 1px solid #B5BCC7;
+		border-bottom: 0px;
+	}
+
+	.view-container {
+		flex: 1;		// use up all available space
+		height: auto;	// override height:100% setting for <d-view-stack>
+		overflow: hidden;
+	}
+}

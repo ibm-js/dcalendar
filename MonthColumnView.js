@@ -15,7 +15,9 @@ define([
 	"dojo/dom-construct",
 	"dojo/mouse",
 	"dojo/i18n",
-	"./metrics"
+	"./metrics",
+	"delite/theme!./themes/{{theme}}/MonthColumnView.css",
+	"delite/theme!./themes/{{theme}}/MonthColumnView_rtl.css"
 ], function (
 	dcl,
 	ViewBase,

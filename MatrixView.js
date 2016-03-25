@@ -12,7 +12,9 @@ define([
 	"dojo/dom-construct",
 	"dojo/i18n",
 	"./ViewBase",
-	"delite/handlebars!./templates/MatrixView.html"
+	"delite/handlebars!./templates/MatrixView.html",
+	"delite/theme!./themes/{{theme}}/MatrixView.css",
+	"delite/theme!./themes/{{theme}}/MatrixView_rtl.css"
 ], function (
 	register,
 	lang,

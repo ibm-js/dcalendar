@@ -1,0 +1,74 @@
+@import "MatrixViewCommon.less";
+
+.d-calendar-matrix-view.d-rtl {
+
+	.d-calendar-grid {
+		right: @row-header-width;
+		left: 0;
+	}
+
+	.d-calendar-grid-table td {
+		text-align: left;
+		border-bottom: @inner-border;
+		border-left: @inner-border;
+		border-right: none;
+	}
+
+	.d-calendar-grid-table td span {
+		padding-left: 2px;
+	}
+
+	.d-calendar-grid-table td:last-child {
+		border-left: @outer-border;
+	}
+
+	.d-calendar-container {
+		right: @row-header-width;
+		left: 0;
+	}
+
+	.d-calendar-container-table td {
+		border-bottom: solid 1px transparent;
+		border-right: solid 1px transparent;
+		text-align: right;
+		vertical-align: top;
+	}
+
+	.d-calendar-year-column-header {
+		position: absolute;
+		right: 0;
+		left: auto;
+	}
+
+	.d-calendar-column-header {
+		right: @row-header-width;
+		left: 0;
+	}
+
+	.d-calendar-column-header-table td {
+		border-left: @outer-border;
+		border-right: none;
+	}
+
+	.d-calendar-row-header {
+		right: 0;
+		left: auto;
+	}
+
+	.d-calendar-event.d-calendar-horizontal .labels {
+		text-align: right;
+	}
+
+	.d-calendar-event.d-calendar-label .labels {
+		text-align: right;
+	}
+
+	.d-calendar-event .resize-start-handle {
+		right: 0;
+	}
+
+	.d-calendar-event .resize-end-handle {
+		left:0;
+		right:auto;
+	}
+}

@@ -1,0 +1,13 @@
+.d-calendar {
+  display: flex;
+  flex-direction: column;
+}
+.d-calendar .button-container {
+  border: 1px solid #B5BCC7;
+  border-bottom: 0px;
+}
+.d-calendar .view-container {
+  flex: 1;
+  height: auto;
+  overflow: hidden;
+}

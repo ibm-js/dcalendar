@@ -11,7 +11,8 @@ define([
 	"./ExpandRenderer",
 	"./Keyboard",
 	"./Mouse",
-	"delite/handlebars!./templates/Calendar.html"
+	"delite/handlebars!./templates/Calendar.html",
+	"delite/theme!./themes/{{theme}}/Calendar.css"
 ], function (
 	register,
 	CalendarBase,
