@@ -163,8 +163,6 @@ define([
 				renderer.container.parentNode.removeChild(renderer.container);
 			}
 
-			domStyle.set(renderer.container, "display", "none");
-
 			renderer.renderer.owner = null;
 			renderer.renderer.item = null;
 		},

@@ -1390,7 +1390,6 @@ define([
 				renderer.deliver();
 
 				domConstruct.place(ir.container, cell);
-				domStyle.set(ir.container, "display", "block");
 			}
 		},
 
