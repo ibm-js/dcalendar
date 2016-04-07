@@ -7,8 +7,7 @@ define([
 	"dojo/dom-style",
 	"dojo/dom-construct",
 	"dojo/dom-geometry",
-	"delite/Widget",
-	"./StoreMixin",
+	"./StoreBase",
 	"./time",
 	"dojo/i18n!./nls/buttons"
 ], function (
@@ -20,8 +19,7 @@ define([
 	domStyle,
 	domConstruct,
 	domGeometry,
-	Widget,
-	StoreMixin,
+	StoreBase,
 	timeUtil,
 	_nls
 ) {
@@ -139,7 +137,7 @@ define([
 	};
 	=====*/
 
-	return dcl([Widget, StoreMixin], {
+	return dcl(StoreBase, {
 
 		// summary:
 		//		This class defines a generic calendar widget that manages several views to display event in time.
@@ -456,7 +454,7 @@ define([
 
 		queryStoreAndInitItems: function () {
 			// Short circuit the delite/Store code.  We don't want to actually query the store,
-			// because that's done in the active view.  We just mix in StoreMixin for the list of properties
+			// because that's done in the active view.  We just mix in StoreBase for the list of properties
 		},
 
 		_timeInterval: null,

@@ -1,9 +1,10 @@
 define([
 	"dcl/dcl",
+	"delite/Widget",
 	"delite/StoreMap"
-], function (dcl, StoreMap) {
+], function (dcl, Widget, StoreMap) {
 
-	return dcl(StoreMap, {
+	return dcl([Widget, StoreMap], {
 		// summary:
 		//		This mixin contains the store management, and is mixed into both CalendarBase and ViewBase.
 
@@ -188,8 +189,6 @@ define([
 				}
 			};
 		}),
-
-
 			
 		_getItemStoreStateObj: function (/*Object*/ item) {
 			// tags

@@ -12,10 +12,9 @@ define([
 	"dojo/date",
 	"dojo/date/locale",
 	"dojo/when",
-	"delite/Widget",
 	"delite/Selection",
 	"./time",
-	"./StoreMixin",
+	"./StoreBase",
 	"./RendererManager"
 ], function (
 	dcl,
@@ -31,10 +30,9 @@ define([
 	date,
 	locale,
 	when,
-	Widget,
 	Selection,
 	timeUtil,
-	StoreMixin,
+	StoreBase,
 	RendererManager
 ) {
 
@@ -114,7 +112,7 @@ define([
 	var cssPrefix = has("webkit") ? "-webkit-" : has("mozilla") ?  "-moz-" : "";
 
 
-	return dcl([Widget, StoreMixin, Selection], {
+	return dcl([StoreBase, Selection], {
 
 		// summary:
 		//		Base class of the views (ColumnView, MatrixView, etc.).
