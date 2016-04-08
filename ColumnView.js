@@ -6,9 +6,7 @@ define([
 	"dojo/dom-style",
 	"./SimpleColumnView",
 	"delite/handlebars!./templates/ColumnView.html",
-	"./ColumnViewSecondarySheet",
-	"delite/theme!./themes/{{theme}}/ColumnView.css",
-	"delite/theme!./themes/{{theme}}/ColumnView_rtl.css"
+	"./ColumnViewSecondarySheet"
 ], function (
 	dcl,
 	register,
