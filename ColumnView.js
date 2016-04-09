@@ -143,7 +143,6 @@ define([
 					domStyle.set(this.subHeader, "top", top + "px");
 					top += domGeometry.getMarginBox(this.subHeader).h;
 				}
-				domStyle.set(this.scrollContainer, "top", top + "px");
 				if (this.vScrollBar) {
 					domStyle.set(this.vScrollBar, "top", top + "px");
 				}

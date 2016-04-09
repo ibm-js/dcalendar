@@ -624,8 +624,6 @@ define([
 					"right": (atRight ? this.scrollbarWidth : this.rowHeaderWidth) + "px"
 				});
 
-				domStyle.set(this.scrollContainer, "bottom", this.hScrollBarEnabled ?
-					(this.scrollbarHeight + 1) + "px" : "0");
 				this._configureHScrollDomNodes(this.hScrollBarEnabled ? this.minSheetWidth + "px" : "100%");
 
 				this.hScrollBar.maximum = this.minSheetWidth;

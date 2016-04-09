@@ -8,26 +8,23 @@
   padding: 1px 2px 2px 1px;
 }
 .d-calendar-column-view {
-  display: block;
+  display: flex;
+  flex-direction: column;
   cursor: default;
   -webkit-user-select: none;
 }
 .d-calendar-column-view .d-calendar-header {
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 0;
-  height: 29px;
+  display: flex;
+  align-items: stretch;
   -webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;
   box-sizing: border-box;
 }
+.d-calendar-column-view .d-calendar-header td {
+  padding: 9px 0px;
+}
 .d-calendar-column-view .d-calendar-scroll-container {
-  left: 0;
-  right: 0;
-  bottom: 0;
-  top: 33px;
-  position: absolute;
+  flex: 1;
   overflow-y: hidden;
   overflow-x: hidden;
   border-top: 1px solid #b5bcc7;
@@ -169,11 +166,7 @@
   -ms-user-select: none;
 }
 .d-calendar-column-view .d-calendar-year-column-header {
-  position: absolute;
-  height: 29px;
-  left: 0;
   width: 68px;
-  top: 0;
   border-left: 1px solid #b5bcc7;
   border-top: 1px solid #b5bcc7;
   border-right: 1px solid #b5bcc7;
@@ -193,13 +186,8 @@
   background-repeat: repeat-x;
 }
 .d-calendar-column-view .d-calendar-column-header {
-  position: absolute;
-  height: 30px;
-  left: 70px;
-  right: 0;
-  top: 0;
+  flex: 1;
   cursor: default;
-  overflow: hidden;
 }
 .d-calendar-column-view .d-calendar-column-header.d-calendar-horizontal-scroll {
   border-right: 1px solid #b5bcc7;
@@ -257,11 +245,7 @@
   transition-duration: 0s;
 }
 .d-calendar-column-view .d-calendar-sub-header {
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 72px;
-  height: 20px;
+  position: relative;
   -webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;
   box-sizing: border-box;
@@ -532,10 +516,7 @@
   overflow-y: hidden;
 }
 .d-calendar-column-view .d-calendar-column-view-secondary-sheet {
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 30px;
+  position: relative;
   height: 39px;
 }
 .d-calendar-column-view .d-calendar-column-view-secondary-sheet .d-calendar-grid {
@@ -679,7 +660,7 @@
   top: 72px;
 }
 .d-calendar-column-view.secondary-sheet .d-calendar-sub-header {
-  top: 72px;
+  margin-top: 3px;
   display: none;
 }
 .d-calendar-column-view.secondary-sheet .d-calendar-v-scroll-bar {
@@ -689,7 +670,7 @@
   top: 92px;
 }
 .d-calendar-column-view.sub-columns.secondary-sheet .d-calendar-sub-header {
-  top: 72px;
+  margin-top: 3px;
   display: block;
 }
 .d-calendar-column-view.sub-columns.secondary-sheet .d-calendar-v-scroll-bar {

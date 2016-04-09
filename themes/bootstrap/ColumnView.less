@@ -1,25 +1,25 @@
 @import "ColumnViewCommon.less";
 
 .d-calendar-column-view {
-	display: block;
+	display: flex;
+	flex-direction: column;
 	cursor: default;
 	-webkit-user-select: none;
 
+	// Header with days of week listed.
 	.d-calendar-header {
-		position: absolute;
-		left: 0;
-		right: 0;
-		top: 0;
-		height: @column-header-height - 1px;
+		display: flex;
+		align-items: stretch;	// stretch out d-calendar-year-column-header if shorter than d-calendar-column-header
 		.border-box;
+
+		td {
+			padding: 9px 0px;
+		}
 	}
 
+	// Main box, with timestamps on left and tasks in the center.
 	.d-calendar-scroll-container {
-		left: 0;
-		right: 0;
-		bottom: 0;
-		top: @sheet-top;
-		position: absolute;
+		flex: 1;			// take up all the remaining space
 		overflow-y: hidden;
 		overflow-x: hidden;
 		border-top: @outer-border;
@@ -27,6 +27,7 @@
 		.border-box;
 	}
 
+	// Task data, second child of d-calendar-scroll-container.
 	.d-calendar-grid {
 		position: absolute;
 		left: @row-header-width;
@@ -183,11 +184,7 @@
 	}
 
 	.d-calendar-year-column-header {
-		position: absolute;
-		height: @column-header-height - 1px;
-		left: 0;
 		width: @row-header-width - 2px;
-		top: 0;
 		border-left: @outer-border;
 		border-top: @outer-border;
 		border-right: @outer-border;
@@ -208,13 +205,8 @@
 	}
 
 	.d-calendar-column-header {
-		position: absolute;
-		height: @column-header-height;
-		left: @row-header-width;
-		right: 0;
-		top: 0;
+		flex: 1;		// take all remaining horizontal space
 		cursor: default;
-		overflow: hidden;
 	}
 
 	.d-calendar-column-header.d-calendar-horizontal-scroll {
@@ -268,11 +260,7 @@
 	}
 
 	.d-calendar-sub-header {
-		position: absolute;
-		left: 0;
-		right: 0;
-		top: 72px;
-		height: @sub-column-header-height;
+		position: relative;
 		-webkit-box-sizing: border-box;
 		-moz-box-sizing: border-box;
 		box-sizing: border-box;
@@ -561,10 +549,7 @@
 	}
 
 	.d-calendar-column-view-secondary-sheet {
-		position: absolute;
-		left: 0;
-		right: 0;
-		top: @column-header-height;
+		position: relative;
 		height: @secondary-sheet-height;
 
 		.d-calendar-grid {
@@ -728,7 +713,7 @@
 		top: @sheet-top-secondary-sheet;
 	}
 	.d-calendar-sub-header {
-		top: @column-header-height + @secondary-sheet-height + 3px;
+		margin-top: 3px;
 		display: none;
 	}
 	.d-calendar-v-scroll-bar {
@@ -741,7 +726,7 @@
 		top: @sheet-top-subcolumns-secondary-sheet;
 	}
 	.d-calendar-sub-header {
-		top: @column-header-height + @secondary-sheet-height + 3px;
+		margin-top: 3px;
 		display: block;
 	}
 	.d-calendar-v-scroll-bar {
