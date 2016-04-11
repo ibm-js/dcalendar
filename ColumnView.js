@@ -149,6 +149,22 @@ define([
 			}
 		},
 
+		_buildRowHeader: register.superCall(function (sup) {
+			return function () {
+				sup.apply(this, arguments);
+
+				// The width of the first column in the secondary sheet must have the same width as the row header.
+				if (this.secondarySheet) {
+					var width = domGeometry.getMarginBox(this.rowHeader).w;
+					domGeometry.setMarginBox(this.secondarySheet.rowHeaderTable, {w: width});
+
+					// Hack until MatrixView gets flex sizing.
+					this.secondarySheet.grid.style.left = width + "px";
+					this.secondarySheet.itemContainer.style.left = width + "px";
+				}
+			};
+		}),
+
 		updateRenderers: register.superCall(function (sup) {
 			return function (obj, stateOnly) {
 				sup.apply(this, arguments);

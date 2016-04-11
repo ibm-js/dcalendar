@@ -1,10 +1,7 @@
 <template requires="./VerticalScrollBar, ./HorizontalScrollBar">
 	<div attach-point="header" class="d-calendar-header">
-		<div class="d-calendar-year-column-header" attach-point="yearColumnHeader">
-			<table cellspacing="0" cellpadding="0"><tr><td><span attach-point="yearColumnHeaderContent"></span></td></tr></table>
-		</div>
+		<div class="d-calendar-year-column-header" attach-point="yearColumnHeader"></div>
 		<div attach-point="columnHeader" class="d-calendar-column-header">
-			<table attach-point="columnHeaderTable" class="d-calendar-column-header-table" cellpadding="0" cellspacing="0"></table>
 		</div>
 	</div>
 
@@ -20,18 +17,15 @@
 	</div>
 
 	<div attach-point="scrollContainer" class="d-calendar-scroll-container">
-		<div attach-point="sheetContainer" style="position:relative;left:0;right:0;margin:0;padding:0">
+		<div attach-point="sheetContainer" class="d-calendar-sheet-container">
 			<div attach-point="rowHeader" class="d-calendar-row-header">
-				<table attach-point="rowHeaderTable" class="d-calendar-row-header-table" cellpadding="0" cellspacing="0"></table>
 			</div>
-			<div attach-point="grid" class="d-calendar-grid">
-				<table attach-point="gridTable" class="d-calendar-grid-table" cellpadding="0" cellspacing="0" style="width:100%"></table>
-			</div>
-			<div attach-point="itemContainer" class="d-calendar-container" on-mousedown="{{_onGridMouseDown}}"
+			<div attach-point="itemContainer, grid" class="d-calendar-grid" on-mousedown="{{_onGridMouseDown}}"
 				 on-mouseup="{{_onGridMouseUp}}" on-dblclick="{{_onGridDoubleClick}}"
 				 on-touchstart="{{_onGridTouchStart}}" on-touchmove="{{_onGridTouchMove}}"
 				 on-touchend="{{_onGridTouchEnd}}">
-				<table attach-point="itemContainerTable" class="d-calendar-container-table" cellpadding="0" cellspacing="0" style="width:100%"></table>
+				<table attach-point="gridTable" class="d-calendar-grid-table" cellpadding="0" cellspacing="0"></table>
+				<table attach-point="itemContainerTable" class="d-calendar-container-table" cellpadding="0" cellspacing="0"></table>
 			</div>
 		</div>
 	</div>

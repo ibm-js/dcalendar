@@ -15,7 +15,7 @@ define([
 	"dojo/dom-geometry",
 	"dojo/dom-construct",
 	"dojo/mouse",
-	"./metrics",,
+	"./metrics",
 	"delite/theme!./themes/{{theme}}/ColumnView.css",
 	"delite/theme!./themes/{{theme}}/ColumnView_rtl.css"
 ], function (
@@ -106,14 +106,6 @@ define([
 		//		and a multiple/divisor of timeSlotDuration.
 		rowHeaderLabelSlotDuration: 60,
 
-		// rowHeaderLabelOffset: Integer
-		//		Offset of the row label from the top of the row header cell in pixels.
-		rowHeaderLabelOffset: 2,
-
-		// rowHeaderFirstLabelOffset: Integer
-		//		Offset of the first row label from the top of the first row header cell in pixels.
-		rowHeaderFirstLabelOffset: 2,
-
 		// verticalRenderer: Class
 		//		The class use to create vertical renderers.
 		verticalRenderer: null,
@@ -153,8 +145,7 @@ define([
 		},
 
 		postRender: function () {
-			this._hScrollNodes =
-				[this.columnHeaderTable, this.subColumnHeaderTable, this.gridTable, this.itemContainerTable];
+			this._hScrollNodes =[this.columnHeader, this.subColumnHeaderTable, this.grid];
 
 			this._viewHandles.push(
 				on(this.scrollContainer, mouse.wheel, this._mouseWheelScrollHander.bind(this)));
@@ -690,23 +681,23 @@ define([
 			// tags:
 			//		private
 
-			var table = this.columnHeaderTable;
-			if (!table) {
+			var row = this.columnHeader;
+			if (!row) {
 				return;
 			}
-			var tr = table.rows[0] || table.insertRow();
 
 			// Adjust number of cells to equal this.columnCount.
-			for (var i = tr.children.length; i < this.columnCount; i++) {
-				var td = tr.insertCell();
-				on(td, "click", this._columnHeaderClick.bind(this));
+			for (var i = row.childNodes.length; i < this.columnCount; i++) {
+				var div = this.ownerDocument.createElement("div");
+				row.appendChild(div);
+				on(div, "click", this._columnHeaderClick.bind(this));
 			}
-			for (i = tr.children.length; i > this.columnCount; i--) {
-				tr.removeChild(tr.lastChild);
+			for (i = row.childNodes.length; i > this.columnCount; i--) {
+				row.removeChild(row.lastChild);
 			}
 
 			// fill & configure
-			Array.prototype.forEach.call(tr.children, function (td, i) {
+			Array.prototype.forEach.call(row.children, function (td, i) {
 				td.className = "";
 				td.index = i;
 				var d = this.dates[i];
@@ -714,10 +705,10 @@ define([
 				this.styleColumnHeaderCell(td, d);
 			}, this);
 
-			if (this.yearColumnHeaderContent) {
+			if (this.yearColumnHeader) {
 				var d = this.dates[0];
-				this._setText(this.yearColumnHeaderContent, this.dateLocaleModule.format(d,
-					{selector: "date", datePattern: "yyyy"}));
+				this.yearColumnHeader.textContent = this.dateLocaleModule.format(d,
+					{selector: "date", datePattern: "yyyy"});
 			}
 		},
 
@@ -846,63 +837,44 @@ define([
 			// tags:
 			//		private
 			
-			var table = this.rowHeaderTable;
-			if (!table) {
-				return;
-			}
-
-			if (this._rowHeaderLabelContainer == null) {
-				this._rowHeaderLabelContainer = domConstruct.create("div", {"class":
-					"d-calendar-row-header-label-container"}, this.rowHeader);
-			}
-			
-			domStyle.set(table, "height", this.sheetHeight + "px");
+			var parent = this.rowHeader;
 
 			// Adjust number of rows to match nbRows.
 			var nbRows = Math.floor(60 / this.rowHeaderGridSlotDuration) * this.hourCount;
 			var i;
-			for (i = table.rows.length; i < nbRows; i++) {
-				table.insertRow().insertCell();
+			for (i = parent.childNodes.length; i < nbRows; i++) {
+				var div = this.ownerDocument.createElement("div");
+				parent.appendChild(div);
 			}
-			for (i = table.rows.length; i > nbRows; i--) {
-				table.deleteRow(-1);
+			for (i = parent.childNodes.length; i > nbRows; i--) {
+				parent.removeChild(parent.lasElementChild);
 			}
 
 			// fill labels
 			var size = Math.ceil(this.hourSize / (60 / this.rowHeaderGridSlotDuration));
 			var d = new Date(2000, 0, 1, 0, 0, 0);
 
-			Array.prototype.forEach.call(table.rows, function (tr, i) {
-				var td = tr.firstChild;
-				td.className = "";
-
-				domStyle.set(tr, "height", size + "px");
+			Array.prototype.forEach.call(parent.childNodes, function (child, i) {
+				child.className = "d-calendar-row-header-label";
 
 				var h = this.minHours + (i * this.rowHeaderGridSlotDuration) / 60;
 				var m = (i * this.rowHeaderGridSlotDuration) % 60;
 
-				this.styleRowHeaderCell(td, h, m);
+				this.styleRowHeaderCell(child, h, m);
 
-				this._addMinutesClasses(td, m);
+				this._addMinutesClasses(child, m);
 			}, this);
-
-			var lc = this._rowHeaderLabelContainer;
-			var wantedLabels = Math.floor(60 / this.rowHeaderLabelSlotDuration) * this.hourCount;
-			for (i = lc.childNodes.length; i < wantedLabels; i++) {
-				var span = domConstruct.create("span", null, lc);
-				domClass.add(span, "d-calendar-row-header-label");
-			}
-			for (i = lc.childNodes.length; i > wantedLabels; i--) {
-				lc.removeChild(lc.lastChild);
-			}
 
 			size = Math.ceil(this.hourSize / (60 / this.rowHeaderLabelSlotDuration));
 
-			Array.prototype.forEach.call(lc.children, function (span, i) {
+			Array.prototype.forEach.call(parent.childNodes, function (div, i) {
 				d.setHours(0);
 				d.setMinutes(this.minHours * 60 + (i * this.rowHeaderLabelSlotDuration));
-				this._configureRowHeaderLabel(span, d, i, size * i);
+				this._configureRowHeaderLabel(div, d, i, size * i);
 			}, this);
+
+			// The year label in upper left must have the same width as the row header.
+			domGeometry.setMarginBox(this.yearColumnHeader, {w: domGeometry.getMarginBox(this.rowHeader).w});
 		},
 
 		_configureRowHeaderLabel: function (node, d, index, pos) {
@@ -917,9 +889,7 @@ define([
 			// pos: Integer
 			//		The computed position of the row header cell
 
-			this._setText(node, this._formatRowHeaderLabel(d));
-			domStyle.set(node, "top",
-				(pos + (index === 0 ? this.rowHeaderFirstLabelOffset : this.rowHeaderLabelOffset)) + "px");
+			node.textContent = this._formatRowHeaderLabel(d);
 			var h = this.minHours + (index * this.rowHeaderLabelSlotDuration) / 60;
 			var m = (index * this.rowHeaderLabelSlotDuration) % 60;
 			domClass.remove(node, ["hour", "half-hour", "quarter-hour"]);

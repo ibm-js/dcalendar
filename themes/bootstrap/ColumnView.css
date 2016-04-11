@@ -19,9 +19,13 @@
   -webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;
   box-sizing: border-box;
+  background-color: #efefef;
+  background-image: url("images/titlebar.png");
+  background-repeat: repeat-x;
 }
-.d-calendar-column-view .d-calendar-header td {
-  padding: 9px 0px;
+.d-calendar-column-view .d-calendar-header table,
+.d-calendar-column-view .d-calendar-header > div {
+  margin: 9px 0px;
 }
 .d-calendar-column-view .d-calendar-scroll-container {
   flex: 1;
@@ -33,13 +37,33 @@
   -moz-box-sizing: border-box;
   box-sizing: border-box;
 }
-.d-calendar-column-view .d-calendar-grid {
-  position: absolute;
-  left: 70px;
+.d-calendar-column-view .d-calendar-sheet-container {
+  display: flex;
+  position: relative;
+  left: 0;
   right: 0;
-  overflow: hidden;
+  margin: 0;
+  padding: 0;
 }
-.d-calendar-column-view .d-calendar-grid.d-calendar-horizontal-scroll {
+.d-calendar-column-view .d-calendar-grid {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+  cursor: default;
+}
+.d-calendar-column-view .d-calendar-grid table,
+.d-calendar-column-view .d-calendar-grid tr,
+.d-calendar-column-view .d-calendar-grid td {
+  background-color: transparent;
+}
+.d-calendar-column-view .d-calendar-grid table {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+}
+.d-calendar-column-view .d-calendar-horizontal-scroll {
   border-right: 1px solid #b5bcc7;
 }
 .d-calendar-column-view .d-calendar-grid-table {
@@ -93,24 +117,7 @@
   color: #555555;
   background-color: #efefef;
 }
-.d-calendar-column-view .d-calendar-container {
-  position: absolute;
-  top: 0;
-  left: 70px;
-  right: 0;
-  cursor: default;
-  overflow: hidden;
-}
-.d-calendar-column-view .d-calendar-container table {
-  background-color: transparent;
-}
-.d-calendar-column-view .d-calendar-container table tr {
-  background-color: transparent;
-}
-.d-calendar-column-view .d-calendar-container table tr td {
-  background-color: transparent;
-}
-.d-calendar-column-view .d-calendar-container.d-calendar-horizontal-scroll {
+.d-calendar-column-view .d-calendar-horizontal-scroll {
   border-right: 1px solid #b5bcc7;
 }
 .d-calendar-column-view .d-calendar-container-table {
@@ -120,6 +127,11 @@
   position: relative;
   margin: 0;
   padding: 0;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
 }
 .d-calendar-column-view .d-calendar-container-table td {
   height: 100%;
@@ -166,52 +178,24 @@
   -ms-user-select: none;
 }
 .d-calendar-column-view .d-calendar-year-column-header {
-  width: 68px;
-  border-left: 1px solid #b5bcc7;
-  border-top: 1px solid #b5bcc7;
-  border-right: 1px solid #b5bcc7;
-}
-.d-calendar-column-view .d-calendar-year-column-header table {
-  position: relative;
-  width: 100%;
-  height: 100%;
-}
-.d-calendar-column-view .d-calendar-year-column-header table td {
   text-align: center;
   vertical-align: middle;
-  border-bottom: 1px solid #b5bcc7;
   color: #000000;
-  background-color: #efefef;
-  background-image: url("images/titlebar.png");
-  background-repeat: repeat-x;
 }
 .d-calendar-column-view .d-calendar-column-header {
   flex: 1;
+  display: flex;
   cursor: default;
+  -moz-user-select: none;
+  -webkit-user-select: none;
+  -ms-user-select: none;
 }
-.d-calendar-column-view .d-calendar-column-header.d-calendar-horizontal-scroll {
-  border-right: 1px solid #b5bcc7;
-}
-.d-calendar-column-view .d-calendar-column-header-table {
-  border-collapse: collapse;
-  table-layout: fixed;
-  position: relative;
-  margin: 0;
-  padding: 0;
-  width: 100%;
-  height: 100%;
-}
-.d-calendar-column-view .d-calendar-column-header-table td {
+.d-calendar-column-view .d-calendar-column-header div {
+  flex: 1;
   overflow: hidden;
   white-space: nowrap;
   vertical-align: middle;
   text-align: center;
-  background-color: #efefef;
-  background-image: url("images/titlebar.png");
-  background-repeat: repeat-x;
-  border-right: 1px solid #cccccc;
-  border-top: 1px solid #b5bcc7;
-  border-bottom: 1px solid #b5bcc7;
   -moz-user-select: none;
   -webkit-user-select: none;
   -ms-user-select: none;
@@ -219,24 +203,21 @@
   -webkit-transition-duration: 0.2s;
   transition-duration: 0.2s;
 }
-.d-calendar-column-view .d-calendar-column-header-table td:last-child {
-  border-right: 1px solid #b5bcc7;
-}
-.d-calendar-column-view .d-calendar-column-header-table .d-calendar-today {
+.d-calendar-column-view .d-calendar-column-header .d-calendar-today {
   font-weight: bold;
   color: #ff0000;
 }
-.d-calendar-column-view .d-calendar-column-header-table .d-calendar-weekend {
+.d-calendar-column-view .d-calendar-column-header .d-calendar-weekend {
   color: #759dc0;
 }
-.d-calendar-column-view .d-calendar-column-header-table td:hover {
+.d-calendar-column-view .d-calendar-column-header div:hover {
   cursor: pointer;
   background-image: url("images/titlebar.png");
   background-repeat: repeat-x;
   background-color: #abd6ff;
   border-color: #769dc0;
 }
-.d-calendar-column-view .d-calendar-column-header-table td:active {
+.d-calendar-column-view .d-calendar-column-header div:active {
   cursor: pointer;
   background-color: #7dbefa;
   border-color: #769dc0;
@@ -335,46 +316,22 @@
   background-color: #efefef;
 }
 .d-calendar-column-view .d-calendar-row-header {
-  position: absolute;
-  width: 68px;
+  display: flex;
+  flex-direction: column;
   cursor: default;
   border-left: 1px solid #b5bcc7;
   border-right: 1px solid #b5bcc7;
-  height: 100%;
+  background-color: #efefef;
+  color: #000000;
   -moz-user-select: none;
   -webkit-user-select: none;
   -ms-user-select: none;
 }
-.d-calendar-column-view .d-calendar-row-header-label-container {
-  width: 100%;
-  height: 100%;
-  z-index: 10;
-}
 .d-calendar-column-view .d-calendar-row-header-label {
-  right: 4px;
-  position: absolute;
-}
-.d-calendar-column-view .d-calendar-row-header-table {
-  border-collapse: collapse;
-  table-layout: fixed;
-  position: relative;
-  margin: 0;
-  padding: 0;
-  width: 100%;
-  height: 100%;
-}
-.d-calendar-column-view .d-calendar-row-header-table td.dummy {
-  border-top: 1px solid #efefef;
-}
-.d-calendar-column-view .d-calendar-row-header-table td {
-  background-color: #efefef;
-  color: #000000;
+  flex: 1;
   -webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;
   box-sizing: border-box;
-}
-.d-calendar-column-view .d-calendar-row-header-table tr:first-child td {
-  border-top: 1px solid #efefef;
 }
 .d-calendar-column-view .d-calendar-decoration {
   display: block;
@@ -521,7 +478,6 @@
 }
 .d-calendar-column-view .d-calendar-column-view-secondary-sheet .d-calendar-grid {
   position: absolute;
-  left: 70px;
   right: 0;
   top: 0;
   bottom: 0;
