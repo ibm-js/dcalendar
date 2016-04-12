@@ -224,6 +224,12 @@
 			height:100%;
 			width:100%;
 		}
+
+		// All event (task) renderers need to be position: absolute, even if they don't set the
+		// d-calendar-event class.
+		.d-calendar-container-row > * {
+			position: absolute;
+		}
 	}
 
 	.d-calendar-event-container {

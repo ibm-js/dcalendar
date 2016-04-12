@@ -225,6 +225,9 @@
   height: 100%;
   width: 100%;
 }
+.d-calendar-matrix-view .d-calendar-container-table .d-calendar-container-row > * {
+  position: absolute;
+}
 .d-calendar-matrix-view .d-calendar-event-container {
   position: absolute;
   overflow: hidden;
