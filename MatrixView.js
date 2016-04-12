@@ -124,11 +124,11 @@ define([
 		verticalGap: 2,
 
 		// horizontalRendererHeight: Integer
-		//		The height in pixels of the horizontal and label renderers that is applied by the layout.
+		//		The height in pixels of the horizontal renderers that is applied by the layout.
 		horizontalRendererHeight: 17,
 
-		// horizontalRendererHeight: Integer
-		//		The height in pixels of the horizontal and label renderers that is applied by the layout.
+		// labelRendererHeight: Integer
+		//		The height in pixels of the label renderers that is applied by the layout.
 		labelRendererHeight: 14,
 
 		// expandRendererHeight: Integer
