@@ -218,35 +218,6 @@ define([
 					this.secondarySheet._setHScrollPosition(pos);
 				}
 			};
-		}),
-
-
-		// Forward updates from the store to the secondarySheet
-		itemRemoved: dcl.superCall(function (sup) {
-			return function (index, renderItems) {
-				sup.apply(this, arguments);
-				if (this.secondarySheet) {
-					this.secondarySheet.itemRemoved(index, renderItems);
-				}
-			};
-		}),
-
-		itemAdded: dcl.superCall(function (sup) {
-			return function (newIndex, newItem, renderItems) {
-				sup.apply(this, arguments);
-				if (this.secondarySheet) {
-					this.secondarySheet.itemAdded(newIndex, newItem, renderItems);
-				}
-			};
-		}),
-
-		itemUpdated: dcl.superCall(function (sup) {
-			return function (index, newItem, renderItems) {
-				sup.apply(this, arguments);
-				if (this.secondarySheet) {
-					this.secondarySheet.itemUpdated(index, newItem, renderItems);
-				}
-			};
 		})
 	});
 });
