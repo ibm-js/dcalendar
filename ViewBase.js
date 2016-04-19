@@ -1745,7 +1745,7 @@ define([
 			// rendererKind: String
 			//		The kind of renderer.
 			// returns: Boolean
-			return this.getItemStoreState(item) != "storing" && this.editable &&
+			return this.editable && this.getItemStoreState(item) != "storing" &&
 				(this.owner ? this.owner.isItemEditable(item, rendererKind) : true);
 		},
 
@@ -1759,7 +1759,7 @@ define([
 			//		The kind of renderer.
 			// returns: Boolean
 
-			return this.isItemEditable(item, rendererKind) && this.moveEnabled &&
+			return this.moveEnabled && this.isItemEditable(item, rendererKind) &&
 				(this.owner ? this.owner.isItemMoveEnabled(item, rendererKind) : true);
 		},
 
@@ -1773,7 +1773,7 @@ define([
 			//		The kind of renderer.
 			// returns: Boolean
 
-			return this.isItemEditable(item, rendererKind) && this.resizeEnabled &&
+			return this.resizeEnabled && this.isItemEditable(item, rendererKind) &&
 				(this.owner ? this.owner.isItemResizeEnabled(item, rendererKind) : true);
 		},
 
