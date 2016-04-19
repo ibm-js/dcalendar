@@ -47,11 +47,15 @@ define([
 		encodeDate: null,
 
 		itemToRenderItem: dcl.superCall(function (sup) {
-			return function () {
-				// Override to use decodeDate() method
+			return function (storeItem) {
+				// Override to use decodeDate() method.
 				var ri = sup.apply(this, arguments);
 				ri.startTime = (this.decodeDate || this.newDate)(ri.startTime);
 				ri.endTime = (this.decodeDate || this.newDate)(ri.endTime);
+
+				// Also, some of the code depends on renderItem._item pointing back to the original store item.
+				ri._item = storeItem;
+
 				return ri;
 			};
 		}),
