@@ -102,10 +102,8 @@ define([
 			var expandedH = this._getExpandedHeight();
 			if (this._defaultHeight == h || h < expandedH) {
 				this._expandedRowCol = renderer.columnIndex;
-				this.owner.resizeSecondarySheet(expandedH);
 			} else {
 				delete this._expandedRowCol;
-				this.owner.resizeSecondarySheet(this._defaultHeight);
 			}
 		},
 

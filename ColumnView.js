@@ -103,10 +103,6 @@ define([
 		}),
 
 		refreshRendering: function (props) {
-			if ("subColumns" in props && this.secondarySheet) {
-				var h = domGeometry.getMarginBox(this.secondarySheet).h;
-				this.resizeSecondarySheet(h);
-			}
 			if (this.secondarySheet) {
 				// Forward property changes to second sheet
 				this.forwardProperties.forEach(function (prop) {
@@ -116,36 +112,6 @@ define([
 					}
 				}, this);
 				this.secondarySheet.deliver();
-			}
-		},
-
-		resizeSecondarySheet: function (height) {
-			// summary:
-			//		Resizes the secondary sheet header and relayout the other sub components
-			//		according this new height.
-			//		Warning: this method is only available for the default template and default CSS.
-			// height: Integer
-			//		The new height in pixels.
-
-			if (this.secondarySheet) {
-				var headerH = domGeometry.getMarginBox(this.header).h;
-
-				if (headerH <= 0) {
-					// we were called while hidden or unattached, so just return, otherwise the main
-					// calendar gets put over the column labels and you can't click them.
-					// TODO: fix when this method is called
-					return;
-				}
-				domStyle.set(this.secondarySheet, "height", height + "px");
-				this.secondarySheet._resizeHandler(null, true);
-				var top = (height + headerH + this.headerPadding);
-				if (this.subHeader && this.subColumns) {
-					domStyle.set(this.subHeader, "top", top + "px");
-					top += domGeometry.getMarginBox(this.subHeader).h;
-				}
-				if (this.vScrollBar) {
-					domStyle.set(this.vScrollBar, "top", top + "px");
-				}
 			}
 		},
 
