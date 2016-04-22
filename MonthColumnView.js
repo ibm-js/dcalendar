@@ -561,13 +561,7 @@ define([
 			}, this);
 		},
 
-		// styleGridCell: Function
-		//		Custom function to customize the appearance of a grid cell by installing custom CSS class on the node.
-		//		The signature of the function must be the same then the styleGridCell one.
-		//		By default the defaultStyleGridCell function is used.
-		styleGridCell: null,
-
-		defaultStyleGridCell: function (node, date /*===== , col, row =====*/) {
+		styleGridCell: function (node, date /*===== , col, row =====*/) {
 			// summary:
 			//		Styles the CSS classes to the node that displays a column.
 			//		By default this method is setting the following CSS classes:
@@ -593,28 +587,6 @@ define([
 				domClass.add(node, "d-calendar-today");
 			} else if (this.isWeekEnd(date)) {
 				domClass.add(node, "d-calendar-weekend");
-			}
-		},
-
-		styleGridCell: function (node, date, col, row) {
-			// summary:
-			//		Styles the CSS classes to the node that displays a column.
-			//		Delegates to styleGridCell if defined or defaultStyleGridCell otherwise.
-			// node: Node
-			//		The DOM node that displays the cell in the grid.
-			// date: Date
-			//		The date displayed by this cell.
-			// col: Integer
-			//		The column index of this cell.
-			// row: Integer
-			//		The row index of this cell.
-			// tags:
-			//		protected
-
-			if (this.styleGridCell) {
-				this.styleGridCell(node, date, col, row);
-			} else {
-				this.defaultStyleGridCell(node, date, col, row);
 			}
 		},
 
