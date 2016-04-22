@@ -201,7 +201,6 @@ define([
 				if (!this._autoScroll(e.pageX, e.pageY, true)) {
 					this._moveOrResizeItemGesture([this.getTime(e)], "mouse", e, this.getSubColumn(e));
 				}
-
 			} else if (Math.abs(this._startPoint.x - e.screenX) >= this.triggerExtent ||
 				Math.abs(this._startPoint.y - e.screenY) >= this.triggerExtent) {	// moved enough to trigger editing
 
@@ -252,23 +251,21 @@ define([
 				return false;
 			}
 
-			var scrollerPos = domGeometry.position(this.scrollContainer, true);
+			var scrollerPos = domGeometry.position(this.scrollableNode, true);
 
 			var p = isVertical ? globalY - scrollerPos.y : globalX - scrollerPos.x;
 			var max = isVertical ? scrollerPos.h : scrollerPos.w;
 
 			if (p < 0 || p > max) {
-
 				var step = Math.floor((p < 0 ? p : p - max) / 2) / 3;
 
 				this._startAutoScroll(step);
 
 				return true;
-
 			} else {
-
 				this._stopAutoScroll();
 			}
+
 			return false;
 		}
 	});

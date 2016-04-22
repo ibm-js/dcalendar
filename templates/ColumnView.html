@@ -1,4 +1,4 @@
-<template requires="./VerticalScrollBar, ./HorizontalScrollBar">
+<template>
 	<div attach-point="header" class="d-calendar-header">
 		<div class="d-calendar-year-column-header" attach-point="yearColumnHeader"></div>
 		<div attach-point="columnHeader" class="d-calendar-column-header">
@@ -16,7 +16,7 @@
 		</div>
 	</div>
 
-	<div attach-point="scrollContainer" class="d-calendar-scroll-container">
+	<div attach-point="scrollableNode" class="d-calendar-scroll-container">
 		<div attach-point="sheetContainer" class="d-calendar-sheet-container">
 			<div attach-point="rowHeader" class="d-calendar-row-header">
 			</div>
@@ -29,10 +29,4 @@
 			</div>
 		</div>
 	</div>
-
-	<d-calendar-vertical-scrollbar attach-point="vScrollBar" on-scroll="{{_vScrollBarOnScroll}}">
-	</d-calendar-vertical-scrollbar>
-
-	<d-calendar-horizontal-scrollbar attach-point="hScrollBar" on-scroll="{{_hScrollBarOnScroll}}">
-	</d-calendar-horizontal-scrollbar>
 </template>

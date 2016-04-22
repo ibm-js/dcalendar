@@ -29,16 +29,6 @@ define([
 
 		layoutDuringResize: true,
 
-		postRender: function () {
-			this._hScrollNodes = [this.gridTable, this.itemContainerTable];
-		},
-
-		_configureHScrollDomNodes: function (styleWidth) {
-			this._hScrollNodes.forEach(function (elt) {
-				domStyle.set(elt, "width", styleWidth);
-			}, this);
-		},
-
 		_defaultItemToRendererKindFunc: function (item) {
 			// tags:
 			//		private

@@ -29,7 +29,7 @@
 }
 .d-calendar-column-view .d-calendar-scroll-container {
   flex: 1;
-  overflow-y: hidden;
+  overflow-y: scroll;
   overflow-x: hidden;
   border-top: 1px solid #b5bcc7;
   border-bottom: 1px solid #b5bcc7;
@@ -63,9 +63,6 @@
   top: 0;
   bottom: 0;
 }
-.d-calendar-column-view .d-calendar-horizontal-scroll {
-  border-right: 1px solid #b5bcc7;
-}
 .d-calendar-column-view .d-calendar-grid-table {
   border-collapse: collapse;
   table-layout: fixed;
@@ -75,7 +72,7 @@
   padding: 0;
 }
 .d-calendar-column-view .d-calendar-grid-table td {
-  border-top: dotted 1px 1px solid #b5bcc7;
+  border-top: 1px solid #b5bcc7;
   border-right: 1px solid #cccccc;
   -webkit-box-sizing: border-box;
   -moz-box-sizing: border-box;
@@ -116,9 +113,6 @@
 .d-calendar-column-view span.quarter-hour {
   color: #555555;
   background-color: #efefef;
-}
-.d-calendar-column-view .d-calendar-horizontal-scroll {
-  border-right: 1px solid #b5bcc7;
 }
 .d-calendar-column-view .d-calendar-container-table {
   border-collapse: collapse;
@@ -240,9 +234,6 @@
   top: 0px;
   cursor: default;
   overflow: hidden;
-}
-.d-calendar-column-view .d-calendar-sub-column-header.d-calendar-horizontal-scroll {
-  border-right: 1px solid #b5bcc7;
 }
 .d-calendar-column-view .d-calendar-sub-column-header-table {
   border-collapse: collapse;

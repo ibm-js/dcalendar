@@ -21,7 +21,7 @@
 	// Sized to remaining space in <d-calendar> widget.
 	.d-calendar-scroll-container {
 		flex: 1;			// take up all the remaining space
-		overflow-y: hidden;
+		overflow-y: scroll;	// always show scrollbar so easier to format column headers section
 		overflow-x: hidden;
 		border-top: @outer-border;
 		border-bottom: @outer-border;
@@ -57,10 +57,6 @@
 		}
 	}
 
-	.d-calendar-horizontal-scroll {
-		border-right: @outer-border;
-	}
-
 	.d-calendar-grid-table {
 		border-collapse: collapse;
 		table-layout: fixed;
@@ -70,7 +66,7 @@
 		padding: 0;
 
 		td {
-			border-top: dotted 1px @outer-border;
+			border-top: @outer-border;
 			border-right: @inner-border;
 			.border-box;
 		}
@@ -122,10 +118,6 @@
 	span.quarter-hour {
 		color: @secondary-label-color;
 		background-color: @row-color;
-	}
-
-	.d-calendar-horizontal-scroll {
-		border-right: @outer-border;
 	}
 
 	// Overlays the grid, and displays tasks.
@@ -249,10 +241,6 @@
 		top: 0px;
 		cursor: default;
 		overflow: hidden;
-	}
-
-	.d-calendar-sub-column-header.d-calendar-horizontal-scroll {
-		border-right: @outer-border;
 	}
 
 	.d-calendar-sub-column-header-table {

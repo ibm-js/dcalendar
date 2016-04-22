@@ -1,9 +1,9 @@
 define([
 	"dcl/dcl",
 	"./ViewBase",
-	"./VerticalScrollBar",
 	"delite/handlebars!./templates/ColumnView.html",
 	"delite/register",
+	"delite/Scrollable",
 	"dojo/_base/event",
 	"requirejs-dplugins/has",
 	"dojo/_base/fx",
@@ -21,9 +21,9 @@ define([
 ], function (
 	dcl,
 	ViewBase,
-	_ScrollBarBase,
 	template,
 	register,
+	Scrollable,
 	event,
 	has,
 	fx,
@@ -51,7 +51,7 @@ define([
 	 };
 	 =====*/
 
-	return register("d-calendar-simple-column", [HTMLElement, ViewBase], {
+	return register("d-calendar-simple-column", [HTMLElement, ViewBase, Scrollable], {
 		// summary:
 		//		The simple column view is displaying a day per column. Each cell of a column is a time slot.
 
@@ -114,12 +114,6 @@ define([
 		//		The class use to create decoration renderers.
 		verticalDecorationRenderer: null,
 
-		// minColumnWidth: Integer
-		//		The minimum column width. If the number of columns and sub columns displayed makes the
-		//		width of a column greater than this property, a horizontal scroll bar is displayed.
-		//		If value <= 0, this constraint is ignored and the columns are using the available space.
-		minColumnWidth: -1,
-
 		// percentOverlap: Integer
 		//		The percentage of the renderer width used to superimpose one item renderer on another
 		//		when two events are overlapping.
@@ -135,21 +129,6 @@ define([
 		// Computed properties, mostly formerly in renderData
 		hourCount: -1,
 		slotSize: -1,
-
-		_vScrollBarOnScroll: function (e) {
-			this._setScrollPosition(e.target.value);
-		},
-
-		_hScrollBarOnScroll: function (e) {
-			this._setHScrollPosition(e.target.value);
-		},
-
-		postRender: function () {
-			this._hScrollNodes =[this.columnHeader, this.subColumnHeaderTable, this.grid];
-
-			this._viewHandles.push(
-				on(this.scrollContainer, mouse.wheel, this._mouseWheelScrollHander.bind(this)));
-		},
 
 		_setVerticalRendererAttr: function (value) {
 			this._destroyRenderersByKind("vertical");			// clear cache
@@ -284,11 +263,6 @@ define([
 		//
 		//////////////////////////////////////////
 
-		// scrollBarRTLPosition: String
-		//		Position of the scroll bar in right-to-left display.
-		//		Valid values are "left" and "right", default value is "left".
-		scrollBarRTLPosition: "left",
-
 		_getStartTimeOfDay: function () {
 			// summary:
 			//		Returns the visible first time of day.
@@ -297,7 +271,7 @@ define([
 			// returns: Object
 
 			var v = (this.maxHours - this.minHours) *
-				this._getScrollPosition() / this.sheetHeight;
+				this.getCurrentScroll().y / this.sheetHeight;
 
 			return {
 				hours: this.minHours + Math.floor(v),
@@ -313,7 +287,7 @@ define([
 			// returns: Integer[]
 
 			var v = (this.maxHours - this.minHours) *
-				(this._getScrollPosition() + this.scrollContainer.offsetHeight) / this.sheetHeight;
+				(this.scrollableNode.scrollTop + this.scrollableNode.offsetHeight) / this.sheetHeight;
 
 			return {
 				hours: this.minHours + Math.floor(v),
@@ -340,21 +314,21 @@ define([
 			}
 		},
 
-		_setStartTimeOfDay: function (hour, minutes, maxDuration, easing) {
+		_setStartTimeOfDay: function (hour, minutes, duration) {
 			// summary:
 			//		Scrolls the view to show the specified first time of day.
 			// hour: Integer
 			//		The hour of the start time of day.
 			// minutes: Integer
 			//		The minutes part of the start time of day.
-			// maxDuration: Integer
+			// duration: Integer
 			//		The max duration of the scroll animation.
 			// tags:
 			//		protected
 
 			hour = hour || this.minHours;
 			minutes = minutes || 0;
-			maxDuration = maxDuration || 0;
+			duration = duration || 0;
 
 			if (minutes < 0) {
 				minutes = 0;
@@ -380,48 +354,9 @@ define([
 			}
 
 			var pos = (timeInMinutes - minH) * this.sheetHeight / (maxH - minH);
-			pos = Math.min(this.sheetHeight - this.scrollContainer.offsetHeight, pos);
+			pos = Math.min(this.sheetHeight - this.scrollableNode.offsetHeight, pos);
 
-			this._scrollToPosition(pos, maxDuration, easing);
-		},
-
-		_scrollToPosition: function (position, maxDuration, easing) {
-			// summary:
-			//		Scrolls the view to show the specified first time of day.
-			// position: Integer
-			//		The position in pixels.
-			// maxDuration: Integer
-			//		The max duration of the scroll animation.
-			// tags:
-			//		protected
-
-			if (maxDuration) {
-				if (this._scrollAnimation) {
-					this._scrollAnimation.stop();
-				}
-
-				var scrollPos = this._getScrollPosition();
-
-				var duration = Math.abs(((position - scrollPos) * maxDuration) / this.sheetHeight);
-
-				this._scrollAnimation = new fx.Animation({
-					curve: [scrollPos, position],
-					duration: duration,
-					easing: easing,
-					onAnimate: this._setScrollImpl.bind(this)
-				});
-
-				this._scrollAnimation.play();
-			} else {
-				this._setScrollImpl(position);
-			}
-		},
-
-		_setScrollImpl: function (v) {
-			this._setScrollPosition(v);
-			if (this.scrollBar) {
-				this.scrollBar.value = v;
-			}
+			this.scrollTo({y: pos}, duration);
 		},
 
 		ensureVisibility: function (start, end, visibilityTarget, margin, duration) {
@@ -487,33 +422,6 @@ define([
 			this._setStartTimeOfDay(Math.floor(t / 60), t % 60);
 		},
 
-		scrollViewHorizontal: function (dir) {
-			// summary:
-			//		Scrolls the view horizontally to the specified direction of one column or sub column (if set).
-			// dir: Integer
-			//		Direction of the scroll. Valid values are -1 and 1.
-			//
-			this._setHScrollPosition(this._getHScrollPosition() + (dir * this.minColumnWidth));
-			if (this.hScrollBar) {
-				this.hScrollBar.value = this._getHScrollPosition();
-			}
-		},
-
-		_hScrollNodes: null,
-
-		_mouseWheelScrollHander: function (e) {
-			// summary:
-			//		Mouse wheel handler.
-			// tags:
-			//		protected
-			if (this.hScrollBarEnabled && e.altKey) {
-				this.scrollViewHorizontal(e.wheelDelta > 0 ? -1 : 1);
-			} else {
-				this.scrollView(e.wheelDelta > 0 ? -1 : 1);
-			}
-			event.stop(e);
-		},
-
 		//////////////////////////////////////////
 		//
 		// HTML structure management
@@ -528,20 +436,9 @@ define([
 				this._rowHeaderWidth = domGeometry.getMarginBox(this.rowHeader).w;
 			}
 
-			var sbMetrics = metrics.getScrollbar();
-			this.scrollbarWidth = sbMetrics.w + 1;
-			this.scrollbarHeight = sbMetrics.h + 1;
-
-			this.hScrollPaneWidth = domGeometry.getMarginBox(this.grid).w;
-
-			this.minSheetWidth = this.minColumnWidth < 0 ? -1 :
-				this.minColumnWidth * this.subColumnCount * this.columnCount;
-			this.hScrollBarEnabled = this.minColumnWidth > 0 && this.hScrollPaneWidth < this.minSheetWidth;
-
 			domStyle.set(this.sheetContainer, "height", this.sheetHeight + "px");
 
 			// TODO: only call these methods when necessary
-			// padding for the scroll bar.
 			this._configureVisibleParts();
 			this._configureScrollBar();
 			this._buildColumnHeader();
@@ -572,97 +469,16 @@ define([
 
 		_configureScrollBar: function () {
 			// summary:
-			//		Sets the scroll bar size and position.
+			//		Do scrollbar related adjustments.
 			// tags:
 			//		protected
 
-			var atRight = this.effectiveDir === "ltr" || this.scrollBarRTLPosition == "right";
-			var rPos = atRight ? "right" : "left";
-			var lPos = atRight ? "left" : "right";
-
-			if (this.vScrollBar) {
-				this.vScrollBar.maximum = this.sheetHeight;
-				domStyle.set(this.vScrollBar, rPos, 0);
-				domStyle.set(this.vScrollBar, atRight ? "left" : "right", "auto");
-				domStyle.set(this.vScrollBar, "bottom", this.hScrollBarEnabled ?
-					this.scrollbarHeight + "px" : "0");
-			}
-			domStyle.set(this.scrollContainer, rPos, this.scrollbarWidth + "px");
-			domStyle.set(this.scrollContainer, lPos, "0");
-			domStyle.set(this.header, rPos, this.scrollbarWidth + "px");
-			domStyle.set(this.header, lPos, "0");
-			domStyle.set(this.subHeader, rPos, this.scrollbarWidth + "px");
-			domStyle.set(this.subHeader, lPos, "0");
-			if (this.buttonContainer && this.owner != null && this.owner.currentView == this) {
-				domStyle.set(this.buttonContainer, rPos, this.scrollbarWidth + "px");
-				domStyle.set(this.buttonContainer, lPos, "0");
-			}
-
-			if (this.hScrollBar) {
-				this._hScrollNodes.forEach(function (elt) {
-					domClass.toggle(elt.parentNode,"d-calendar-horizontal-scroll", this.hScrollBarEnabled);
-				}, this);
-
-				if (!this.hScrollBarEnabled) {
-					this._setHScrollPosition(0);
-					this.hScrollBar.value = 0;
-				}
-
-				domStyle.set(this.hScrollBar, {
-					"display": this.hScrollBarEnabled ? "block" : "none",
-					"height": this.scrollbarHeight + "px",
-					"left": (atRight ? this.rowHeaderWidth : this.scrollbarWidth) + "px",
-					"right": (atRight ? this.scrollbarWidth : this.rowHeaderWidth) + "px"
-				});
-
-				this._configureHScrollDomNodes(this.hScrollBarEnabled ? this.minSheetWidth + "px" : "100%");
-
-				this.hScrollBar.maximum = this.minSheetWidth;
-				this.hScrollBar.containerSize = this.hScrollPaneWidth;
-			}
+			// Compensate for scrollbar on main grid, so that column headers align with main grid columns
+			this.header.style[this.effectiveDir == "ltr" ? "marginRight" : "marginLeft"] =
+				metrics.getScrollbar().w + "px";
 		},
 
-		_configureHScrollDomNodes: function (styleWidth) {
-			this._hScrollNodes.forEach(function (elt) {
-				domStyle.set(elt, "width", styleWidth);
-			});
-		},
-
-		resize: function (e) {
-			this._resizeHandler(e);
-		},
-
-		_resizeHandler: function (e, apply) {
-			// summary:
-			//		Refreshes the scroll bars after a resize of the widget.
-			// e: Event
-			//		The resize event (optional)
-			// apply: Boolean
-			//		Whether apply the changes or wait for 100 ms
-			// tags:
-			//		private
-
-			if (apply) {
-				var hScrollPaneWidth = domGeometry.getMarginBox(this.grid).w;
-
-				if (this.hScrollPaneWidth != hScrollPaneWidth) {
-					// refresh values
-					this.hScrollPaneWidth = hScrollPaneWidth;
-					this.minSheetWidth = this.minColumnWidth < 0 ? -1 :
-						this.minColumnWidth * this.subColumnCount * this.columnCount;
-					this.hScrollBarEnabled = this.minColumnWidth > 0 &&
-						domGeometry.getMarginBox(this.grid).w < this.minSheetWidth;
-				}
-
-				this._configureScrollBar();
-			} else {
-				if (this._resizeTimer !== undefined) {
-					clearTimeout(this._resizeTimer);
-				}
-				this._resizeTimer = setTimeout(function () {
-					this._resizeHandler(e, true);
-				}.bind(this), 100);
-			}
+		resize: function () {
 		},
 
 		_columnHeaderClick: function (e) {
@@ -1525,17 +1341,17 @@ define([
 						this._gridProps.moved = true;
 						var d = e.touches[0].screenY - this._gridProps.start;
 						var value = this._gridProps.scrollTop - d;
-						var max = this.itemContainer.offsetHeight - this.scrollContainer.offsetHeight;
+						var max = this.itemContainer.offsetHeight - this.scrollableNode.offsetHeight;
 						if (value < 0) {
 							this._gridProps.start = e.touches[0].screenY;
-							this._setScrollImpl(0);
+							this.scrollTo({y: 0});
 							this._gridProps.scrollTop = 0;
 						} else if (value > max) {
 							this._gridProps.start = e.touches[0].screenY;
-							this._setScrollImpl(max);
+							this.scrollTo({y: max});
 							this._gridProps.scrollTop = max;
 						} else {
-							this._setScrollImpl(value);
+							this.scrollTo({y: value});
 						}
 					}
 				}
@@ -1700,13 +1516,6 @@ define([
 				return fixed;
 			};
 		}),
-
-		_onScrollTimerTick: function () {
-			// tags:
-			//		private
-
-			this._scrollToPosition(this._getScrollPosition() + this._scrollProps.scrollStep);
-		},
 
 		////////////////////////////////////////////
 		//

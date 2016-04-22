@@ -7,6 +7,7 @@ define([
 	"dojo/dom-style",
 	"dojo/dom-construct",
 	"dojo/dom-geometry",
+	"./metrics",
 	"./StoreBase",
 	"./time",
 	"dojo/i18n!./nls/buttons"
@@ -19,6 +20,7 @@ define([
 	domStyle,
 	domConstruct,
 	domGeometry,
+	metrics,
 	StoreBase,
 	timeUtil,
 	_nls
@@ -450,6 +452,11 @@ define([
 
 				this.emit("view-configuration-change");
 			}
+
+			// Make button container width match width of view, but excluding the column view's scrollbar.
+			var margin = (this.dateInterval === "day" || this.dateInterval === "week") ?
+				metrics.getScrollbar().w + "px" : 0;
+			this.buttonContainer.style[this.effectiveDir == "ltr" ? "marginRight" : "marginLeft"] = margin;
 		},
 
 		queryStoreAndInitItems: function () {

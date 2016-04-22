@@ -15,10 +15,6 @@
   left: 0;
   right: 70px;
 }
-.d-calendar-column-view.d-rtl .d-calendar-grid.d-calendar-horizontal-scroll {
-  border-right: none;
-  border-left: 1px solid #b5bcc7;
-}
 .d-calendar-column-view.d-rtl .d-calendar-grid-table td {
   border-left: 1px solid #b5bcc7;
   border-right: none;
@@ -26,10 +22,6 @@
 .d-calendar-column-view.d-rtl .d-calendar-container {
   left: 0;
   right: 70px;
-}
-.d-calendar-column-view.d-rtl .d-calendar-container.d-calendar-horizontal-scroll {
-  border-right: none;
-  border-left: 1px solid #b5bcc7;
 }
 .d-calendar-column-view.d-rtl .d-calendar-event-container-column {
   margin-right: 2px;
@@ -47,10 +39,6 @@
   left: 0;
   right: 70px;
 }
-.d-calendar-column-view.d-rtl .d-calendar-column-header.d-calendar-horizontal-scroll {
-  border-right: none;
-  border-left: 1px solid #b5bcc7;
-}
 .d-calendar-column-view.d-rtl .d-calendar-column-header-table td {
   border-right: none;
   border-left: 1px solid #cccccc;
@@ -62,10 +50,6 @@
 .d-calendar-column-view.d-rtl .d-calendar-sub-column-header {
   right: 70px;
   left: 0;
-}
-.d-calendar-column-view.d-rtl .d-calendar-sub-column-header.d-calendar-horizontal-scroll {
-  border-right: none;
-  border-left: 1px solid #b5bcc7;
 }
 .d-calendar-column-view.d-rtl .d-calendar-subrow-header {
   left: auto;

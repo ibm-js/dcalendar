@@ -1,9 +1,9 @@
 define([
 	"dcl/dcl",
 	"./ViewBase",
-	"./VerticalScrollBar",
 	"delite/handlebars!./templates/MonthColumnView.html",
 	"delite/register",
+	"delite/Scrollable",
 	"requirejs-dplugins/has",
 	"dojo/_base/fx",
 	"dojo/_base/html",
@@ -21,9 +21,9 @@ define([
 ], function (
 	dcl,
 	ViewBase,
-	_ScrollBarBase,
 	template,
 	register,
+	Scrollable,
 	has,
 	fx,
 	html,
@@ -51,7 +51,7 @@ define([
 	 };
 	 =====*/
 
-	return register("d-calendar-month-column", [HTMLElement, ViewBase], {
+	return register("d-calendar-month-column", [HTMLElement, ViewBase, Scrollable], {
 
 		// summary:
 		//		The month column view is a calendar view used to display a month per column
@@ -134,17 +134,6 @@ define([
 			this.allDayKeyboardUpDownSteps = 1;
 			this.allDayKeyboardLeftRightUnit = "month";
 			this.allDayKeyboardLeftRightSteps = 1;
-		},
-
-		_vScrollBarOnScroll: function (e) {
-			// tags:
-			//		private
-			this.scrollContainer.scrollTop = e.target.value;
-		},
-
-		postRender: function () {
-			this._viewHandles.push(
-				on(this.scrollContainer, mouse.wheel, this._mouseWheelScrollHander.bind(this)));
 		},
 
 		_setVerticalRendererAttr: function (value) {
@@ -283,23 +272,15 @@ define([
 		//		The scroll position of the view.
 		scrollPosition: null,
 
-		// scrollBarRTLPosition: String
-		//		Position of the scroll bar in right-to-left display.
-		//		Valid values are "left" and "right", default value is "left".
-		scrollBarRTLPosition: "left",
-
 		_setScrollPositionAttr: function (value) {
 			this._setScrollPosition(value.date, value.duration, value.easing);
 		},
 
 		_getScrollPositionAttr: function () {
-			return {date: (this.scrollContainer.scrollTop / this.daySize) + 1};
+			return {date: (this.scrollableNode.scrollTop / this.daySize) + 1};
 		},
 
-		_setScrollPosition: function (date, maxDuration, easing) {
-			// tags:
-			//		private
-
+		_setScrollPosition: function (date, duration) {
 			if (date < 1) {
 				date = 1;
 			} else if (date > 31) {
@@ -308,35 +289,7 @@ define([
 
 			var position = (date - 1) * this.daySize;
 
-			if (maxDuration) {
-				if (this._scrollAnimation) {
-					this._scrollAnimation.stop();
-				}
-
-				var duration = Math.abs(((position - this.scrollContainer.scrollTop) * maxDuration) /
-					this.sheetHeight);
-
-				this._scrollAnimation = new fx.Animation({
-					curve: [this.scrollContainer.scrollTop, position],
-					duration: duration,
-					easing: easing,
-					onAnimate: this._setScrollImpl.bind(this)
-				});
-
-				this._scrollAnimation.play();
-			} else {
-				this._setScrollImpl(position);
-			}
-		},
-
-		_setScrollImpl: function (v) {
-			// tags:
-			//		private
-
-			this.scrollContainer.scrollTop = v;
-			if (this.scrollBar) {
-				this.scrollBar.value = v;
-			}
+			this.scrollTo({y: position}, duration);
 		},
 
 		ensureVisibility: function (start, end, visibilityTarget, margin, duration) {
@@ -364,7 +317,7 @@ define([
 				var e = end.getDate() + margin;
 
 				var viewStart = this.scrollPosition.date;
-				var r = domGeometry.getContentBox(this.scrollContainer);
+				var r = domGeometry.getContentBox(this.scrollableNode);
 				var viewEnd = (this.scrollPosition.date + (r.h / this.daySize));
 
 				var visible = false;
@@ -401,14 +354,6 @@ define([
 			this._setScrollPosition(pos);
 		},
 
-		_mouseWheelScrollHander: function (e) {
-			// summary:
-			//		Mouse wheel handler.
-			// tags:
-			//		protected
-			this.scrollView(e.wheelDelta > 0 ? -1 : 1);
-		},
-
 		//////////////////////////////////////////
 		//
 		// HTML structure management
@@ -425,7 +370,6 @@ define([
 			domStyle.set(this.sheetContainer, "height", this.sheetHeight + "px");
 
 			// TODO: only call these methods when necessary
-			// padding for the scroll bar.
 			this._configureScrollBar();
 			this._buildColumnHeader();
 			this._buildGrid();
@@ -433,28 +377,9 @@ define([
 		},
 
 		_configureScrollBar: function () {
-			// summary:
-			//		Sets the scroll bar size and position.
-			// tags:
-			//		protected
-
-			var atRight = this.effectiveDir === "ltr" || this.scrollBarRTLPosition == "right";
-			var rPos = atRight ? "right" : "left";
-			var lPos = atRight ? "left" : "right";
-
-			if (this.scrollBar) {
-				this.scrollBar.maximum = this.sheetHeight;
-				domStyle.set(this.scrollBar, rPos, 0);
-				domStyle.set(this.scrollBar, lPos, "auto");
-			}
-			domStyle.set(this.scrollContainer, rPos, this.scrollbarWidth + "px");
-			domStyle.set(this.scrollContainer, lPos, "0");
-			domStyle.set(this.columnHeader, rPos, this.scrollbarWidth + "px");
-			domStyle.set(this.columnHeader, lPos, "0");
-			if (this.buttonContainer && this.owner != null && this.owner.currentView == this) {
-				domStyle.set(this.buttonContainer, rPos, this.scrollbarWidth + "px");
-				domStyle.set(this.buttonContainer, lPos, "0");
-			}
+			// Compensate for scrollbar on main grid, to make column headers align.
+			this.columnHeader.style[this.effectiveDir == "ltr" ? "marginRight" : "marginLeft"] =
+				metrics.getScrollbar().w + "px";
 		},
 
 		_columnHeaderClick: function (e) {
@@ -1017,7 +942,7 @@ define([
 
 				g.moved = false;
 				g.start = e.touches[0].screenY;
-				g.scrollTop = this.scrollContainer.scrollTop;
+				g.scrollTop = this.scrollableNode.scrollTop;
 			};
 		}),
 
@@ -1043,17 +968,17 @@ define([
 						this._gridProps.moved = true;
 						var d = e.touches[0].screenY - this._gridProps.start;
 						var value = this._gridProps.scrollTop - d;
-						var max = this.itemContainer.offsetHeight - this.scrollContainer.offsetHeight;
+						var max = this.itemContainer.offsetHeight - this.scrollableNode.offsetHeight;
 						if (value < 0) {
 							this._gridProps.start = e.touches[0].screenY;
-							this._setScrollImpl(0);
+							this.scrollTo({y: 0});
 							this._gridProps.scrollTop = 0;
 						} else if (value > max) {
 							this._gridProps.start = e.touches[0].screenY;
-							this._setScrollImpl(max);
+							this.scrollTo({y: max});
 							this._gridProps.scrollTop = max;
 						} else {
-							this._setScrollImpl(value);
+							this.scrollTo({y: value});
 						}
 					}
 				}
@@ -1106,19 +1031,6 @@ define([
 				}
 			};
 		}),
-
-		///////////////////////////////////////////////////////////////
-		//
-		// View limits
-		//
-		///////////////////////////////////////////////////////////////
-
-		_onScrollTimerTick: function () {
-			// tags:
-			//		private
-
-			this._setScrollImpl(this.scrollContainer.scrollTop + this._scrollProps.scrollStep);
-		},
 
 		////////////////////////////////////////////
 		//

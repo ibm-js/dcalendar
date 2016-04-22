@@ -6,7 +6,8 @@ define([
 	"dojo/dom-style",
 	"./SimpleColumnView",
 	"delite/handlebars!./templates/ColumnView.html",
-	"./ColumnViewSecondarySheet"
+	"./ColumnViewSecondarySheet",
+	"./metrics"
 ], function (
 	dcl,
 	register,
@@ -15,7 +16,8 @@ define([
 	domStyle,
 	SimpleColumnView,
 	template,
-	ColumnViewSecondarySheet
+	ColumnViewSecondarySheet,
+	metrics
 ) {
 
 	return register("d-calendar-column-view", [SimpleColumnView], {
@@ -156,33 +158,10 @@ define([
 		_configureScrollBar: register.superCall(function (sup) {
 			return function () {
 				sup.apply(this, arguments);
-				if (this.secondarySheet) {
-					var atRight = (this.effectiveDir === "ltr" || this.scrollBarRTLPosition == "right");
-					domStyle.set(this.secondarySheet, atRight ? "right" : "left", this.scrollbarWidth + "px");
-					domStyle.set(this.secondarySheet, atRight ? "left" : "right", "0");
 
-					this.secondarySheet._hScrollNodes.forEach(function (elt) {
-						domClass.toggle(elt.parentNode, "d-calendar-horizontal-scroll", this.hScrollBarEnabled);
-					}, this);
-				}
-			};
-		}),
-
-		_configureHScrollDomNodes: register.superCall(function (sup) {
-			return function (styleWidth) {
-				sup.apply(this, arguments);
-				if (this.secondarySheet && this.secondarySheet._configureHScrollDomNodes) {
-					this.secondarySheet._configureHScrollDomNodes(styleWidth);
-				}
-			};
-		}),
-
-		_setHScrollPosition: register.superCall(function (sup) {
-			return function (pos) {
-				sup.apply(this, arguments);
-				if (this.secondarySheet) {
-					this.secondarySheet._setHScrollPosition(pos);
-				}
+				// Compensate for scrollbar on main grid, to make secondary sheet columns align with main columns
+				this.secondarySheet.style[this.effectiveDir == "ltr" ? "marginRight" : "marginLeft"] =
+					metrics.getScrollbar().w + "px";
 			};
 		})
 	});
