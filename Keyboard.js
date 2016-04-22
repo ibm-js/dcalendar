@@ -3,7 +3,7 @@ define([
 	"./ViewBase"
 ], function (dcl, keys, ViewBase) {
 
-	function stopEvent (e) {
+	function stopEvent(e) {
 		e.stopPropagation();
 		e.preventDefault();
 	}
@@ -286,88 +286,88 @@ define([
 			var focusedItem = this.focusedItem;
 
 			switch (e.key) {
-				case "Esc":
+			case "Esc":
+				if (this._isEditing) {
+					if (this._editingGesture) {
+						this._endItemEditingGesture("keyboard", e, true);
+					}
+
+					this._endItemEditing("keyboard", true);
+
+					this._edProps = null;
+				}
+				break;
+
+			case "Spacebar":
+				stopEvent(e); // prevent browser shortcut
+
+				if (focusedItem != null) {
+					this.setSelected(focusedItem, e.ctrlKey ? !this.isSelected(focusedItem) : true);
+				}
+				break;
+
+			case "Enter":
+				stopEvent(e); // prevent browser shortcut
+
+				if (focusedItem != null) {
 					if (this._isEditing) {
-						if (this._editingGesture) {
-							this._endItemEditingGesture("keyboard", e, true);
-						}
-
-						this._endItemEditing("keyboard", true);
-
-						this._edProps = null;
-					}
-					break;
-
-				case "Spacebar":
-					stopEvent(e); // prevent browser shortcut
-
-					if (focusedItem != null) {
-						this.setSelected(focusedItem, e.ctrlKey ? !this.isSelected(focusedItem) : true);
-					}
-					break;
-
-				case "Enter":
-					stopEvent(e); // prevent browser shortcut
-
-					if (focusedItem != null) {
-						if (this._isEditing) {
-							this._endItemEditing("keyboard", false);
-						} else {
-							var renderers = this.rendererManager.itemToRenderer[focusedItem.id];
-
-							if (renderers && renderers.length > 0 &&
-								this.isItemEditable(focusedItem, renderers[0].kind)) {
-
-								this._edProps = {
-									renderer: renderers[0],
-									rendererKind: renderers[0].kind,
-									tempEditedItem: focusedItem,
-									liveLayout: this.liveLayout
-								};
-
-								this.selectedItem = focusedItem;
-
-								this._startItemEditing(focusedItem, "keyboard");
-							}
-						}
-					}
-					break;
-
-				case "ArrowLeft":
-					stopEvent(e); // prevent browser shortcut
-
-					if (this._isEditing) {
-						this._keyboardItemEditing(e, "left");
+						this._endItemEditing("keyboard", false);
 					} else {
-						this._handlePrevNextKeyCode(e, -1);
-					}
-					break;
+						var renderers = this.rendererManager.itemToRenderer[focusedItem.id];
 
-				case "ArrowRight":
-					stopEvent(e); // prevent browser shortcut
+						if (renderers && renderers.length > 0 &&
+							this.isItemEditable(focusedItem, renderers[0].kind)) {
 
-					if (this._isEditing) {
-						this._keyboardItemEditing(e, "right");
-					} else {
-						this._handlePrevNextKeyCode(e, 1);
-					}
-					break;
+							this._edProps = {
+								renderer: renderers[0],
+								rendererKind: renderers[0].kind,
+								tempEditedItem: focusedItem,
+								liveLayout: this.liveLayout
+							};
 
-				case "ArrowUp":
-					if (this._isEditing) {
-						this._keyboardItemEditing(e, "up");
-					} else if (this.scrollable) {
-						this.scrollView(-1);
-					}
-					break;
+							this.selectedItem = focusedItem;
 
-				case "ArrowDown":
-					if (this._isEditing) {
-						this._keyboardItemEditing(e, "down");
-					} else if (this.scrollable) {
-						this.scrollView(1);
+							this._startItemEditing(focusedItem, "keyboard");
+						}
 					}
-					break;
+				}
+				break;
+
+			case "ArrowLeft":
+				stopEvent(e); // prevent browser shortcut
+
+				if (this._isEditing) {
+					this._keyboardItemEditing(e, "left");
+				} else {
+					this._handlePrevNextKeyCode(e, -1);
+				}
+				break;
+
+			case "ArrowRight":
+				stopEvent(e); // prevent browser shortcut
+
+				if (this._isEditing) {
+					this._keyboardItemEditing(e, "right");
+				} else {
+					this._handlePrevNextKeyCode(e, 1);
+				}
+				break;
+
+			case "ArrowUp":
+				if (this._isEditing) {
+					this._keyboardItemEditing(e, "up");
+				} else if (this.scrollable) {
+					this.scrollView(-1);
+				}
+				break;
+
+			case "ArrowDown":
+				if (this._isEditing) {
+					this._keyboardItemEditing(e, "down");
+				} else if (this.scrollable) {
+					this.scrollView(1);
+				}
+				break;
 			}
 		}
 	});

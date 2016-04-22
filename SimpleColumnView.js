@@ -391,18 +391,18 @@ define([
 				var target = null;
 
 				switch (visibilityTarget) {
-					case "start":
-						visible = s >= viewStart && s <= viewEnd;
-						target = s;
-						break;
-					case "end":
-						visible = e >= viewStart && e <= viewEnd;
-						target = e - (viewEnd - viewStart);
-						break;
-					case "both":
-						visible = s >= viewStart && e <= viewEnd;
-						target = s;
-						break;
+				case "start":
+					visible = s >= viewStart && s <= viewEnd;
+					target = s;
+					break;
+				case "end":
+					visible = e >= viewStart && e <= viewEnd;
+					target = e - (viewEnd - viewStart);
+					break;
+				case "both":
+					visible = s >= viewStart && e <= viewEnd;
+					target = s;
+					break;
 				}
 
 				if (!visible) {
@@ -583,7 +583,8 @@ define([
 				// Adjust the number of child <div>'s to match subCount.
 				for (i = div.children.length; i < subCount; i++) {
 					domConstruct.create("div", {
-						"className": "d-calendar-sub-header-cell d-calendar-sub-header-label"}, div);
+						"className": "d-calendar-sub-header-cell d-calendar-sub-header-label"
+					}, div);
 				}
 				for (i = div.children.length; i > subCount; i--) {
 					div.removeChild(div.lastChild);
@@ -634,16 +635,16 @@ define([
 
 		_addMinutesClasses: function (node, minutes) {
 			switch (minutes) {
-				case 0:
-					domClass.add(node, "hour");
-					break;
-				case 30:
-					domClass.add(node, "half-hour");
-					break;
-				case 15:
-				case 45:
-					domClass.add(node, "quarter-hour");
-					break;
+			case 0:
+				domClass.add(node, "hour");
+				break;
+			case 30:
+				domClass.add(node, "half-hour");
+				break;
+			case 15:
+			case 45:
+				domClass.add(node, "quarter-hour");
+				break;
 			}
 		},
 
@@ -693,7 +694,7 @@ define([
 			domGeometry.setMarginBox(this.yearColumnHeader, {w: domGeometry.getMarginBox(this.rowHeader).w});
 		},
 
-		_configureRowHeaderLabel: function (node, d, index, pos) {
+		_configureRowHeaderLabel: function (node, d, index /*=====, pos =====*/) {
 			// summary:
 			//		Configures the label of a row header cell.
 			// node: DOMNode
@@ -746,7 +747,7 @@ define([
 				table.insertRow();
 			}
 			for (i = table.rows.length; i > nbRows; i--) {
-				table.removeRow(i-1);
+				table.removeRow(i - 1);
 			}
 
 			// Likewise, add or remove <td> for each <tr>.
@@ -1133,7 +1134,7 @@ define([
 						// an overlap
 						w = numLanes == 1 ? 100 : (100 / (numLanes - (numLanes - 1) * hOverlap));
 						posX = lane * (w - hOverlap * w);
-						w = extent == 1 ? w : w * ( extent - (extent - 1) * hOverlap);
+						w = extent == 1 ? w : w * (extent - (extent - 1) * hOverlap);
 					}
 
 					ir = this._createRenderer(item, "vertical", this.verticalRenderer, "d-calendar-vertical");

@@ -18,7 +18,7 @@ define(["doh", "../Calendar"], function (doh, Calendar) {
 		 }
 		 },*/
 
-		function test_DayInterval(doh) {
+		function DayInterval(doh) {
 			var o = new Calendar();
 			var cal = o.dateModule;
 			var startDate = new Date(2011, 0, 5);
@@ -36,7 +36,7 @@ define(["doh", "../Calendar"], function (doh, Calendar) {
 			o.destroyRecursive();
 		},
 
-		function test_MultiDayInterval(doh) {
+		function MultiDayInterval(doh) {
 			var o = new Calendar();
 			var cal = o.dateModule;
 			var startDate = new Date(2011, 0, 5);
@@ -54,7 +54,7 @@ define(["doh", "../Calendar"], function (doh, Calendar) {
 			o.destroyRecursive();
 		},
 
-		function test_WeekInterval(doh) {
+		function WeekInterval(doh) {
 			var o = new Calendar({
 				firstDayOfWeek: 0 // do not depend on locale
 			});
@@ -82,7 +82,7 @@ define(["doh", "../Calendar"], function (doh, Calendar) {
 			o.destroyRecursive();
 		},
 
-		function test_MultiWeekInterval(doh) {
+		function MultiWeekInterval(doh) {
 			var o = new Calendar({
 				firstDayOfWeek: 0 // do not depend on locale
 			});
@@ -110,7 +110,7 @@ define(["doh", "../Calendar"], function (doh, Calendar) {
 			o.destroyRecursive();
 		},
 
-		function test_MonthInterval(doh) {
+		function MonthInterval(doh) {
 			var o = new Calendar();
 			var cal = o.dateModule;
 			var startDate = new Date(2011, 0, 5);
@@ -128,7 +128,7 @@ define(["doh", "../Calendar"], function (doh, Calendar) {
 			o.destroyRecursive();
 		},
 
-		function test_MultiMonthInterval(doh) {
+		function MultiMonthInterval(doh) {
 			var o = new Calendar();
 			var cal = o.dateModule;
 			var startDate = new Date(2011, 0, 5);

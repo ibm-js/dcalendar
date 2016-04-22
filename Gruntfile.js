@@ -9,10 +9,7 @@ module.exports = function (grunt) {
 			src: [
 				"**/*.js",
 				"!node_modules/**/*.js",
-
-				// Note: skip this file since it gives a JSHint error about a character being silently deleted.
-				// It will have to be fixed by the translators.
-				"!nls/he/loading.js"
+				"!nls/ar/buttons.js"	// Error about character being silently deleted.  Translation problem??
 			],
 			options: {
 				jshintrc: ".jshintrc"

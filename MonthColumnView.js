@@ -324,18 +324,18 @@ define([
 				var target = null;
 
 				switch (visibilityTarget) {
-					case "start":
-						visible = s >= viewStart && s <= viewEnd;
-						target = s;
-						break;
-					case "end":
-						visible = e >= viewStart && e <= viewEnd;
-						target = e - (viewEnd - viewStart);
-						break;
-					case "both":
-						visible = s >= viewStart && e <= viewEnd;
-						target = s;
-						break;
+				case "start":
+					visible = s >= viewStart && s <= viewEnd;
+					target = s;
+					break;
+				case "end":
+					visible = e >= viewStart && e <= viewEnd;
+					target = e - (viewEnd - viewStart);
+					break;
+				case "both":
+					visible = s >= viewStart && e <= viewEnd;
+					target = s;
+					break;
 				}
 
 				if (!visible) {
@@ -734,7 +734,7 @@ define([
 						// an overlap
 						w = numLanes == 1 ? 100 : (100 / (numLanes - (numLanes - 1) * hOverlap));
 						posX = lane * (w - hOverlap * w);
-						w = extent == 1 ? w : w * ( extent - (extent - 1) * hOverlap);
+						w = extent == 1 ? w : w * (extent - (extent - 1) * hOverlap);
 					}
 
 					ir = this._createRenderer(item, "vertical", this.verticalRenderer, "d-calendar-vertical");

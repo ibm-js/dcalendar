@@ -4,14 +4,13 @@ define([
 	"dojo/date",
 	"dojo/date/locale",
 	"dojox/date/hebrew/Date",
-	"dojox/date/hebrew",
-	"dojox/date/hebrew/locale"
-], function (doh, time, date, dateLocale, hDate, h, hLocale) {
+	"dojox/date/hebrew"
+], function (doh, time, date, dateLocale, HDate, h) {
 	doh.register("tests.unitTest_Time", [
-		function test_decodeDate(doh) {
+		function decodeDate(doh) {
 			var d = new Date(2009, 2, 20, 5, 27, 30, 0);
 			var t = d.getTime();
-			var hd = new hDate(t);
+			var hd = new HDate(t);
 			var s = "2009-03-20T05:27:30";
 
 			doh.is(date.compare(d, time.newDate(d)), 0);
@@ -19,14 +18,14 @@ define([
 			doh.is(date.compare(d, time.newDate(s)), 0);
 			doh.is(date.compare(d, time.newDate(hd)), 0);
 
-			doh.is(h.compare(hd, time.newDate(hd, hDate)), 0);
-			doh.is(h.compare(hd, time.newDate(d, hDate)), 0);
-			doh.is(h.compare(hd, time.newDate(t, hDate)), 0);
-			doh.is(h.compare(hd, time.newDate(s, hDate)), 0);
+			doh.is(h.compare(hd, time.newDate(hd, HDate)), 0);
+			doh.is(h.compare(hd, time.newDate(d, HDate)), 0);
+			doh.is(h.compare(hd, time.newDate(t, HDate)), 0);
+			doh.is(h.compare(hd, time.newDate(s, HDate)), 0);
 
 		},
 
-		function test_firstDayOfWeek_sun(doh) {
+		function firstDayOfWeekSun(doh) {
 			var weekdays = [
 				new Date(2013, 5, 2),
 				new Date(2013, 5, 3),
@@ -49,7 +48,7 @@ define([
 
 		},
 
-		function test_firstDayOfWeek_mon(doh) {
+		function firstDayOfWeekMon(doh) {
 			var weekdays = [
 				new Date(2013, 5, 3),
 				new Date(2013, 5, 4),
@@ -72,7 +71,7 @@ define([
 
 		},
 
-		function test_firstDayOfWeek_sat(doh) {
+		function firstDayOfWeekSat(doh) {
 			var weekdays = [
 				new Date(2013, 5, 1),
 				new Date(2013, 5, 2),

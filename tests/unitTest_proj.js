@@ -1,6 +1,6 @@
 define(["doh", "../ColumnView"], function (doh, ColumnView) {
 	doh.register("tests.unitTest_proj", [
-		function test_Projection_0_24(doh) {
+		function Projection024(doh) {
 
 			var o = new ColumnView({
 				startDate: new Date(2015, 4, 13),
@@ -25,7 +25,7 @@ define(["doh", "../ColumnView"], function (doh, ColumnView) {
 
 		},
 
-		function test_Projection_8_18(doh) {
+		function Projection818(doh) {
 
 			var o = new ColumnView({
 				startDate: new Date(2015, 4, 13),
@@ -58,7 +58,7 @@ define(["doh", "../ColumnView"], function (doh, ColumnView) {
 
 		},
 
-		function test_Projection_12_36(doh) {
+		function Projection1236(doh) {
 
 			var o = new ColumnView({
 				startDate: new Date(2015, 4, 13),
@@ -88,7 +88,6 @@ define(["doh", "../ColumnView"], function (doh, ColumnView) {
 			d = new Date(2012, 4, 14, 20, 0, 0);
 			p = o.computeProjectionOnDate(refDate, d, 1000);
 			doh.is(p, 1000);
-
 		}
 	]);
 });

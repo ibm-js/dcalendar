@@ -138,16 +138,17 @@ define([
 			var d = time.floorToDay(date, reuse, dateClassObj);
 
 			switch (unit) {
-				case "week":
-					// TODO: this won't work because firstDayOfWeek, dateModule, and locale are undefined.
-					return time.floorToWeek(d, firstDayOfWeek, dateModule, locale);
-				case "minute":
-					d.setHours(date.getHours());
-					d.setMinutes(Math.floor(date.getMinutes() / steps) * steps);
-					break;
-				case "hour":
-					d.setHours(Math.floor(date.getHours() / steps) * steps);
-					break;
+			case "week":
+				// TODO: this won't work because firstDayOfWeek, dateModule, and locale are undefined.
+				//return time.floorToWeek(d, firstDayOfWeek, dateModule, locale);
+				throw new Error("unsupported unit");
+			case "minute":
+				d.setHours(date.getHours());
+				d.setMinutes(Math.floor(date.getMinutes() / steps) * steps);
+				break;
+			case "hour":
+				d.setHours(Math.floor(date.getHours() / steps) * steps);
+				break;
 			}
 
 			return d;

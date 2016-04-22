@@ -108,38 +108,38 @@ define([
 			var limit = this.visibilityLimits[elt];
 
 			switch (elt) {
-				case "moveHandle":
-					return this.moveEnabled;
-				case "resizeStartHandle":
-					if (this.mobile) {
-						return this.resizeEnabled && !startHidden && this.edited && (limit == -1 || size > limit);
-					} else {
-						return this.resizeEnabled && !startHidden && (limit == -1 || size > limit);
-					}
-					break;
-				case "resizeEndHandle":
-					if (this.mobile) {
-						return this.resizeEnabled && !endHidden && this.edited && (limit == -1 || size > limit);
-					} else {
-						return this.resizeEnabled && !endHidden && (limit == -1 || size > limit);
-					}
-					break;
-				case "startTimeLabel":
-					if (this.mobile) {
-						return !startHidden && (!this.edited || this.edited && (limit == -1 || size > limit));
-					} else {
-						return !startHidden && (limit == -1 || size > limit);
-					}
-					break;
-				case "endTimeLabel":
-					return this.edited && !endHidden && (limit == -1 || size > limit);
-				case "summaryLabel":
-					if (this.mobile) {
-						return !this.edited || this.edited && (limit == -1 || size > limit);
-					} else {
-						return limit == -1 || size > limit;
-					}
-					break;
+			case "moveHandle":
+				return this.moveEnabled;
+			case "resizeStartHandle":
+				if (this.mobile) {
+					return this.resizeEnabled && !startHidden && this.edited && (limit == -1 || size > limit);
+				} else {
+					return this.resizeEnabled && !startHidden && (limit == -1 || size > limit);
+				}
+				break;
+			case "resizeEndHandle":
+				if (this.mobile) {
+					return this.resizeEnabled && !endHidden && this.edited && (limit == -1 || size > limit);
+				} else {
+					return this.resizeEnabled && !endHidden && (limit == -1 || size > limit);
+				}
+				break;
+			case "startTimeLabel":
+				if (this.mobile) {
+					return !startHidden && (!this.edited || this.edited && (limit == -1 || size > limit));
+				} else {
+					return !startHidden && (limit == -1 || size > limit);
+				}
+				break;
+			case "endTimeLabel":
+				return this.edited && !endHidden && (limit == -1 || size > limit);
+			case "summaryLabel":
+				if (this.mobile) {
+					return !this.edited || this.edited && (limit == -1 || size > limit);
+				} else {
+					return limit == -1 || size > limit;
+				}
+				break;
 			}
 		},
 

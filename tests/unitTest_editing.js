@@ -7,7 +7,7 @@ define([
 ], function (doh, ColumnView, MatrixView, Memory, Observable) {
 	doh.register("tests.unitTest_editing", [
 
-		function test_MoveNoSnap(doh) {
+		function MoveNoSnap(doh) {
 			var item = {id: 0, startTime: new Date(2011, 0, 5, 10), endTime: new Date(2011, 0, 5, 11)};
 			var data = [item];
 
@@ -62,7 +62,7 @@ define([
 			o.destroyRecursive();
 		},
 
-		function test_MoveSnap(doh) {
+		function MoveSnap(doh) {
 			var item = {id: 0, startTime: new Date(2011, 0, 5, 10), endTime: new Date(2011, 0, 5, 11)};
 			var data = [item];
 
@@ -117,7 +117,7 @@ define([
 			o.destroyRecursive();
 		},
 
-		function test_ResizeNoSnap(doh) {
+		function ResizeNoSnap(doh) {
 			var item = {id: 0, startTime: new Date(2011, 0, 5, 10), endTime: new Date(2011, 0, 5, 11)};
 			var data = [item];
 
@@ -172,7 +172,7 @@ define([
 			o.destroyRecursive();
 		},
 
-		function test_ResizeSnap(doh) {
+		function ResizeSnap(doh) {
 			var item = {id: 0, startTime: new Date(2011, 0, 5, 10), endTime: new Date(2011, 0, 5, 11)};
 			var data = [item];
 
@@ -227,7 +227,7 @@ define([
 			o.destroyRecursive();
 		},
 
-		function test_ResizeMinDurationColumnView(doh) {
+		function ResizeMinDurationColumnView(doh) {
 			var item = {id: 0, startTime: new Date(2011, 0, 5, 10), endTime: new Date(2011, 0, 5, 11)};
 			var data = [item];
 
@@ -265,7 +265,7 @@ define([
 			o.destroyRecursive();
 		},
 
-		function test_MoveAllDay(doh) {
+		function MoveAllDay(doh) {
 
 			var item = {id: 0, startTime: new Date(2011, 0, 5), endTime: new Date(2011, 0, 6), allDay: true};
 			var data = [item];
@@ -335,7 +335,7 @@ define([
 			o.destroyRecursive();
 		},
 
-		function test_ResizeStartAllDay(doh) {
+		function ResizeStartAllDay(doh) {
 			var item = {id: 0, startTime: new Date(2011, 0, 5), endTime: new Date(2011, 0, 6), allDay: true};
 			var data = [item];
 
@@ -405,7 +405,7 @@ define([
 		},
 
 
-		function test_ResizeEndAllDay(doh) {
+		function ResizeEndAllDay(doh) {
 			var item = {id: 0, startTime: new Date(2011, 0, 5), endTime: new Date(2011, 0, 6), allDay: true};
 			var data = [item];
 
@@ -474,7 +474,7 @@ define([
 			o.destroyRecursive();
 		},
 
-		function test_MoveNoSnapMatrixView(doh) {
+		function MoveNoSnapMatrixView(doh) {
 			var item = {id: 0, startTime: new Date(2011, 0, 5, 10), endTime: new Date(2011, 0, 7, 11)};
 			var data = [item];
 
@@ -530,7 +530,7 @@ define([
 			o.destroyRecursive();
 		},
 
-		function test_MoveSnapMatrixView(doh) {
+		function MoveSnapMatrixView(doh) {
 			var item = {id: 0, startTime: new Date(2011, 0, 5, 10), endTime: new Date(2011, 0, 7, 11)};
 			var data = [item];
 
@@ -586,7 +586,7 @@ define([
 			o.destroyRecursive();
 		},
 
-		function test_MoveRoundToDayMatrixView(doh) {
+		function MoveRoundToDayMatrixView(doh) {
 			var item = {id: 0, startTime: new Date(2011, 0, 5, 10), endTime: new Date(2011, 0, 7, 11)};
 			var data = [item];
 
@@ -641,7 +641,7 @@ define([
 			o.destroyRecursive();
 		},
 
-		function test_MoveLabelMatrixView(doh) {
+		function MoveLabelMatrixView(doh) {
 			var item = {id: 0, startTime: new Date(2011, 0, 5, 10), endTime: new Date(2011, 0, 5, 11)};
 			var data = [item];
 
@@ -696,7 +696,7 @@ define([
 			o.destroyRecursive();
 		},
 
-		function test_ResizeMinDurationMatrixView(doh) {
+		function ResizeMinDurationMatrixView(doh) {
 			var item = {id: 0, startTime: new Date(2011, 0, 5, 6), endTime: new Date(2011, 0, 6, 12)};
 			var data = [item];
 

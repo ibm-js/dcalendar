@@ -1,4 +1,4 @@
-define( {
+define({
 	previousButton: "◄",
 	nextButton: "►",
 	todayButton: "Hoy",

@@ -6,7 +6,7 @@ define([
 	"./ViewBase"
 ], function (dcl, dom, domGeometry, on, ViewBase) {
 
-	function stopEvent (e) {
+	function stopEvent(e) {
 		e.stopPropagation();
 		e.preventDefault();
 	}
@@ -187,21 +187,21 @@ define([
 					var subColumn = p.editedItem.subColumn;
 
 					switch (p.editKind) {
-						case "move":
-							var touchIndex = p.moveTouchIndex == null || p.moveTouchIndex < 0 ? 0 : p.moveTouchIndex;
-							times[0] = this.getTime(e, -1, -1, touchIndex);
-							subColumn = this.getSubColumn(e, -1, -1, touchIndex);
-							break;
-						case "resizeStart":
-							times[0] = this.getTime(e, -1, -1, p.resizeStartTouchIndex);
-							break;
-						case "resizeEnd":
-							times[0] = this.getTime(e, -1, -1, p.resizeEndTouchIndex);
-							break;
-						case "resizeBoth":
-							times[0] = this.getTime(e, -1, -1, p.resizeStartTouchIndex);
-							times[1] = this.getTime(e, -1, -1, p.resizeEndTouchIndex);
-							break;
+					case "move":
+						var touchIndex = p.moveTouchIndex == null || p.moveTouchIndex < 0 ? 0 : p.moveTouchIndex;
+						times[0] = this.getTime(e, -1, -1, touchIndex);
+						subColumn = this.getSubColumn(e, -1, -1, touchIndex);
+						break;
+					case "resizeStart":
+						times[0] = this.getTime(e, -1, -1, p.resizeStartTouchIndex);
+						break;
+					case "resizeEnd":
+						times[0] = this.getTime(e, -1, -1, p.resizeEndTouchIndex);
+						break;
+					case "resizeBoth":
+						times[0] = this.getTime(e, -1, -1, p.resizeStartTouchIndex);
+						times[1] = this.getTime(e, -1, -1, p.resizeEndTouchIndex);
+						break;
 					}
 
 					this._moveOrResizeItemGesture(times, "touch", e, subColumn);

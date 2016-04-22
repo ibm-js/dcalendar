@@ -864,7 +864,7 @@ define([
 		_resizeRowsImpl: function (tableNode) {
 			// tags:
 			//		private
-			Array.protoype.forEach.call(tableNode.rows, function (tr, i) {
+			Array.prototype.forEach.call(tableNode.rows, function (tr, i) {
 				domStyle.set(tr, "height", this._getRowHeight(i) + "px");
 			}, this);
 		},
@@ -1690,27 +1690,27 @@ define([
 				} else if (item.allDay || this.roundToDay) {
 					var isStartOfDay = this.isStartOfDay(times[0]);
 					switch (editKind) {
-						case "resizeEnd":
-							if (!isStartOfDay && item.allDay) {
-								times[0] = cal.add(times[0], "day", 1);
-							}
-							/* falls through */
-						case "resizeStart":
-							if (!isStartOfDay) {
-								times[0] = this.floorToDay(times[0], true);
-							}
-							break;
-						case "move":
-							times[0] = cal.add(times[0], "day", p.dayOffset);
-							break;
-						case "resizeBoth":
-							if (!isStartOfDay) {
-								times[0] = this.floorToDay(times[0], true);
-							}
-							if (!this.isStartOfDay(times[1])) {
-								times[1] = this.floorToDay(cal.add(times[1], "day", 1), true);
-							}
-							break;
+					case "resizeEnd":
+						if (!isStartOfDay && item.allDay) {
+							times[0] = cal.add(times[0], "day", 1);
+						}
+						/* falls through */
+					case "resizeStart":
+						if (!isStartOfDay) {
+							times[0] = this.floorToDay(times[0], true);
+						}
+						break;
+					case "move":
+						times[0] = cal.add(times[0], "day", p.dayOffset);
+						break;
+					case "resizeBoth":
+						if (!isStartOfDay) {
+							times[0] = this.floorToDay(times[0], true);
+						}
+						if (!this.isStartOfDay(times[1])) {
+							times[1] = this.floorToDay(cal.add(times[1], "day", 1), true);
+						}
+						break;
 					}
 
 				} else {

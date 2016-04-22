@@ -25,13 +25,14 @@ define([
 		_isElementVisible: register.superCall(function (sup) {
 			return function (elt) {
 				switch (elt) {
-					case "startTimeLabel":
-						// hide hour part of all day events on subsequent days
-						if (this.item.allDay && this.item.range[0].getTime() !== this.item.startTime.getTime()) {
-							return false;
-						}
-						break;
+				case "startTimeLabel":
+					// hide hour part of all day events on subsequent days
+					if (this.item.allDay && this.item.range[0].getTime() !== this.item.startTime.getTime()) {
+						return false;
+					}
+					break;
 				}
+
 				return sup.apply(this, arguments);
 			};
 		}),

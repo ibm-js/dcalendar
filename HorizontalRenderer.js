@@ -58,18 +58,18 @@ define([
 				}
 
 				switch (elt) {
-					case "startTimeLabel":
-						d = this.item.startTime;
-						if (this.item.allDay || this.owner.isStartOfDay(d)) {
-							return false;
-						}
-						break;
-					case "endTimeLabel":
-						d = this.item.endTime;
-						if (this.item.allDay || this.owner.isStartOfDay(d)) {
-							return false;
-						}
-						break;
+				case "startTimeLabel":
+					d = this.item.startTime;
+					if (this.item.allDay || this.owner.isStartOfDay(d)) {
+						return false;
+					}
+					break;
+				case "endTimeLabel":
+					d = this.item.endTime;
+					if (this.item.allDay || this.owner.isStartOfDay(d)) {
+						return false;
+					}
+					break;
 				}
 
 				return sup.apply(this, arguments);

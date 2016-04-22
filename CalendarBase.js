@@ -294,10 +294,10 @@ define([
 		},
 
 		postRender: function () {
-			this.viewContainer.on("delite-add-child", function(evt) {
+			this.viewContainer.on("delite-add-child", function (evt) {
 				this._onViewAdded(evt.child);
 			}.bind(this));
-			this.on("delite-remove-child", function(evt) {
+			this.on("delite-remove-child", function (evt) {
 				this.viewContainer._onViewRemoved(evt.child);
 			}.bind(this));
 		},
@@ -357,7 +357,7 @@ define([
 
 				var dis = this.dateIntervalSteps;
 				if (typeof dis === "string") {
-					this.dateIntervalSteps = dis = parseInt(dis);
+					this.dateIntervalSteps = dis = parseInt(dis, 10);
 				}
 				if (dis <= 0) {
 					this.dateIntervalSteps = 1;
@@ -529,19 +529,19 @@ define([
 			var e;
 
 			switch (di) {
-				case "day":
-					e = cal.add(s, "day", dis);
-					break;
-				case "week":
-					s = this.floorToWeek(s);
-					e = cal.add(s, "week", dis);
-					break;
-				case "month":
-					s.setDate(1);
-					e = cal.add(s, "month", dis);
-					break;
-				default:
-					e = cal.add(s, "day", 1);
+			case "day":
+				e = cal.add(s, "day", dis);
+				break;
+			case "week":
+				s = this.floorToWeek(s);
+				e = cal.add(s, "week", dis);
+				break;
+			case "month":
+				s.setDate(1);
+				e = cal.add(s, "month", dis);
+				break;
+			default:
+				e = cal.add(s, "day", 1);
 			}
 			return [s, e];
 		},
@@ -751,7 +751,7 @@ define([
 			// steps: Integer
 			//		For "day" only 1 is valid.
 			// reuse: Boolean
-			//		Whether use the specified instance or create a new one. Default is false.
+			//		Whether use the specified instance or create a new one.  Default is false.
 			// returns: Date
 
 			return timeUtil.floor(date, unit, steps, reuse, this.classFuncObj);

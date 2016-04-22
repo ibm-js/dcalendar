@@ -84,7 +84,7 @@ define([
 			return list == null ? null : list.concat();
 		},
 
-		createRenderer: function (item, kind, rendererClass) {
+		createRenderer: function (item, kind, RendererClass) {
 			// summary:
 			//		Creates an item renderer of the specified kind.
 			//		A renderer is an object with the "container" and "instance" properties.
@@ -92,13 +92,13 @@ define([
 			//		The data item.
 			// kind: String
 			//		The kind of renderer.
-			// rendererClass: Object
+			// RendererClass: Object
 			//		The class to instantiate to create the renderer.
 			// returns: Object
 			// tags:
 			//		protected
 
-			if (item != null && kind != null && rendererClass != null) {
+			if (item != null && kind != null && RendererClass != null) {
 
 				var res = null, renderer = null;
 
@@ -109,7 +109,7 @@ define([
 				}
 
 				if (res == null) {
-					renderer = new rendererClass;
+					renderer = new RendererClass();
 
 					res = {
 						renderer: renderer,
