@@ -154,12 +154,18 @@
   margin-left: 1px;
   margin-right: 5px;
 }
+.d-calendar-column-view .d-calendar-event-container-column > * {
+  position: absolute;
+}
 .d-calendar-column-view .d-calendar-decoration-container-column {
   position: absolute;
   height: 100%;
   left: 0;
   top: 0;
   right: 0;
+}
+.d-calendar-column-view .d-calendar-decoration-container-column > * {
+  position: absolute;
 }
 .d-calendar-column-view .d-calendar-sub-container-column.sub-column {
   border-right: 1px solid #dddddd;
@@ -326,13 +332,11 @@
 }
 .d-calendar-column-view .d-calendar-decoration {
   display: block;
-  position: absolute;
   background-color: #a7e944;
   opacity: 0.2;
 }
 .d-calendar-column-view .d-calendar-event {
   display: block;
-  position: absolute;
   text-align: left;
   color: #FFF;
   cursor: default;

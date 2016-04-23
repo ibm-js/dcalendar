@@ -228,22 +228,13 @@
 .d-calendar-matrix-view .d-calendar-container-table .d-calendar-container-row > * {
   position: absolute;
 }
-.d-calendar-matrix-view .d-calendar-event-container {
-  position: absolute;
-  overflow: hidden;
-  -moz-user-select: none;
-  -webkit-user-select: none;
-  -ms-user-select: none;
-}
 .d-calendar-matrix-view .d-calendar-decoration {
   display: block;
-  position: absolute;
   background-color: #a7e944;
   opacity: 0.2;
 }
 .d-calendar-matrix-view .d-calendar-event {
   display: block;
-  position: absolute;
   text-align: left;
   color: #000;
   cursor: default;
