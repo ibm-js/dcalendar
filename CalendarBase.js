@@ -198,7 +198,8 @@ define([
 		// firstDayOfWeek: Integer
 		//		(Optional) The first day of week override. By default the first day of week is determined
 		//		for the current locale (extracted from the CLDR).
-		//		Special value -1 (default value), means use locale dependent value.
+		//		0 = Sunday, 1 = Monday, 2 = Tuesday, 3 = Wednesday, 4 = Thursday, 5 = Friday, 6 = Saturday.
+		//		Special value -1 (default value) means to use the locale dependent value.
 		firstDayOfWeek: -1,
 
 		// formatItemTime: Function?

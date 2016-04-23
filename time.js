@@ -101,6 +101,8 @@ define([
 			//		Object that contains the "add" method. By default dojo.date is used.
 			// firstDayOfWeek: Integer?
 			//		Optional day of week that overrides the one provided by the CLDR.
+			//		0 = Sunday, 1 = Monday, 2 = Tuesday, 3 = Wednesday, 4 = Thursday, 5 = Friday, 6 = Saturday.
+			//		-1 or undefined means to use the CLDR value.
 			// locale: String?
 			//		Optional locale used to determine first day of week.
 
