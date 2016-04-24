@@ -53,16 +53,15 @@ define([
 			}
 		},
 
-		recycleItemRenderers: function (remove) {
+		recycleItemRenderers: function () {
 			// summary:
 			//		Recycles all the item renderers.
-			// remove: Boolean
-			//		Whether remove the DOM node from it parent.
 			// tags:
 			//		protected
+
 			while (this.rendererList.length > 0) {
 				var ir = this.rendererList.pop();
-				this.recycleRenderer(ir, remove);
+				this.recycleRenderer(ir);
 			}
 			this.itemToRenderer = {};
 		},
@@ -141,7 +140,7 @@ define([
 			return null;
 		},
 
-		recycleRenderer: function (renderer, remove) {
+		recycleRenderer: function (renderer) {
 			// summary:
 			//		Recycles the item renderer to be reused in the future.
 			// renderer: dcalendar/_RendererMixin
@@ -159,9 +158,7 @@ define([
 				pool.push(renderer);
 			}
 
-			if (remove) {
-				renderer.container.parentNode.removeChild(renderer.container);
-			}
+			renderer.container.parentNode.removeChild(renderer.container);
 
 			renderer.renderer.owner = null;
 			renderer.renderer.item = null;

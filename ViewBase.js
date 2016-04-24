@@ -968,7 +968,7 @@ define([
 				return;
 			}
 
-			// recycle renderers first
+			// Remove all the old renderers from the screen (but saving them for reuse later).
 			rendererManager.recycleItemRenderers();
 
 			var cal = this.dateModule;
@@ -1049,8 +1049,8 @@ define([
 		//
 		////////////////////////////////////////////////////////////////
 
-		_recycleItemRenderers: function (remove) {
-			this.rendererManager.recycleItemRenderers(remove);
+		_recycleItemRenderers: function () {
+			this.rendererManager.recycleItemRenderers();
 		},
 
 		getRenderers: function (item) {
@@ -1112,28 +1112,6 @@ define([
 			//		protected
 
 			return this.rendererManager.createRenderer(item, kind, rendererClass, cssClass);
-		},
-
-		_recycleRenderer: function (renderer, remove) {
-			// summary:
-			//		Recycles the item renderer to be reused in the future.
-			// renderer: dcalendar/_RendererMixin
-			//		The item renderer to recycle.
-			// tags:
-			//		protected
-
-			this.rendererManager.recycleRenderer(renderer, remove);
-		},
-
-		_destroyRenderer: function (renderer) {
-			// summary:
-			//		Destroys the item renderer.
-			// renderer: dcalendar/_RendererMixin
-			//		The item renderer to destroy.
-			// tags:
-			//		protected
-
-			this.rendererManager.destroyRenderer(renderer);
 		},
 
 		_destroyRenderersByKind: function (kind) {
