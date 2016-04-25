@@ -1,6 +1,6 @@
 define([
 	"delite/register",
-	"./RenderBase",
+	"./RendererBase",
 	"delite/handlebars!./templates/LabelRenderer.html"
 ], function (register, _RendererMixin, template) {
 

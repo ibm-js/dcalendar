@@ -1,6 +1,6 @@
 define([
 	"delite/register",
-	"./RenderBase",
+	"./RendererBase",
 	"delite/handlebars!./templates/VerticalRenderer.html"
 ], function (
 	register,
