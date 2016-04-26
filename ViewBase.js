@@ -10,11 +10,10 @@ define([
 	"dojo/dom-construct",
 	"dojo/dom-geometry",
 	"dojo/date",
-	"dojo/date/locale",
 	"dojo/when",
 	"delite/Selection",
-	"./time",
 	"./StoreBase",
+	"./TimeBase",
 	"./RendererManager"
 ], function (
 	dcl,
@@ -27,12 +26,11 @@ define([
 	domClass,
 	domConstruct,
 	domGeometry,
-	date,
-	locale,
+	ddate,
 	when,
 	Selection,
-	timeUtil,
 	StoreBase,
+	TimeBase,
 	RendererManager
 ) {
 
@@ -107,14 +105,9 @@ define([
 	 };
 	 =====*/
 
-	return dcl([StoreBase, Selection], {
+	return dcl([StoreBase, TimeBase, Selection], {
 		// summary:
 		//		Base class of the views (ColumnView, MatrixView, etc.).
-
-		// datePackage: String
-		//		JavaScript namespace to find Calendar routines.
-		//		Uses Gregorian Calendar routines at dojo.date by default.
-		datePackage: date,
 
 		// viewKind: String
 		//		Kind of the view. Used by the calendar widget to determine how to configure the view.
@@ -172,21 +165,8 @@ define([
 		//		(determined by startDate, columnCount, rowCount, etc.)
 		visibleDecorationItems: null,
 
-		_setDatePackageAttr: function (/*String||Object*/ dp) {
-			if (dp === null || typeof dp === "string") {
-				this._calendar = dp ? dp.substr(dp.lastIndexOf(".") + 1) : "gregorian";
-				this.dateModule = dp ? lang.getObject(dp, false) : date;
-				this.dateClassObj = this.dateModule.Date || Date;
-				this.dateLocaleModule = dp ? lang.getObject(dp + ".locale", false) : locale;
-			}
-			this._set("datePackage", dp);
-		},
-		
 		createdCallback: function () {
 			this._viewHandles = [];
-
-			// Set default date package for now.  If user specifies date package these setting will be overwritten.
-			this._setDatePackageAttr(null);
 
 			this.rendererManager = new RendererManager({owner: this});
 			this.rendererManager.on("renderer-created", this.emit.bind(this, "renderer-created"));
@@ -226,17 +206,17 @@ define([
 		_setupDayRefresh: function () {
 			// Refresh the view when the current day changes.
 			var now = this.newDate(new Date());
-			var d = timeUtil.floorToDay(now, true, this.dateClassObj);
+			var d = this.floorToDay(now, true);
 			d = this.dateModule.add(d, "day", 1);
 			// manages DST at 24h
 			if (d.getHours() == 23) {
 				d = this.dateModule.add(d, "hour", 2); // go to 1am
 			} else {
-				d = timeUtil.floorToDay(d, true, this.dateClassObj);
+				d = this.floorToDay(d, true);
 			}
 			setTimeout(function () {
 				if (!this._isEditing) {
-					this.notifyCurrentValue("dates");// TODO: what do I put here to make refreshRendering() rerender?
+					this.notifyCurrentValue("dates");	// make refreshRendering() rerender
 				}
 				this._setupDayRefresh();
 			}.bind(this), d.getTime() - now.getTime() + 5000);
@@ -337,125 +317,6 @@ define([
 			return false;
 		},
 
-		isWeekEnd: function (date) {
-			// summary:
-			//		Determines whether the specified date is a week-end.
-			//		This method is using dojo.date.locale.isWeekend() method as
-			//		dojox.date.XXXX calendars are not supporting this method.
-			// date: Date
-			//		The date to test.
-
-			return locale.isWeekend(date);
-		},
-
-		getWeekNumberLabel: function (date) {
-			// summary:
-			//		Returns the week number string from dojo.date.locale.format() method as
-			//		dojox.date.XXXX calendar are not supporting the "w" pattern.
-			// date: Date
-			//		The date to format.
-
-			if (date.toGregorian) {
-				date = date.toGregorian();
-			}
-			return locale.format(date, {
-				selector: "date",
-				datePattern: "w"
-			});
-		},
-
-		addAndFloor: function (date, unit, steps) {
-			// date must be floored!!
-			// unit >= day
-			var d = this.dateModule.add(date, unit, steps);
-			if (d.getHours() == 23) {
-				d = this.dateModule.add(d, "hour", 2); // go to 1am
-			} else {
-				d = timeUtil.floorToDay(d, true, this.dateClassObj);
-			}
-			return d;
-		},
-
-		floorToDay: function (date, reuse) {
-			// summary:
-			//		Floors the specified date to the start of day.
-			// date: Date
-			//		The date to floor.
-			// reuse: Boolean
-			//		Whether use the specified instance or create a new one. Default is false.
-			// returns: Date
-
-			return timeUtil.floorToDay(date, reuse, this.dateClassObj);
-		},
-
-		floorToMonth: function (date, reuse) {
-			// summary:
-			//		Floors the specified date to the start of the date's month.
-			// date: Date
-			//		The date to floor.
-			// reuse: Boolean
-			//		Whether use the specified instance or create a new one. Default is false.
-			// returns: Date
-
-			return timeUtil.floorToMonth(date, reuse, this.dateClassObj);
-		},
-
-
-		floorDate: function (date, unit, steps, reuse) {
-			// summary:
-			//		floors the date to the unit.
-			// date: Date
-			//		The date/time to floor.
-			// unit: String
-			//		The unit. Valid values are "minute", "hour", "day".
-			// steps: Integer
-			//		For "day" only 1 is valid.
-			// reuse: Boolean
-			//		Whether use the specified instance or create a new one. Default is false.
-			// returns: Date
-
-			return timeUtil.floor(date, unit, steps, reuse, this.dateClassObj);
-		},
-
-		isToday: function (date) {
-			// summary:
-			//		Returns whether the specified date is in the current day.
-			// date: Date
-			//		The date to test.
-			// returns: Boolean
-
-			return timeUtil.isToday(date, this.dateClassObj);
-		},
-
-		isStartOfDay: function (d) {
-			// summary:
-			//		Tests if the specified date represents the starts of day.
-			// d:Date
-			//		The date to test.
-			// returns: Boolean
-
-			return timeUtil.isStartOfDay(d, this.dateClassObj, this.dateModule);
-		},
-
-		isOverlapping: function (start1, end1, start2, end2, includeLimits) {
-			// summary:
-			//		Computes if the first time range defined by the start1 and end1 parameters
-			//		is overlapping the second time range defined by the start2 and end2 parameters.
-			// start1: Date
-			//		The start time of the first time range.
-			// end1: Date
-			//		The end time of the first time range.
-			// start2: Date
-			//		The start time of the second time range.
-			// end2: Date
-			//		The end time of the second time range.
-			// includeLimits: Boolean
-			//		Whether include the end time or not.
-			// returns: Boolean
-
-			return timeUtil.isOverlapping(this.dateModule, start1, end1, start2, end2, includeLimits);
-		},
-
 		computeRangeOverlap: function (start1, end1, start2, end2, includeLimits) {
 			// summary:
 			//		Computes the overlap time range of the time ranges.
@@ -493,24 +354,6 @@ define([
 				this.newDate(cal.compare(start1, start2) > 0 ? start1 : start2),
 				this.newDate(cal.compare(end1, end2) > 0 ? end2 : end1)
 			];
-		},
-
-		isSameDay: function (date1, date2) {
-			// summary:
-			//		Tests if the specified dates are in the same day.
-			// date1: Date
-			//		The first date.
-			// date2: Date
-			//		The second date.
-			// returns: Boolean
-
-			if (date1 == null || date2 == null) {
-				return false;
-			}
-
-			return date1.getFullYear() == date2.getFullYear() &&
-				date1.getMonth() == date2.getMonth() &&
-				date1.getDate() == date2.getDate();
 		},
 
 		computeProjectionOnDate: function (refDate, date, max) {
@@ -677,19 +520,6 @@ define([
 				}
 			}
 			return -1;
-		},
-
-		newDate: function (obj) {
-			// summary:
-			//		Creates a new Date object.
-			// obj: Object
-			//		This object can have several values:
-			//
-			//		- the time in milliseconds since gregorian epoch.
-			//		- a Date instance
-			// returns: Date
-
-			return timeUtil.newDate(obj, this.dateClassObj);
 		},
 
 		_isItemInView: function (item) {
@@ -1928,7 +1758,7 @@ define([
 			var cal = this.dateModule;
 			if (this._calendar != "gregorian" && steps < 0) {
 				var gd = d.toGregorian();
-				gd = date.add(gd, unit, steps);
+				gd = ddate.add(gd, unit, steps);
 				return new this.dateClassObj(gd);
 			} else {
 				return cal.add(d, unit, steps);

@@ -1,28 +1,24 @@
 define([
 	"dcl/dcl",
 	"dojo/_base/lang",
-	"dojo/date",
-	"dojo/date/locale",
 	"dojo/dom-class",
 	"dojo/dom-style",
 	"dojo/dom-construct",
 	"dojo/dom-geometry",
 	"./metrics",
 	"./StoreBase",
-	"./time",
+	"./TimeBase",
 	"dojo/i18n!./nls/buttons"
 ], function (
 	dcl,
 	lang,
-	date,
-	locale,
 	domClass,
 	domStyle,
 	domConstruct,
 	domGeometry,
 	metrics,
 	StoreBase,
-	timeUtil,
+	TimeBase,
 	_nls
 ) {
 	/*=====
@@ -139,18 +135,12 @@ define([
 	};
 	=====*/
 
-	return dcl(StoreBase, {
-
+	return dcl([StoreBase, TimeBase], {
 		// summary:
 		//		This class defines a generic calendar widget that manages several views to display event in time.
 		//		It needs to be subclassed, specifically defining `_computeCurrentView()`.
 
 		baseClass: "d-calendar",
-
-		// datePackage: Object
-		//		JavaScript namespace to find Calendar routines.
-		//		Uses Gregorian Calendar routines at dojo.date by default.
-		datePackage: date,
 
 		// startDate: Date
 		//		The start date of the displayed time interval.
@@ -194,13 +184,6 @@ define([
 		// viewContainer: HTMLElement
 		//		The DOM node that will contains the views.
 		viewContainer: null,
-
-		// firstDayOfWeek: Integer
-		//		(Optional) The first day of week override. By default the first day of week is determined
-		//		for the current locale (extracted from the CLDR).
-		//		0 = Sunday, 1 = Monday, 2 = Tuesday, 3 = Wednesday, 4 = Thursday, 5 = Friday, 6 = Saturday.
-		//		Special value -1 (default value) means to use the locale dependent value.
-		firstDayOfWeek: -1,
 
 		// formatItemTime: Function?
 		//		Optional function to format the time of day of the item renderers.
@@ -262,7 +245,7 @@ define([
 		forwardProperties: [
 			"source", "query", "queryOptions", "startTimeAttr", "endTimeAttr", "summaryAttr", "allDayAttr",
 			"subColumnAttr", "decodeDate", "encodeDate", "itemToRenderItem", "renderItemToItem", "cssClassFunc",
-			"datePackage",
+			"dateClassObj", "dateModule", "dateLocaleModule", "_calendar",
 			"endDate", "date", "minDate", "maxDate", "dateInterval", "dateIntervalSteps",
 			"firstDayOfWeek",
 			"formatItemTime",
@@ -279,19 +262,8 @@ define([
 		//		The currentViewChange event can be used to react on a view change.
 		currentView: null,
 
-		_calendar: "gregorian",
-
 		// Make nls strings available to template
 		_nls: _nls,
-
-		createdCallback: function (/*Object*/args) {
-			args = args || {};
-			this._calendar = args.datePackage ? args.datePackage.substr(args.datePackage.lastIndexOf(".") + 1) :
-				this._calendar;
-			this.dateModule = args.datePackage ? lang.getObject(args.datePackage, false) : date;
-			this.dateClassObj = this.dateModule.Date || Date;
-			this.dateLocaleModule = args.datePackage ? lang.getObject(args.datePackage + ".locale", false) : locale;
-		},
 
 		postRender: function () {
 			this.viewContainer.on("delite-add-child", function (evt) {
@@ -550,7 +522,6 @@ define([
 			view.owner = this;
 			view.buttonContainer = this.buttonContainer;
 			view._calendar = this._calendar;
-			view.datePackage = this.datePackage;
 			view.dateModule = this.dateModule;
 			view.dateClassObj = this.dateClassObj;
 			view.dateLocaleModule = this.dateLocaleModule;
@@ -679,82 +650,6 @@ define([
 				newView.resize();
 				domStyle.set(newView, "opacity", "1");
 			}
-		},
-
-
-		/////////////////////////////////////////////////////
-		//
-		// Time utilities
-		//
-		////////////////////////////////////////////////////
-
-		floorToDay: function (date, reuse) {
-			// summary:
-			//		Floors the specified date to the start of day.
-			// date: Date
-			//		The date to floor.
-			// reuse: Boolean
-			//		Whether use the specified instance or create a new one. Default is false.
-			// returns: Date
-
-			return timeUtil.floorToDay(date, reuse, this.dateClassObj);
-		},
-
-		floorToWeek: function (d) {
-			// summary:
-			//		Floors the specified date to the beginning of week.
-			// date: Date
-			//		Date to floor.
-
-			return timeUtil.floorToWeek(d, this.dateClassObj, this.dateModule, this.firstDayOfWeek, this.locale);
-		},
-
-		newDate: function (obj) {
-			// summary:
-			//		Creates a new Date object.
-			// obj: Object
-			//		This object can have several values:
-			//		- the time in milliseconds since gregorian epoch.
-			//		- a Date instance
-			// returns: Date
-
-			return timeUtil.newDate(obj, this.dateClassObj);
-		},
-
-		isToday: function (date) {
-			// summary:
-			//		Returns whether the specified date is in the current day.
-			// date: Date
-			//		The date to test.
-			// returns: Boolean
-
-			return timeUtil.isToday(date, this.dateClassObj);
-		},
-
-		isStartOfDay: function (d) {
-			// summary:
-			//		Tests if the specified date represents the starts of day.
-			// d:Date
-			//		The date to test.
-			// returns: Boolean
-
-			return timeUtil.isStartOfDay(d, this.dateClassObj, this.dateModule);
-		},
-
-		floorDate: function (date, unit, steps, reuse) {
-			// summary:
-			//		floors the date to the unit.
-			// date: Date
-			//		The date/time to floor.
-			// unit: String
-			//		The unit. Valid values are "minute", "hour", "day".
-			// steps: Integer
-			//		For "day" only 1 is valid.
-			// reuse: Boolean
-			//		Whether use the specified instance or create a new one.  Default is false.
-			// returns: Date
-
-			return timeUtil.floor(date, unit, steps, reuse, this.classFuncObj);
 		},
 
 		nextRange: function () {

@@ -50,8 +50,8 @@ define([
 			return function (storeItem) {
 				// Override to use decodeDate() method.
 				var ri = sup.apply(this, arguments);
-				ri.startTime = (this.decodeDate || this.newDate)(ri.startTime);
-				ri.endTime = (this.decodeDate || this.newDate)(ri.endTime);
+				ri.startTime = this.decodeDate ? this.decodeDate(ri.startTime) : this.newDate(ri.startTime);
+				ri.endTime = this.decodeDate ? this.decodeDate(ri.endTime) : this.newDate(ri.endTime);
 
 				// Also, some of the code depends on renderItem._item pointing back to the original store item.
 				ri._item = storeItem;
