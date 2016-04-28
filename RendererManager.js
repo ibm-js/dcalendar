@@ -30,7 +30,7 @@ define([
 		itemToRenderer: null,
 
 		constructor: function (/*Object*/ args) {
-			this.rendererPool = [];
+			this.rendererPool = {};
 			this.rendererList = [];
 			this.itemToRenderer = {};
 
@@ -43,8 +43,8 @@ define([
 			while (this.rendererList.length > 0) {
 				this.destroyRenderer(this.rendererList.pop());
 			}
-			for (var kind in this._rendererPool) {
-				var pool = this._rendererPool[kind];
+			for (var kind in this.rendererPool) {
+				var pool = this.rendererPool[kind];
 				if (pool) {
 					while (pool.length > 0) {
 						this.destroyRenderer(pool.pop());
