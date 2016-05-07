@@ -764,14 +764,12 @@ define([
 			//		extension
 		},
 
-		// layoutPriorityFunction: Function
-		//		An optional comparison function use to determine the order the item will be laid out
-		//		The function is used to sort an array and must, as any sorting function, take two items
-		//		as argument and must return an integer whose sign define order between arguments.
-		//		By default, a comparison by start time then end time is used.
-		layoutPriorityFunction: null,
-
-		_sortItemsFunction: function (a, b) {
+		layoutPriorityFunction: function (a, b) {
+			// summary:
+			//		Comparison function use to determine the order the item will be laid out
+			//		The function is used to sort an array and must, as any sorting function, take two items
+			//		as argument and must return an integer whose sign define order between arguments.
+			//		By default, a comparison by start time then end time is used.
 			var res = this.dateModule.compare(a.startTime, b.startTime);
 			if (res === 0) {
 				res = -1 * this.dateModule.compare(a.endTime, b.endTime);
@@ -859,8 +857,7 @@ define([
 				if (events.length > 0) {
 					// Sort the item according a sorting function,
 					// by default start time then end time comparison are used.
-					events.sort(this.layoutPriorityFunction ? this.layoutPriorityFunction.bind(this) :
-						this._sortItemsFunction.bind(this));
+					events.sort(this.layoutPriorityFunction.bind(this));
 					this._layoutInterval(index, startTime, endTime, events, itemType);
 				}
 
