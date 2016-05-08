@@ -127,8 +127,9 @@ define([
 					domGeometry.setMarginBox(this.secondarySheet.rowHeaderTable, {w: width});
 
 					// Hack until MatrixView gets flex sizing.
-					this.secondarySheet.grid.style.left = width + "px";
-					this.secondarySheet.itemContainer.style.left = width + "px";
+					var prop = (this.effectiveDir === "ltr") ? "left" : "right";
+					this.secondarySheet.grid.style[prop] = width + "px";
+					this.secondarySheet.itemContainer.style[prop] = width + "px";
 				}
 			};
 		}),

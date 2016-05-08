@@ -11,17 +11,9 @@
   border-left: none;
   border-right: none;
 }
-.d-calendar-column-view.d-rtl .d-calendar-grid {
-  left: 0;
-  right: 70px;
-}
 .d-calendar-column-view.d-rtl .d-calendar-grid-table td {
   border-left: 1px solid #b5bcc7;
   border-right: none;
-}
-.d-calendar-column-view.d-rtl .d-calendar-container {
-  left: 0;
-  right: 70px;
 }
 .d-calendar-column-view.d-rtl .d-calendar-event-container-column {
   margin-right: 2px;
@@ -30,30 +22,6 @@
 .d-calendar-column-view.d-rtl .d-calendar-sub-column-border.sub-column {
   border-right: none;
   border-left: 1px solid #dddddd;
-}
-.d-calendar-column-view.d-rtl .d-calendar-year-column-header {
-  right: 0;
-  width: 68px;
-}
-.d-calendar-column-view.d-rtl .d-calendar-column-header {
-  left: 0;
-  right: 70px;
-}
-.d-calendar-column-view.d-rtl .d-calendar-column-header-table td {
-  border-right: none;
-  border-left: 1px solid #cccccc;
-}
-.d-calendar-column-view.d-rtl .d-calendar-column-header-table td:last-child {
-  border-right: none;
-  border-left: 1px solid #b5bcc7;
-}
-.d-calendar-column-view.d-rtl .d-calendar-sub-column-header {
-  right: 70px;
-  left: 0;
-}
-.d-calendar-column-view.d-rtl .d-calendar-subrow-header {
-  left: auto;
-  right: 0;
 }
 .d-calendar-column-view.d-rtl .d-calendar-sub-column-header-table {
   border-left: 1px solid #b5bcc7;
@@ -84,13 +52,6 @@
 .d-calendar-column-view.d-rtl .d-calendar-event .end-time {
   text-align: right;
 }
-.d-calendar-column-view.d-rtl .d-calendar-v-scroll-bar {
-  margin-left: -1px;
-}
-.d-calendar-column-view.d-rtl .d-calendar-grid {
-  right: 70px;
-  left: 0;
-}
 .d-calendar-column-view.d-rtl .d-calendar-grid-table td {
   text-align: left;
   border-bottom: 1px solid #cccccc;
@@ -103,24 +64,11 @@
 .d-calendar-column-view.d-rtl .d-calendar-grid-table td:last-child {
   border-left: 1px solid #b5bcc7;
 }
-.d-calendar-column-view.d-rtl .d-calendar-container {
-  right: 70px;
-  left: 0;
-}
 .d-calendar-column-view.d-rtl .d-calendar-container-table td {
   border-bottom: solid 1px transparent;
   border-right: solid 1px transparent;
   text-align: right;
   vertical-align: top;
-}
-.d-calendar-column-view.d-rtl .d-calendar-year-column-header {
-  position: absolute;
-  right: 0;
-  left: auto;
-}
-.d-calendar-column-view.d-rtl .d-calendar-column-header {
-  right: 70px;
-  left: 0;
 }
 .d-calendar-column-view.d-rtl .d-calendar-column-view-secondary-sheet .d-calendar-column-header-table td {
   border-left: 1px solid #b5bcc7;
