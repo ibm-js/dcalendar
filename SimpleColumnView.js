@@ -263,9 +263,9 @@ define([
 		//
 		//////////////////////////////////////////
 
-		_getStartTimeOfDay: function () {
+		_getFirstVisibleTimeOfDay: function () {
 			// summary:
-			//		Returns the visible first time of day.
+			//		Returns the first visible time of day.
 			// tags:
 			//		protected
 			// returns: Object
@@ -279,9 +279,9 @@ define([
 			};
 		},
 
-		_getEndTimeOfDay: function () {
+		_getLastVisibleTimeOfDay: function () {
 			// summary:
-			//		Returns the visible last time of day.
+			//		Returns the last visible time of day.
 			// tags:
 			//		protected
 			// returns: Integer[]
@@ -296,21 +296,14 @@ define([
 		},
 
 		// startTimeOfDay: Object
-		//		First time (hour/minute) of day displayed, if reachable.
+		//		First time (hour/minute) of day displayed.
 		//		An object containing "hours" and "minutes" properties.
 		startTimeOfDay: 0,
 
-		_setStartTimeOfDayAttr: function (value) {
-			this._setStartTimeOfDay(value.hours, value.minutes, value.duration, value.easing);
-			this._set("startTimeOfDay", value);
-
-		},
-
-		_getStartTimeOfDayAttr: function () {
-			if (this) {
-				return this._getStartTimeOfDay();
-			} else {
-				return this._get("startTimeOfDay");
+		refreshRendering: function (oldVals) {
+			if ("startTimeOfDay" in oldVals) {
+				var value = this.startTimeOfDay;
+				this._setStartTimeOfDay(value.hours, value.minutes, value.duration, value.easing);
 			}
 		},
 
@@ -381,8 +374,8 @@ define([
 				var s = start.getHours() * 60 + start.getMinutes() - margin;
 				var e = end.getHours() * 60 + end.getMinutes() + margin;
 
-				var vs = this._getStartTimeOfDay();
-				var ve = this._getEndTimeOfDay();
+				var vs = this._getFirstVisibleTimeOfDay();
+				var ve = this._getLastVisibleTimeOfDay();
 
 				var viewStart = vs.hours * 60 + vs.minutes;
 				var viewEnd = ve.hours * 60 + ve.minutes;
@@ -417,7 +410,7 @@ define([
 			// dir: Integer
 			//		Direction of the scroll. Valid values are -1 and 1.
 			//
-			var t = this._getStartTimeOfDay();
+			var t = this._getFirstVisibleTimeOfDay();
 			t = t.hours * 60 + t.minutes + (dir * this.timeSlotDuration);
 			this._setStartTimeOfDay(Math.floor(t / 60), t % 60);
 		},
