@@ -1,16 +1,12 @@
 define([
 	"dcl/dcl",
 	"dojo/_base/lang",
-	"dojo/_base/event",
-	"dojo/_base/html",
 	"decor/sniff",
-	"dojo/dom",
 	"dojo/dom-style",
 	"dojo/dom-class",
 	"dojo/dom-construct",
 	"dojo/dom-geometry",
 	"dojo/date",
-	"dojo/when",
 	"delite/Selection",
 	"./StoreBase",
 	"./TimeBase",
@@ -18,16 +14,12 @@ define([
 ], function (
 	dcl,
 	lang,
-	event,
-	html,
 	has,
-	dom,
 	domStyle,
 	domClass,
 	domConstruct,
 	domGeometry,
 	ddate,
-	when,
 	Selection,
 	StoreBase,
 	TimeBase,
@@ -1259,7 +1251,8 @@ define([
 
 			this._doEndItemEditing("touch");
 
-			event.stop(e);
+			e.stopPropagation();
+			e.preventDefault();
 		},
 
 		_doEndItemEditing: function (eventSource) {

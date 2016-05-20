@@ -4,17 +4,14 @@ define([
 	"delite/handlebars!./templates/ColumnView.html",
 	"delite/register",
 	"delite/Scrollable",
-	"dojo/_base/event",
 	"requirejs-dplugins/has",
 	"dojo/_base/fx",
-	"dojo/_base/html",
 	"delite/on",
 	"dojo/dom",
 	"dojo/dom-class",
 	"dojo/dom-style",
 	"dojo/dom-geometry",
 	"dojo/dom-construct",
-	"dojo/mouse",
 	"./metrics",
 	"delite/theme!./themes/{{theme}}/ColumnView.css",
 	"delite/theme!./themes/{{theme}}/ColumnView_rtl.css"
@@ -24,17 +21,14 @@ define([
 	template,
 	register,
 	Scrollable,
-	event,
 	has,
 	fx,
-	html,
 	on,
 	dom,
 	domClass,
 	domStyle,
 	domGeometry,
 	domConstruct,
-	mouse,
 	metrics
 ) {
 
@@ -1318,7 +1312,8 @@ define([
 				sup.apply(this, arguments);
 
 				if (e.touches.length > 1 && !this._isEditing) {
-					event.stop(e);
+					e.stopPropagation();
+					e.preventDefault();
 					return;
 				}
 
