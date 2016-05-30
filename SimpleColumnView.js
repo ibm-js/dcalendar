@@ -656,7 +656,7 @@ define([
 
 			// fill labels
 			var size = Math.ceil(this.hourSize / (60 / this.rowHeaderGridSlotDuration));
-			var d = new Date(2000, 0, 1, 0, 0, 0);
+			var d = new this.dateClassObj();
 
 			Array.prototype.forEach.call(parent.childNodes, function (child, i) {
 				child.className = "d-calendar-row-header-label";

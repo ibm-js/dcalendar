@@ -152,7 +152,7 @@ define([
 			// returns: Date
 
 			if (!reuse) {
-				date = this.newDate(date, this.dateClassObj);
+				date = this.newDate(date);
 			}
 
 			date.setDate(1);

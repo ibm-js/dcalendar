@@ -219,8 +219,8 @@ define([
 					}
 				}
 
-				this.startTime = this.newDate(this.dates[0][0], this);
-				this.endTime = this.newDate(this.dates[this.rowCount - 1][this.columnCount - 1], this);
+				this.startTime = this.newDate(this.dates[0][0]);
+				this.endTime = this.newDate(this.dates[this.rowCount - 1][this.columnCount - 1]);
 				this.endTime = this.dateModule.add(this.endTime, "day", 1);
 				this.endTime = this.floorToDay(this.endTime, true);
 

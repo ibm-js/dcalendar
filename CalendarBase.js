@@ -319,7 +319,7 @@ define([
 				}
 			} else {
 				if (this.date == null) {
-					this.date = new this.dateClassObj();
+					this.date = this.floorToDay(Date.now());
 				}
 
 				var dint = this.dateInterval;
