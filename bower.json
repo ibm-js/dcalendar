@@ -1,6 +1,6 @@
 {
 	"name": "dcalendar",
-	"version": "2.0",
+	"version": "0.1.2",
 	"dependencies": {
 		"dcl": "1.1.2",
 		"decor": "0.7.x",
