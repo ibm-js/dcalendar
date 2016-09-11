@@ -106,7 +106,7 @@
 						start = colView.floorDate(e.date, "minute", colView.timeSlotDuration);
 						end = date.add(start, "hour", 1);
 					} else {
-						start = colView.floorToDay(e.date, false);
+						start = colView.floorToDay(e.date);
 						end = date.add(start, "day", 1);
 					}
 

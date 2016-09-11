@@ -175,15 +175,15 @@
 					var d;
 					if (value) {
 						d = itemStartTimeEditor.get("value");
-						calendar.floorToDay(d, true);
+						d = calendar.floorToDay(d);
 						itemStartTimeEditor.set("value", d);
 						d = itemEndTimeEditor.get("value");
-						calendar.floorToDay(d, true);
+						d = calendar.floorToDay(d);
 						itemEndTimeEditor.set("value", d);
 
 						if (!calendar.isStartOfDay(editedItem.endTime)) {
 							d = itemEndDateEditor.get("value");
-							calendar.floorToDay(d, true);
+							d = calendar.floorToDay(d);
 							d = calendar.dateModule.add(d, "day", 1);
 							itemEndDateEditor.set("value", d);
 						}
@@ -194,7 +194,7 @@
 						itemStartTimeEditor.set("value", editedItem.startTime);
 						itemEndTimeEditor.set("value", editedItem.endTime);
 						d = itemEndDateEditor.get("value");
-						calendar.floorToDay(d, true);
+						d = calendar.floorToDay(d);
 						d = calendar.dateModule.add(d, "day", -1);
 						itemEndDateEditor.set("value", d);
 					}

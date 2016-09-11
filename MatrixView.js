@@ -222,7 +222,7 @@ define([
 				this.startTime = this.newDate(this.dates[0][0]);
 				this.endTime = this.newDate(this.dates[this.rowCount - 1][this.columnCount - 1]);
 				this.endTime = this.dateModule.add(this.endTime, "day", 1);
-				this.endTime = this.floorToDay(this.endTime, true);
+				this.endTime = this.floorToDay(this.endTime);
 
 				if (this.source) {
 					this.query = new this.source.Filter().lte("startTime", this.endTime).gte("endTime", this.startTime);
@@ -984,11 +984,11 @@ define([
 			var s = item.startTime, e = item.endTime;
 
 			if (!this.isStartOfDay(s)) {
-				s = this.floorToDay(s, false, this);
+				s = this.floorToDay(s);
 			}
 			if (!this.isStartOfDay(e)) {
 				e = this.dateModule.add(e, "day", 1);
-				e = this.floorToDay(e, true);
+				e = this.floorToDay(e);
 			}
 			return {startTime: s, endTime: e};
 		},
@@ -1204,7 +1204,7 @@ define([
 				var item = items[i];
 				var overlap = this.computeRangeOverlap(item.startTime, item.endTime, startTime, endTime);
 
-				var startOffset = cal.difference(startTime, this.floorToDay(overlap[0], false, this), "day");
+				var startOffset = cal.difference(startTime, this.floorToDay(overlap[0]), "day");
 				var dayStart = this.dates[index][startOffset];
 
 				var celPos = domGeometry.position(this._getCellAt(index, startOffset, false));
@@ -1219,7 +1219,7 @@ define([
 
 				start = Math.ceil(start);
 
-				var endOffset = cal.difference(startTime, this.floorToDay(overlap[1], false, this), "day");
+				var endOffset = cal.difference(startTime, this.floorToDay(overlap[1]), "day");
 
 				var end;
 				if (endOffset > this.columnCount - 1) {
@@ -1311,7 +1311,7 @@ define([
 			for (var i = 0; i < items.length; i++) {
 				var item = items[i];
 
-				d = this.floorToDay(item.startTime, false);
+				d = this.floorToDay(item.startTime);
 
 				var comp = this.dateModule.compare;
 
@@ -1320,10 +1320,10 @@ define([
 				while (comp(d, item.endTime) == -1 && comp(d, endTime) == -1) {
 
 					var dayEnd = cal.add(d, "day", 1);
-					dayEnd = this.floorToDay(dayEnd, true);
+					dayEnd = this.floorToDay(dayEnd);
 
 					var overlap = this.computeRangeOverlap(item.startTime, item.endTime, d, dayEnd);
-					var startOffset = cal.difference(startTime, this.floorToDay(overlap[0], false, this), "day");
+					var startOffset = cal.difference(startTime, this.floorToDay(overlap[0]), "day");
 
 					if (startOffset >= this.columnCount) {
 						// If the offset is greater than the column count
@@ -1347,7 +1347,7 @@ define([
 					}
 
 					d = cal.add(d, "day", 1);
-					this.floorToDay(d, true);
+					this.floorToDay(d);
 				}
 			}
 
@@ -1673,7 +1673,7 @@ define([
 				} else if (e.editKind == "move" && (item.allDay || this.roundToDay)) {
 					var cal = this.dateModule;
 					p.dayOffset = cal.difference(
-						this.floorToDay(dates[0], false, this),
+						this.floorToDay(dates[0]),
 						refTime, "day");
 				} // else managed in super
 

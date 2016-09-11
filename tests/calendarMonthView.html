@@ -278,15 +278,15 @@
 				var d;
 				if (value) {
 					d = itemStartTimeEditor.value;
-					calendar.floorToDay(d, true);
+					d = calendar.floorToDay(d);
 					itemStartTimeEditor.value = d;
 					d = itemEndTimeEditor.value;
-					calendar.floorToDay(d, true);
+					d = calendar.floorToDay(d);
 					itemEndTimeEditor.value = d;
 
 					if (!calendar.isStartOfDay(editedItem.endTime)) {
 						d = itemEndDateEditor.value;
-						calendar.floorToDay(d, true);
+						d = calendar.floorToDay(d);
 						d = calendar.dateModule.add(d, "day", 1);
 						itemEndDateEditor.value = d;
 					}
@@ -297,7 +297,7 @@
 					itemStartTimeEditor.value = editedItem.startTime;
 					itemEndTimeEditor.value = editedItem.endTime;
 					d = itemEndDateEditor.value;
-					calendar.floorToDay(d, true);
+					d = calendar.floorToDay(d);
 					d = calendar.dateModule.add(d, "day", -1);
 					itemEndDateEditor.value = d;
 				}
@@ -319,10 +319,10 @@
 					editedItem.summary = itemSummaryEditor.value;
 					if (allDayCB.value) {
 						if (!calendar.isStartOfDay(editedItem.startTime)) {
-							editedItem.startTime = calendar.floorToDay(itemStartDateEditor.value, true);
+							editedItem.startTime = calendar.floorToDay(itemStartDateEditor.value);
 						}
 						if (!calendar.isStartOfDay(editedItem.endTime)) {
-							editedItem.endTime = calendar.floorToDay(itemEndDateEditor.value, true);
+							editedItem.endTime = calendar.floorToDay(itemEndDateEditor.value);
 						}
 						editedItem.allDay = true;
 					} else {

@@ -319,7 +319,7 @@ define([
 				}
 			} else {
 				if (this.date == null) {
-					this.date = this.floorToDay(Date.now());
+					this.date = this.floorToDay(new this.dateClassObj());
 				}
 
 				var dint = this.dateInterval;
@@ -692,7 +692,7 @@ define([
 			//		Changes the displayed time interval to show the current day.
 			//		Sets the date property to the current day, the dateInterval property to "day" and
 			//		the "dateIntervalSteps" to 1.
-			this.date = this.floorToDay(new this.dateClassObj(), true);
+			this.date = this.floorToDay(new this.dateClassObj());
 			this.dateInterval = "day";
 			this.dateIntervalSteps = 1;
 		},
@@ -718,7 +718,7 @@ define([
 			//		the "dateIntervalSteps" to 1.
 
 			if (this.date == null) {
-				this.date = this.floorToDay(new this.dateClassObj(), true);
+				this.date = this.floorToDay(new this.dateClassObj());
 			}
 			this.dateInterval = "day";
 			this.dateIntervalSteps = 1;

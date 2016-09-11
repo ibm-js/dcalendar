@@ -134,7 +134,7 @@
 
 				colView.on("grid-double-click", function(e) {
 					// create a event when double-clicking on grid.
-					var start = colView.floorToDay(e.date, "day");
+					var start = colView.floorToDay(e.date);
 					var end = date.add(start, "day", 1);
 
 					var item = {
@@ -258,15 +258,15 @@
 					var d;
 					if (value) {
 						d = itemStartTimeEditor.get("value");
-						colView.floorToDay(d, true);
+						d = colView.floorToDay(d);
 						itemStartTimeEditor.set("value", d);
 						d = itemEndTimeEditor.get("value");
-						colView.floorToDay(d, true);
+						d = colView.floorToDay(d);
 						itemEndTimeEditor.set("value", d);
 
 						if (!colView.isStartOfDay(editedItem.endTime)) {
 							d = itemEndDateEditor.get("value");
-							colView.floorToDay(d, true);
+							d = colView.floorToDay(d);
 							d = colView.renderData.dateModule.add(d, "day", 1);
 							itemEndDateEditor.set("value", d);
 						}
@@ -276,7 +276,7 @@
 						itemStartTimeEditor.set("value", editedItem.startTime);
 						itemEndTimeEditor.set("value", editedItem.endTime);
 						d = itemEndDateEditor.get("value");
-						colView.floorToDay(d, true);
+						d = colView.floorToDay(d);
 						d = colView.renderData.dateModule.add(d, "day", -1);
 						itemEndDateEditor.set("value", d);
 					}
@@ -298,10 +298,10 @@
 						editedItem.summary = itemSummaryEditor.get("value");
 						if (allDayCB.get("value")) {
 							if (!colView.isStartOfDay(editedItem.startTime)) {
-								editedItem.startTime = colView.floorToDay(itemStartDateEditor.get("value"), true);
+								editedItem.startTime = colView.floorToDay(itemStartDateEditor.get("value"));
 							}
 							if (!colView.isStartOfDay(editedItem.endTime)) {
-								editedItem.endTime = colView.floorToDay(itemEndDateEditor.get("value"), true);
+								editedItem.endTime = colView.floorToDay(itemEndDateEditor.get("value"));
 							}
 							editedItem.allDay = true;
 						} else {

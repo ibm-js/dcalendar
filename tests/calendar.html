@@ -247,15 +247,15 @@
                     var d;
                     if (value) {
                         d = itemStartTimeEditor.get("value");
-                        calendar.floorToDay(d, true);
+                        d = calendar.floorToDay(d);
                         itemStartTimeEditor.set("value", d);
                         d = itemEndTimeEditor.get("value");
-                        calendar.floorToDay(d, true);
+                        d = calendar.floorToDay(d);
                         itemEndTimeEditor.set("value", d);
 
                         if (!calendar.isStartOfDay(editedItem.endTime)) {
                             d = itemEndDateEditor.get("value");
-                            calendar.floorToDay(d, true);
+                            d = calendar.floorToDay(d);
                             d = calendar.dateModule.add(d, "day", 1);
                             itemEndDateEditor.set("value", d);
                         }
@@ -265,7 +265,7 @@
                         itemStartTimeEditor.set("value", editedItem.startTime);
                         itemEndTimeEditor.set("value", editedItem.endTime);
                         d = itemEndDateEditor.get("value");
-                        calendar.floorToDay(d, true);
+                        d = calendar.floorToDay(d);
                         d = calendar.dateModule.add(d, "day", -1);
                         itemEndDateEditor.set("value", d);
                     }
@@ -286,10 +286,10 @@
                         editedItem.summary = itemSummaryEditor.get("value");
                         if (allDayCB.get("value")) {
                             if (!calendar.isStartOfDay(editedItem.startTime)) {
-                                editedItem.startTime = calendar.floorToDay(itemStartDateEditor.get("value"), true);
+                                editedItem.startTime = calendar.floorToDay(itemStartDateEditor.get("value"));
                             }
                             if (!calendar.isStartOfDay(editedItem.endTime)) {
-                                editedItem.endTime = calendar.floorToDay(itemEndDateEditor.get("value"), true);
+                                editedItem.endTime = calendar.floorToDay(itemEndDateEditor.get("value"));
                             }
                             editedItem.allDay = true;
                         } else {

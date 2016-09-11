@@ -1241,8 +1241,7 @@ define([
 
 			var date = null;
 			if (col < this.dates.length) {
-				date = this.newDate(this.dates[col]);
-				date = this.floorToDay(date, true);
+				date = this.floorToDay(this.dates[col]);
 				date.setHours(t.hours);
 				date.setMinutes(t.minutes);
 			}
@@ -1472,13 +1471,13 @@ define([
 				var eV = this.maxHours * 60;
 
 				if (sMin > 0 && sMin < sV) {
-					this.floorToDay(item.startTime, true);
+					item.startTime = this.floorToDay(item.startTime);
 					item.startTime.setHours(this.minHours);
 					item.endTime = cal.add(item.startTime, "millisecond", len);
 					fixed = true;
 				} else if (sMin > eV && sMin <= 1440) {
 					// go on next visible time
-					this.floorToDay(item.startTime, true);
+					item.startTime = this.floorToDay(item.startTime);
 					item.startTime = cal.add(item.startTime, "day", 1);
 					// if we are going out of the view, the super() will fix it
 					item.startTime.setHours(this.minHours);
@@ -1488,13 +1487,13 @@ define([
 
 				if (eMin > 0 && eMin < sV) {
 					// go on previous day
-					this.floorToDay(item.endTime, true);
+					item.endTime = this.floorToDay(item.endTime);
 					item.endTime = cal.add(item.endTime, "day", -1);
 					item.endTime.setHours(this.maxHours);
 					item.startTime = cal.add(item.endTime, "millisecond", -len);
 					fixed = true;
 				} else if (eMin > eV && eMin <= 1440) {
-					this.floorToDay(item.endTime, true);
+					item.endTime = this.floorToDay(item.endTime);
 					item.endTime.setHours(this.maxHours);
 					item.startTime = cal.add(item.endTime, "millisecond", -len);
 					fixed = true;

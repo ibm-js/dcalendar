@@ -299,15 +299,15 @@
 					var d;
 					if (value) {
 						d = itemStartTimeEditor.get("value");
-						colView.floorToDay(d, true);
+						d = colView.floorToDay(d);
 						itemStartTimeEditor.set("value", d);
 						d = itemEndTimeEditor.get("value");
-						colView.floorToDay(d, true);
+						d = colView.floorToDay(d);
 						itemEndTimeEditor.set("value", d);
 
 						if (!colView.isStartOfDay(editedItem.endTime)) {
 							d = itemEndDateEditor.get("value");
-							colView.floorToDay(d, true);
+							d = colView.floorToDay(d);
 							d = colView.renderData.dateModule.add(d, "day", 1);
 							itemEndDateEditor.set("value", d);
 						}
@@ -318,7 +318,7 @@
 						itemStartTimeEditor.set("value", editedItem.startTime);
 						itemEndTimeEditor.set("value", editedItem.endTime);
 						d = itemEndDateEditor.get("value");
-						colView.floorToDay(d, true);
+						d = colView.floorToDay(d);
 						d = colView.dateModule.add(d, "day", -1);
 						itemEndDateEditor.set("value", d);
 					}

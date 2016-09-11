@@ -198,13 +198,13 @@ define([
 		_setupDayRefresh: function () {
 			// Refresh the view when the current day changes.
 			var now = new this.dateClassObj();
-			var d = this.floorToDay(now, true);
+			var d = this.floorToDay(now);
 			d = this.dateModule.add(d, "day", 1);
 			// manages DST at 24h
 			if (d.getHours() == 23) {
 				d = this.dateModule.add(d, "hour", 2); // go to 1am
 			} else {
-				d = this.floorToDay(d, true);
+				d = this.floorToDay(d);
 			}
 			setTimeout(function () {
 				if (!this._isEditing) {
@@ -373,7 +373,7 @@ define([
 				return d.getHours() * 3600 + d.getMinutes() * 60 + d.getSeconds();
 			};
 
-			var referenceDate = this.floorToDay(refDate, false);
+			var referenceDate = this.floorToDay(refDate);
 
 			if (date.getDate() != referenceDate.getDate()) {
 				if (date.getMonth() == referenceDate.getMonth()) {
@@ -452,7 +452,7 @@ define([
 
 				var d2 = this.floorToDay(date);
 				var dp1 = this.dateModule.add(refDate, "day", 1);
-				dp1 = this.floorToDay(dp1, false);
+				dp1 = this.floorToDay(dp1);
 
 				if (cal.compare(d2, refDate) === 1 && cal.compare(d2, dp1) === 0 || cal.compare(d2, dp1) === 1) {
 					res = max;
@@ -822,7 +822,7 @@ define([
 					if (this.maxHours < 24) {
 						endTime = cal.add(endDate, "day", -1);
 					} // else > 24
-					endTime = this.floorToDay(endTime, true);
+					endTime = this.floorToDay(endTime);
 					endTime.setHours(this.maxHours - (this.maxHours < 24 ? 0 : 24));
 				}
 
@@ -1977,13 +1977,13 @@ define([
 				var newStartTime, newEndTime;
 
 				if (p.rendererKind == "label" || (this.roundToDay && !e.item.allDay)) {
-					newStartTime = this.floorToDay(e.item.startTime, false);
+					newStartTime = this.floorToDay(e.item.startTime);
 					newStartTime.setHours(p._itemEditBeginSave.getHours());
 					newStartTime.setMinutes(p._itemEditBeginSave.getMinutes());
 
 					newEndTime = cal.add(newStartTime, "millisecond", p._initDuration);
 				} else if (e.item.allDay) {
-					newStartTime = this.floorToDay(e.item.startTime, true);
+					newStartTime = this.floorToDay(e.item.startTime);
 					newEndTime = cal.add(newStartTime, "day", p._initDuration);
 				} else {
 					newStartTime = this.floorDate(e.item.startTime, this.snapUnit, this.snapSteps);
@@ -2021,9 +2021,9 @@ define([
 
 				if (e.editKind == "resizeStart") {
 					if (e.item.allDay) {
-						newStartTime = this.floorToDay(e.item.startTime, false, this);
+						newStartTime = this.floorToDay(e.item.startTime);
 					} else if (this.roundToDay) {
-						newStartTime = this.floorToDay(e.item.startTime, false);
+						newStartTime = this.floorToDay(e.item.startTime);
 						newStartTime.setHours(p._itemEditBeginSave.getHours());
 						newStartTime.setMinutes(p._itemEditBeginSave.getMinutes());
 					} else {
@@ -2032,11 +2032,11 @@ define([
 				} else if (e.editKind == "resizeEnd") {
 					if (e.item.allDay) {
 						if (!this.isStartOfDay(e.item.endTime)) {
-							newEndTime = this.floorToDay(e.item.endTime, false, this);
+							newEndTime = this.floorToDay(e.item.endTime);
 							newEndTime = cal.add(newEndTime, "day", 1);
 						}
 					} else if (this.roundToDay) {
-						newEndTime = this.floorToDay(e.item.endTime, false);
+						newEndTime = this.floorToDay(e.item.endTime);
 						newEndTime.setHours(p._itemEditEndSave.getHours());
 						newEndTime.setMinutes(p._itemEditEndSave.getMinutes());
 					} else {
@@ -2158,6 +2158,7 @@ define([
 
 		// snapSteps: Integer
 		//		The number of units used to compute the snapping of the edited item.
+		//		Not used if `snapUnit` is "day".
 		snapSteps: 15,
 
 		// minDurationUnit: "String"

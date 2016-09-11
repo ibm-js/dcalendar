@@ -198,7 +198,7 @@
 				matrixView.on("grid-double-click", function(e) {
 
 					// create a event when double-clicking on grid.
-					var d = matrixView.floorToDay(e.date, true);
+					var d = matrixView.floorToDay(e.date);
 
 					var item = {
 						id: id,
@@ -320,15 +320,15 @@
 					var d;
 					if (value) {
 						d = itemStartTimeEditor.get("value");
-						matrixView.floorToDay(d, true);
+						d = matrixView.floorToDay(d);
 						itemStartTimeEditor.set("value", d);
 						d = itemEndTimeEditor.get("value");
-						matrixView.floorToDay(d, true);
+						d = matrixView.floorToDay(d);
 						itemEndTimeEditor.set("value", d);
 
 						if (!matrixView.isStartOfDay(editedItem.endTime)) {
 							d = itemEndDateEditor.get("value");
-							matrixView.floorToDay(d, true);
+							d = matrixView.floorToDay(d);
 							d = matrixView.renderData.dateModule.add(d, "day", 1);
 							itemEndDateEditor.set("value", d);
 						}
@@ -339,7 +339,7 @@
 						itemStartTimeEditor.set("value", editedItem.startTime);
 						itemEndTimeEditor.set("value", editedItem.endTime);
 						d = itemEndDateEditor.get("value");
-						matrixView.floorToDay(d, true);
+						d = matrixView.floorToDay(d);
 						d = matrixView.renderData.dateModule.add(d, "day", -1);
 						itemEndDateEditor.set("value", d);
 					}

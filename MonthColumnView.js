@@ -153,7 +153,7 @@ define([
 			}
 
 			if (!this.startDate || "startDate" in oldVals) {
-				d = this.floorToMonth(this.startDate || new this.dateClassObj(), false);
+				d = this.floorToMonth(this.startDate || new this.dateClassObj());
 				if (!this.startDate || d.getTime() !== this.startDate.getTime()) {
 					this.startDate = d;
 				}
