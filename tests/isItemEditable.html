@@ -114,21 +114,21 @@
 				contextMenuEditable.on("click", function(e) {
 					calendar.selectedItems.forEach( function(item) {
 						item.editable = contextMenuEditable.checked;
-						calendar.store.put(item, {overwrite: true});
+						calendar.source.put(item, {overwrite: true});
 					});
 				});
 
 				contextMenuMove.on("click", function(e) {
 					calendar.selectedItems.forEach( function(item) {
 						item.moveEnabled = contextMenuMove.checked;
-						calendar.store.put(item, {overwrite: true});
+						calendar.source.put(item, {overwrite: true});
 					});
 				});
 
 				contextMenuResize.on("click", function(e) {
 					calendar.selectedItems.forEach( function(item) {
 						item.resizeEnabled = contextMenuResize.checked;
-						calendar.store.put(item, {overwrite: true});
+						calendar.source.put(item, {overwrite: true});
 					});
 				});
 

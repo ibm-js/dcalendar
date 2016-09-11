@@ -20,7 +20,7 @@ define([
 			var cal = o.dateModule;
 			o.validateRendering();
 
-			var renderItem = o.itemToRenderItem(item, o.store);
+			var renderItem = o.itemToRenderItem(item);
 
 			o._edProps = {
 				editKind: "move",
@@ -39,7 +39,7 @@ define([
 			doh.is(cal.compare(item.startTime, new Date(2011, 0, 5, 10, 7)), 0);
 			doh.is(cal.compare(item.endTime, new Date(2011, 0, 5, 11, 7)), 0);
 
-			renderItem = o.itemToRenderItem(item, o.store);
+			renderItem = o.itemToRenderItem(item);
 
 			o._edProps = {
 				editKind: "move",
@@ -75,7 +75,7 @@ define([
 			var cal = o.dateModule;
 			o.validateRendering();
 
-			var renderItem = o.itemToRenderItem(item, o.store);
+			var renderItem = o.itemToRenderItem(item);
 
 			o._edProps = {
 				editKind: "move",
@@ -94,7 +94,7 @@ define([
 			doh.is(cal.compare(item.startTime, new Date(2011, 0, 5, 10, 0)), 0);
 			doh.is(cal.compare(item.endTime, new Date(2011, 0, 5, 11, 0)), 0);
 
-			renderItem = o.itemToRenderItem(item, o.store);
+			renderItem = o.itemToRenderItem(item);
 
 			o._edProps = {
 				editKind: "move",
@@ -130,7 +130,7 @@ define([
 			var cal = o.dateModule;
 			o.validateRendering();
 
-			var renderItem = o.itemToRenderItem(item, o.store);
+			var renderItem = o.itemToRenderItem(item);
 
 			o._edProps = {
 				editKind: "resizeStart",
@@ -149,7 +149,7 @@ define([
 			doh.is(cal.compare(item.startTime, new Date(2011, 0, 5, 10, 23)), 0);
 			doh.is(cal.compare(item.endTime, new Date(2011, 0, 5, 11)), 0);
 
-			renderItem = o.itemToRenderItem(item, o.store);
+			renderItem = o.itemToRenderItem(item);
 
 			o._edProps = {
 				editKind: "resizeEnd",
@@ -185,7 +185,7 @@ define([
 			var cal = o.dateModule;
 			o.validateRendering();
 
-			var renderItem = o.itemToRenderItem(item, o.store);
+			var renderItem = o.itemToRenderItem(item);
 
 			o._edProps = {
 				editKind: "resizeStart",
@@ -204,7 +204,7 @@ define([
 			doh.is(cal.compare(item.startTime, new Date(2011, 0, 5, 10, 20)), 0);
 			doh.is(cal.compare(item.endTime, new Date(2011, 0, 5, 11)), 0);
 
-			renderItem = o.itemToRenderItem(item, o.store);
+			renderItem = o.itemToRenderItem(item);
 
 			o._edProps = {
 				editKind: "resizeEnd",
@@ -242,7 +242,7 @@ define([
 			var cal = o.dateModule;
 			o.validateRendering();
 
-			var renderItem = o.itemToRenderItem(item, o.store);
+			var renderItem = o.itemToRenderItem(item);
 
 			o._edProps = {
 				editKind: "resizeEnd",
@@ -278,7 +278,7 @@ define([
 			var cal = o.dateModule;
 			o.validateRendering();
 
-			var renderItem = o.itemToRenderItem(item, o.store);
+			var renderItem = o.itemToRenderItem(item);
 
 			o._edProps = {
 				editKind: "move",
@@ -347,7 +347,7 @@ define([
 			var cal = o.dateModule;
 			o.validateRendering();
 
-			var renderItem = o.itemToRenderItem(item, o.store);
+			var renderItem = o.itemToRenderItem(item);
 
 			o._edProps = {
 				editKind: "resizeStart",
@@ -417,7 +417,7 @@ define([
 			var cal = o.dateModule;
 			o.validateRendering();
 
-			var renderItem = o.itemToRenderItem(item, o.store);
+			var renderItem = o.itemToRenderItem(item);
 
 			o._edProps = {
 				editKind: "resizeEnd",
@@ -488,7 +488,7 @@ define([
 			var cal = o.dateModule;
 			o.validateRendering();
 
-			var renderItem = o.itemToRenderItem(item, o.store);
+			var renderItem = o.itemToRenderItem(item);
 
 			o._edProps = {
 				editKind: "move",
@@ -507,7 +507,7 @@ define([
 			doh.is(cal.compare(item.startTime, new Date(2011, 0, 5, 10, 7)), 0);
 			doh.is(cal.compare(item.endTime, new Date(2011, 0, 7, 11, 7)), 0);
 
-			renderItem = o.itemToRenderItem(item, o.store);
+			renderItem = o.itemToRenderItem(item);
 
 			o._edProps = {
 				editKind: "move",
@@ -544,7 +544,7 @@ define([
 			var cal = o.dateModule;
 			o.validateRendering();
 
-			var renderItem = o.itemToRenderItem(item, o.store);
+			var renderItem = o.itemToRenderItem(item);
 
 			o._edProps = {
 				editKind: "move",
@@ -563,7 +563,7 @@ define([
 			doh.is(cal.compare(item.startTime, new Date(2011, 0, 5, 10, 5)), 0);
 			doh.is(cal.compare(item.endTime, new Date(2011, 0, 7, 11, 5)), 0);
 
-			renderItem = o.itemToRenderItem(item, o.store);
+			renderItem = o.itemToRenderItem(item);
 
 			o._edProps = {
 				editKind: "move",
@@ -599,7 +599,7 @@ define([
 			var cal = o.dateModule;
 			o.validateRendering();
 
-			var renderItem = o.itemToRenderItem(item, o.store);
+			var renderItem = o.itemToRenderItem(item);
 
 			o._edProps = {
 				editKind: "move",
@@ -618,7 +618,7 @@ define([
 			doh.is(cal.compare(item.startTime, new Date(2011, 0, 5, 10)), 0);
 			doh.is(cal.compare(item.endTime, new Date(2011, 0, 7, 11)), 0);
 
-			renderItem = o.itemToRenderItem(item, o.store);
+			renderItem = o.itemToRenderItem(item);
 
 			o._edProps = {
 				editKind: "move",
@@ -654,7 +654,7 @@ define([
 			var cal = o.dateModule;
 			o.validateRendering();
 
-			var renderItem = o.itemToRenderItem(item, o.store);
+			var renderItem = o.itemToRenderItem(item);
 
 			o._edProps = {
 				editKind: "move",
@@ -673,7 +673,7 @@ define([
 			doh.is(cal.compare(item.startTime, new Date(2011, 0, 5, 10)), 0);
 			doh.is(cal.compare(item.endTime, new Date(2011, 0, 5, 11)), 0);
 
-			renderItem = o.itemToRenderItem(item, o.store);
+			renderItem = o.itemToRenderItem(item);
 
 			o._edProps = {
 				editKind: "move",
@@ -713,7 +713,7 @@ define([
 
 			o.validateRendering();
 
-			var renderItem = o.itemToRenderItem(item, o.store);
+			var renderItem = o.itemToRenderItem(item);
 
 			o._edProps = {
 				editKind: "resizeEnd",

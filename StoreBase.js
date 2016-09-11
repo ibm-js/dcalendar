@@ -196,7 +196,7 @@ define([
 				this._itemStoreState[id] = {
 					id: id,
 					item: item,
-					renderItem: this.owner.itemToRenderItem(item, store),
+					renderItem: this.itemToRenderItem(item),
 					state: state
 				};
 			}

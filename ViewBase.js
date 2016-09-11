@@ -1,5 +1,6 @@
 define([
 	"dcl/dcl",
+	"requirejs-dplugins/Promise!",
 	"dojo/_base/lang",
 	"decor/sniff",
 	"dojo/dom-style",
@@ -13,6 +14,7 @@ define([
 	"./RendererManager"
 ], function (
 	dcl,
+	Promise,
 	lang,
 	has,
 	domStyle,
@@ -1193,7 +1195,7 @@ define([
 					this._tempItemsMap[id] = true;
 				}
 
-				var newRenderItem = this.itemToRenderItem(newItem, store);
+				var newRenderItem = this.itemToRenderItem(newItem);
 				newRenderItem._item = newItem;
 				this._setItemStoreState(newItem, "unstored");
 
@@ -1572,10 +1574,10 @@ define([
 			var synthEvent = this.emit("item-edit-end", e);
 
 			if (!synthEvent.defaultPrevented) {
-				var store = this.source;
+				var source = this.source;
 
 				// updated store item
-				var storeItem = this.renderItemToItem(e.item, store);
+				var storeItem = this.renderItemToItem(e.item);
 
 				var s = this._getItemStoreStateObj(e.item);
 
@@ -1587,20 +1589,20 @@ define([
 						// so we must do it here.
 						storeItem = lang.mixin(s.item, storeItem);
 						this._setItemStoreState(storeItem, "storing");
-						var oldID = store.getIdentity(storeItem);
+						var oldID = source.getIdentity(storeItem);
 						var options = null;
 
 						if (this._tempItemsMap && this._tempItemsMap[oldID]) {
 							options = {temporaryId: oldID};
 							delete this._tempItemsMap[oldID];
-							delete storeItem[store.idProperty];
+							delete storeItem[source.idProperty];
 						}
 
 						// add to the store.
-						when(store.add(storeItem, options), function (res) {
+						Promise.resolve(source.add(storeItem, options)).then(function (res) {
 							var id;
 							if (lang.isObject(res)) {
-								id = store.getIdentity(res);
+								id = source.getIdentity(res);
 							} else {
 								id = res;
 							}
@@ -1619,7 +1621,7 @@ define([
 					// Inject new properties in data store item
 					// and apply data changes
 					this._setItemStoreState(storeItem, "storing");
-					store.put(storeItem);
+					source.put(storeItem);
 				} else {
 					e.item.startTime = this._editStartTimeSave;
 					e.item.endTime = this._editEndTimeSave;
@@ -1818,9 +1820,8 @@ define([
 					// TODO abstract change?
 					item.subColumn = subColumn;
 					// refresh the other properties that depends on this one (especially cssClass)
-					var store = this.source;
-					var storeItem = this.renderItemToItem(item, store);
-					lang.mixin(item, this.itemToRenderItem(storeItem, store));
+					var storeItem = this.renderItemToItem(item);
+					lang.mixin(item, this.itemToRenderItem(storeItem));
 					moveOrResizeDone = true;
 				}
 				if (cal.compare(item.startTime, newTime) !== 0) {
