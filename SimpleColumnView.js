@@ -110,13 +110,8 @@ define([
 
 		// percentOverlap: Integer
 		//		The percentage of the renderer width used to superimpose one item renderer on another
-		//		when two events are overlapping.
+		//		when two events are concurrent.  Set to negative number to indicate a gap between renderers.
 		percentOverlap: 70,
-
-		// horizontalGap: Integer
-		//		The number of pixels between two item renderers that are overlapping each other
-		//		if the percentOverlap property is 0.
-		horizontalGap: 4,
 
 		_showSecondarySheet: false,
 
@@ -157,7 +152,7 @@ define([
 			}
 
 			v = this.percentOverlap;
-			if (v < 0 || v > 100 || isNaN(v)) {
+			if (v < -100 || v > 100 || isNaN(v)) {
 				this.percentOverlap = 70;
 			}
 			if (this.hourSize < 5 || isNaN(this.hourSize)) {
@@ -994,8 +989,6 @@ define([
 
 			var verticalItems = [];
 
-			this.colW = this.itemContainer.offsetWidth / this.columnCount;
-
 			if (itemsType === "dataItems") {
 				for (var i = 0; i < items.length; i++) {
 					var item = items[i];
@@ -1109,20 +1102,9 @@ define([
 					var lane = item.lane;
 					var extent = item.extent;
 
-					if (hOverlap === 0) {
-						//no overlap and a padding between each event
-						w = numLanes == 1 ? this.colW :
-							((this.colW - (numLanes - 1) * this.horizontalGap) / numLanes);
-						posX = lane * (w + this.horizontalGap);
-						w = extent == 1 ? w : w * extent + (extent - 1) * this.horizontalGap;
-						w = 100 * w / this.colW;
-						posX = 100 * posX / this.colW;
-					} else {
-						// an overlap
-						w = numLanes == 1 ? 100 : (100 / (numLanes - (numLanes - 1) * hOverlap));
-						posX = lane * (w - hOverlap * w);
-						w = extent == 1 ? w : w * (extent - (extent - 1) * hOverlap);
-					}
+					w = numLanes == 1 ? 100 : (100 / (numLanes - (numLanes - 1) * hOverlap));
+					posX = lane * (w - hOverlap * w);
+					w = extent == 1 ? w : w * (extent - (extent - 1) * hOverlap);
 
 					ir = this._createRenderer(item, "vertical", this.verticalRenderer, "d-calendar-vertical");
 
