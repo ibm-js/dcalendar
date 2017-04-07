@@ -119,6 +119,10 @@ define([
 		hourCount: -1,
 		slotSize: -1,
 
+		// Computed start and end time based on startDate and columnCount.
+		startTime: null,
+		endTime: null,
+
 		_setVerticalRendererAttr: function (value) {
 			this._destroyRenderersByKind("vertical");			// clear cache
 			this._set("verticalRenderer", value);
@@ -181,11 +185,20 @@ define([
 				this.endTime = new this.dateClassObj(this.dates[this.columnCount - 1]);
 				this.endTime.setHours(this.maxHours);
 
-				if (this.source) {
-					this.query = new this.source.Filter().lte("startTime", this.endTime).gte("endTime", this.startTime);
-				}
-
 				this.subColumnCount = this.subColumns ? this.subColumns.length : 1;
+			}
+
+			this.computeQuery(oldVals);
+		},
+
+		/**
+		 * Overridable method to set this.query when (and only when) necessary.  Called from computeProperties().
+		 * @param oldVals
+		 */
+		computeQuery: function (oldVals) {
+			if (this.source && this.startTime && this.endTime &&
+					("source" in oldVals || "startTime" in oldVals || "endTime" in oldVals)) {
+				this.query = new this.source.Filter().lte("startTime", this.endTime).gte("endTime", this.startTime);
 			}
 		},
 
