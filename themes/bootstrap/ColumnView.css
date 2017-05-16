@@ -20,8 +20,6 @@
   -moz-box-sizing: border-box;
   box-sizing: border-box;
   background-color: #efefef;
-  background-image: url("images/titlebar.png");
-  background-repeat: repeat-x;
 }
 .d-calendar-column-view .d-calendar-header table,
 .d-calendar-column-view .d-calendar-header > div {
@@ -212,8 +210,6 @@
 }
 .d-calendar-column-view .d-calendar-column-header div:hover {
   cursor: pointer;
-  background-image: url("images/titlebar.png");
-  background-repeat: repeat-x;
   background-color: #abd6ff;
   border-color: #769dc0;
 }

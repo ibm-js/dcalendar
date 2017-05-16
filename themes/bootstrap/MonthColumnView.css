@@ -137,8 +137,6 @@
   vertical-align: middle;
   text-align: center;
   background-color: #efefef;
-  background-image: url("images/titlebar.png");
-  background-repeat: repeat-x;
   border-right: 1px solid #cccccc;
   border-top: 1px solid #b5bcc7;
   border-bottom: 1px solid #b5bcc7;
@@ -157,8 +155,6 @@
 }
 .d-calendar-month-column-view .d-calendar-column-header-table td:hover {
   cursor: pointer;
-  background-image: url("images/titlebar.png");
-  background-repeat: repeat-x;
   background-color: #abd6ff;
   border-color: #769dc0;
 }
