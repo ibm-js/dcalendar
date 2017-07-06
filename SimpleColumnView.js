@@ -1375,9 +1375,9 @@ define([
 
 									this._pendingDoubleTap = {
 										grid: true,
-										timer: setTimeout(function () {
+										timer: this.defer(function () {
 											delete this._pendingDoubleTap;
-										}.bind(this), this.doubleTapDelay)
+										}, this.doubleTapDelay)
 									};
 								}
 							}

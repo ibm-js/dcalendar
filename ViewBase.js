@@ -208,13 +208,12 @@ define([
 			} else {
 				d = this.floorToDay(d);
 			}
-			setTimeout(function () {
+			this.defer(function () {
 				if (!this._isEditing) {
 					this.notifyCurrentValue("dates");	// make refreshRendering() rerender
 				}
 				this._setupDayRefresh();
-			}.bind(this), d.getTime() - now.getTime() + 5000);
-			// add 5 seconds to be sure to be tomorrow
+			}, d.getTime() - now.getTime() + 5000); // add 5 seconds to be sure to be tomorrow
 		},
 
 		resize: function (changeSize) {
@@ -2115,11 +2114,11 @@ define([
 
 			if (!synthEvent.defaultPrevented) {
 				if (p.editLayer) {
-					setTimeout(function () {
+					this.defer(function () {
 						this.focus();
 						p.editLayer.parentNode.removeChild(p.editLayer);
 						p.editLayer = null;
-					}.bind(this), 10);
+					}, 10);
 				}
 			}
 		},

@@ -595,10 +595,10 @@ define([
 
 			if (this.layoutDuringResize || apply) {
 				// Use a time for FF (at least). In FF the cell size and position info are not ready yet.
-				setTimeout(function () {
+				this.defer(function () {
 					this._layoutRenderers();
 					this._layoutDecorationRenderers();
-				}.bind(this), 20);
+				}, 20);
 			} else {
 				domStyle.set(this.itemContainer, "opacity", 0);
 				this._recycleItemRenderers();
@@ -606,7 +606,7 @@ define([
 				if (this._resizeTimer !== undefined) {
 					clearTimeout(this._resizeTimer);
 				}
-				this._resizeTimer = setTimeout(function () {
+				this._resizeTimer = this.defer(function () {
 					delete this._resizeTimer;
 					this._resizeRowsImpl(this.itemContainer);
 					this._layoutRenderers();
@@ -616,7 +616,7 @@ define([
 					} else {
 						fx.fadeIn({node: this.itemContainer, curve: [0, 1]}).play(this.resizeAnimationDuration);
 					}
-				}.bind(this), 200);
+				}, 200);
 			}
 		},
 
@@ -676,7 +676,7 @@ define([
 							this._collapseRowImpl(false);
 							this._resizeRows();
 							domStyle.set(this.itemContainer, "display", "block");
-							setTimeout(this._layoutRenderers.bind(this), 100);
+							this.defer(this._layoutRenderers, 100);
 							this.emit("expand-animation-end");
 						}.bind(this)
 					});
@@ -754,9 +754,9 @@ define([
 						onEnd: function () {
 							this._expandAnimation = null;
 							domStyle.set(this.itemContainer, "display", "block");
-							setTimeout(function () {
+							this.defer(function () {
 								this._expandRowImpl(size, true);
-							}.bind(this), 100);
+							}, 100);
 							this.emit("expand-animation-end");
 						}.bind(this)
 					});
@@ -1852,9 +1852,9 @@ define([
 
 								this._pendingDoubleTap = {
 									grid: true,
-									timer: setTimeout(function () {
+									timer: this.defer(function () {
 										delete this._pendingDoubleTap;
-									}.bind(this), this.doubleTapDelay)
+									}, this.doubleTapDelay)
 								};
 							}
 						}

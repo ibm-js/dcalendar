@@ -100,7 +100,7 @@ define([
 
 				// set the selection state without dispatching (on touch end) after a short amount of time.
 				// to allow a bit of time to scroll without selecting (graphically at least)
-				this._touchSelectionTimer = setTimeout(function () {
+				this._touchSelectionTimer = this.defer(function () {
 					this._saveSelectedItems = this.selectedItems;
 
 					var changed = this.selectFromEvent(e, theItem._item, renderer, false);
@@ -111,14 +111,14 @@ define([
 						delete this._saveSelectedItems;
 					}
 					this._touchSelectionTimer = null;
-				}.bind(this), 200);
+				}, 200);
 
 				p.start = {x: e.touches[0].screenX, y: e.touches[0].screenY};
 
 				if (this.isItemEditable(p.item, p.rendererKind)) {
 
 					// editing gesture timer
-					this._edProps.startEditingTimer = setTimeout(function () {
+					this._edProps.startEditingTimer = this.defer(function () {
 						// we are editing, so the item *must* be selected.
 						if (this._touchSelectionTimer) {
 							clearTimeout(this._touchSelectionTimer);
@@ -140,7 +140,7 @@ define([
 						// A move gesture is initiated even if we don't move
 						this._startItemEditingGesture([this.getTime(e)], "move", "touch", e);
 
-					}.bind(this), this.touchStartEditingTimer);
+					}, this.touchStartEditingTimer);
 				}
 			}
 		},
@@ -253,9 +253,9 @@ define([
 						if (this.touchEndEditingTimer > 0) {
 
 							// Timer that trigger the end of the item editing mode.
-							p.endEditingTimer = setTimeout(function () {
+							p.endEditingTimer = this.defer(function () {
 								this._endItemEditing("touch", false);
-							}.bind(this), this.touchEndEditingTimer);
+							}, this.touchEndEditingTimer);
 						} // else validation must be explicit
 					} else {
 						if (this._editingGesture) {
@@ -297,9 +297,9 @@ define([
 				} else {
 					this._pendingDoubleTap = {
 						item: p.item,
-						timer: setTimeout(function () {
+						timer: this.defer(function () {
 							delete this._pendingDoubleTap;
-						}.bind(this), this.doubleTapDelay)
+						}, this.doubleTapDelay)
 					};
 
 					this.emit("item-click", {
