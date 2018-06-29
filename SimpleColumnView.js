@@ -1037,8 +1037,7 @@ define([
 								}
 							} else { // for decorations, if no sub column is set, apply to all sub columns
 								subCols.forEach(function (subCol) {
-									var clonedItem = {};
-									dcl.mix(clonedItem, item);
+									var clonedItem = Object.create(item);
 									clonedItem.subColumn = subCol;
 									subColumnItems[subCol].push(clonedItem);
 								});
@@ -1088,13 +1087,11 @@ define([
 				var bottom = this.computeProjectionOnDate(startTime, overlap[1], this.sheetHeight);
 
 				if (bottom > top) {
-					var litem = {
-						start: top,
-						end: bottom,
-						range: overlap,
-						item: item
-					};
-					dcl.mix(litem, item);
+					var litem = Object.create(item);
+					litem.start = top;
+					litem.end = bottom;
+					litem.range = overlap;
+					litem.item = item;
 					layoutItems.push(litem);
 				}
 			}

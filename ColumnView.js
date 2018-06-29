@@ -72,7 +72,9 @@ define([
 							args[prop] = value;
 						}
 					}, this);
-					dcl.mix(args, this.secondarySheetProps);
+					for (var key in this.secondarySheetProps) {
+						args[key] = this.secondarySheetProps[key];
+					}
 					this.secondarySheet = new this.secondarySheetClass(args);
 					this.secondarySheet.placeAt(this.secondarySheetPlaceholder, "replace");
 				}

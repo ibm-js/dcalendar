@@ -13,7 +13,7 @@ define([
 
 		// TODO: replace this method with class={{item.cssClass}} template? (or with null handling,
 		// if needed)
-		// There's some weird detail though with the dcl.mix(this.item, value) thing.
+		// There's some weird detail though with copying value's properties into this.item.
 		_setItemAttr: function (value) {
 			if (value == null) {
 				if (this.item && this.item.cssClass) {
@@ -27,7 +27,9 @@ define([
 							domClass.remove(this, this.item.cssClass);
 						}
 					}
-					dcl.mix(this.item, value);
+					for (var key in value) {
+						this.item[key] = value[key];
+					}
 					if (value.cssClass) {
 						domClass.add(this, value.cssClass);
 					}

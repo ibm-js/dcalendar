@@ -35,7 +35,9 @@ define([
 			this.itemToRenderer = {};
 
 			if (args) {
-				dcl.mix(this, args);
+				for (var key in args) {
+					this[key] = args[key];
+				}
 			}
 		},
 

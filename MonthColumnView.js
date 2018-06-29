@@ -691,13 +691,11 @@ define([
 				var bottom = this._dateToYCoordinate(overlap[1], false);
 
 				if (bottom > top) {
-					var litem = {
-						start: top,
-						end: bottom,
-						range: overlap,
-						item: item
-					};
-					dcl.mix(litem, item);
+					var litem = Object.create(item);
+					litem.start = top;
+					litem.end = bottom;
+					litem.range = overlap;
+					litem.item = item;
 					layoutItems.push(litem);
 				}
 			}

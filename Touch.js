@@ -86,7 +86,10 @@ define([
 
 			if (this._isEditing) {
 				// get info on touches
-				dcl.mix(p, this._getTouchesOnRenderers(e, p.editedItem));
+				var touches = this._getTouchesOnRenderers(e, p.editedItem);
+				for (var key in touches) {
+					p[key] = touches[key];
+				}
 
 				// start an editing gesture.
 				this._startTouchItemEditingGesture(e);
@@ -243,7 +246,10 @@ define([
 			}
 
 			if (this._isEditing) {
-				dcl.mix(p, this._getTouchesOnRenderers(e, p.editedItem));
+				var touches = this._getTouchesOnRenderers(e, p.editedItem);
+				for (var key in touches) {
+					p[key] = touches[key];
+				}
 
 				if (this._editingGesture) {
 					if (p.touchesLen === 0) {
