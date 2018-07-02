@@ -2,11 +2,11 @@
 	"name": "dcalendar",
 	"version": "0.1.2",
 	"dependencies": {
-		"dcl": "1.1.2",
-		"decor": "0.7.x",
-		"delite": "0.8.x",
-		"deliteful": "0.8.x",
-		"dojo": ">=1.9.1",
+		"dcl": "^2.0.6",
+		"decor": "master",
+		"delite": "master",
+		"deliteful": "master",
+		"dojo": "^1.9.1",
 		"requirejs-domready": "2.0.x",
 		"requirejs-dplugins": "0.6.x"
 	},
