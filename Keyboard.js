@@ -78,31 +78,37 @@ define([
 
 		// focusedItem: Object
 		//		The data item that currently has the focus.
-		focusedItem: null,
+		focusedItem: dcl.prop({
+			set: function (value) {
+				if (value != this.focusedItem) {
+					var old = this.focusedItem;
+					this._set("focusedItem", value);
+					this.updateRenderers([old, this.focusedItem], true);
+					this.emit("focus-change", {
+						oldValue: old,
+						newValue: value
+					});
+				}
+				if (value != null) {
+					if (this.owner != null && this.owner.focusedItem != null) {
+						this.owner.focusedItem = null;
+					}
+					if (this._secondarySheet != null && this._secondarySheet.focusedItem != null) {
+						this._secondarySheet.focusedItem = null;
+					}
+				}
+			},
+			get: function () {
+				return this._get("focusedItem");
+			},
+			enumerable: true,
+			configurable: true
+		}),
 
 		_isItemFocused: function (item) {
 			return this.focusedItem != null && this.focusedItem.id == item.id;
 		},
 
-		_setFocusedItemAttr: function (value) {
-			if (value != this.focusedItem) {
-				var old = this.focusedItem;
-				this._set("focusedItem", value);
-				this.updateRenderers([old, this.focusedItem], true);
-				this.emit("focus-change", {
-					oldValue: old,
-					newValue: value
-				});
-			}
-			if (value != null) {
-				if (this.owner != null && this.owner.focusedItem != null) {
-					this.owner.focusedItem = null;
-				}
-				if (this._secondarySheet != null && this._secondarySheet.focusedItem != null) {
-					this._secondarySheet.focusedItem = null;
-				}
-			}
-		},
 
 		// showFocus: Boolean
 		//		Show or hide the focus graphic feedback on item renderers.

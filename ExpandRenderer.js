@@ -1,10 +1,12 @@
 define([
+	"dcl/dcl",
 	"delite/register",
 	"dojo/dom-class",
 	"dojo/dom-style",
 	"delite/Widget",
 	"delite/handlebars!./templates/ExpandRenderer.html"
 ], function (
+	dcl,
 	register,
 	domClass,
 	domStyle,
@@ -23,15 +25,42 @@ define([
 
 		// focused: Boolean
 		//		Indicates that the renderer is focused.
-		focused: false,
+		focused: dcl.prop({
+			set: function (value) {
+				this._setState("focused", value, "focused");
+			},
+			get: function () {
+				return this._get("focused") || false;
+			},
+			enumerable: true,
+			configurable: true
+		}),
 
 		// up: Boolean
 		//		Indicates that the mouse cursor is over renderer.
-		up: false,
+		up: dcl.prop({
+			set: function (value) {
+				this._setState("up", value, "up");
+			},
+			get: function () {
+				return this._get("up") || false;
+			},
+			enumerable: true,
+			configurable: true
+		}),
 
 		// down: Boolean
 		//		Indicates that the renderer is pressed.
-		down: false,
+		down: dcl.prop({
+			set: function (value) {
+				this._setState("down", value, "down");
+			},
+			get: function () {
+				return this._get("down") || false;
+			},
+			enumerable: true,
+			configurable: true
+		}),
 
 		// date: Date
 		//		The date displayed by the cell where this renderer is used.
@@ -51,23 +80,18 @@ define([
 
 		// TODO: replace most of the code below with template
 
-		_setExpandedAttr: function (value) {
-			domStyle.set(this.expand, "display", value ? "none" : "inline-block");
-			domStyle.set(this.collapse, "display", value ? "inline-block" : "none");
-			this._set("expanded", value);
-		},
-
-		_setDownAttr: function (value) {
-			this._setState("down", value, "down");
-		},
-
-		_setUpAttr: function (value) {
-			this._setState("up", value, "up");
-		},
-
-		_setFocusedAttr: function (value) {
-			this._setState("focused", value, "focused");
-		},
+		expanded: dcl.prop({
+			set: function (value) {
+				domStyle.set(this.expand, "display", value ? "none" : "inline-block");
+				domStyle.set(this.collapse, "display", value ? "inline-block" : "none");
+				this._set("expanded", value);
+			},
+			get: function () {
+				return this._get("expanded");
+			},
+			enumerable: true,
+			configurable: true
+		}),
 
 		_setState: function (prop, value, cssClass) {
 			if (this[prop] != value) {

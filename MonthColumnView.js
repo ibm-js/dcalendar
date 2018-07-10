@@ -92,7 +92,15 @@ define([
 
 		// verticalRenderer: Class
 		//		The class use to create vertical renderers.
-		verticalRenderer: null,
+		verticalRenderer: dcl.prop({
+			set: function (value) {
+				this._destroyRenderersByKind("vertical");		// clear cache
+				this._set("verticalRenderer", value);
+			},
+			get: function () {
+				return this._get("verticalRenderer");
+			}
+		}),
 
 		// verticalDecorationRenderer: Class
 		//		The class use to create vertical decoration renderers.
@@ -134,11 +142,6 @@ define([
 			this.allDayKeyboardUpDownSteps = 1;
 			this.allDayKeyboardLeftRightUnit = "month";
 			this.allDayKeyboardLeftRightSteps = 1;
-		},
-
-		_setVerticalRendererAttr: function (value) {
-			this._destroyRenderersByKind("vertical");			// clear cache
-			this._set("verticalRenderer", value);
 		},
 
 		computeProperties: function (oldVals) {
@@ -270,15 +273,15 @@ define([
 
 		// scrollPosition: Integer
 		//		The scroll position of the view.
-		scrollPosition: null,
+		scrollPosition: dcl.prop({
+			set: function (value) {
+				this._setScrollPosition(value.date, value.duration, value.easing);
+			},
 
-		_setScrollPositionAttr: function (value) {
-			this._setScrollPosition(value.date, value.duration, value.easing);
-		},
-
-		_getScrollPositionAttr: function () {
-			return {date: (this.scrollableNode.scrollTop / this.daySize) + 1};
-		},
+			get: function () {
+				return {date: (this.scrollableNode.scrollTop / this.daySize) + 1};
+			}
+		}),
 
 		_setScrollPosition: function (date, duration) {
 			if (date < 1) {

@@ -1,4 +1,5 @@
 define([
+	"dcl/dcl",
 	"delite/register",
 	"dojo/_base/lang",
 	"requirejs-dplugins/has",
@@ -16,6 +17,7 @@ define([
 	"delite/theme!./themes/{{theme}}/MatrixView.css",
 	"delite/theme!./themes/{{theme}}/MatrixView_rtl.css"
 ], function (
+	dcl,
 	register,
 	lang,
 	has,
@@ -99,17 +101,55 @@ define([
 
 		// horizontalRenderer: Class
 		//		The class use to create horizontal renderers.
-		horizontalRenderer: null,
+		horizontalRenderer: dcl.prop({
+			set: function (value) {
+				this._destroyRenderersByKind("horizontal");		// clear cache
+				this._set("horizontalRenderer", value);
+			},
+			get: function () {
+				return this._get("horizontaRenderer");
+			}
+		}),
 
 		// labelRenderer: Class
 		//		The class use to create label renderers.
-		labelRenderer: null,
+		labelRenderer: dcl.prop({
+			set: function (value) {
+				this._destroyRenderersByKind("label");		// clear cache
+				this._set("labelRenderer", value);
+			},
+			get: function () {
+				return this._get("labelRenderer");
+			}
+		}),
 
 		// expandRenderer: Class
 		//		The class use to create drill down renderers.
-		expandRenderer: null,
+		expandRenderer: dcl.prop({
+			set: function (value) {
+				// if() statement to avoid failure from dcl (or delite?) problem where this is
+				// called while creating a subclass of MatrixView.
+				if (this._ddRendererList && this._ddRendererPool) {
+					while (this._ddRendererList.length > 0) {
+						this._destroyExpandRenderer(this._ddRendererList.pop());
+					}
 
-		// expandRenderer: Class
+					var pool = this._ddRendererPool;
+					if (pool) {
+						while (pool.length > 0) {
+							this._destroyExpandRenderer(pool.pop());
+						}
+					}
+				}
+
+				this._set("expandRenderer", value);
+			},
+			get: function () {
+				return this._get("expandRenderer");
+			}
+		}),
+
+		// horizontalDecorationRenderer: Class
 		//		The class use to create horizontal decoration renderers.
 		horizontalDecorationRenderer: null,
 
@@ -875,16 +915,6 @@ define([
 		//
 		///////////////////////////////////////////
 
-		_setHorizontalRendererAttr: function (value) {
-			this._destroyRenderersByKind("horizontal");		// clear cache
-			this._set("horizontalRenderer", value);
-		},
-
-		_setLabelRendererAttr: function (value) {
-			this._destroyRenderersByKind("label");			// clear cache
-			this._set("labelRenderer", value);
-		},
-
 		_destroyExpandRenderer: function (renderer) {
 			// summary:
 			//		Destroys the expand renderer.
@@ -896,25 +926,6 @@ define([
 			if (renderer.destroy) {
 				renderer.destroy();
 			}
-		},
-
-		_setExpandRendererAttr: function (value) {
-			// if() statement to avoid failure from dcl (or delite?) problem where this is
-			// called while creating a subclass of MatrixView.
-			if (this._ddRendererList && this._ddRendererPool) {
-				while (this._ddRendererList.length > 0) {
-					this._destroyExpandRenderer(this._ddRendererList.pop());
-				}
-
-				var pool = this._ddRendererPool;
-				if (pool) {
-					while (pool.length > 0) {
-						this._destroyExpandRenderer(pool.pop());
-					}
-				}
-			}
-
-			this._set("expandRenderer", value);
 		},
 
 		_getExpandRenderer: function (date, items, rowIndex, colIndex, expanded) {

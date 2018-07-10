@@ -102,7 +102,15 @@ define([
 
 		// verticalRenderer: Class
 		//		The class use to create vertical renderers.
-		verticalRenderer: null,
+		verticalRenderer:  dcl.prop({
+			set: function (value) {
+				this._destroyRenderersByKind("vertical");		// clear cache
+				this._set("verticalRenderer", value);
+			},
+			get: function () {
+				return this._get("verticalRenderer");
+			}
+		}),
 
 		// verticalDecorationRenderer: Class
 		//		The class use to create decoration renderers.
@@ -122,11 +130,6 @@ define([
 		// Computed start and end time based on startDate and columnCount.
 		startTime: null,
 		endTime: null,
-
-		_setVerticalRendererAttr: function (value) {
-			this._destroyRenderersByKind("vertical");			// clear cache
-			this._set("verticalRenderer", value);
-		},
 
 		computeProperties: function (oldVals) {
 			if (this.startDate == null) {
@@ -858,16 +861,21 @@ define([
 
 		// showTimeIndicator: Boolean
 		//		Whether show or not an indicator (default a red line) at the current time.
-		showTimeIndicator: true,
+		showTimeIndicator: dcl.prop({
+			set: function (value) {
+				this._set("showTimeIndicator", value);
+				this._layoutTimeIndicator();
+			},
+			get: function () {
+				return this._has("showTimeIndicator") ? this._get("showTimeIndicator") : true;
+			},
+			enumerable: true,
+			configurable: true
+		}),
 
 		// timeIndicatorRefreshInterval: Integer
 		//		Maximal interval between two refreshes of time indicator, in milliseconds.
 		timeIndicatorRefreshInterval: 60000,
-
-		_setShowTimeIndicatorAttr: function (value) {
-			this._set("showTimeIndicator", value);
-			this._layoutTimeIndicator();
-		},
 
 		_layoutTimeIndicator: function () {
 			if (this.showTimeIndicator) {
