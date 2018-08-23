@@ -604,7 +604,7 @@ define([
 			}, this);
 		},
 
-		resize: register.superCall(function (sup) {
+		resize: dcl.superCall(function (sup) {
 			return function () {
 				sup.apply(this, arguments);
 				this._resizeHandler(null, false);
@@ -1083,7 +1083,7 @@ define([
 				item.lane === undefined ? 1 : item.lane + 1});
 		},
 
-		_layoutDecorationRenderers: register.superCall(function (sup) {
+		_layoutDecorationRenderers: dcl.superCall(function (sup) {
 			return function () {
 				// tags:
 				//		private
@@ -1104,7 +1104,7 @@ define([
 			};
 		}),
 
-		_layoutRenderers: register.superCall(function (sup) {
+		_layoutRenderers: dcl.superCall(function (sup) {
 			return function () {
 				// tags:
 				//		private
@@ -1668,7 +1668,7 @@ define([
 		//
 		//////////////////////////////////////////////
 
-		_onItemEditBeginGesture: register.superCall(function (sup) {
+		_onItemEditBeginGesture: dcl.superCall(function (sup) {
 			return function (e) {
 				// tags:
 				//		private
@@ -1692,7 +1692,7 @@ define([
 			};
 		}),
 
-		_computeItemEditingTimes: register.superCall(function (sup) {
+		_computeItemEditingTimes: dcl.superCall(function (sup) {
 			return function (item, editKind, rendererKind, times) {
 				var cal = this.dateModule;
 				var p = this._edProps;
@@ -1817,7 +1817,7 @@ define([
 		//
 		//////////////////////////////////////////////
 
-		_onGridMouseUp: register.superCall(function (sup) {
+		_onGridMouseUp: dcl.superCall(function (sup) {
 			return function (e) {
 				sup.apply(this, arguments);
 
@@ -1832,7 +1832,7 @@ define([
 			};
 		}),
 
-		_onGridTouchEnd: register.superCall(function (sup) {
+		_onGridTouchEnd: dcl.superCall(function (sup) {
 			return function (e) {
 				sup.apply(this, arguments);
 

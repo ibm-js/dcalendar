@@ -1,4 +1,5 @@
 define([
+	"dcl/dcl",
 	"delite/register",
 	"dcalendar/Calendar",
 	"dcalendar/MonthColumnView",
@@ -7,6 +8,7 @@ define([
 	"dcalendar/Keyboard",
 	"delite/handlebars!./CalendarMonthColumn.html"
 ], function (
+	dcl,
 	register,
 	Calendar,
 	MonthColumnView,
@@ -24,7 +26,7 @@ define([
 
 		verticalRenderer: VerticalRenderer,
 
-		_computeCurrentView: register.superCall(function (sup) {
+		_computeCurrentView: dcl.superCall(function (sup) {
 			return function () {
 				// show the month column view if the duration is greater than 31x2 days
 				if (this._duration > 62) {
@@ -48,7 +50,7 @@ define([
 			};
 		}),
 
-		_configureView: register.superCall(function (sup) {
+		_configureView: dcl.superCall(function (sup) {
 			return function () {
 				var view = this.currentView,
 					timeInterval = this._timeInterval;

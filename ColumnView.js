@@ -61,7 +61,7 @@ define([
 			"horizontalRenderer", "labelRenderer"
 		],
 
-		render: register.superCall(function (sup) {
+		render: dcl.superCall(function (sup) {
 			return function () {
 				sup.apply(this, arguments);
 				if (this.secondarySheetPlaceholder) {
@@ -87,7 +87,7 @@ define([
 			}
 		},
 
-		_setVisibility: register.superCall(function (sup) {
+		_setVisibility: dcl.superCall(function (sup) {
 			return function (value) {
 				sup.apply(this, arguments);
 				if (this.secondarySheet) {
@@ -96,7 +96,7 @@ define([
 			};
 		}),
 
-		resize: register.superCall(function (sup) {
+		resize: dcl.superCall(function (sup) {
 			return function () {
 				sup.apply(this, arguments);
 				if (this.secondarySheet) {
@@ -119,7 +119,7 @@ define([
 			}
 		},
 
-		_buildRowHeader: register.superCall(function (sup) {
+		_buildRowHeader: dcl.superCall(function (sup) {
 			return function () {
 				sup.apply(this, arguments);
 
@@ -136,7 +136,7 @@ define([
 			};
 		}),
 
-		updateRenderers: register.superCall(function (sup) {
+		updateRenderers: dcl.superCall(function (sup) {
 			return function (obj, stateOnly) {
 				sup.apply(this, arguments);
 				if (this.secondarySheet) {
@@ -150,15 +150,15 @@ define([
 		},
 
 		// TODO: combine to use pointer events?
-		_onGridTouchStart: register.after(function () {
+		_onGridTouchStart: dcl.after(function () {
 			this._doEndItemEditing(this.secondarySheet, "touch");
 		}),
 
-		_onGridMouseDown: register.after(function () {
+		_onGridMouseDown: dcl.after(function () {
 			this._doEndItemEditing(this.secondarySheet, "mouse");
 		}),
 
-		_configureScrollBar: register.superCall(function (sup) {
+		_configureScrollBar: dcl.superCall(function (sup) {
 			return function () {
 				sup.apply(this, arguments);
 

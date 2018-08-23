@@ -1,8 +1,14 @@
 define([
+	"dcl/dcl",
 	"delite/register",
 	"./RendererBase",
 	"delite/handlebars!./templates/LabelRenderer.html"
-], function (register, _RendererMixin, template) {
+], function (
+	dcl,
+	register,
+	_RendererMixin,
+	template
+) {
 
 	return register("d-calendar-label", [HTMLElement, _RendererMixin], {
 		// summary:
@@ -22,7 +28,7 @@ define([
 			endTimeLabel: 30
 		},
 
-		_isElementVisible: register.superCall(function (sup) {
+		_isElementVisible: dcl.superCall(function (sup) {
 			return function (elt) {
 				switch (elt) {
 				case "startTimeLabel":

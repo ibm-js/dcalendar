@@ -619,7 +619,7 @@ define([
 			return dur >= 1440 ? "vertical" : null;
 		},
 
-		_layoutRenderers: register.superCall(function (sup) {
+		_layoutRenderers: dcl.superCall(function (sup) {
 			return function () {
 				this.hiddenEvents = {};
 				sup.apply(this, arguments);
@@ -798,7 +798,7 @@ define([
 			return this.gridTable.childNodes[0].childNodes[rowIndex].childNodes[columnIndex];
 		},
 
-		refreshRendering: register.before(function () {
+		refreshRendering: dcl.before(function () {
 			// make sure to clear hidden object state
 			Array.prototype.forEach.call(this.gridTable.querySelectorAll("td.d-calendar-hidden-events"),
 					function (td) {
@@ -920,7 +920,7 @@ define([
 		//
 		///////////////////////////////////////////////////////////////
 
-		_onGridMouseUp: register.superCall(function (sup) {
+		_onGridMouseUp: dcl.superCall(function (sup) {
 			return function (e) {
 				sup.apply(this, arguments);
 
@@ -935,7 +935,7 @@ define([
 			};
 		}),
 
-		_onGridTouchStart: register.superCall(function (sup) {
+		_onGridTouchStart: dcl.superCall(function (sup) {
 			return function (e) {
 				sup.apply(this, arguments);
 
@@ -947,7 +947,7 @@ define([
 			};
 		}),
 
-		_onGridTouchMove: register.superCall(function (sup) {
+		_onGridTouchMove: dcl.superCall(function (sup) {
 			return function (e) {
 				sup.apply(this, arguments);
 
@@ -986,7 +986,7 @@ define([
 			};
 		}),
 
-		_onGridTouchEnd: register.superCall(function (sup) {
+		_onGridTouchEnd: dcl.superCall(function (sup) {
 			return function (e) {
 				sup.apply(this, arguments);
 

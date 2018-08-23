@@ -1,10 +1,12 @@
 define([
+	"dcl/dcl",
 	"delite/register",
 	"dojo/dom-geometry",
 	"dojo/dom-style",
 	"./MatrixView",
 	"delite/handlebars!./templates/ColumnViewSecondarySheet.html"
 ], function (
+	dcl,
 	register,
 	domGeometry,
 	domStyle,
@@ -51,7 +53,7 @@ define([
 			return e;
 		},
 
-		_layoutExpandRenderers: register.superCall(function (sup) {
+		_layoutExpandRenderers: dcl.superCall(function (sup) {
 			return function () {
 				if (!this.expandRenderer || this._expandedRowCol == -1) {
 					return;

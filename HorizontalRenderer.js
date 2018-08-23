@@ -1,9 +1,11 @@
 define([
+	"dcl/dcl",
 	"delite/register",
 	"dojo/dom-style",
 	"./RendererBase",
 	"delite/handlebars!./templates/HorizontalRenderer.html"
 ], function (
+	dcl,
 	register,
 	domStyle,
 	_RendererMixin,
@@ -39,7 +41,7 @@ define([
 		//		to show the arrows correctly.
 		arrowPadding: 12,
 
-		_isElementVisible: register.superCall(function (sup) {
+		_isElementVisible: dcl.superCall(function (sup) {
 			return function (elt, startHidden, endHidden) {
 				var d;
 				var ltr = (this.effectiveDir === "ltr");

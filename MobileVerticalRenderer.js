@@ -1,8 +1,14 @@
 define([
+	"dcl/dcl",
 	"delite/register",
 	"./RendererBase",
 	"delite/handlebars!./templates/MobileVerticalRenderer.html"
-], function (register, _RendererMixin, template) {
+], function (
+	dcl,
+	register,
+	_RendererMixin,
+	template
+) {
 
 	return register("d-calendar-mobile-vertical", [HTMLElement, _RendererMixin], {
 		// summary:
@@ -19,7 +25,7 @@ define([
 			endTimeLabel: 20
 		},
 
-		_isElementVisible: register.superCall(function (sup) {
+		_isElementVisible: dcl.superCall(function (sup) {
 			return function (elt) {
 				var d;
 

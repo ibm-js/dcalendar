@@ -1,8 +1,10 @@
 define([
+	"dcl/dcl",
 	"delite/register",
 	"./RendererBase",
 	"delite/handlebars!./templates/VerticalRenderer.html"
 ], function (
+	dcl,
 	register,
 	_RendererMixin,
 	template
@@ -14,7 +16,7 @@ define([
 
 		template: template,
 
-		_isElementVisible: register.superCall(function (sup) {
+		_isElementVisible: dcl.superCall(function (sup) {
 			return function (elt) {
 				var d;
 

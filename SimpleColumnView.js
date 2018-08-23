@@ -1279,7 +1279,7 @@ define([
 		//
 		///////////////////////////////////////////////////////////////
 
-		_onGridMouseUp: register.superCall(function (sup) {
+		_onGridMouseUp: dcl.superCall(function (sup) {
 			return function (e) {
 				sup.apply(this, arguments);
 
@@ -1294,7 +1294,7 @@ define([
 			};
 		}),
 
-		_onGridTouchStart: register.superCall(function (sup) {
+		_onGridTouchStart: dcl.superCall(function (sup) {
 			return function (e) {
 				sup.apply(this, arguments);
 
@@ -1306,7 +1306,7 @@ define([
 			};
 		}),
 
-		_onGridTouchMove: register.superCall(function (sup) {
+		_onGridTouchMove: dcl.superCall(function (sup) {
 			return function (e) {
 				sup.apply(this, arguments);
 
@@ -1346,7 +1346,7 @@ define([
 			};
 		}),
 
-		_onGridTouchEnd: register.superCall(function (sup) {
+		_onGridTouchEnd: dcl.superCall(function (sup) {
 			return function (e) {
 				sup.apply(this, arguments);
 
@@ -1415,7 +1415,7 @@ define([
 		//
 		///////////////////////////////////////////////////////////////
 
-		_isItemInView: register.superCall(function (sup) {
+		_isItemInView: dcl.superCall(function (sup) {
 			return function (item) {
 
 				// subclassed to add some tests
@@ -1448,7 +1448,7 @@ define([
 			};
 		}),
 
-		_ensureItemInView: register.superCall(function (sup) {
+		_ensureItemInView: dcl.superCall(function (sup) {
 			return function (item) {
 				var fixed;
 
