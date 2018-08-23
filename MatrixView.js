@@ -206,7 +206,7 @@ define([
 		// resizeCursor: [private] Boolean
 		resizeCursor: "e-resize",
 
-		createdCallback: function () {
+		constructor: function () {
 			// Setup cache for ExpandRenderers.
 			// TODO: leverage code in RendererManager.js.
 			// Apparently need to cache item renderers separately from expand renderers though,

@@ -129,6 +129,7 @@ define([
 				renderer.owner = this.owner;
 				renderer.rendererKind = kind;
 				renderer.item = item;
+				renderer.deliver();
 
 				var list = this.itemToRenderer[item.id];
 				if (list == null) {

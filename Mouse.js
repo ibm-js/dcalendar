@@ -33,7 +33,7 @@ define([
 		//		mouse button down before triggering the editing gesture.
 		triggerExtent: 3,
 
-		createdCallback: function () {
+		constructor: function () {
 			this.on("renderer-created", function (irEvent) {
 				var renderer = irEvent.renderer.renderer;
 

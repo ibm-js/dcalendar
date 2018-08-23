@@ -131,7 +131,7 @@ define([
 		//		Unit of layout: each column is displaying a month.
 		_layoutUnit: "month",
 
-		createdCallback: function () {
+		constructor: function () {
 			// Apparently these are in here rather than in the prototype so they
 			// override the values in Keyboard.js regardless of inheritance order.
 			this.keyboardUpDownUnit = "day";

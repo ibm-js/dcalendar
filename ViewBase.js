@@ -159,7 +159,7 @@ define([
 		//		(determined by startDate, columnCount, rowCount, etc.)
 		visibleDecorationItems: null,
 
-		createdCallback: function () {
+		constructor: function () {
 			this._viewHandles = [];
 
 			this.rendererManager = new RendererManager({owner: this});
