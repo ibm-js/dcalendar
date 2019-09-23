@@ -16,8 +16,8 @@ define([
 	"dojo/mouse",
 	"dojo/i18n",
 	"./metrics",
-	"delite/theme!./themes/{{theme}}/MonthColumnView.css",
-	"delite/theme!./themes/{{theme}}/MonthColumnView_rtl.css"
+	"requirejs-dplugins/css!./css/MonthColumnView.css",
+	"requirejs-dplugins/css!./css/MonthColumnView_rtl.css"
 ], function (
 	dcl,
 	ViewBase,

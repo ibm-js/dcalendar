@@ -22,7 +22,7 @@ module.exports = function (grunt) {
 				files: [
 					{
 						expand: true,
-						src: ["themes/*/*.less", "!themes/*/*Common.less"],
+						src: ["css/*.less", "!css/*Common.less"],
 						ext: ".css"
 					}
 				]

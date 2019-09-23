@@ -13,8 +13,8 @@ define([
 	"dojo/dom-geometry",
 	"dojo/dom-construct",
 	"./metrics",
-	"delite/theme!./themes/{{theme}}/ColumnView.css",
-	"delite/theme!./themes/{{theme}}/ColumnView_rtl.css"
+	"requirejs-dplugins/css!./css/ColumnView.css",
+	"requirejs-dplugins/css!./css/ColumnView_rtl.css"
 ], function (
 	dcl,
 	ViewBase,
@@ -651,7 +651,7 @@ define([
 			//		Creates incrementally the HTML structure of the row header and configures its content.
 			// tags:
 			//		private
-			
+
 			var parent = this.rowHeader;
 
 			// Adjust number of rows to match nbRows.

@@ -14,8 +14,8 @@ define([
 	"dojo/i18n",
 	"./ViewBase",
 	"delite/handlebars!./templates/MatrixView.html",
-	"delite/theme!./themes/{{theme}}/MatrixView.css",
-	"delite/theme!./themes/{{theme}}/MatrixView_rtl.css"
+	"requirejs-dplugins/css!./css/MatrixView.css",
+	"requirejs-dplugins/css!./css/MatrixView_rtl.css"
 ], function (
 	dcl,
 	register,
@@ -731,7 +731,7 @@ define([
 		_collapseRowImpl: function (apply) {
 			// tags:
 			//		private
-			
+
 			delete this.expandedRow;
 			delete this.expandedRowHeight;
 			this._computeRowsHeight();
@@ -1111,13 +1111,13 @@ define([
 				if (this.visibleItems == null || this.rowHeight <= 0) {
 					return;
 				}
-	
+
 				if (!this.gridTable || this._expandAnimation != null ||
 					(this.horizontalRenderer == null && this.labelRenderer == null)) {
 					this._recycleItemRenderers();
 					return;
 				}
-	
+
 				this.gridTablePosX = domGeometry.position(this.gridTable).x;
 				this._layoutStep = this.columnCount;
 				this._recycleExpandRenderers();

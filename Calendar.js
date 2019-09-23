@@ -12,7 +12,7 @@ define([
 	"./Keyboard",
 	"./Mouse",
 	"delite/handlebars!./templates/Calendar.html",
-	"delite/theme!./themes/{{theme}}/Calendar.css"
+	"requirejs-dplugins/css!./css/Calendar.css"
 ], function (
 	register,
 	CalendarBase,
