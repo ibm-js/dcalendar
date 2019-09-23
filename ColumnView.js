@@ -57,7 +57,6 @@ define([
 			// These properties will likely never change but they need to at least be passed once.
 			"editable", "moveEnabled", "resizeEnabled",
 			"createOnGridClick",
-			"textDir",
 			"horizontalRenderer", "labelRenderer"
 		],
 

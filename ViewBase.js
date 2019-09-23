@@ -274,10 +274,6 @@ define([
 					}
 
 					var tNode = this.ownerDocument.createElement("span");
-					if (has("bidi")) {
-						this.applyTextDir(tNode, text);
-					}
-
 					if (allowHTML) {
 						tNode.innerHTML = text;
 					} else {
@@ -621,7 +617,7 @@ define([
 			//		extension
 		},
 
-		
+
 		ensureVisibility: function (/*===== start, end, margin, visibilityTarget, duration =====*/) {
 			// summary:
 			//		Scrolls the view if the [start, end] time range is not visible or only partially visible.

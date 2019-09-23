@@ -251,7 +251,6 @@ define([
 			"formatItemTime",
 			"editable", "moveEnabled", "resizeEnabled",
 			"createOnGridClick", "createItem",
-			"textDir",
 			"getIdentity"
 		],
 		// TODO: maybe I can use introspection on delite/StoreMap rather than listing the properties directly?
