@@ -247,7 +247,7 @@ define([
 				return "";
 			}
 
-			if (this.gridCellPattern) {
+			if (this.gridCellDatePattern) {
 				return this.dateLocaleModule.format(d, {
 					selector: "date",
 					datePattern: this.gridCellDatePattern
