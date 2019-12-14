@@ -2,7 +2,7 @@ define([
 	"dcl/dcl",
 	"requirejs-dplugins/Promise!",
 	"dojo/_base/lang",
-	"decor/sniff",
+	"ibm-decor/sniff",
 	"dojo/dom-style",
 	"dojo/dom-class",
 	"dojo/dom-construct",

@@ -6,19 +6,22 @@
 		<style type="text/css">
 			@import "calendar.css";
 			@import "asyncStore.css";
-			@import "../../dojo/resources/dojo.css";
-			@import "../../dijit/themes/dijit.css";
-			@import "../../dijit/themes/claro/claro.css";
+			@import "../node_modules/dojo/resources/dojo.css";
+			@import "../node_modules/dijit/themes/dijit.css";
+			@import "../node_modules/dijit/themes/claro/claro.css";
 		</style>
 
 	</head>
 
 	<body class="claro">
-		<script type="text/javascript" src="../../requirejs/require.js"></script>
+		<script type="text/javascript" src="../node_modules/requirejs/require.js"></script>
 
 		<script type="text/javascript">
 			require({
-				baseUrl: "../.."
+				baseUrl: "../node_modules",
+				packages: [
+					{ name: "dcalendar", location: ".." }
+				]
 			}, [
 				"dojo/_base/declare", "dojo/_base/fx",
 				"dojo/parser", "dojo/Deferred", "dojo/dom", "dojo/store/Memory",

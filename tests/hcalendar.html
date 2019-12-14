@@ -6,18 +6,21 @@
 		<title>Calendar Sample: Desktop</title>
 		<style type="text/css">
 			@import "calendar.css";
-			@import "../../dojo/resources/dojo.css";
-			@import "../../dijit/themes/dijit.css";
-			@import "../../dijit/themes/nihilo/nihilo.css";
+			@import "../node_modules/dojo/resources/dojo.css";
+			@import "../node_modules/dijit/themes/dijit.css";
+			@import "../node_modules/dijit/themes/nihilo/nihilo.css";
 		</style>
 	</head>
 
 	<body class="nihilo" dir="rtl">
-		<script type="text/javascript" src="../../requirejs/require.js"></script>
+		<script type="text/javascript" src="../node_modules/requirejs/require.js"></script>
 
 		<script type="text/javascript">
 			require({
-				baseUrl: "../.."
+				baseUrl: "../node_modules",
+				packages: [
+					{ name: "dcalendar", location: ".." }
+				]
 			}, [
 				"dojo/_base/lang", "dojo/_base/fx", "dojo/parser",
 				"dojo/store/Memory", "dojo/store/Observable",

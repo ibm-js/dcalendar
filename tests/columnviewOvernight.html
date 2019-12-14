@@ -5,9 +5,9 @@
 		<title>ColumnView Sample: Desktop</title>
 		<style type="text/css">
 			@import "columnview.css";
-			@import "../../dojo/resources/dojo.css";
-			@import "../../dijit/themes/dijit.css";
-			@import "../../dijit/themes/claro/claro.css";
+			@import "../node_modules/dojo/resources/dojo.css";
+			@import "../node_modules/dijit/themes/dijit.css";
+			@import "../node_modules/dijit/themes/claro/claro.css";
 
 			.overnight,
 			.overnight .span {
@@ -17,11 +17,14 @@
 	</head>
 
 	<body class="claro">
-		<script type="text/javascript" src="../../requirejs/require.js"></script>
+		<script type="text/javascript" src="../node_modules/requirejs/require.js"></script>
 
 		<script type="text/javascript">
 			require({
-				baseUrl: "../.."
+				baseUrl: "../node_modules",
+				packages: [
+					{ name: "dcalendar", location: ".." }
+				]
 			}, [
 				"delite/register", "dojo/_base/fx", "dojo/date/locale", "dojo/date",
 				"dojo/dom-class",

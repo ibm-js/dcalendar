@@ -5,18 +5,21 @@
 		<title>Month ColumnView Sample: Desktop</title>
 		<style type="text/css">
 			@import "monthcolumnview.css";
-			@import "../../dojo/resources/dojo.css";
-			@import "../../dijit/themes/dijit.css";
-			@import "../../dijit/themes/claro/claro.css";
+			@import "../node_modules/dojo/resources/dojo.css";
+			@import "../node_modules/dijit/themes/dijit.css";
+			@import "../node_modules/dijit/themes/claro/claro.css";
 		</style>
 	</head>
 
 	<body class="claro" dir="rtl">
-		<script type="text/javascript" src="../../requirejs/require.js"></script>
+		<script type="text/javascript" src="../node_modules/requirejs/require.js"></script>
 
 		<script type="text/javascript">
 			require({
-				baseUrl: "../.."
+				baseUrl: "../node_modules",
+				packages: [
+					{ name: "dcalendar", location: ".." }
+				]
 			}, [
 				"delite/register", "dojo/_base/fx", "dojo/date/locale", "dojo/parser", "dojo/date", "dojo/_base/lang",
 				"dojo/dom", "dojo/dom-construct", "dojo/dom-class", "dcalendar/MonthColumnView",

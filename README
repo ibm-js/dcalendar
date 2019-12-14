@@ -13,7 +13,7 @@ Calendar widget for ibm-js framework
 -------------------------------------------------------------------------------
 Porting notes:
 
-This was ported from dojox/calendar aka dcalendar.
+This was ported from dojo-calendar.
 
 Changes include:
 
@@ -31,10 +31,15 @@ Things *not* changed during port:
 * Doesn't fully conform to ibm-js JSHint standards.
 * Documentation not updated.
 
+Tests:
+
+* Automated tests probably don't work.
+* Not all the manual test files load.  I'm mainly testing with calendar.html.
+
 -------------------------------------------------------------------------------
 Dependencies:
 
-ibm-js dependencies: decor, requirejs-dplugins, delite, deliteful
+ibm-js dependencies: ibm-decor, requirejs-dplugins, delite, deliteful
 other dependencies: Dojo Core, dcl, requirejs-domready
 -------------------------------------------------------------------------------
 Documentation:

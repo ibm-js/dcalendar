@@ -2,7 +2,7 @@ define([
 	"dcl/dcl",
 	"dojo/_base/html",
 	"dojo/dom-style",
-	"decor/Evented"
+	"ibm-decor/Evented"
 ], function (
 	dcl,
 	html,

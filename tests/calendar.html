@@ -5,9 +5,9 @@
         <title>Calendar Sample: Desktop</title>
         <style type="text/css">
             @import "calendar.css";
-            @import "../../dojo/resources/dojo.css";
-            @import "../../dijit/themes/dijit.css";
-            @import "../../dijit/themes/claro/claro.css";
+            @import "../node_modules/dojo/resources/dojo.css";
+            @import "../node_modules/dijit/themes/dijit.css";
+            @import "../node_modules/dijit/themes/claro/claro.css";
 
             .dijitCalendar .Highlighted {
                 background-color: #fff0b4;
@@ -21,14 +21,15 @@
     </head>
 
     <body class="claro">
-        <script type="text/javascript" src="../../requirejs/require.js"></script>
+        <script type="text/javascript" src="../node_modules/requirejs/require.js"></script>
 
         <script type="text/javascript">
             require({
-                baseUrl: "../..",
-                paths: {
-                    demo: "dcalendar/tests"
-                }
+                baseUrl: "../node_modules",
+                packages: [
+                    { name: "dcalendar", location: ".." },
+                    { name: "demo", location: "../tests" }
+                ]
             }, [
                 "dojo/_base/lang", "dojo/_base/fx",
                 "dojo/parser", "dojo/dom",
@@ -38,7 +39,7 @@
                 "dijit/form/TextBox", "dijit/form/DateTextBox", "dijit/form/TimeTextBox",
                 "dijit/form/Button", "dijit/form/ComboBox", "dijit/Menu", "dijit/MenuItem", "requirejs-domready/domReady!"
             ], function (lang, fx, parser, dom,
-                         TrackableMemoryStore, Calendar) {
+                         TrackableMemoryStore) {
 
                 // for BorderContainer etc.
                 parser.parse();
