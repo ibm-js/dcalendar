@@ -19,10 +19,10 @@
 	"devDependencies": {
 		"dijit": "1.14.x",
 		"dojo-util": "1.16.x",
-		"grunt": "~0.4.2",
-		"grunt-contrib-jshint": "~0.6.3",
-		"grunt-contrib-less": "~0.8.3",
-		"grunt-contrib-uglify": "~0.2.2",
+		"grunt": "^1.0.4",
+		"grunt-contrib-jshint": "^2.1.0",
+		"grunt-contrib-less": "^2.0.0",
+		"grunt-contrib-uglify": "^4.0.1",
 		"requirejs": "2.1.x"
 	},
 	"licenses": [
