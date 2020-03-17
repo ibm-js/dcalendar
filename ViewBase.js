@@ -199,7 +199,7 @@ define([
 
 		_setupDayRefresh: function () {
 			// Refresh the view when the current day changes.
-			var now = new this.dateClassObj();
+			var now = new this.Date();
 			var d = this.floorToDay(now);
 			d = this.dateModule.add(d, "day", 1);
 			// manages DST at 24h
@@ -1746,7 +1746,7 @@ define([
 			if (this._calendar != "gregorian" && steps < 0) {
 				var gd = d.toGregorian();
 				gd = ddate.add(gd, unit, steps);
-				return new this.dateClassObj(gd);
+				return new this.Date(gd);
 			} else {
 				return cal.add(d, unit, steps);
 			}

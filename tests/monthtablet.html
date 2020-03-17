@@ -35,7 +35,7 @@
 			) {
 				// Calendar model creation
 
-				var dateClassObj = Date;
+				var Date = Date;
 
 				var modelBase = [
 					{day: 0, start: [0,0], duration: 1440, allDay:true},
@@ -63,8 +63,8 @@
 						var newObj = {
 							id: id,
 							summary: "New Event " + id,
-							startTime: new dateClassObj(startOfMonth.getTime()),
-							endTime: new dateClassObj(startOfMonth.getTime())
+							startTime: new Date(startOfMonth.getTime()),
+							endTime: new Date(startOfMonth.getTime())
 						};
 
 						newObj.startTime = date.add(newObj.startTime, "day", Math.floor(Math.random()*30));

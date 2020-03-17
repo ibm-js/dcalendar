@@ -156,7 +156,7 @@ define([
 			}
 
 			if (!this.startDate || "startDate" in oldVals) {
-				d = this.floorToMonth(this.startDate || new this.dateClassObj());
+				d = this.floorToMonth(this.startDate || new this.Date());
 				if (!this.startDate || d.getTime() !== this.startDate.getTime()) {
 					this.startDate = d;
 				}
@@ -186,8 +186,8 @@ define([
 				}
 
 				this.maxDayCount = maxDayCount;
-				this.startTime = new this.dateClassObj(this.dates[0][0]);
-				this.endTime = new this.dateClassObj(dates[dates.length - 1]);
+				this.startTime = new this.Date(this.dates[0][0]);
+				this.endTime = new this.Date(dates[dates.length - 1]);
 				this.endTime = this.dateModule.add(this.endTime, "day", 1);
 
 				if (this.source) {

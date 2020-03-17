@@ -217,7 +217,7 @@ define([
 
 		computeProperties: function (oldVals) {
 			if (this.startDate == null) {
-				this.startDate = this.floorToDay(new this.dateClassObj());
+				this.startDate = this.floorToDay(new this.Date());
 			}
 
 			if (this.columnCount < 1 || isNaN(this.columnCount)) {

@@ -34,7 +34,7 @@
 				ColumnView, ColumnViewSecondarySheet, CalendarTouch,
 				MobileVerticalRenderer, HorizontalRenderer, ExpandRenderer, Memory, Observable, swipe
 			) {
-				var dateClassObj = Date;
+				var Date = Date;
 				var modelBase = [
 					{	day: 1,	start: [0, 0], duration: 1440, allDay: true	},
 					{	day: 2,	start: [10, 0], duration: 270	},
@@ -42,7 +42,7 @@
 				];
 
 				var someData = [];
-				var startOfWeek = new dateClassObj();
+				var startOfWeek = new Date();
 				startOfWeek.setHours(0);
 				startOfWeek.setMinutes(0);
 				startOfWeek.setSeconds(0);
@@ -53,8 +53,8 @@
 					var newObj = {
 						id: i,
 						summary: "New Event " + i,
-						startTime: new dateClassObj(startOfWeek.getTime()),
-						endTime: new dateClassObj(startOfWeek.getTime()),
+						startTime: new Date(startOfWeek.getTime()),
+						endTime: new Date(startOfWeek.getTime()),
 						allDay: modelBase[i].allDay
 					};
 					newObj.startTime = date.add(newObj.startTime, "day", modelBase[i].day);

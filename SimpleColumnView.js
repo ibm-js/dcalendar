@@ -133,7 +133,7 @@ define([
 
 		computeProperties: function (oldVals) {
 			if (this.startDate == null) {
-				this.startDate = this.floorToDay(new this.dateClassObj());
+				this.startDate = this.floorToDay(new this.Date());
 			}
 
 			var v = this.minHours;
@@ -183,9 +183,9 @@ define([
 					d = this.addAndFloor(d, "day", 1);
 				}
 
-				this.startTime = new this.dateClassObj(this.dates[0]);
+				this.startTime = new this.Date(this.dates[0]);
 				this.startTime.setHours(this.minHours);
-				this.endTime = new this.dateClassObj(this.dates[this.columnCount - 1]);
+				this.endTime = new this.Date(this.dates[this.columnCount - 1]);
 				this.endTime.setHours(this.maxHours);
 
 				this.subColumnCount = this.subColumns ? this.subColumns.length : 1;
@@ -667,7 +667,7 @@ define([
 
 			// fill labels
 			var size = Math.ceil(this.hourSize / (60 / this.rowHeaderGridSlotDuration));
-			var d = new this.dateClassObj();
+			var d = new this.Date();
 
 			Array.prototype.forEach.call(parent.childNodes, function (child, i) {
 				child.className = "d-calendar-row-header-label";
@@ -879,7 +879,7 @@ define([
 
 		_layoutTimeIndicator: function () {
 			if (this.showTimeIndicator) {
-				var now = new this.dateClassObj();
+				var now = new this.Date();
 
 				var visible = this.isOverlapping(this.startTime, this.endTime, now, now) &&
 					now.getHours() >= this.minHours &&

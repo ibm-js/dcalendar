@@ -34,7 +34,7 @@
 			) {
 				// Calendar model creation
 
-				var dateClassObj = Date;
+				var Date = Date;
 
 				var modelBase = [
 					{day: 0, start: [0,0], duration: 1440, allDay:true},
@@ -61,7 +61,7 @@
 
 				var someData = [];
 
-				var startOfWeek = new dateClassObj();
+				var startOfWeek = new Date();
 				startOfWeek = floorToWeek(startOfWeek);
 
 				var id;
@@ -71,8 +71,8 @@
 						var newObj = {
 							id: id,
 							summary: "New Event " + id,
-							startTime: new dateClassObj(startOfWeek.getTime()),
-							endTime: new dateClassObj(startOfWeek.getTime())
+							startTime: new Date(startOfWeek.getTime()),
+							endTime: new Date(startOfWeek.getTime())
 						};
 
 						newObj.startTime = date.add(newObj.startTime, "day", Math.floor(Math.random()*7));

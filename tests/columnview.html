@@ -65,7 +65,7 @@
 				};
 				// Calendar model creation
 
-				var dateClassObj = Date;
+				var Date = Date;
 
 				var dataItemsTemplate = [
 					{day: 1, start: [10,0], duration: 1400, calendar: "cal1"},
@@ -90,7 +90,7 @@
 					return d;
 				};
 
-				var startOfWeek = new dateClassObj();
+				var startOfWeek = new Date();
 				startOfWeek = floorToWeek(startOfWeek);
 
 				var createModel = function(modelTemplate) {
@@ -105,8 +105,8 @@
 						var newObj = {
 							id: id,
 							summary: "New Event " + id,
-							startTime: new dateClassObj(startOfWeek.getTime()),
-							endTime: new dateClassObj(startOfWeek.getTime()),
+							startTime: new Date(startOfWeek.getTime()),
+							endTime: new Date(startOfWeek.getTime()),
 							calendar: evtTmpl.calendar,
 							allDay: evtTmpl.allDay
 						};

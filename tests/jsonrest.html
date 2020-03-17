@@ -30,7 +30,7 @@
 			], function(
 				declare, fx, Deferred, when, JsonRest, Memory, Observable, Cache, Calendar, stamp
 			) {
-				var startOfWeek = calendar.floorToWeek(new calendar.dateClassObj());
+				var startOfWeek = calendar.floorToWeek(new calendar.Date());
 
 				// Subclass to handle the ID problem
 				// If the server is generating an ID, the calendar needs the temporary ID

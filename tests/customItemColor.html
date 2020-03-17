@@ -56,9 +56,9 @@
 					{day: 3, start: [6,0], duration: 180, calendar: "cal2"}
 				];
 
-				var dateClassObj = calendar.dateClassObj;
+				var Date = calendar.Date;
 
-				var startOfWeek = calendar.floorToWeek(new dateClassObj());
+				var startOfWeek = calendar.floorToWeek(new Date());
 
 				var createModel = function(modelTemplate) {
 
@@ -70,8 +70,8 @@
 						var newObj = {
 							id: id,
 							summary: "New Event " + id,
-							startTime: new dateClassObj(startOfWeek.getTime()),
-							endTime: new dateClassObj(startOfWeek.getTime()),
+							startTime: new Date(startOfWeek.getTime()),
+							endTime: new Date(startOfWeek.getTime()),
 							calendar: evtTmpl.calendar,
 							allDay: evtTmpl.allDay,
 							color: "#ccc"

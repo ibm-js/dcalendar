@@ -54,14 +54,14 @@
 
 				var someData = [];
 
-				var startOfWeek = calendar.floorToWeek(new calendar.dateClassObj());
+				var startOfWeek = calendar.floorToWeek(new calendar.Date());
 
 				for (var id=0; id<modelBase.length; id++) {
 					var newObj = {
 						id: id,
 						summary: "New Event " + id,
-						startTime: new calendar.dateClassObj(startOfWeek),
-						endTime: new calendar.dateClassObj(startOfWeek),
+						startTime: new calendar.Date(startOfWeek),
+						endTime: new calendar.Date(startOfWeek),
 						calendar: id%2 == 0 ? "cal1" : "cal2",
 						allDay: modelBase[id].allDay
 					};
@@ -317,7 +317,7 @@
 				</div>
 			</div>
 			<div data-dojo-type="dijit.layout.ContentPane" data-dojo-props="splitter:false, region:'center'">
-				<!-- TODO: datePackage no longer supported, so send in dateModule, dateClassObj, etc.
+				<!-- TODO: datePackage no longer supported, so send in dateModule, Date, etc.
 					Need to declare subclass since that can't be done in the parser -->
 				<d-calendar id="calendar" datePackage="dojox.date.hebrew" textDir="rtl"
 									style="position:absolute;left:10px;top:10px;bottom:10px;right:10px"></d-calendar>

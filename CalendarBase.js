@@ -245,7 +245,7 @@ define([
 		forwardProperties: [
 			"source", "query", "queryOptions", "startTimeAttr", "endTimeAttr", "summaryAttr", "allDayAttr",
 			"subColumnAttr", "decodeDate", "encodeDate", "itemToRenderItem", "renderItemToItem", "cssClassFunc",
-			"dateClassObj", "dateModule", "dateLocaleModule", "_calendar",
+			"Date", "dateModule", "dateLocaleModule", "_calendar",
 			"endDate", "date", "minDate", "maxDate", "dateInterval", "dateIntervalSteps",
 			"firstDayOfWeek",
 			"formatItemTime",
@@ -306,11 +306,11 @@ define([
 
 			if (date == null && (startDate != null || endDate != null)) {
 				if (startDate == null) {
-					this.startDate = startDate = new this.dateClassObj();
+					this.startDate = startDate = new this.Date();
 				}
 
 				if (endDate == null) {
-					this.endDate = endDate = new this.dateClassObj();
+					this.endDate = endDate = new this.Date();
 				}
 
 				if (cal.compare(startDate, endDate) > 0) {
@@ -318,7 +318,7 @@ define([
 				}
 			} else {
 				if (this.date == null) {
-					this.date = this.floorToDay(new this.dateClassObj());
+					this.date = this.floorToDay(new this.Date());
 				}
 
 				var dint = this.dateInterval;
@@ -522,7 +522,7 @@ define([
 			view.buttonContainer = this.buttonContainer;
 			view._calendar = this._calendar;
 			view.dateModule = this.dateModule;
-			view.dateClassObj = this.dateClassObj;
+			view.Date = this.Date;
 			view.dateLocaleModule = this.dateLocaleModule;
 			domClass.add(view, "view");
 		},
@@ -691,7 +691,7 @@ define([
 			//		Changes the displayed time interval to show the current day.
 			//		Sets the date property to the current day, the dateInterval property to "day" and
 			//		the "dateIntervalSteps" to 1.
-			this.date = this.floorToDay(new this.dateClassObj());
+			this.date = this.floorToDay(new this.Date());
 			this.dateInterval = "day";
 			this.dateIntervalSteps = 1;
 		},
@@ -717,7 +717,7 @@ define([
 			//		the "dateIntervalSteps" to 1.
 
 			if (this.date == null) {
-				this.date = this.floorToDay(new this.dateClassObj());
+				this.date = this.floorToDay(new this.Date());
 			}
 			this.dateInterval = "day";
 			this.dateIntervalSteps = 1;

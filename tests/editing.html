@@ -55,14 +55,14 @@
 
 				var someData = [];
 
-				var startOfWeek = calendar.floorToWeek(new calendar.dateClassObj());
+				var startOfWeek = calendar.floorToWeek(new calendar.Date());
 
 				for (var id=0; id<modelBase.length; id++) {
 					var newObj = {
 						id: id,
 						summary: "New Event " + id,
-						startTime: new calendar.dateClassObj(startOfWeek.getTime()),
-						endTime: new calendar.dateClassObj(startOfWeek.getTime()),
+						startTime: new calendar.Date(startOfWeek.getTime()),
+						endTime: new calendar.Date(startOfWeek.getTime()),
 						calendar: id%2 == 0 ? "cal1" : "cal2",
 						allDay: modelBase[id].allDay
 					};
