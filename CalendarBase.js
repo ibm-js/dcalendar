@@ -264,7 +264,7 @@ define([
 		// Make nls strings available to template
 		_nls: _nls,
 
-		postRender: function () {
+		afterInitializeRendering: function () {
 			this.viewContainer.on("delite-add-child", function (evt) {
 				this._onViewAdded(evt.child);
 			}.bind(this));

@@ -7,7 +7,7 @@ define([
 		e.stopPropagation();
 		e.preventDefault();
 	}
-	
+
 	return dcl(ViewBase, {
 		// summary:
 		//		This mixin is managing the keyboard interactions on a calendar view.
@@ -52,7 +52,7 @@ define([
 		//		Valid values are "week", "day", "hours" "minute".
 		allDayKeyboardLeftRightSteps: 1,
 
-		postRender: function () {
+		afterInitializeRendering: function () {
 			this._viewHandles.push(this.on("keydown", this._onKeyDown.bind(this)));
 			this.setAttribute("tabIndex", this.tabIndex);
 		},
