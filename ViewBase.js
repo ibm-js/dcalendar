@@ -1,6 +1,5 @@
 define([
 	"dcl/dcl",
-	"requirejs-dplugins/Promise!",
 	"dojo/_base/lang",
 	"ibm-decor/sniff",
 	"dojo/dom-style",
@@ -14,7 +13,6 @@ define([
 	"./RendererManager"
 ], function (
 	dcl,
-	Promise,
 	lang,
 	has,
 	domStyle,
