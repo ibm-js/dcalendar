@@ -10,9 +10,9 @@
 	"dependencies": {
 		"dcl": "^2.0.6",
 		"ibm-decor": "0.8.x",
-		"delite": "0.9.x",
-		"deliteful": "0.9.x",
-		"dojo": "^1.15.0",
+		"delite": "^0.9.5",
+		"deliteful": "^0.9.6",
+		"dojo": "^1.16.2",
 		"requirejs-domready": "2.0.x",
 		"requirejs-dplugins": "0.6.x"
 	},
