@@ -9,7 +9,8 @@ module.exports = function (grunt) {
 			src: [
 				"**/*.js",
 				"!node_modules/**/*.js",
-				"!nls/ar/buttons.js"	// Error about character being silently deleted.  Translation problem??
+				"!nls/ar/buttons.js",	// Error about character being silently deleted.  Translation problem??
+				"!tests/ie-polyfills.js"
 			],
 			options: {
 				jshintrc: ".jshintrc"
