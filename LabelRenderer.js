@@ -33,7 +33,7 @@ define([
 				switch (elt) {
 				case "startTimeLabel":
 					// hide hour part of all day events on subsequent days
-					if (this.item.allDay && this.item.range[0].getTime() !== this.item.startTime.getTime()) {
+					if (this.item.allDay && +this.item.range[0] !== +this.item.startTime) {
 						return false;
 					}
 					break;

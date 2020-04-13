@@ -1,36 +1,39 @@
 define([
 	"dcl/dcl",
+	"luxon",
 	"dojo/_base/lang",
 	"ibm-decor/sniff",
 	"dojo/dom-style",
 	"dojo/dom-class",
 	"dojo/dom-construct",
 	"dojo/dom-geometry",
-	"dojo/date",
 	"delite/Selection",
 	"./StoreBase",
 	"./TimeBase",
 	"./RendererManager"
 ], function (
 	dcl,
+	luxon,
 	lang,
 	has,
 	domStyle,
 	domClass,
 	domConstruct,
 	domGeometry,
-	ddate,
 	Selection,
 	StoreBase,
 	TimeBase,
 	RendererManager
 ) {
 
+	var DateTime = luxon.DateTime,
+		Interval = luxon.Interval;
+
 	/*=====
 	 var __GridClickEventArgs = {
 		 // summary:
 		 //		The event dispatched when the grid is clicked or double-clicked.
-		 // date: Date
+		 // date: DateTime
 		 //		The start of the previously displayed time interval, if any.
 		 // triggerEvent: Event
 		 //		The event at the origin of this event.
@@ -62,11 +65,11 @@ define([
 		 //		in the editing behavior logic.
 		 // editKind: String
 		 //		Kind of edit: "resizeBoth", "resizeStart", "resizeEnd" or "move".
-		 // dates: Date[]
+		 // dates: DateTime[]
 		 //		The computed date/time of the during the event editing. One entry per edited date (touch use case).
-		 // startTime: Date?
+		 // startTime: DateTime?
 		 //		The start time of data item.
-		 // endTime: Date?
+		 // endTime: DateTime?
 		 //		The end time of data item.
 		 // sheet: String
 		 //		For views with several sheets (columns view for example), the sheet when the event occurred.
@@ -197,21 +200,15 @@ define([
 
 		_setupDayRefresh: function () {
 			// Refresh the view when the current day changes.
-			var now = new this.Date();
-			var d = this.floorToDay(now);
-			d = this.dateModule.add(d, "day", 1);
-			// manages DST at 24h
-			if (d.getHours() == 23) {
-				d = this.dateModule.add(d, "hour", 2); // go to 1am
-			} else {
-				d = this.floorToDay(d);
-			}
+			var now = +DateTime.local();
+			var tomorrow = +DateTime.local().startOf("day").plus({ day: 1 });
+
 			this.defer(function () {
 				if (!this._isEditing) {
 					this.notifyCurrentValue("dates");	// make refreshRendering() rerender
 				}
 				this._setupDayRefresh();
-			}, d.getTime() - now.getTime() + 5000); // add 5 seconds to be sure to be tomorrow
+			}, tomorrow - now + 5000); // add 5 seconds to be sure to be tomorrow
 		},
 
 		resize: function (changeSize) {
@@ -307,27 +304,25 @@ define([
 		computeRangeOverlap: function (start1, end1, start2, end2, includeLimits) {
 			// summary:
 			//		Computes the overlap time range of the time ranges.
-			//		Returns a vector of Date with at index 0 the start time and at index 1 the end time.
-			// start1: Date
+			//		Returns a vector of DateTime with at index 0 the start time and at index 1 the end time.
+			// start1: DateTime
 			//		The start time of the first time range.
-			// end1: Date
+			// end1: DateTime
 			//		The end time of the first time range.
-			// start2: Date
+			// start2: DateTime
 			//		The start time of the second time range.
-			// end2: Date
+			// end2: DateTime
 			//		The end time of the second time range.
 			// includeLimits: Boolean
 			//		Whether include the end time or not.
-			// returns: Date[]
-
-			var cal = this.dateModule;
+			// returns: DateTime[]
 
 			if (start1 == null || start2 == null || end1 == null || end2 == null) {
 				return null;
 			}
 
-			var comp1 = cal.compare(start1, end2);
-			var comp2 = cal.compare(start2, end1);
+			var comp1 = +start1 - +end2;
+			var comp2 = +start2 - +end1;
 
 			if (includeLimits) {
 				if (comp1 === 0 || comp1 === 1 || comp2 === 0 || comp2 === 1) {
@@ -338,17 +333,17 @@ define([
 			}
 
 			return [
-				this.newDate(cal.compare(start1, start2) > 0 ? start1 : start2),
-				this.newDate(cal.compare(end1, end2) > 0 ? end2 : end1)
+				start1 > start2 ? start1 : start2,
+				end1 > end2 ? end2 : end1
 			];
 		},
 
 		computeProjectionOnDate: function (refDate, date, max) {
 			// summary:
 			//		Computes the time to pixel projection in a day.
-			// refDate: Date
+			// refDate: DateTime
 			//		The reference date that defines the destination date.
-			// date: Date
+			// date: DateTime
 			//		The date to project.
 			// max: Integer
 			//		The size in pixels of the representation of a day.
@@ -356,38 +351,37 @@ define([
 			//		protected
 			// returns: Number
 
-			var cal = this.dateModule;
 			var minH = this.minHours;
 			var maxH = this.maxHours;
 
-			if (max <= 0 || cal.compare(date, refDate) == -1) {
+			if (max <= 0 || date < refDate) {
 				return 0;
 			}
 
 			var gt = function (d) {
-				return d.getHours() * 3600 + d.getMinutes() * 60 + d.getSeconds();
+				return d.hour * 3600 + d.minute * 60 + d.second;
 			};
 
-			var referenceDate = this.floorToDay(refDate);
+			var referenceDate = refDate.startOf("day");
 
-			if (date.getDate() != referenceDate.getDate()) {
-				if (date.getMonth() == referenceDate.getMonth()) {
-					if (date.getDate() < referenceDate.getDate()) {
+			if (date.day != referenceDate.day) {
+				if (date.month == referenceDate.month) {
+					if (date.day < referenceDate.day) {
 						return 0;
-					} else if (date.getDate() > referenceDate.getDate() && maxH < 24) {
+					} else if (date.day > referenceDate.day && maxH < 24) {
 						return max;
 					}
 				} else {
-					if (date.getFullYear() == referenceDate.getFullYear()) {
-						if (date.getMonth() < referenceDate.getMonth()) {
+					if (date.year == referenceDate.year) {
+						if (date.month < referenceDate.month) {
 							return 0;
-						} else if (date.getMonth() > referenceDate.getMonth()) {
+						} else if (date.month > referenceDate.month) {
 							return max;
 						}
 					} else {
-						if (date.getFullYear() < referenceDate.getFullYear()) {
+						if (date.year < referenceDate.year) {
 							return 0;
-						} else if (date.getFullYear() > referenceDate.getFullYear()) {
+						} else if (date.year > referenceDate.year) {
 							return max;
 						}
 					}
@@ -398,17 +392,12 @@ define([
 			var ONE_DAY = 86400; // 24h x 60m x 60s
 
 			if (this.isSameDay(refDate, date) || maxH > 24) {
-				var d = lang.clone(refDate);
 				var minTime = 0;
-
-				if (minH !== null && minH !== 0) {
-					d.setHours(minH);
-					minTime = gt(d);
+				if (minH) {
+					minTime = gt(refDate.set({ hour: minH }));
 				}
 
-				d = lang.clone(refDate);
-				d.setHours(maxH);
-
+				var d = refDate.set({ hour: maxH });
 				var maxTime;
 				if (maxH === null || maxH === 24) {
 					maxTime = ONE_DAY;
@@ -423,7 +412,7 @@ define([
 
 				var delta = 0;
 
-				if (maxH > 24 && refDate.getDate() != date.getDate()) {
+				if (maxH > 24 && refDate.day != date.day) {
 					delta = ONE_DAY + gt(date);
 				} else {
 					delta = gt(date);
@@ -440,16 +429,14 @@ define([
 
 				res = (max * delta) / (maxTime - minTime);
 			} else {
-				if (date.getDate() < refDate.getDate() &&
-					date.getMonth() == refDate.getMonth()) {
+				if (date.day < refDate.day && date.month == refDate.month) {
 					return 0;
 				}
 
-				var d2 = this.floorToDay(date);
-				var dp1 = this.dateModule.add(refDate, "day", 1);
-				dp1 = this.floorToDay(dp1);
+				var d2 = date.startOf("day");
+				var dp1 = refDate.plus({ day: 1 }).startOf("day");
 
-				if (cal.compare(d2, refDate) === 1 && cal.compare(d2, dp1) === 0 || cal.compare(d2, dp1) === 1) {
+				if (d2 > refDate && +d2 === +dp1 || d2 > dp1) {
 					res = max;
 				} else {
 					res = 0;
@@ -471,7 +458,7 @@ define([
 			//		used if event is not defined.
 			// touchIndex: Integer
 			//		If parameter 'e' is not null and a touch event, the index of the touch to use.
-			// returns: Date
+			// returns: DateTime
 
 			return null;
 		},
@@ -516,13 +503,7 @@ define([
 			//		The item to test
 			// returns: Boolean
 
-			var cal = this.dateModule;
-
-			if (cal.compare(item.startTime, this.startTime) == -1) {
-				return false;
-			}
-
-			return cal.compare(item.endTime, this.endTime) != 1;
+			return item.startTime >= this.startTime && item.endTime <= this.endTime;
 		},
 
 		_ensureItemInView: function (item) {
@@ -535,18 +516,16 @@ define([
 			// tags:
 			//		protected
 
-			var cal = this.dateModule;
-
-			var duration = Math.abs(cal.difference(item.startTime, item.endTime, "millisecond"));
+			var duration = item.endTime.diff(item.startTime);
 			var fixed = false;
 
-			if (cal.compare(item.startTime, this.startTime) == -1) {
+			if (item.startTime < this.startTime) {
 				item.startTime = this.startTime;
-				item.endTime = cal.add(item.startTime, "millisecond", duration);
+				item.endTime = this.startTime.plus(duration);
 				fixed = true;
-			} else if (cal.compare(item.endTime, this.endTime) === 1) {
+			} else if (item.endTime > this.endTime) {
+				item.startTime = this.endTime.minus(duration);
 				item.endTime = this.endTime;
-				item.startTime = cal.add(item.endTime, "millisecond", -duration);
 				fixed = true;
 			}
 
@@ -619,9 +598,9 @@ define([
 		ensureVisibility: function (/*===== start, end, margin, visibilityTarget, duration =====*/) {
 			// summary:
 			//		Scrolls the view if the [start, end] time range is not visible or only partially visible.
-			// start: Date
+			// start: DateTime
 			//		Start time of the range of interest.
-			// end: Date
+			// end: DateTime
 			//		End time of the range of interest.
 			// margin: int
 			//		Margin in minutes around the time range.
@@ -741,9 +720,9 @@ define([
 			//		compute its location and size and add it to the DOM.
 			// index: Integer
 			//		The index of the interval.
-			// start: Date
+			// start: DateTime
 			//		The start time of the displayed date interval.
-			// end: Date
+			// end: DateTime
 			//		The end time of the displayed date interval.
 			// items: Object[]
 			//		The list of the items to represent.
@@ -757,11 +736,7 @@ define([
 			//		The function is used to sort an array and must, as any sorting function, take two items
 			//		as argument and must return an integer whose sign define order between arguments.
 			//		By default, a comparison by start time then end time is used.
-			var res = this.dateModule.compare(a.startTime, b.startTime);
-			if (res === 0) {
-				res = -1 * this.dateModule.compare(a.endTime, b.endTime);
-			}
-			return res;
+			return (+a.startTime - +b.startTime) || (+b.endTime - a.endTime);
 		},
 
 		_layoutRenderers: function () {
@@ -786,13 +761,11 @@ define([
 			// Remove all the old renderers from the screen (but saving them for reuse later).
 			rendererManager.recycleItemRenderers();
 
-			var cal = this.dateModule;
-
 			// Date
-			var startDate = this.newDate(this.startTime);
+			var startDate = this.startTime;
 
 			// Date and time
-			var startTime = lang.clone(startDate);
+			var startTime = startDate;
 
 			var endDate;
 
@@ -803,27 +776,35 @@ define([
 
 			var index = 0;
 
-			while (cal.compare(startDate, this.endTime) == -1 && items.length > 0) {
+			var duration = {};
+			duration[this._layoutUnit] = this._layoutStep;
 
-				endDate = this.addAndFloor(startDate, this._layoutUnit, this._layoutStep);
+			while (startDate < this.endTime && items.length > 0) {
+				endDate = startDate.plus(duration);
 
-				var endTime = lang.clone(endDate);
+				var endTime = endDate;
 
 				if (this.minHours) {
-					startTime.setHours(this.minHours);
+					startTime = startTime.set({
+						hour: this.minHours
+					});
 				}
 
 				if (this.maxHours !== undefined && this.maxHours != 24) {
 					if (this.maxHours < 24) {
-						endTime = cal.add(endDate, "day", -1);
+						endTime = endDate.minus({ day: 1 });
 					} // else > 24
-					endTime = this.floorToDay(endTime);
-					endTime.setHours(this.maxHours - (this.maxHours < 24 ? 0 : 24));
+					endTime = endTime.startOf("day").set({
+						hour: this.maxHours - (this.maxHours < 24 ? 0 : 24)
+					});
 				}
+
+				var subInterval = Interval.fromDateTimes(startTime, endTime);
 
 				// look for events that overlap the current sub interval
 				events = items.filter(function (item) {
-					var r = this.isOverlapping(item.startTime, item.endTime, startTime, endTime);
+					var itemInterval = Interval.fromDateTimes(item.startTime, item.endTime);
+					var r = itemInterval.overlaps(subInterval);
 					if (r) {
 						processing[item.id] = true;
 						itemsTemp.push(item);
@@ -849,7 +830,7 @@ define([
 				}
 
 				startDate = endDate;
-				startTime = lang.clone(startDate);
+				startTime = startDate;
 
 				index++;
 			}
@@ -1116,7 +1097,7 @@ define([
 			 //		A user supplied function that creates a new event.
 			 // view: ViewBase
 			 //		the current view,
-			 // d: Date
+			 // d: DateTime
 			 //		the date at the clicked location.
 			 // e: MouseEvemt
 			 //		the mouse event (can be used to return null for example)
@@ -1342,12 +1323,12 @@ define([
 				var ir = list[i].renderer;
 
 				if (!resizeStartFound) {
-					resizeStartFound = this.dateModule.compare(ir.item.range[0], ir.item.startTime) === 0;
+					resizeStartFound = (+ir.item.range[0] === +ir.item.startTime);
 					res[0] = ir;
 				}
 
 				if (!resizeEndFound) {
-					resizeEndFound = this.dateModule.compare(ir.item.range[1], ir.item.endTime) === 0;
+					resizeEndFound = (+ir.item.range[1] === +ir.item.endTime);
 					res[1] = ir;
 				}
 
@@ -1511,8 +1492,8 @@ define([
 			// tags:
 			//		private
 
-			this._editStartTimeSave = this.newDate(e.item.startTime);
-			this._editEndTimeSave = this.newDate(e.item.endTime);
+			this._editStartTimeSave = e.item.startTime;
+			this._editEndTimeSave = e.item.endTime;
 
 			this.emit("item-edit-begin", e);
 		},
@@ -1638,7 +1619,7 @@ define([
 		_startItemEditingGesture: function (dates, editKind, eventSource, e) {
 			// summary:
 			//		Starts the editing gesture.
-			// date: Date[]
+			// date: DateTime[]
 			//		The reference dates (at least one).
 			// editKind: String
 			//		Kind of edit: "resizeBoth", "resizeStart", "resizeEnd" or "move".
@@ -1689,23 +1670,22 @@ define([
 			p.editingTimeFrom[0] = dates[0];
 
 			p.editingItemRefTime = [];
-			p.editingItemRefTime[0] = this.newDate(p.editKind == "resizeEnd" ? item.endTime : item.startTime);
+			p.editingItemRefTime[0] = p.editKind == "resizeEnd" ? item.endTime : item.startTime;
 
 			if (p.editKind == "resizeBoth") {
 				p.editingTimeFrom[1] = dates[1];
-				p.editingItemRefTime[1] = this.newDate(item.endTime);
+				p.editingItemRefTime[1] = item.endTime;
 			}
-
-			var cal = this.dateModule;
 
 			p.inViewOnce = this._isItemInView(item);
 
 			if (p.rendererKind == "label" || this.roundToDay) {
-				p._itemEditBeginSave = this.newDate(item.startTime);
-				p._itemEditEndSave = this.newDate(item.endTime);
+				p._itemEditBeginSave = item.startTime;
+				p._itemEditEndSave = item.endTime;
 			}
 
-			p._initDuration = cal.difference(item.startTime, item.endTime, item.allDay ? "day" : "millisecond");
+			p._initDuration = item.allDay ? Math.round(item.endTime.diff(item.startTime, "day").days) :
+				+item.endTime - +item.startTime;
 
 			var synthEvent = this.emit("item-edit-begin-gesture", e);
 
@@ -1727,38 +1707,13 @@ define([
 			}
 		},
 
-		_waDojoxAddIssue: function (d, unit, steps) {
-			// summary:
-			//		Workaround an issue of dojox.date.XXXXX.date.add() function
-			//		that does not support the subtraction of time correctly (normalization issues).
-			// d: Date
-			//		Reference date.
-			// unit: String
-			//		Unit to add.
-			// steps: Integer
-			//		Number of units to add.
-			// tags:
-			//		protected
-
-			var cal = this.dateModule;
-			if (this._calendar != "gregorian" && steps < 0) {
-				var gd = d.toGregorian();
-				gd = ddate.add(gd, unit, steps);
-				return new this.Date(gd);
-			} else {
-				return cal.add(d, unit, steps);
-			}
-		},
-
 		_computeItemEditingTimes: function (item, editKind, rendererKind, times /*=====, eventSource =====*/) {
 			// tags:
 			//		extension
 
-			var cal = this.dateModule;
 			var p = this._edProps;
 			if (editKind == "move") {
-				var diff = cal.difference(p.editingTimeFrom[0], times[0], "millisecond");
-				times[0] = this._waDojoxAddIssue(p.editingItemRefTime[0], "millisecond", diff);
+				times[0] = p.editingItemRefTime[0].plus(times[0].diff(p.editingTimeFrom[0]));
 			}
 			return times;
 		},
@@ -1766,7 +1721,7 @@ define([
 		_moveOrResizeItemGesture: function (dates, eventSource, e, subColumn) {
 			// summary:
 			//		Moves or resizes an item.
-			// dates: Date[]
+			// dates: DateTime[]
 			//		The reference dates.
 			// editKind: String
 			//		Kind of edit: "resizeStart", "resizeEnd", "resizeBoth" or "move".
@@ -1785,7 +1740,6 @@ define([
 
 			var p = this._edProps;
 			var item = p.editedItem;
-			var cal = this.dateModule;
 			var editKind = p.editKind;
 
 			var newTimes = [dates[0]];
@@ -1800,8 +1754,8 @@ define([
 
 			var moveOrResizeDone = false;
 
-			var oldStart = lang.clone(item.startTime);
-			var oldEnd = lang.clone(item.endTime);
+			var oldStart = item.startTime;
+			var oldEnd = item.endTime;
 			var oldSubColumn = item.subColumn;
 
 			// swap cannot used using keyboard as a gesture is made of one single change (loss of start/end context).
@@ -1817,30 +1771,31 @@ define([
 					lang.mixin(item, this.itemToRenderItem(storeItem));
 					moveOrResizeDone = true;
 				}
-				if (cal.compare(item.startTime, newTime) !== 0) {
-					var duration = cal.difference(item.startTime, item.endTime, "millisecond");
-					item.startTime = this.newDate(newTime);
-					item.endTime = cal.add(item.startTime, "millisecond", duration);
+				if (+item.startTime !== +newTime) {
+					var duration = item.endTime.diff(item.startTime);
+					item.startTime = newTime;
+					item.endTime = item.startTime.plus(duration);
 					moveOrResizeDone = true;
 				}
 			} else if (editKind == "resizeStart") {
-				if (cal.compare(item.startTime, newTime) !== 0) {
-					if (cal.compare(item.endTime, newTime) !== -1) {
-						item.startTime = this.newDate(newTime);
+				if (+item.startTime !== +newTime) {
+					if (item.endTime >= newTime) {
+						item.startTime = newTime;
 					} else { // swap detected
 						if (allowSwap) {
-							item.startTime = this.newDate(item.endTime);
-							item.endTime = this.newDate(newTime);
+							item.startTime = item.endTime;
+							item.endTime = newTime;
 							p.editKind = editKind = "resizeEnd";
 							if (eventSource == "touch") { // invert touches as well!
 								p.resizeEndTouchIndex = p.resizeStartTouchIndex;
 								p.resizeStartTouchIndex = -1;
 							}
 						} else { // block the swap but keep the time of day
-							item.startTime = this.newDate(item.endTime);
-							item.startTime.setHours(newTime.getHours());
-							item.startTime.setMinutes(newTime.getMinutes());
-							item.startTime.setSeconds(newTime.getSeconds());
+							item.startTime = item.endTime.set({
+								hour: newTime.hour,
+								minute: newTime.minute,
+								second: newTime.second
+							});
 						}
 					}
 					moveOrResizeDone = true;
@@ -1848,24 +1803,25 @@ define([
 
 			} else if (editKind == "resizeEnd") {
 
-				if (cal.compare(item.endTime, newTime) !== 0) {
-					if (cal.compare(item.startTime, newTime) !== 1) {
-						item.endTime = this.newDate(newTime);
+				if (+item.endTime !== +newTime) {
+					if (item.startTime <= newTime) {
+						item.endTime = newTime;
 					} else { // swap detected
 
 						if (allowSwap) {
-							item.endTime = this.newDate(item.startTime);
-							item.startTime = this.newDate(newTime);
+							item.endTime = item.startTime;
+							item.startTime = newTime;
 							p.editKind = editKind = "resizeStart";
 							if (eventSource == "touch") { // invert touches as well!
 								p.resizeStartTouchIndex = p.resizeEndTouchIndex;
 								p.resizeEndTouchIndex = -1;
 							}
 						} else { // block the swap but keep the time of day
-							item.endTime = this.newDate(item.startTime);
-							item.endTime.setHours(newTime.getHours());
-							item.endTime.setMinutes(newTime.getMinutes());
-							item.endTime.setSeconds(newTime.getSeconds());
+							item.endTime = item.startTime.set({
+								hour: newTime.hour,
+								minute: newTime.minute,
+								second: newTime.second
+							});
 						}
 					}
 
@@ -1875,10 +1831,10 @@ define([
 
 				moveOrResizeDone = true;
 
-				var start = this.newDate(newTime);
-				var end = this.newDate(newTimes[1]);
+				var start = newTime;
+				var end = newTimes[1];
 
-				if (cal.compare(start, end) != -1) { // swap detected
+				if (start >= end) { // swap detected
 					if (allowSwap) {
 						var t = start;
 						start = end;
@@ -1920,7 +1876,7 @@ define([
 			}
 
 			// prevent invalid range
-			if (cal.compare(item.startTime, item.endTime) === 1) {
+			if (item.startTime > item.endTime) {
 				var tmp = item.startTime;
 				item.startTime = item.endTime;
 				item.endTime = tmp;
@@ -1928,8 +1884,8 @@ define([
 
 			moveOrResizeDone =
 				oldSubColumn != item.subColumn ||
-				cal.compare(oldStart, item.startTime) !== 0 ||
-				cal.compare(oldEnd, item.endTime) !== 0;
+				+oldStart !== +item.startTime ||
+				+oldEnd !== item.endTime;
 
 			if (!moveOrResizeDone) {
 				return false;
@@ -1967,21 +1923,20 @@ define([
 
 			if (!synthEvent.defaultPrevented) {
 				var p = e.source._edProps;
-				var cal = this.dateModule;
 				var newStartTime, newEndTime;
 
 				if (p.rendererKind == "label" || (this.roundToDay && !e.item.allDay)) {
-					newStartTime = this.floorToDay(e.item.startTime);
-					newStartTime.setHours(p._itemEditBeginSave.getHours());
-					newStartTime.setMinutes(p._itemEditBeginSave.getMinutes());
-
-					newEndTime = cal.add(newStartTime, "millisecond", p._initDuration);
+					newStartTime = e.item.startTime.startOf("day").set({
+						hour: p._itemEditBeginSave.hour,
+						minute: p._itemEditBeginSave.minute
+					});
+					newEndTime = newStartTime.plus({ millisecond: p._initDuration });
 				} else if (e.item.allDay) {
-					newStartTime = this.floorToDay(e.item.startTime);
-					newEndTime = cal.add(newStartTime, "day", p._initDuration);
+					newStartTime = e.item.startTime.startOf("day");
+					newEndTime = newStartTime.plus({ day: p._initDuration });
 				} else {
 					newStartTime = this.floorDate(e.item.startTime, this.snapUnit, this.snapSteps);
-					newEndTime = cal.add(newStartTime, "millisecond", p._initDuration);
+					newEndTime = newStartTime.plus({ millisecond: p._initDuration });
 				}
 
 				e.item.startTime = newStartTime;
@@ -2008,42 +1963,45 @@ define([
 
 			if (!synthEvent.defaultPrevented) {
 				var p = e.source._edProps;
-				var cal = this.dateModule;
 
 				var newStartTime = e.item.startTime;
 				var newEndTime = e.item.endTime;
 
+				var duration = {};
+				duration[this.snapUnit] = this.snapSteps;
+
 				if (e.editKind == "resizeStart") {
 					if (e.item.allDay) {
-						newStartTime = this.floorToDay(e.item.startTime);
+						newStartTime = e.item.startTime.startOf("day");
 					} else if (this.roundToDay) {
-						newStartTime = this.floorToDay(e.item.startTime);
-						newStartTime.setHours(p._itemEditBeginSave.getHours());
-						newStartTime.setMinutes(p._itemEditBeginSave.getMinutes());
+						newStartTime = e.item.startTime.startOf("day").set({
+							hour: p._itemEditBeginSave.hour,
+							minute: p._itemEditBeginSave.minute
+						});
 					} else {
 						newStartTime = this.floorDate(e.item.startTime, this.snapUnit, this.snapSteps);
 					}
 				} else if (e.editKind == "resizeEnd") {
 					if (e.item.allDay) {
 						if (!this.isStartOfDay(e.item.endTime)) {
-							newEndTime = this.floorToDay(e.item.endTime);
-							newEndTime = cal.add(newEndTime, "day", 1);
+							newEndTime = e.item.endTime.startOf("day").add({ day: 1 });
 						}
 					} else if (this.roundToDay) {
-						newEndTime = this.floorToDay(e.item.endTime);
-						newEndTime.setHours(p._itemEditEndSave.getHours());
-						newEndTime.setMinutes(p._itemEditEndSave.getMinutes());
+						newEndTime = e.item.endTime.startOf("day").set({
+							hour: p._itemEditEndSave.hour,
+							minute: p._itemEditEndSave.minute
+						});
 					} else {
 						newEndTime = this.floorDate(e.item.endTime, this.snapUnit, this.snapSteps);
 
 						if (e.eventSource == "mouse") {
-							newEndTime = cal.add(newEndTime, this.snapUnit, this.snapSteps);
+							newEndTime = newEndTime.plus(duration);
 						}
 					}
 				} else { // Resize both
 					newStartTime = this.floorDate(e.item.startTime, this.snapUnit, this.snapSteps);
 					newEndTime = this.floorDate(e.item.endTime, this.snapUnit, this.snapSteps);
-					newEndTime = cal.add(newEndTime, this.snapUnit, this.snapSteps);
+					newEndTime = newEndTime.plus(duration);
 				}
 
 				e.item.startTime = newStartTime;
@@ -2130,16 +2088,18 @@ define([
 			//		The edit kind: "resizeStart" or "resizeEnd".
 
 			var minTime;
-			var cal = this.dateModule;
+
+			var duration = {};
+			duration[unit] = steps;
 
 			if (editKind == "resizeStart") {
-				minTime = cal.add(item.endTime, unit, -steps);
-				if (cal.compare(item.startTime, minTime) === 1) {
+				minTime = item.endTime.minus(duration);
+				if (item.startTime > minTime) {
 					item.startTime = minTime;
 				}
 			} else {
-				minTime = cal.add(item.startTime, unit, steps);
-				if (cal.compare(item.endTime, minTime) == -1) {
+				minTime = item.startTime.plus(duration);
+				if (item.endTime < minTime) {
 					item.endTime = minTime;
 				}
 			}

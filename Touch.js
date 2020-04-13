@@ -210,7 +210,7 @@ define([
 					this._moveOrResizeItemGesture(times, "touch", e, subColumn);
 
 					if (p.editKind == "move") {
-						if (this.dateModule.compare(p.editedItem.startTime, d) == -1) {
+						if (p.editedItem.startTime < d) {
 							this.ensureVisibility(p.editedItem.startTime, p.editedItem.endTime, "start",
 								this.autoScrollTouchMargin);
 						} else {

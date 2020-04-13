@@ -39,19 +39,19 @@ define([
 		cssClassFunc: null,
 
 		// decodeDate: Function?
-		//		An optional function to transform store date into Date objects.  Default is null.
+		//		An optional function to transform store date into DateTime objects.  Default is null.
 		decodeDate: null,
 
 		// encodeDate: Function?
-		//		An optional function to transform Date objects into store date.  Default is null.
+		//		An optional function to transform DateTime objects into store date.  Default is null.
 		encodeDate: null,
 
 		itemToRenderItem: dcl.superCall(function (sup) {
 			return function (storeItem) {
 				// Override to use decodeDate() method.
 				var ri = sup.apply(this, arguments);
-				ri.startTime = this.decodeDate ? this.decodeDate(ri.startTime) : this.newDate(ri.startTime);
-				ri.endTime = this.decodeDate ? this.decodeDate(ri.endTime) : this.newDate(ri.endTime);
+				ri.startTime = this.decodeDate ? this.decodeDate(ri.startTime) : ri.startTime;
+				ri.endTime = this.decodeDate ? this.decodeDate(ri.endTime) : ri.endTime;
 
 				// Also, some of the code depends on renderItem._item pointing back to the original store item.
 				ri._item = storeItem;
@@ -102,7 +102,7 @@ define([
 				}
 			}
 		},
-			
+
 		_getItemStoreStateObj: function (/*Object*/ item) {
 			// tags
 			//		private

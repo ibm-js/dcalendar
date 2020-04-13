@@ -1,5 +1,6 @@
 define([
 	"dcl/dcl",
+	"luxon",
 	"delite/register",
 	"dojo/_base/lang",
 	"requirejs-dplugins/has",
@@ -11,13 +12,13 @@ define([
 	"dojo/dom-style",
 	"dojo/dom-geometry",
 	"dojo/dom-construct",
-	"dojo/i18n",
 	"./ViewBase",
 	"delite/handlebars!./templates/MatrixView.html",
 	"requirejs-dplugins/css!./css/MatrixView.css",
 	"requirejs-dplugins/css!./css/MatrixView_rtl.css"
 ], function (
 	dcl,
+	luxon,
 	register,
 	lang,
 	has,
@@ -29,17 +30,18 @@ define([
 	domStyle,
 	domGeometry,
 	domConstruct,
-	i18n,
 	ViewBase,
 	template
 ) {
+	var DateTime = luxon.DateTime;
+
 	/*=====
 	 var __HeaderClickEventArgs = {
 		 // summary:
 		 //		A column click event.
 		 // index: Integer
 		 //		The column index.
-		 // date: Date
+		 // date: DateTime
 		 //		The date displayed by the column.
 		 // triggerEvent: Event
 		 //		The origin event.
@@ -54,7 +56,7 @@ define([
 		 //		The column index of the cell.
 		 // rowIndex: Integer
 		 //		The row index of the cell.
-		 // date: Date
+		 // date: DateTime
 		 //		The date displayed by the cell.
 		 // triggerEvent: Event
 		 //		The origin event.
@@ -74,18 +76,18 @@ define([
 		//		This view kind is "matrix".
 		viewKind: "matrix",
 
-		// startDate: Date
+		// startDate: DateTime
 		//		The start date of the time interval displayed.
 		//		If not set at initialization time, will be set to current day.
 		startDate: null,
 
-		// refStartTime: Date?
+		// refStartTime: DateTime?
 		//		(Optional) Start of the time interval of interest.
 		//		It is used to style differently the displayed rows out of the
 		//		time interval of interest.
 		refStartTime: null,
 
-		// refStartTime: Date?
+		// refStartTime: DateTime?
 		//		(Optional) End of the time interval of interest.
 		//		It is used to style differently the displayed rows out of the
 		//		time interval of interest.
@@ -217,7 +219,7 @@ define([
 
 		computeProperties: function (oldVals) {
 			if (this.startDate == null) {
-				this.startDate = this.floorToDay(new this.Date());
+				this.startDate = DateTime.local().startOf("day");
 			}
 
 			if (this.columnCount < 1 || isNaN(this.columnCount)) {
@@ -250,19 +252,18 @@ define([
 
 			if ("startDate" in oldVals || "columnCount" in oldVals || "rowCount" in oldVals || "source" in oldVals) {
 				this.dates = [];
-				var d = this.floorToDay(this.startDate);
+				var d = this.startDate.startOf("day");
 				for (var row = 0; row < this.rowCount; row++) {
 					this.dates.push([]);
 					for (var col = 0; col < this.columnCount; col++) {
 						this.dates[row].push(d);
-						d = this.addAndFloor(d, "day", 1);
+						d = d.plus({ day: 1 });
 					}
 				}
 
-				this.startTime = this.newDate(this.dates[0][0]);
-				this.endTime = this.newDate(this.dates[this.rowCount - 1][this.columnCount - 1]);
-				this.endTime = this.dateModule.add(this.endTime, "day", 1);
-				this.endTime = this.floorToDay(this.endTime);
+				this.startTime = this.dates[0][0];
+				this.endTime = this.dates[this.rowCount - 1][this.columnCount - 1];
+				this.endTime = this.endTime.plus({ day: 1 }).startOf("day");
 
 				if (this.source) {
 					this.query = new this.source.Filter().lte("startTime", this.endTime).gte("endTime", this.startTime);
@@ -282,50 +283,43 @@ define([
 		//
 		//////////////////////////////////////////
 
-		_formatRowHeaderLabel: function (/*Date*/ d) {
+		_formatRowHeaderLabel: function (/*DateTime*/ d) {
 			// summary:
 			//		Computes the row header label for the specified time of day.
-			//		By default the getWeekNumberLabel() function is called.
 			//		The rowHeaderDatePattern property can be used to set a
 			//		custom date pattern to the formatter.
-			// d: Date
+			// d: DateTime
 			//		The date to format
 			// tags:
 			//		protected
 
 			if (this.rowHeaderDatePattern) {
-				return this.dateLocaleModule.format(d, {
-					selector: "date",
-					datePattern: this.rowHeaderDatePattern
-				});
+				return d.toFormat(this.rowHeaderDatePattern);
 			} else {
-				return this.getWeekNumberLabel(d);
+				return d.weekNumber;
 			}
 		},
 
 		_formatColumnHeaderLabel: function (d) {
 			// summary:
 			//		Computes the column header label for the specified date.
-			//		By default a formatter is used, optionally the <code>columnHeaderLabelLength</code>
-			//		property can be used to specify the length of the string.
-			// d: Date
+			// d: DateTime
 			//		The date to format
 			// tags:
 			//		protected
 
-			return this.dateLocaleModule.getNames("days", this.columnHeaderLabelLength ?
-				this.columnHeaderLabelLength : "wide", "standAlone")[d.getDay()];
+			return d.weekdayLong;
 		},
 
 		// cellHeaderShortPattern: String
 		//		Custom date/time pattern for grid cell label to override default one coming from the CLDR.
-		//		See dojo/date/locale documentation for format string.
+		//		See https://moment.github.io/luxon/docs/manual/formatting.html#table-of-tokens.
 		cellHeaderShortPattern: null,
 
 		// cellHeaderLongPattern: String
 		//		Custom date/time pattern for grid cell label to override default one coming from the CLDR.
 		//		The long pattern is used for the first day of month or the first displayed day of a month.
-		//		See dojo/date/locale documentation for format string.
+		//		See https://moment.github.io/luxon/docs/manual/formatting.html#table-of-tokens.
 		cellHeaderLongPattern: null,
 
 		_formatGridCellLabel: function (d, row, col) {
@@ -334,7 +328,7 @@ define([
 			//		By default a formatter is used, optionally the <code>cellHeaderLongPattern</code> and
 			//		<code>cellHeaderShortPattern</code>
 			//		properties can be used to set a custom date pattern to the formatter.
-			// d: Date
+			// d: DateTime
 			//		The date to format.
 			// row: Integer
 			//		The row that displays the current date.
@@ -343,27 +337,20 @@ define([
 			// tags:
 			//		protected
 
-			var isFirstDayOfMonth = row === 0 && col === 0 || d.getDate() === 1;
-			var format, rb;
+			var isFirstDayOfMonth = row === 0 && col === 0 || d.day === 1;
 			if (isFirstDayOfMonth) {
 				if (this.cellHeaderLongPattern) {
-					format = this.cellHeaderLongPattern;
+					return d.toFormat(this.cellHeaderLongPattern);
 				} else {
-					rb = i18n.getLocalization("dojo.cldr", this._calendar);
-					format = rb["dateFormatItem-MMMd"];
+					return d.toLocaleString({ month: "short", day: "2-digit" });
 				}
 			} else {
 				if (this.cellHeaderShortPattern) {
-					format = this.cellHeaderShortPattern;
+					return d.toFormat(this.cellHeaderShortPattern);
 				} else {
-					rb = i18n.getLocalization("dojo.cldr", this._calendar);
-					format = rb["dateFormatItem-d"];
+					return d.toLocaleString({ day: "2-digit" });
 				}
 			}
-			return this.dateLocaleModule.format(d, {
-				selector: "date",
-				datePattern: format
-			});
 		},
 
 		////////////////////////////////////////////
@@ -419,8 +406,7 @@ define([
 
 			if (this.yearColumnHeaderContent) {
 				var d = this.dates[0][0];
-				this._setText(this.yearColumnHeaderContent, this.dateLocaleModule.format(d,
-					{selector: "date", datePattern: "yyyy"}));
+				this._setText(this.yearColumnHeaderContent, d.toLocaleString({ year: "numeric" }));
 			}
 		},
 
@@ -431,12 +417,12 @@ define([
 			//		if the day of week represents a weekend.
 			// node: Node
 			//		The DOM node that displays the column in the grid.
-			// date: Date
+			// date: DateTime
 			//		The date displayed by this column
 			// tags:
 			//		protected
 
-			domClass.add(node, this._cssDays[date.getDay()]);
+			domClass.add(node, this._cssDays[date.weekday - 1]);
 
 			if (this.isWeekEnd(date)) {
 				domClass.add(node, "d-calendar-weekend");
@@ -493,7 +479,7 @@ define([
 			//		By default this method is doing nothing.
 			// node: Node
 			//		The DOM node that displays the column in the grid.
-			// date: Date
+			// date: DateTime
 			//		The date in the week.
 			// tags:
 			//		protected
@@ -555,19 +541,17 @@ define([
 			//		- the CSS class corresponding of the displayed day of week ("Sun", "Mon" and so on).
 			// node: Node
 			//		The DOM node that displays the cell in the grid.
-			// date: Date
+			// date: DateTime
 			//		The date displayed by this cell.
 			// tags:
 			//		protected
 
-			domClass.add(node, this._cssDays[date.getDay()]);
+			domClass.add(node, this._cssDays[date.weekday - 1]);
 
-			var cal = this.dateModule;
 			if (this.isToday(date)) {
 				domClass.add(node, "d-calendar-today");
 			} else if (this.refStartTime != null && this.refEndTime != null &&
-				(cal.compare(date, this.refEndTime) >= 0 ||
-				cal.compare(cal.add(date, "day", 1), this.refStartTime) <= 0)) {
+				(date >= this.refEndTime || date.plus({ day: 1 }) <= this.refStartTime)) {
 				domClass.add(node, "d-calendar-day-disabled");
 			} else if (this.isWeekEnd(date)) {
 				domClass.add(node, "d-calendar-weekend");
@@ -973,7 +957,7 @@ define([
 		_defaultItemToRendererKindFunc: function (item) {
 			// tags:
 			//		private
-			var dur = Math.abs(this.dateModule.difference(item.startTime, item.endTime, "minute"));
+			var dur = Math.abs(item.endTime.diff(item.startTime, "minute").minutes);
 			return dur >= 1440 ? "horizontal" : "label";
 		},
 
@@ -995,11 +979,10 @@ define([
 			var s = item.startTime, e = item.endTime;
 
 			if (!this.isStartOfDay(s)) {
-				s = this.floorToDay(s);
+				s = s.startOf("day");
 			}
 			if (!this.isStartOfDay(e)) {
-				e = this.dateModule.add(e, "day", 1);
-				e = this.floorToDay(e);
+				e = e.plus({ day: 1}).startOf("day");
 			}
 			return {startTime: s, endTime: e};
 		},
@@ -1012,11 +995,8 @@ define([
 				a = this._roundItemToDay(a);
 				b = this._roundItemToDay(b);
 			}
-			var res = this.dateModule.compare(a.startTime, b.startTime);
-			if (res === 0) {
-				res = -1 * this.dateModule.compare(a.endTime, b.endTime);
-			}
-			return res;
+
+			return (+a.startTime - +b.startTime) || (+b.endTime - +a.endTime);
 		},
 
 		_overlapLayoutPass3: function (lanes) {
@@ -1131,7 +1111,7 @@ define([
 
 		_offsets: null,
 
-		_layoutInterval: function (/*Integer*/index, /*Date*/start, /*Date*/end,
+		_layoutInterval: function (/*Integer*/index, /*DateTime*/start, /*DateTime*/end,
 								   /*Object[]*/items, /*String*/itemsType) {
 			// tags:
 			//		private
@@ -1200,12 +1180,11 @@ define([
 			}
 		},
 
-		_createHorizontalLayoutItems: function (/*Integer*/index, /*Date*/startTime, /*Date*/endTime,
+		_createHorizontalLayoutItems: function (/*Integer*/index, /*DateTime*/startTime, /*DateTime*/endTime,
 												/*Object[]*/items, /*String*/itemsType) {
 			// tags:
 			//		private
 
-			var cal = this.dateModule;
 			var sign = this.effectiveDir === "rtl" ? -1 : 1;
 			var layoutItems = [];
 			var isDecoration = itemsType === "decorationItems";
@@ -1215,7 +1194,7 @@ define([
 				var item = items[i];
 				var overlap = this.computeRangeOverlap(item.startTime, item.endTime, startTime, endTime);
 
-				var startOffset = cal.difference(startTime, this.floorToDay(overlap[0]), "day");
+				var startOffset = Math.round(overlap[0].startOf("day").diff(startTime, "day").days);
 				var dayStart = this.dates[index][startOffset];
 
 				var celPos = domGeometry.position(this._getCellAt(index, startOffset, false));
@@ -1230,7 +1209,7 @@ define([
 
 				start = Math.ceil(start);
 
-				var endOffset = cal.difference(startTime, this.floorToDay(overlap[1]), "day");
+				var endOffset = Math.round(overlap[1].startOf("day").diff(startTime, "day").days);
 
 				var end;
 				if (endOffset > this.columnCount - 1) {
@@ -1306,7 +1285,8 @@ define([
 			return overlapLayoutRes;
 		},
 
-		_createLabelLayoutItems: function (/*Integer*/index, /*Date*/startTime, /*Date*/endTime, /*Object[]*/items) {
+		_createLabelLayoutItems: function (/*Integer*/index,
+				 /*DateTime*/startTime, /*DateTime*/endTime, /*Object[]*/items) {
 			// tags:
 			//		private
 
@@ -1315,26 +1295,21 @@ define([
 			}
 
 			var d;
-			var cal = this.dateModule;
 
 			var layoutItems = [];
 
 			for (var i = 0; i < items.length; i++) {
 				var item = items[i];
 
-				d = this.floorToDay(item.startTime);
-
-				var comp = this.dateModule.compare;
+				d = item.startTime.startOf("day");
 
 				// iterate on columns overlapped by this item to create one item per column
 				//while(d < item.endTime && d < this.endTime){
-				while (comp(d, item.endTime) == -1 && comp(d, endTime) == -1) {
-
-					var dayEnd = cal.add(d, "day", 1);
-					dayEnd = this.floorToDay(dayEnd);
+				while (d  < item.endTime && d < endTime) {
+					var dayEnd = d.plus({ day: 1 }).startOf("day");
 
 					var overlap = this.computeRangeOverlap(item.startTime, item.endTime, d, dayEnd);
-					var startOffset = cal.difference(startTime, this.floorToDay(overlap[0]), "day");
+					var startOffset = startTime.diff(overlap[0].startOf("day"), "day").days;
 
 					if (startOffset >= this.columnCount) {
 						// If the offset is greater than the column count
@@ -1349,16 +1324,14 @@ define([
 							layoutItems[startOffset] = list;
 						}
 
-						list.push(lang.mixin(
-							{
-								startOffset: startOffset,
-								range: overlap,
-								item: item
-							}, item));
+						list.push(lang.mixin({
+							startOffset: startOffset,
+							range: overlap,
+							item: item
+						}, item));
 					}
 
-					d = cal.add(d, "day", 1);
-					this.floorToDay(d);
+					d = d.plus({ day: 1 }).startOf("day");
 				}
 			}
 
@@ -1499,7 +1472,7 @@ define([
 				if (list != null) {
 					// sort according to start time the list of label renderers
 					list.sort(function (a, b) {
-						return this.dateModule.compare(a.range[0], b.range[0]);
+						return +(a.range[0]) - +(b.range[0]);
 					}.bind(this));
 
 					var maxH = this.expandRenderer ? (hasHiddenItems[i] ? cellH - this.expandRendererHeight : cellH) :
@@ -1624,7 +1597,7 @@ define([
 			// tags:
 			//		private
 
-			var d = lang.clone(this.dates[rowIndex][colIndex]);
+			var d = this.dates[rowIndex][colIndex];
 			var ir = null;
 			var cell = this.cells[rowIndex];
 
@@ -1645,7 +1618,7 @@ define([
 			//		The renderer DOM node is in a row that takes all the grid width.
 			// renderer: Object
 			//		The renderer used in specified cell that indicates that some items cannot be displayed.
-			// date: Date
+			// date: DateTime
 			//		The date displayed by the cell.
 			// items: Object[]
 			//		The list of non visible items.
@@ -1677,15 +1650,12 @@ define([
 				var item = p.editedItem;
 				var dates = e.dates;
 
-				var refTime = this.newDate(p.editKind == "resizeEnd" ? item.endTime : item.startTime);
+				var refTime = p.editKind == "resizeEnd" ? item.endTime : item.startTime;
 
 				if (p.rendererKind == "label") {
 					// noop
 				} else if (e.editKind == "move" && (item.allDay || this.roundToDay)) {
-					var cal = this.dateModule;
-					p.dayOffset = cal.difference(
-						this.floorToDay(dates[0]),
-						refTime, "day");
+					p.dayOffset = Math.round(refTime.diff(dates[0].startOf("day"), "day").days);
 				} // else managed in super
 
 				sup.apply(this, arguments);
@@ -1694,7 +1664,6 @@ define([
 
 		_computeItemEditingTimes: dcl.superCall(function (sup) {
 			return function (item, editKind, rendererKind, times) {
-				var cal = this.dateModule;
 				var p = this._edProps;
 
 				if (rendererKind == "label") { // noop
@@ -1703,23 +1672,23 @@ define([
 					switch (editKind) {
 					case "resizeEnd":
 						if (!isStartOfDay && item.allDay) {
-							times[0] = cal.add(times[0], "day", 1);
+							times[0] = times[0].plus({ day: 1 });
 						}
 						/* falls through */
 					case "resizeStart":
 						if (!isStartOfDay) {
-							times[0] = this.floorToDay(times[0], true);
+							times[0] = times[0].starfOf("day");
 						}
 						break;
 					case "move":
-						times[0] = cal.add(times[0], "day", p.dayOffset);
+						times[0] = times[0].plus({ day: p.dayOffset });
 						break;
 					case "resizeBoth":
 						if (!isStartOfDay) {
-							times[0] = this.floorToDay(times[0], true);
+							times[0] = times[0].startOf("day");
 						}
 						if (!this.isStartOfDay(times[1])) {
-							times[1] = this.floorToDay(cal.add(times[1], "day", 1), true);
+							times[1] = times[1].plus({ day: 1}).startOf("day");
 						}
 						break;
 					}
@@ -1751,7 +1720,7 @@ define([
 			//		used if event is not defined.
 			// touchIndex: Integer
 			//		If parameter 'e' is not null and a touch event, the index of the touch to use.
-			// returns: Date
+			// returns: DateTime
 
 			if (e != null) {
 				var refPos = domGeometry.position(this.itemContainer, true);
@@ -1804,8 +1773,7 @@ define([
 
 			var date = null;
 			if (row < this.dates.length && col < this.dates[row].length) {
-				date = this.newDate(this.dates[row][col]);
-				date = this.dateModule.add(date, "minute", tm);
+				date = this.dates[row][col].add({ minute: tm });
 			}
 
 			return date;

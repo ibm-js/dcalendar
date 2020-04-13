@@ -13,25 +13,29 @@ define([
 		floorDate: function (date, unit, steps) {
 			// summary:
 			//		floors the date to the unit.
-			// date: Date
+			// date: DateTime
 			//		The date/time to floor.
 			// unit: String
 			//		The unit.  Valid values are "minute", "hour", "day", "week".
 			// steps: Integer
 			//		For "day" or "week" only 1 is valid.
-			// returns: Date
+			// returns: DateTime
 
-			var d = this.floorToDay(date);
+			var d = date.startOf("day");
 
 			switch (unit) {
 			case "week":
 				return this.floorToWeek(d);
 			case "minute":
-				d.setHours(date.getHours());
-				d.setMinutes(Math.floor(date.getMinutes() / steps) * steps);
+				d = d.set({
+					hour: date.hour,
+					minute: Math.floor(date.minute / steps) * steps
+				});
 				break;
 			case "hour":
-				d.setHours(Math.floor(date.getHours() / steps) * steps);
+				d = d.set({
+					hour: Math.floor(date.hour / steps) * steps
+				});
 				break;
 			}
 

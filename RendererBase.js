@@ -148,17 +148,19 @@ define([
 			//		Returns the time formatted string.
 			// rd: Object
 			//		The render data.
-			// d: Date
+			// d: DateTime
 			//		The time to format.
 			// tags:
 			//		protected
+
 			if (this.owner) {
 				var f = this.owner.formatItemTime;
 				if (typeof f === "function") {
 					return f(d, rd, this.owner, this.item);
 				}
 			}
-			return rd.dateLocaleModule.format(d, {selector: "time"});
+
+			return d.toLocaleString({ hour: "numeric", minute: "numeric" });
 		},
 
 		getDisplayValue: function () {
@@ -199,8 +201,8 @@ define([
 			}
 
 
-			var startHidden = owner.dateModule.compare(item.range[0], item.startTime) !== 0;
-			var endHidden = owner.dateModule.compare(item.range[1], item.endTime) !== 0;
+			var startHidden = +item.range[0] !== +item.startTime;
+			var endHidden = +item.range[1] !== +item.endTime;
 
 			var visible;
 

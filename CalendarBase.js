@@ -1,5 +1,6 @@
 define([
 	"dcl/dcl",
+	"luxon",
 	"dojo/_base/lang",
 	"dojo/dom-class",
 	"dojo/dom-style",
@@ -11,6 +12,7 @@ define([
 	"dojo/i18n!./nls/buttons"
 ], function (
 	dcl,
+	luxon,
 	lang,
 	domClass,
 	domStyle,
@@ -21,13 +23,15 @@ define([
 	TimeBase,
 	_nls
 ) {
+	var DateTime = luxon.DateTime;
+
 	/*=====
 	var __HeaderClickEventArgs = {
 		// summary:
 		//		A column click event.
 		// index: Integer
 		//		The column index.
-		// date: Date
+		// date: DateTime
 		//		The date displayed by the column.
 		// triggerEvent: Event
 		//		The origin event.
@@ -35,25 +39,10 @@ define([
 	=====*/
 
 	/*=====
-	var __TimeIntervalChangeArgs = {
-		// summary:
-		//		An time interval change event, dispatched when the calendar displayed time range has changed.
-		// oldStartTime: Date
-		//		The start of the previously displayed time interval, if any.
-		// startTime: Date
-		//		The new start of the displayed time interval.
-		// oldEndTime: Date
-		//		The end of the previously displayed time interval, if any.
-		// endTime: Date
-		//		The new end of the displayed time interval.
-	};
-	=====*/
-
-	/*=====
 	var __GridClickEventArgs = {
 		// summary:
 		//		The event dispatched when the grid is clicked or double-clicked.
-		// date: Date
+		// date: DateTime
 		//		The start of the previously displayed time interval, if any.
 		// triggerEvent: Event
 		//		The event at the origin of this event.
@@ -85,11 +74,11 @@ define([
 		//		editing behavior logic.
 		// editKind: String
 		//		Kind of edit: "resizeBoth", "resizeStart", "resizeEnd" or "move".
-		// dates: Date[]
+		// dates: DateTime[]
 		//		The computed date/time of the during the event editing. One entry per edited date (touch use case).
-		// startTime: Date?
+		// startTime: DateTime?
 		//		The start time of data item.
-		// endTime: Date?
+		// endTime: DateTime?
 		//		The end time of data item.
 		// sheet: String
 		//		For views with several sheets (columns view for example), the sheet when the event occurred.
@@ -128,7 +117,7 @@ define([
 		//		The column index of the cell.
 		// rowIndex: Integer
 		//		The row index of the cell.
-		// date: Date
+		// date: DateTime
 		//		The date displayed by the cell.
 		// triggerEvent: Event
 		//		The origin event.
@@ -142,27 +131,27 @@ define([
 
 		baseClass: "d-calendar",
 
-		// startDate: Date
+		// startDate: DateTime
 		//		The start date of the displayed time interval.
 		startDate: null,
 
-		// endDate: Date
+		// endDate: DateTime
 		//		The end date of the displayed time interval (included).
 		endDate: null,
 
-		// date: Date
+		// date: DateTime
 		//		The reference date used to determine along with the <code>dateInterval</code>
 		//		and <code>dateIntervalSteps</code> properties the time interval to display.
 		date: null,
 
-		// minDate: Date
+		// minDate: DateTime
 		//		The minimum date.
 		//		If date property is set, the displayed time interval the most in the past
 		//		will the time interval containing this date.
 		//		If startDate property is set, this mininum value of startDate.
 		minDate: null,
 
-		// maxDate: Date
+		// maxDate: DateTime
 		//		The maximum date.
 		//		If date is set, the displayed time interval the most in the future
 		//		will the time interval containing this date.
@@ -245,7 +234,6 @@ define([
 		forwardProperties: [
 			"source", "query", "queryOptions", "startTimeAttr", "endTimeAttr", "summaryAttr", "allDayAttr",
 			"subColumnAttr", "decodeDate", "encodeDate", "itemToRenderItem", "renderItemToItem", "cssClassFunc",
-			"Date", "dateModule", "dateLocaleModule", "_calendar",
 			"endDate", "date", "minDate", "maxDate", "dateInterval", "dateIntervalSteps",
 			"firstDayOfWeek",
 			"formatItemTime",
@@ -284,7 +272,6 @@ define([
 		},
 
 		computeProperties: function (oldVals) {
-			var cal = this.dateModule;
 			var startDate = this.startDate;
 			var endDate = this.endDate;
 			var date = this.date;
@@ -297,7 +284,7 @@ define([
 			var maxDate = this.maxDate;
 
 			if (minDate && maxDate) {
-				if (cal.compare(minDate, maxDate) > 0) {
+				if (minDate > maxDate) {
 					var t = minDate;
 					this.minDate = maxDate;
 					this.maxDate = t;
@@ -306,19 +293,19 @@ define([
 
 			if (date == null && (startDate != null || endDate != null)) {
 				if (startDate == null) {
-					this.startDate = startDate = new this.Date();
+					this.startDate = startDate = DateTime.local();
 				}
 
 				if (endDate == null) {
-					this.endDate = endDate = new this.Date();
+					this.endDate = endDate = DateTime.local();
 				}
 
-				if (cal.compare(startDate, endDate) > 0) {
-					this.endDate = endDate = cal.add(startDate, "day", 1);
+				if (startDate > endDate) {
+					this.endDate = endDate = startDate.plus({ day: 1 });
 				}
 			} else {
 				if (this.date == null) {
-					this.date = this.floorToDay(new this.Date());
+					this.date = DateTime.local().startOf("day");
 				}
 
 				var dint = this.dateInterval;
@@ -341,8 +328,8 @@ define([
 				var timeInterval = this.computeTimeInterval();
 
 				if (this._timeInterval == null ||
-					cal.compare(this._timeInterval[0], timeInterval[0]) !== 0 ||
-					cal.compare(this._timeInterval[1], timeInterval[1]) !== 0) {
+					+this._timeInterval[0] !== +timeInterval[0] ||
+					+this._timeInterval[1] !== +timeInterval[1]) {
 
 					this._timeInterval = timeInterval;
 
@@ -373,7 +360,7 @@ define([
 
 				this._timeInterval = timeInterval;
 
-				this._duration = this.dateModule.difference(this._timeInterval[0], this._timeInterval[1], "day");
+				this._duration = Math.round(this._timeInterval[1].diff(this._timeInterval[0], "day").days);
 
 				this.currentView = this._computeCurrentView();
 			}
@@ -442,41 +429,40 @@ define([
 			var d = this.date;
 			var minDate = this.minDate;
 			var maxDate = this.maxDate;
-			var cal = this.dateModule;
 
 			if (d == null) {
 				var startDate = this.startDate;
-				var endDate = cal.add(this.endDate, "day", 1);
+				var endDate = this.endDate.plus({ day: 1 });
 
 				if (minDate != null || maxDate != null) {
-					var dur = this.dateModule.difference(startDate, endDate, "day");
-					if (cal.compare(minDate, startDate) > 0) {
+					var dur = endDate.diff(startDate);
+					if (startDate < minDate) {
 						startDate = minDate;
-						endDate = cal.add(startDate, "day", dur);
+						endDate = startDate.plus(dur);
 					}
-					if (cal.compare(maxDate, endDate) < 0) {
+					if (endDate > maxDate) {
 						endDate = maxDate;
-						startDate = cal.add(endDate, "day", -dur);
+						startDate = endDate.minus(dur);
 					}
-					if (cal.compare(minDate, startDate) > 0) {
+					if (startDate < minDate) {
 						startDate = minDate;
 						endDate = maxDate;
 					}
 				}
-				return [this.floorToDay(startDate), this.floorToDay(endDate)];
+				return [startDate.startOf("day"), endDate.startOf("day")];
 			} else {
 				var interval = this._computeTimeIntervalImpl(d);
 
 				if (minDate != null) {
 					var minInterval = this._computeTimeIntervalImpl(minDate);
-					if (cal.compare(minInterval[0], interval[0]) > 0) {
+					if (interval[0] < minInterval[0]) {
 						interval = minInterval;
 					}
 				}
 
 				if (maxDate != null) {
 					var maxInterval = this._computeTimeIntervalImpl(maxDate);
-					if (cal.compare(maxInterval[1], interval[1]) < 0) {
+					if (interval[1] > maxInterval[1]) {
 						interval = maxInterval;
 					}
 				}
@@ -492,27 +478,24 @@ define([
 			// tags:
 			//		protected
 
-			var cal = this.dateModule;
-
-			var s = this.floorToDay(d);
+			var s = d.startOf("day");
 			var di = this.dateInterval;
 			var dis = this.dateIntervalSteps;
 			var e;
 
 			switch (di) {
 			case "day":
-				e = cal.add(s, "day", dis);
+				e = s.plus({ day: dis });
 				break;
 			case "week":
 				s = this.floorToWeek(s);
-				e = cal.add(s, "week", dis);
+				e = s.plus({ week: dis });
 				break;
 			case "month":
-				s.setDate(1);
-				e = cal.add(s, "month", dis);
+				e = s.startOf("month").plus({ month: dis });
 				break;
 			default:
-				e = cal.add(s, "day", 1);
+				e = s.plus({ day: 1 });
 			}
 			return [s, e];
 		},
@@ -520,10 +503,6 @@ define([
 		_onViewAdded: function (view) {
 			view.owner = this;
 			view.buttonContainer = this.buttonContainer;
-			view._calendar = this._calendar;
-			view.dateModule = this.dateModule;
-			view.Date = this.Date;
-			view.dateLocaleModule = this.dateLocaleModule;
 			domClass.add(view, "view");
 		},
 
@@ -543,8 +522,7 @@ define([
 			// tags:
 			//		protected
 
-			var cal = this.dateModule,
-				view = this.currentView,
+			var view = this.currentView,
 				timeInterval = this._timeInterval,
 				duration = this._duration;
 
@@ -555,10 +533,10 @@ define([
 				if (duration > 7) { // show only full weeks.
 					var s = this.floorToWeek(timeInterval[0]);
 					var e = this.floorToWeek(timeInterval[1]);
-					if (cal.compare(e, timeInterval[1]) !== 0) {
-						e = this.dateModule.add(e, "week", 1);
+					if (+e !== +timeInterval[1]) {
+						e = e.plus({ week: 1 });
 					}
-					duration = this.dateModule.difference(s, e, "day");	// TODO: ???
+					duration = Math.round(e.diff(s, "day").days);	// TODO: ???
 					view.startDate = s;
 					view.columnCount = 7;
 					view.rowCount = Math.ceil(duration / 7);
@@ -616,8 +594,7 @@ define([
 			// tags:
 			//		protected
 
-			var cal = this.dateModule;
-			if (cal.compare(e.date, this._timeInterval[0]) === 0 && this.dateInterval === "day"
+			if (+e.date === +this._timeInterval[0] && this.dateInterval === "day"
 					&& this.dateIntervalSteps == 1) {
 				this.dateInterval = "week";
 			} else {
@@ -664,25 +641,24 @@ define([
 			//		private
 
 			var d = this.date;
-			var cal = this.dateModule;
 
 			if (d == null) {
 				var s = this.startDate;
 				var e = this.endDate;
-				var dur = cal.difference(s, e, "day");
+				var dur = e.diff(s);
 				if (dir == 1) {
-					e = cal.add(e, "day", 1);
+					e = e.plus({ day: 1 });
 					this.startDate = e;
-					this.endDate = cal.add(e, "day", dur);
+					this.endDate = e.plus(dur);
 				} else {
-					s = cal.add(s, "day", -1);
-					this.startDate = cal.add(s, "day", -dur);
+					s = s.minus({ day: 1 });
+					this.startDate = s.minus(dur);
 					this.endDate = s;
 				}
 			} else {
-				var di = this.dateInterval;
-				var dis = this.dateIntervalSteps;
-				this.date = cal.add(d, di, dir * dis);
+				var increment = {};
+				increment[this.dateInterval] = this.dateIntervalSteps * dir;
+				this.date = d.plus(increment);
 			}
 		},
 
@@ -691,7 +667,7 @@ define([
 			//		Changes the displayed time interval to show the current day.
 			//		Sets the date property to the current day, the dateInterval property to "day" and
 			//		the "dateIntervalSteps" to 1.
-			this.date = this.floorToDay(new this.Date());
+			this.date = DateTime.local().startOf("day");
 			this.dateInterval = "day";
 			this.dateIntervalSteps = 1;
 		},
@@ -717,7 +693,7 @@ define([
 			//		the "dateIntervalSteps" to 1.
 
 			if (this.date == null) {
-				this.date = this.floorToDay(new this.Date());
+				this.date = DateTime.local().startOf("day");
 			}
 			this.dateInterval = "day";
 			this.dateIntervalSteps = 1;

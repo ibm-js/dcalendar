@@ -23,13 +23,14 @@ Changes include:
 * Remove support for old IE (still supports IE11 and Edge).
 * Custom elements (<d-calendar> etc.) emit events rather than providing callbacks.
   A callback like onGridDoubleClick() was converted to an event grid-double-click.
+* Use luxon/DateTime rather than native JS Date object.
 
 Things *not* changed during port:
 
 * Still uses dojodoc format rather than JSDoc.
 * Still uses DOH for test framework.
 * Still has some dependencies on dojo core; doesn't use jQuery.
-* Doesn't fully conform to ibm-js JSHint standards.
+* Doesn't fully conform to ibm-js ESLint standards.
 * Documentation not updated.
 
 Tests:

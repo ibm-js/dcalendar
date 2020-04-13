@@ -57,10 +57,9 @@ define([
 
 				// show only from January to June or from July to December
 				if (view.viewKind == "monthColumns") {
-					var m = timeInterval[0].getMonth();
-					var d = this.newDate(timeInterval[0]);
-					d.setMonth(m < 6 ? 0 : 6);
-					view.startDate = d;
+					view.startDate = timeInterval[0].set({
+						month: timeInterval[0].month < 7 ? 1 : 7
+					});
 					view.columnCount = 6;
 				} else {
 					sup.apply(this, arguments);

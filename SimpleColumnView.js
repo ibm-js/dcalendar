@@ -1,5 +1,6 @@
 define([
 	"dcl/dcl",
+	"luxon",
 	"./ViewBase",
 	"delite/handlebars!./templates/ColumnView.html",
 	"delite/register",
@@ -17,6 +18,7 @@ define([
 	"requirejs-dplugins/css!./css/ColumnView_rtl.css"
 ], function (
 	dcl,
+	luxon,
 	ViewBase,
 	template,
 	register,
@@ -32,13 +34,16 @@ define([
 	metrics
 ) {
 
+	var DateTime = luxon.DateTime,
+		Interval = luxon.Interval;
+
 	/*=====
 	 var __ColumnClickEventArgs = {
 		 // summary:
 		 //		A column click event.
 		 // index: Integer
 		 //		The column index.
-		 // date: Date
+		 // date: DateTime
 		 //		The date displayed by the column.
 		 // triggerEvent: Event
 		 //		The origin event.
@@ -58,7 +63,7 @@ define([
 		//		This view kind is "columns".
 		viewKind: "columns",
 
-		// startDate: Date
+		// startDate: DateTime
 		//		The start date of the time interval displayed.
 		//		If not set at initialization time, will be set to current day.
 		startDate: null,
@@ -133,7 +138,7 @@ define([
 
 		computeProperties: function (oldVals) {
 			if (this.startDate == null) {
-				this.startDate = this.floorToDay(new this.Date());
+				this.startDate = DateTime.local().startOf("day");
 			}
 
 			var v = this.minHours;
@@ -177,16 +182,18 @@ define([
 
 			if ("startDate" in oldVals || "columnCount" in oldVals || "source" in oldVals) {
 				this.dates = [];
-				var d = this.floorToDay(this.startDate);
+				var d = this.startDate.startOf("day");
 				for (var col = 0; col < this.columnCount; col++) {
 					this.dates.push(d);
-					d = this.addAndFloor(d, "day", 1);
+					d = d.plus({ day: 1 });
 				}
 
-				this.startTime = new this.Date(this.dates[0]);
-				this.startTime.setHours(this.minHours);
-				this.endTime = new this.Date(this.dates[this.columnCount - 1]);
-				this.endTime.setHours(this.maxHours);
+				this.startTime = this.dates[0].set({
+					hour: this.minHours
+				});
+				this.endTime = this.dates[this.columnCount - 1].set({
+					hour: this.maxHours
+				});
 
 				this.subColumnCount = this.subColumns ? this.subColumns.length : 1;
 			}
@@ -221,45 +228,39 @@ define([
 
 		// rowHeaderTimePattern: String
 		//		Custom date/time pattern for the row header labels to override default one coming from the CLDR.
-		//		See dojo/date/locale documentation for format string.
+		//		See https://moment.github.io/luxon/docs/manual/formatting.html#table-of-tokens.
 		rowHeaderTimePattern: null,
 
-		_formatRowHeaderLabel: function (/*Date*/d) {
+		_formatRowHeaderLabel: function (/*DateTime*/d) {
 			// summary:
 			//		Computes the row header label for the specified time of day.
 			//		By default a formatter is used, optionally the <code>rowHeaderTimePattern</code> property
 			//		can be used to set a custom time pattern to the formatter.
-			// d: Date
+			// d: DateTime
 			//		The date to format
 			// tags:
 			//		protected
 
-			return this.dateLocaleModule.format(d, {
-				selector: "time",
-				timePattern: this.rowHeaderTimePattern
-			});
+			return this.rowHeaderTimePattern ? d.toFormat(this.rowHeaderTimePattern) :
+				d.toLocaleString(DateTime.TIME_SIMPLE);
 		},
 
 		// columnHeaderDatePattern: String
-		//		Custom date/time pattern for column header labels to override default one coming from the CLDR.
-		//		See dojo/date/locale documentation for format string.
+		//		Custom date/time pattern for column header labels.
 		columnHeaderDatePattern: null,
 
-		_formatColumnHeaderLabel: function (/*Date*/d) {
+		_formatColumnHeaderLabel: function (/*DateTime*/d) {
 			// summary:
 			//		Computes the column header label for the specified date.
 			//		By default a formatter is used, optionally the <code>columnHeaderDatePattern</code> property
 			//		can be used to set a custom date pattern to the formatter.
-			// d: Date
+			// d: DateTime
 			//		The date to format
 			// tags:
 			//		protected
 
-			return this.dateLocaleModule.format(d, {
-				selector: "date",
-				datePattern: this.columnHeaderDatePattern,
-				formatLength: "medium"
-			});
+			return this.columnHeaderDatePattern ? d.toFormat(this.columnHeaderDatePattern) :
+				d.toLocaleString(DateTime.DATE_MED);
 		},
 
 		//////////////////////////////////////////
@@ -360,9 +361,9 @@ define([
 		ensureVisibility: function (start, end, visibilityTarget, margin, duration) {
 			// summary:
 			//		Scrolls the view if the [start, end] time range is not visible or only partially visible.
-			// start: Date
+			// start: DateTime
 			//		Start time of the range of interest.
-			// end: Date
+			// end: DateTime
 			//		End time of the range of interest.
 			// margin: Integer
 			//		Margin in minutes around the time range.
@@ -376,8 +377,8 @@ define([
 
 			if (this.scrollable && this.autoScroll) {
 
-				var s = start.getHours() * 60 + start.getMinutes() - margin;
-				var e = end.getHours() * 60 + end.getMinutes() + margin;
+				var s = start.hour * 60 + start.minute - margin;
+				var e = end.hour * 60 + end.minute + margin;
 
 				var vs = this._getFirstVisibleTimeOfDay();
 				var ve = this._getLastVisibleTimeOfDay();
@@ -521,8 +522,7 @@ define([
 
 			if (this.yearColumnHeader) {
 				var d = this.dates[0];
-				this.yearColumnHeader.textContent = this.dateLocaleModule.format(d,
-					{selector: "date", datePattern: "yyyy"});
+				this.yearColumnHeader.textContent = d.toLocaleString({ year: "numeric" });
 			}
 		},
 
@@ -535,12 +535,12 @@ define([
 			//		- the CSS class corresponding of the displayed day of week ("Sun", "Mon" and so on).
 			// node: Node
 			//		The DOM node that displays the column in the grid.
-			// date: Date
+			// date: DateTime
 			//		The date displayed by this column
 			// tags:
 			//		protected
 
-			domClass.add(node, this._cssDays[date.getDay()]);
+			domClass.add(node, this._cssDays[date.weekday - 1]);
 
 			if (this.isToday(date)) {
 				domClass.add(node, "d-calendar-today");
@@ -622,7 +622,7 @@ define([
 			//		The cub column index.
 			// tags:
 			//		protected
-			domClass.add(node, this._cssDays[date.getDay()]);
+			domClass.add(node, this._cssDays[date.weekday - 1]);
 
 			if (this.isToday(date)) {
 				domClass.add(node, "d-calendar-today");
@@ -667,7 +667,6 @@ define([
 
 			// fill labels
 			var size = Math.ceil(this.hourSize / (60 / this.rowHeaderGridSlotDuration));
-			var d = new this.Date();
 
 			Array.prototype.forEach.call(parent.childNodes, function (child, i) {
 				child.className = "d-calendar-row-header-label";
@@ -683,8 +682,10 @@ define([
 			size = Math.ceil(this.hourSize / (60 / this.rowHeaderLabelSlotDuration));
 
 			Array.prototype.forEach.call(parent.childNodes, function (div, i) {
-				d.setHours(0);
-				d.setMinutes(this.minHours * 60 + (i * this.rowHeaderLabelSlotDuration));
+				var d = DateTime.local().set({
+					hour: 0,
+					minute: this.minHours * 60 + (i * this.rowHeaderLabelSlotDuration)
+				});
 				this._configureRowHeaderLabel(div, d, i, size * i);
 			}, this);
 
@@ -697,7 +698,7 @@ define([
 			//		Configures the label of a row header cell.
 			// node: DOMNode
 			//		The DOM node that is the parent of the label.
-			// d:Date
+			// d:DateTime
 			//		A date object that contains the hours and minutes displayed by this row header cell.
 			// index: Integer
 			//		The index of this row header cell
@@ -783,7 +784,7 @@ define([
 			//		- the CSS classes corresponfing to the time of day (e.g. "H14" and "M30" for for 2:30pm).
 			// node: Node
 			//		The DOM node that displays the cell in the grid.
-			// date: Date
+			// date: DateTime
 			//		The date displayed by this cell.
 			// hours: Integer
 			//		The hours part of time of day displayed by the start of this cell.
@@ -792,7 +793,7 @@ define([
 			// tags:
 			//		protected
 
-			domClass.add(node, [this._cssDays[date.getDay()], "H" + hours, "M" + minutes]);
+			domClass.add(node, [this._cssDays[date.weekday - 1], "H" + hours, "M" + minutes]);
 
 			if (this.isToday(date)) {
 				return domClass.add(node, "d-calendar-today");
@@ -879,14 +880,13 @@ define([
 
 		_layoutTimeIndicator: function () {
 			if (this.showTimeIndicator) {
-				var now = new this.Date();
+				var now = DateTime.local();
 
-				var visible = this.isOverlapping(this.startTime, this.endTime, now, now) &&
-					now.getHours() >= this.minHours &&
-					(now.getHours() * 60 + now.getMinutes() < this.maxHours * 60);
+				var visible = Interval.fromDateTimes(this.startTime, this.endTime).contains(now) &&
+					now.hour >= this.minHours &&
+					(now.hour * 60 + now.minute < this.maxHours * 60);
 
 				if (visible) {
-
 					if (!this._timeIndicator) {
 						this._timeIndicator = domConstruct.create("div",
 							{"className": "d-calendar-time-indicator"});
@@ -895,13 +895,12 @@ define([
 					var node = this._timeIndicator;
 
 					for (var column = 0; column < this.columnCount; column++) {
-						if (this.isSameDay(now, this.dates[column])) {
+						if (this.isToday(this.dates[column])) {
 							break;
 						}
 					}
 
-					var top = this.computeProjectionOnDate(this.floorToDay(now), now,
-						this.sheetHeight);
+					var top = this.computeProjectionOnDate(now.startOf("day"), now, this.sheetHeight);
 
 					if (top != this.sheetHeight) {
 						domStyle.set(node, {top: top + "px", display: "block"});
@@ -1003,7 +1002,7 @@ define([
 			return "vertical"; // String
 		},
 
-		_layoutInterval: function (/*Integer*/index, /*Date*/start, /*Date*/end,
+		_layoutInterval: function (/*Integer*/index, /*DateTime*/start, /*DateTime*/end,
 								   /*Object[]*/items, /*String*/itemsType) {
 			// tags:
 			//		private
@@ -1072,7 +1071,8 @@ define([
 		},
 
 		_layoutVerticalItems: function (/*Object*//*String*/ rendererKind, /*boolean*/ computeOverlap,
-										/*Integer*/index, /*Integer*/subIndex, /*Date*/startTime, /*Date*/endTime,
+										/*Integer*/index, /*Integer*/subIndex,
+										/*DateTime*/startTime, /*DateTime*/endTime,
 										/*Object[]*/items, /*String*/itemsType) {
 			// tags:
 			//		private
@@ -1171,10 +1171,7 @@ define([
 			// tags:
 			//		private
 
-			var res = this.dateModule.compare(a.startTime, b.startTime);
-			if (res === 0) {
-				res = -1 * this.dateModule.compare(a.endTime, b.endTime);
-			}
+			var res = (+a.startTime - +b.startTime) || (+b.endTime - +a.endTime);
 			return this.effectiveDir === "ltr" ? res : -res;
 		},
 
@@ -1232,7 +1229,7 @@ define([
 			//		used if event is not defined.
 			// touchIndex: Integer
 			//		If parameter 'e' is not null and a touch event, the index of the touch to use.
-			// returns: Date
+			// returns: DateTime
 
 			var o = this._getNormalizedCoords(e, x, y, touchIndex);
 			var t = this.getTimeOfDay(o.y, this);
@@ -1241,9 +1238,10 @@ define([
 
 			var date = null;
 			if (col < this.dates.length) {
-				date = this.floorToDay(this.dates[col]);
-				date.setHours(t.hours);
-				date.setMinutes(t.minutes);
+				date = this.dates[col].startOf("day").set({
+					hour: t.hours,
+					minute: t.minutes
+				});
 			}
 
 			return date;
@@ -1424,15 +1422,15 @@ define([
 
 				if (res) {
 					// test if time range is overlapping [maxHours, next day min hours]
-					var len = this.dateModule.difference(item.startTime, item.endTime, "millisecond");
+					var len = +item.endTime - +item.startTime;
 					var vLen = (24 - this.maxHours + this.minHours) * 3600000; // 60 * 60 * 1000, num ms in 1 minute
 
 					if (len > vLen) { // longer events are always visible
 						return true;
 					}
 
-					var sMin = item.startTime.getHours() * 60 + item.startTime.getMinutes();
-					var eMin = item.endTime.getHours() * 60 + item.endTime.getMinutes();
+					var sMin = item.startTime.hour * 60 + item.startTime.minute;
+					var eMin = item.endTime.hour * 60 + item.endTime.minute;
 					var sV = this.minHours * 60;
 					var eV = this.maxHours * 60;
 
@@ -1456,46 +1454,47 @@ define([
 				var endTime = item.endTime;
 
 				// test if time range is overlapping [maxHours, next day min hours]
-				var cal = this.dateModule;
 
-				var len = Math.abs(cal.difference(item.startTime, item.endTime, "millisecond"));
+				var len = Math.abs(+item.endTime - +item.startTime);
 				var vLen = (24 - this.maxHours + this.minHours) * 3600000;
 
 				if (len > vLen) { // longer events are always visible
 					return false;
 				}
 
-				var sMin = startTime.getHours() * 60 + startTime.getMinutes();
-				var eMin = endTime.getHours() * 60 + endTime.getMinutes();
+				var sMin = startTime.hour * 60 + startTime.minute;
+				var eMin = endTime.hour * 60 + endTime.minute;
 				var sV = this.minHours * 60;
 				var eV = this.maxHours * 60;
 
 				if (sMin > 0 && sMin < sV) {
-					item.startTime = this.floorToDay(item.startTime);
-					item.startTime.setHours(this.minHours);
-					item.endTime = cal.add(item.startTime, "millisecond", len);
+					item.startTime = item.startTime.startOf("day").set({
+						hour: this.minHours
+					});
+					item.endTime = item.startTime.plus({ millisecond: len });
 					fixed = true;
 				} else if (sMin > eV && sMin <= 1440) {
 					// go on next visible time
-					item.startTime = this.floorToDay(item.startTime);
-					item.startTime = cal.add(item.startTime, "day", 1);
+					item.startTime = item.startTime.startOf("day").plus({ day: 1 }).set({
+						hour: this.minHours
+					});
 					// if we are going out of the view, the super() will fix it
-					item.startTime.setHours(this.minHours);
-					item.endTime = cal.add(item.startTime, "millisecond", len);
+					item.endTime = item.startTime.plus({ millisecond: len });
 					fixed = true;
 				}
 
 				if (eMin > 0 && eMin < sV) {
 					// go on previous day
-					item.endTime = this.floorToDay(item.endTime);
-					item.endTime = cal.add(item.endTime, "day", -1);
-					item.endTime.setHours(this.maxHours);
-					item.startTime = cal.add(item.endTime, "millisecond", -len);
+					item.endTime = item.endTime.startOf("day").minus({ day: 1 }).set({
+						hour: this.maxHours
+					});
+					item.startTime = item.endTime.minus({ millisecond: len });
 					fixed = true;
 				} else if (eMin > eV && eMin <= 1440) {
-					item.endTime = this.floorToDay(item.endTime);
-					item.endTime.setHours(this.maxHours);
-					item.startTime = cal.add(item.endTime, "millisecond", -len);
+					item.endTime = item.endTime.startOf("day").set({
+						hour: this.maxHours
+					});
+					item.startTime = item.endTime.minus({ millisecond: len });
 					fixed = true;
 				}
 

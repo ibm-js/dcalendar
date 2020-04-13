@@ -9,10 +9,11 @@
 	"bugs": "https://github.com/ibm-js/dcalendar/issues",
 	"dependencies": {
 		"dcl": "^2.0.6",
-		"ibm-decor": "0.8.x",
 		"delite": "^0.9.5",
-		"deliteful": "^0.9.6",
+		"deliteful": "^0.9.7",
 		"dojo": "^1.16.2",
+		"ibm-decor": "0.8.x",
+		"luxon": "^1.23.0",
 		"requirejs-domready": "2.0.x",
 		"requirejs-dplugins": "0.6.x"
 	},

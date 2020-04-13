@@ -62,7 +62,7 @@ define([
 			configurable: true
 		}),
 
-		// date: Date
+		// date: DateTime
 		//		The date displayed by the cell where this renderer is used.
 		date: null,
 

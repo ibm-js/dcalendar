@@ -27,20 +27,23 @@
         <script type="text/javascript">
             require({
                 baseUrl: "../node_modules",
-                packages: [
-                    { name: "dcalendar", location: ".." },
-                    { name: "demo", location: "../tests" }
-                ]
+                paths: {
+                    dcalendar: "..",
+                    luxon: "../node_modules/luxon/build/amd/luxon",
+                    demo: "../tests"
+                }
             }, [
                 "dojo/_base/lang", "dojo/_base/fx",
                 "dojo/parser", "dojo/dom",
                 "demo/TrackableMemoryStore",
+                "luxon",
                 "dcalendar/Calendar", "demo/DatePicker", "dijit/TitlePane",
                 "dijit/layout/BorderContainer", "dijit/layout/ContentPane", "dijit/form/CheckBox",
                 "dijit/form/TextBox", "dijit/form/DateTextBox", "dijit/form/TimeTextBox",
                 "dijit/form/Button", "dijit/form/ComboBox", "dijit/Menu", "dijit/MenuItem", "requirejs-domready/domReady!"
-            ], function (lang, fx, parser, dom,
-                         TrackableMemoryStore) {
+            ], function (lang, fx, parser, dom, TrackableMemoryStore, luxon) {
+
+                var DateTime = luxon.DateTime;
 
                 // for BorderContainer etc.
                 parser.parse();
@@ -81,9 +84,7 @@
                     {day: 4, start: [10, 10], duration: 360, type: "decoration"}
                 ];
 
-                var Date = calendar.Date;
-
-                var startOfWeek = calendar.floorToWeek(new Date());
+                var startOfWeek = calendar.floorToWeek(DateTime.local());
 
                 var createModel = function (modelTemplate) {
                     var someData = [];
@@ -94,17 +95,18 @@
                         var newObj = {
                             id: id,
                             summary: "New Event " + id,
-                            startTime: new Date(startOfWeek.getTime()),
-                            endTime: new Date(startOfWeek.getTime()),
+                            startTime: startOfWeek,
+                            endTime: startOfWeek,
                             calendar: evtTmpl.calendar,
                             allDay: evtTmpl.allDay
                         };
 
-                        newObj.startTime = calendar.dateModule.add(newObj.startTime, "day", evtTmpl.day);
-                        newObj.startTime.setHours(evtTmpl.start[0]);
-                        newObj.startTime.setMinutes(evtTmpl.start[1]);
+                        newObj.startTime = newObj.startTime.plus({ day: evtTmpl.day }).set({
+                            hour: evtTmpl.start[0],
+                            minute: evtTmpl.start[1]
+                        });
 
-                        newObj.endTime = calendar.dateModule.add(newObj.startTime, "minute", evtTmpl.duration);
+                        newObj.endTime = newObj.startTime.plus({ minute: evtTmpl.duration });
 
                         someData.push(newObj);
                     }
@@ -133,14 +135,13 @@
                     // create a new event
                     var start, end;
                     var colView = calendar.columnView;
-                    var cal = calendar.dateModule;
 
                     if (view == colView) {
                         start = calendar.floorDate(d, "minute", colView.timeSlotDuration);
-                        end = cal.add(start, "minute", colView.timeSlotDuration);
+                        end = start.plus({ minute: colView.timeSlotDuration });
                     } else {
-                        start = calendar.floorToDay(d);
-                        end = cal.add(start, "day", 1);
+                        start = d.startOf("day");
+                        end = start.plus({ day: 1 });
                     }
 
                     var item = {
@@ -168,7 +169,7 @@
                             item.cssClass == "Calendar2" && calendarVisibility[1]) {
                         return this._defaultItemToRendererKindFunc(item);
                     }
-                    return null
+                    return null;
                 };
 
                 calendar.on("delite-add-child", function (child){
@@ -210,7 +211,6 @@
                     editedItem = itemNull ? null : lang.mixin({}, item);
 
                     if (!itemNull) {
-
                         var allDay = item.allDay === true;
 
                         itemStartTimeEditor.set("disabled", allDay);

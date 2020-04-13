@@ -239,6 +239,9 @@ define([
 				steps = -steps;
 			}
 
+			var increment = {};
+			increment[unit] = steps;
+
 			var editKind = e[this.resizeModifier + "Key"] ? "resizeEnd" : "move";
 
 			var d = editKind == "resizeEnd" ? p.editedItem.endTime : p.editedItem.startTime;
@@ -266,11 +269,11 @@ define([
 						}
 					}
 					if (updateTime) {
-						newTime = this.dateModule.add(d, unit, steps);
+						newTime = d.plus(increment);
 					}
 				}
 			} else {
-				newTime = this.dateModule.add(d, unit, steps);
+				newTime = d.plus(increment);
 			}
 
 			this._startItemEditingGesture([d], editKind, "keyboard", e);
@@ -278,7 +281,7 @@ define([
 			this._endItemEditingGesture(editKind, "keyboard", e, false);
 
 			if (editKind == "move") {
-				if (this.dateModule.compare(newTime, d) == -1) {
+				if (newTime < d) {
 					this.ensureVisibility(p.editedItem.startTime, p.editedItem.endTime, "start");
 				} else {
 					this.ensureVisibility(p.editedItem.startTime, p.editedItem.endTime, "end");
