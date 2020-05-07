@@ -1,7 +1,7 @@
 {
 	"name": "ibm-dcalendar",
 	"description": "Calendar application/library built on ibm-js/delite framework.  Ported from dojo-calendar.",
-	"version": "0.2.4",
+	"version": "0.2.5",
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/ibm-js/dcalendar"
