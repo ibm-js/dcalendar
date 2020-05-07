@@ -8,23 +8,23 @@
 	},
 	"bugs": "https://github.com/ibm-js/dcalendar/issues",
 	"dependencies": {
-		"dcl": "^2.0.6",
-		"delite": "^0.9.5",
-		"deliteful": "^0.9.7",
+		"dcl": "^2.0.11",
+		"delite": "^0.9.7",
+		"deliteful": "^0.9.8",
 		"dojo": "^1.16.2",
-		"ibm-decor": "0.8.x",
-		"luxon": "^1.23.0",
-		"requirejs-domready": "2.0.x",
-		"requirejs-dplugins": "0.6.x"
+		"ibm-decor": "^0.8.1",
+		"luxon": "^1.24.1",
+		"requirejs-dplugins": "0.7.x"
 	},
 	"devDependencies": {
-		"dijit": "1.14.x",
-		"dojo-util": "1.16.x",
-		"grunt": "^1.0.4",
+		"dijit": "^1.14.6",
+		"dojo-util": "^1.16.2",
+		"grunt": "^1.1.0",
 		"grunt-contrib-jshint": "^2.1.0",
 		"grunt-contrib-less": "^2.0.0",
 		"grunt-contrib-uglify": "^4.0.1",
-		"requirejs": "2.1.x"
+		"requirejs": "2.1.x",
+		"requirejs-domready": "2.0.x"
 	},
 	"licenses": [
 		{
