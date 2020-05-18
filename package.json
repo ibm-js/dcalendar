@@ -10,7 +10,7 @@
 	"dependencies": {
 		"dcl": "^2.0.11",
 		"delite": "^0.9.7",
-		"deliteful": "^0.9.8",
+		"deliteful": "^0.10.0",
 		"dojo": "^1.16.2",
 		"ibm-decor": "^0.8.1",
 		"luxon": "^1.24.1",
