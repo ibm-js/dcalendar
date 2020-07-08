@@ -1,6 +1,6 @@
 define([
 	"dcl/dcl",
-	"luxon",
+	"luxon/datetime",
 	"dojo/_base/lang",
 	"dojo/dom-class",
 	"dojo/dom-style",
@@ -12,7 +12,7 @@ define([
 	"dojo/i18n!./nls/buttons"
 ], function (
 	dcl,
-	luxon,
+	DateTime,
 	lang,
 	domClass,
 	domStyle,
@@ -23,8 +23,6 @@ define([
 	TimeBase,
 	_nls
 ) {
-	var DateTime = luxon.DateTime;
-
 	/*=====
 	var __HeaderClickEventArgs = {
 		// summary:

@@ -29,22 +29,19 @@
                 baseUrl: "../node_modules",
                 paths: {
                     dcalendar: "..",
-                    luxon: "../node_modules/luxon/build/amd/luxon",
+                    luxon: "../node_modules/luxon/src",
                     demo: "../tests"
                 }
             }, [
                 "dojo/_base/lang", "dojo/_base/fx",
                 "dojo/parser", "dojo/dom",
                 "demo/TrackableMemoryStore",
-                "luxon",
+                "luxon/datetime",
                 "dcalendar/Calendar", "demo/DatePicker", "dijit/TitlePane",
                 "dijit/layout/BorderContainer", "dijit/layout/ContentPane", "dijit/form/CheckBox",
                 "dijit/form/TextBox", "dijit/form/DateTextBox", "dijit/form/TimeTextBox",
                 "dijit/form/Button", "dijit/form/ComboBox", "dijit/Menu", "dijit/MenuItem", "requirejs-domready/domReady!"
-            ], function (lang, fx, parser, dom, TrackableMemoryStore, luxon) {
-
-                var DateTime = luxon.DateTime;
-
+            ], function (lang, fx, parser, dom, TrackableMemoryStore, DateTime) {
                 // for BorderContainer etc.
                 parser.parse();
 

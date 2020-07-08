@@ -1,6 +1,7 @@
 define([
 	"dcl/dcl",
-	"luxon",
+	"luxon/datetime",
+	"luxon/interval",
 	"dojo/_base/lang",
 	"ibm-decor/sniff",
 	"dojo/dom-style",
@@ -13,7 +14,8 @@ define([
 	"./RendererManager"
 ], function (
 	dcl,
-	luxon,
+	DateTime,
+	Interval,
 	lang,
 	has,
 	domStyle,
@@ -25,10 +27,6 @@ define([
 	TimeBase,
 	RendererManager
 ) {
-
-	var DateTime = luxon.DateTime,
-		Interval = luxon.Interval;
-
 	/*=====
 	 var __GridClickEventArgs = {
 		 // summary:

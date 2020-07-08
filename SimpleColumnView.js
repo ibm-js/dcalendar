@@ -1,6 +1,7 @@
 define([
 	"dcl/dcl",
-	"luxon",
+	"luxon/datetime",
+	"luxon/interval",
 	"./ViewBase",
 	"delite/handlebars!./templates/ColumnView.html",
 	"delite/register",
@@ -18,7 +19,8 @@ define([
 	"requirejs-dplugins/css!./css/ColumnView_rtl.css"
 ], function (
 	dcl,
-	luxon,
+	DateTime,
+	Interval,
 	ViewBase,
 	template,
 	register,
@@ -33,10 +35,6 @@ define([
 	domConstruct,
 	metrics
 ) {
-
-	var DateTime = luxon.DateTime,
-		Interval = luxon.Interval;
-
 	/*=====
 	 var __ColumnClickEventArgs = {
 		 // summary:

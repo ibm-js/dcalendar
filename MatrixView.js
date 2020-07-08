@@ -1,6 +1,6 @@
 define([
 	"dcl/dcl",
-	"luxon",
+	"luxon/datetime",
 	"delite/register",
 	"dojo/_base/lang",
 	"requirejs-dplugins/has",
@@ -18,7 +18,7 @@ define([
 	"requirejs-dplugins/css!./css/MatrixView_rtl.css"
 ], function (
 	dcl,
-	luxon,
+	DateTime,
 	register,
 	lang,
 	has,
@@ -32,10 +32,7 @@ define([
 	domConstruct,
 	ViewBase,
 	template
-) {
-	var DateTime = luxon.DateTime;
-
-	/*=====
+) {/*=====
 	 var __HeaderClickEventArgs = {
 		 // summary:
 		 //		A column click event.

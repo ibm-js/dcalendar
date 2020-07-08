@@ -1,6 +1,6 @@
 define([
 	"dcl/dcl",
-	"luxon",
+	"luxon/datetime",
 	"./ViewBase",
 	"delite/handlebars!./templates/MonthColumnView.html",
 	"delite/register",
@@ -20,7 +20,7 @@ define([
 	"requirejs-dplugins/css!./css/MonthColumnView_rtl.css"
 ], function (
 	dcl,
-	luxon,
+	DateTime,
 	ViewBase,
 	template,
 	register,
@@ -37,9 +37,6 @@ define([
 	mouse,
 	metrics
 ) {
-
-	var DateTime = luxon.DateTime;
-
 	/*=====
 	 var __ColumnClickEventArgs = {
 		 // summary:
