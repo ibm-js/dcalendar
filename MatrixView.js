@@ -14,8 +14,7 @@ define([
 	"dojo/dom-construct",
 	"./ViewBase",
 	"delite/handlebars!./templates/MatrixView.html",
-	"requirejs-dplugins/css!./css/MatrixView.css",
-	"requirejs-dplugins/css!./css/MatrixView_rtl.css"
+	"requirejs-dplugins/css!./css/MatrixView.css"
 ], function (
 	dcl,
 	luxon,

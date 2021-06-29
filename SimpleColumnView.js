@@ -14,8 +14,7 @@ define([
 	"dojo/dom-geometry",
 	"dojo/dom-construct",
 	"./metrics",
-	"requirejs-dplugins/css!./css/ColumnView.css",
-	"requirejs-dplugins/css!./css/ColumnView_rtl.css"
+	"requirejs-dplugins/css!./css/ColumnView.css"
 ], function (
 	dcl,
 	luxon,

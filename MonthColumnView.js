@@ -16,8 +16,7 @@ define([
 	"dojo/dom-construct",
 	"dojo/mouse",
 	"./metrics",
-	"requirejs-dplugins/css!./css/MonthColumnView.css",
-	"requirejs-dplugins/css!./css/MonthColumnView_rtl.css"
+	"requirejs-dplugins/css!./css/MonthColumnView.css"
 ], function (
 	dcl,
 	luxon,
